@@ -76,7 +76,7 @@ namespace src.player.skills
             enemy.ReplicateConVar("sv_disable_radar", "1");
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("glitch_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("glitch_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("glitch_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

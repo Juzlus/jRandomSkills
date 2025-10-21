@@ -2,14 +2,15 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.utils;
+using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
-using System.Collections.Concurrent;
-using src.utils;
 
 namespace src.player
 {
@@ -66,6 +67,9 @@ namespace src.player
 
             Instance.HookUserMessage(208, PlayerMakeSound);
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
+
+            VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post);
+            VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Post);
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -251,6 +255,34 @@ namespace src.player
                 foreach (var playerSkill in Instance.SkillPlayer)
                     if (!playerSkill.IsDrawing)
                         Instance.SkillAction(playerSkill.Skill.ToString(), "OnTakeDamage", [h]);
+                return HookResult.Continue;
+            }
+        }
+
+        private static HookResult OnTriggerEnter(DynamicHook hook)
+        {
+            lock (setLock)
+            {
+                CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
+                CBaseEntity entity = hook.GetParam<CBaseEntity>(1);
+
+                foreach (var playerSkill in Instance.SkillPlayer)
+                    if (!playerSkill.IsDrawing)
+                        Instance.SkillAction(playerSkill.Skill.ToString(), "OnTriggerEnter", [trigger, entity]);
+                return HookResult.Continue;
+            }
+        }
+
+        private static HookResult OnTriggerExit(DynamicHook hook)
+        {
+            lock (setLock)
+            {
+                                CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
+                CBaseEntity entity = hook.GetParam<CBaseEntity>(1);
+
+                foreach (var playerSkill in Instance.SkillPlayer)
+                    if (!playerSkill.IsDrawing)
+                        Instance.SkillAction(playerSkill.Skill.ToString(), "OnTriggerExit", [trigger, entity]);
                 return HookResult.Continue;
             }
         }
@@ -461,9 +493,10 @@ namespace src.player
             lock (setLock)
             {
                 string? button = Config.LoadedConfig.AlternativeSkillButton;
-                if (string.IsNullOrEmpty(button)) return;
+                if (string.IsNullOrEmpty(button) || button.Length < 2) return;
+                string buttonName = $"{char.ToUpper(button[0])}{button[1..].ToLower()}";
 
-                if (Enum.TryParse<PlayerButtons>(button, out var skillButton))
+                if (Enum.TryParse<PlayerButtons>(buttonName, out var skillButton))
                 {
                     if (pressed != skillButton) return;
                 }
@@ -605,6 +638,7 @@ namespace src.player
                         Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
 
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
+                    skillPlayer.SkillHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillHudDuration);
                     skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
 
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)

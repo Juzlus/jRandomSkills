@@ -57,7 +57,7 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
-            SkillUtils.CreateMenu(player, [(player.GetTranslation("bombsite_a"), "a")], (player.GetTranslation("bombsite_b"), "b"));
+            SkillUtils.CreateMenu(player, [(player.GetTranslation("bombsite_a"), "a")], (player.GetTranslation("bombsite_b"), "b", true));
         }
 
         public static void DisableSkill(CCSPlayerController player)

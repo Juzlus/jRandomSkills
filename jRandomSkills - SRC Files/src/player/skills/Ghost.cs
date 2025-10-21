@@ -70,8 +70,12 @@ namespace src.player.skills
                 if (player == null) continue;
                 foreach ((var playerId, var itemList) in invisibleEntities)
                     if (player.SteamID !=  playerId)
-                        foreach (var item in itemList)
-                            info.TransmitEntities.Remove(item);
+                        foreach (var entityIndex in itemList)
+                        {
+                            var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
+                            if (entity == null || !entity.IsValid) continue;
+                            info.TransmitEntities.Remove(entity.Index);
+                        }
             }
         }
 

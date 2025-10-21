@@ -77,7 +77,7 @@ namespace src.player.skills
 
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("magnifier_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("magnifier_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("magnifier_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

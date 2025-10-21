@@ -41,6 +41,9 @@ public interface ISkill
     public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate _) { }
     public static void SmokegrenadeExpired(EventSmokegrenadeExpired _) { }
 
+    public static void OnTriggerEnter(CBaseTrigger _, CBaseEntity __) { }
+    public static void OnTriggerExit(CBaseTrigger _, CBaseEntity __) { }
+
     public class SkillConfig { }
 }
 

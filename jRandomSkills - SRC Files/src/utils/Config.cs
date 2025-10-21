@@ -77,6 +77,7 @@ namespace src.utils
             public bool DebugMode { get; set; }
             public string? AlternativeSkillButton { get; set; }
             public float SkillTimeBeforeStart { get; set; }
+            public float SkillHudDuration { get; set; }
             public float SkillDescriptionDuration { get; set; }
             public bool DisplayAlwaysDescription { get; set; }
             public bool DisableSpectateHUD { get; set; }
@@ -99,6 +100,7 @@ namespace src.utils
                 DebugMode = true;
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
+                SkillHudDuration = 999;
                 SkillDescriptionDuration = 7;
                 DisplayAlwaysDescription = false;
                 FlashingHtmlHudFix = true;

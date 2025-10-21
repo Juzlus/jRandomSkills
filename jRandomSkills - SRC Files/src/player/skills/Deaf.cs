@@ -73,7 +73,7 @@ namespace src.player.skills
             deafPlayers.TryAdd(enemy, 0);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("deaf_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("deaf_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("deaf_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

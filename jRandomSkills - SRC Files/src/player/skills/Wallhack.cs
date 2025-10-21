@@ -35,8 +35,14 @@ namespace src.player.skills
                     if (glow.Item3 != player.Team && (playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName)))
                         continue;
 
-                    info.TransmitEntities.Remove(glow.Item1);
-                    info.TransmitEntities.Remove(glow.Item2);
+                    var glowEntity1 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glow.Item1.Index);
+                    if (glowEntity1 == null || !glowEntity1.IsValid) continue;
+
+                    var glowEntity2 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glow.Item2.Index);
+                    if (glowEntity2 == null || !glowEntity2.IsValid) continue;
+
+                    info.TransmitEntities.Remove(glowEntity1.Index);
+                    info.TransmitEntities.Remove(glowEntity2.Index);
                 }
             }
         }

@@ -86,22 +86,12 @@ namespace src.player.skills
                 {
                     skillInfo.CanUse = false;
                     skillInfo.Cooldown = DateTime.Now;
-                    playerPawn.Teleport(GetEnemySpawnVector(player));
+
+                    var spawnpoint = SkillUtils.GetSpawnPointVector(player, true);
+                    if (spawnpoint == null) return;
+                    playerPawn.Teleport(spawnpoint);
                 }
             }
-        }
-
-        private static Vector GetEnemySpawnVector(CCSPlayerController player)
-        {
-            var abs = player!.PlayerPawn!.Value?.AbsOrigin;
-            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(player.Team == CsTeam.CounterTerrorist ? "info_player_terrorist" : "info_player_counterterrorist").ToList();
-            if (spawns.Count != 0)
-            {
-                var randomSpawn = spawns[Instance.Random.Next(spawns.Count)];
-                if (randomSpawn.AbsOrigin != null)
-                    return randomSpawn.AbsOrigin;
-            }
-            return abs == null ? new Vector(0, 0, 0) : new Vector(abs.X, abs.Y, abs.Z);
         }
 
         public class PlayerSkillInfo

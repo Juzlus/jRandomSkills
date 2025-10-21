@@ -106,6 +106,7 @@ namespace src
         public Skills SpecialSkill { get; set; }
         public float? SkillChance { get; set; }
         public bool IsDrawing { get; set; }
+        public DateTime SkillHudExpired { get; set; }
         public DateTime SkillDescriptionHudExpired { get; set; }
         public string? PrintHTML { get; set; }
         public bool DisplayHUD { get; set; }

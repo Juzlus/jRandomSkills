@@ -49,7 +49,7 @@ namespace src.player
         {
             if (player == null) return;
             var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
+            if (skillPlayer == null || !skillPlayer.DisplayHUD || (player.PawnIsAlive && skillPlayer.SkillHudExpired < DateTime.Now)) return;
 
             string infoLine = "";
             string skillLine = "";

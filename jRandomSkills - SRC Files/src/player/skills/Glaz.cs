@@ -47,8 +47,12 @@ namespace src.player.skills
                 var observerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer?.SteamID);
 
                 if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName) continue;
-                foreach (var smoke in smokes.Keys)
-                    info.TransmitEntities.Remove(smoke);
+                foreach (var entityIndex in smokes.Keys)
+                {
+                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
+                    if (entity == null || !entity.IsValid) continue;
+                    info.TransmitEntities.Remove(entity.Index);
+                }
             }
         }
 

@@ -62,7 +62,7 @@ namespace src.player.skills
             ResetMoney(enemy);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("bankrupt_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("bankrupt_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("bankrupt_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

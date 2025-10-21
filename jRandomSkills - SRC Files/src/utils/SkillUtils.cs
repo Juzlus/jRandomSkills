@@ -81,11 +81,25 @@ namespace src.utils
             if (player == null || !player.IsValid) return;
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.CBodyComponent == null || playerPawn.CBodyComponent.SceneNode == null) return;
-            if (scale <= 0) return;
+            var skeleton = playerPawn.CBodyComponent.SceneNode.GetSkeletonInstance();
+            if (scale <= 0 || skeleton == null) return;
 
-            playerPawn.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = scale;
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
-            Server.NextFrame(() => playerPawn.AcceptInput("SetScale", null, null, scale.ToString()));
+            skeleton.Scale = scale;
+            playerPawn.AcceptInput("SetScale", null, null, scale.ToString());
+            Server.NextFrame(() => Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent"));
+        }
+
+        public static Vector? GetSpawnPointVector(CCSPlayerController player, bool enemySpawn = false)
+        {
+            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(player.Team == CsTeam.Terrorist && !enemySpawn
+                ? "info_player_terrorist" : "info_player_counterterrorist").ToList();
+            if (spawns.Count != 0)
+            {
+                var randomSpawn = spawns[jRandomSkills.Instance.Random.Next(spawns.Count)];
+                if (randomSpawn != null && randomSpawn.IsValid && randomSpawn.AbsOrigin != null)
+                    return randomSpawn.AbsOrigin;
+            }
+            return null;
         }
 
         public static void CreateHEGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
@@ -122,6 +136,38 @@ namespace src.utils
             var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
             if (playerInfo == null) return;
             playerInfo.PrintHTML = null;
+        }
+
+        public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos)
+        {
+            if (pos == null) return null;
+
+            var trigger = Utilities.CreateEntityByName<CTriggerMultiple>("trigger_multiple");
+            if (trigger == null || trigger.AbsOrigin == null) return null;
+
+            trigger.Collision.SolidType = SolidType_t.SOLID_CAPSULE;
+            trigger.Collision.SolidFlags = 0;
+            trigger.Spawnflags = 1;
+            trigger.Globalname = $"{name}_{trigger.Index}";
+            trigger.Collision.SolidFlags = 1;
+
+            trigger.AbsOrigin.X = pos.X;
+            trigger.AbsOrigin.Y = pos.Y;
+            trigger.AbsOrigin.Z = pos.Z;
+
+            trigger.Collision.CapsuleRadius = radius;
+            trigger.Collision.BoundingRadius = radius;
+
+            trigger.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_TRIGGER;
+            trigger.Collision.EnablePhysics = 1;
+            trigger.Collision.TriggerBloat = 0;
+
+            trigger.Collision.SurroundType = SurroundingBoundsType_t.USE_OBB_COLLISION_BOUNDS;
+            trigger.Collision.CollisionAttribute.CollisionFunctionMask = 39;
+            trigger.Collision.CollisionAttribute.CollisionGroup = 2;
+
+            trigger.DispatchSpawn();
+            return trigger;
         }
 
         public static void AddHealth(CCSPlayerPawn? pawn, int extraHealth, int maxHealth = 100)
@@ -197,7 +243,7 @@ namespace src.utils
             manager.UpdateActiveMenu(player, list);
         }
 
-        public static void CreateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> enemies, (string, string)? lastElement = null)
+        public static void CreateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> enemies, (string, string, bool)? lastElement = null)
         {
             if (player == null || !player.IsValid) return;
 
@@ -246,7 +292,8 @@ namespace src.utils
                 menu.Add(lastElement.Value.Item1, (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
-                    manager.CloseMenu(p);
+                    if (lastElement.Value.Item3)
+                        manager.CloseMenu(p);
                 });
             manager.OpenMainMenu(player, menu);
         }

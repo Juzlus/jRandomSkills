@@ -41,8 +41,12 @@ namespace src.player.skills
                 return;
             }
 
-            if (skill.Skill == skillName)
-                TakeMoney(player);
+            if (skill.Skill == skillName && !TakeMoney(player))
+            {
+                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("gambler_no_money"));
+                return;
+            }
+
             Instance.AddTimer(.1f, () =>
             {
                 playerInfo.Skill = skill.Skill;
@@ -60,12 +64,19 @@ namespace src.player.skills
             });
         }
 
-        private static void TakeMoney(CCSPlayerController player)
+        private static bool TakeMoney(CCSPlayerController player)
         {
-            if (player == null || !player.IsValid || player.InGameMoneyServices == null) return;
-            var account = player.InGameMoneyServices.Account;
-            player.InGameMoneyServices.Account = Math.Max(0, account - SkillsInfo.GetValue<int>(skillName, "refreshPrice"));
+            if (player == null || !player.IsValid || player.InGameMoneyServices == null) return false;
+            int account = player.InGameMoneyServices.Account;
+            int refreshPrice = SkillsInfo.GetValue<int>(skillName, "refreshPrice");
+
+            int remainingMoney = account - refreshPrice;
+            if (remainingMoney < 0)
+                return false;
+
+            player.InGameMoneyServices.Account = remainingMoney;
             Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            return true;
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -81,7 +92,7 @@ namespace src.player.skills
 
             ConcurrentBag<(string, string)> menuItems = [(player.GetSkillName(firstSkill.Skill), firstSkill.Skill.ToString()),
                                                    (player.GetSkillName(secondSkill.Skill), secondSkill.Skill.ToString())];
-            SkillUtils.CreateMenu(player, menuItems, (player.GetTranslation("gambler_more", SkillsInfo.GetValue<int>(skillName, "refreshPrice")), skillName.ToString()));
+            SkillUtils.CreateMenu(player, menuItems, (player.GetTranslation("gambler_more", SkillsInfo.GetValue<int>(skillName, "refreshPrice")), skillName.ToString(), false));
         }
 
         public static void DisableSkill(CCSPlayerController player)

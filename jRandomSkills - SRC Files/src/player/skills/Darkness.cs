@@ -81,7 +81,7 @@ namespace src.player.skills
             SetUpPostProcessing(enemy);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("darkness_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("darkness_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("darkness_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

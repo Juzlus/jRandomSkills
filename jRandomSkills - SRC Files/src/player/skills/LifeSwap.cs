@@ -62,7 +62,7 @@ namespace src.player.skills
             SwapHealth(player, enemy);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("lifeswap_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("lifeswap_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("lifeswap_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

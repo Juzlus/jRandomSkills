@@ -46,10 +46,15 @@ namespace src.player.skills
                     var observerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer?.SteamID);
 
                     foreach (var beam in beams)
+                    {
+                        var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)beam.Index);
+                        if (entity == null || !entity.IsValid) continue;
+
                         if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName)
-                            info.TransmitEntities.Remove(beam);
+                            info.TransmitEntities.Remove(entity.Index);
                         else if (enemy.Team == player.Team)
-                            info.TransmitEntities.Remove(beam);
+                            info.TransmitEntities.Remove(beam.Index);
+                    }
                 }
             }
         }

@@ -83,7 +83,7 @@ namespace src.player.skills
             CheckWeapon(enemy);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("primaryban_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("primaryban_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("primaryban_enemy_info"));
         }
 
         private static void CheckWeapon(CCSPlayerController player)

@@ -114,7 +114,7 @@ namespace src.player.skills
                 Instance.SkillAction(enemyInfo.Skill.ToString(), "DisableSkill", [enemy]);
                 enemyInfo.SpecialSkill = enemyInfo.Skill;
                 enemyInfo.Skill = Skills.None;
-                enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("deactivator_enemy_info"));
+                enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("deactivator_enemy_info"));
             }
         }
 

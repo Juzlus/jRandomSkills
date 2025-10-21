@@ -40,9 +40,10 @@ namespace src.player.skills
             {
                 secondLifePlayers.TryAdd(victim.Handle, 0);
                 SetHealth(victim, SkillsInfo.GetValue<int>(skillName, "startHealth"));
-                var spawn = GetSpawnVector(victim);
-                if (spawn != null)
-                    victimPawn.Teleport(spawn, victimPawn.AbsRotation, null);
+
+                var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
+                if (spawnpoint == null) return;
+                victimPawn.Teleport(spawnpoint, victimPawn.AbsRotation, null);
             }
         }
 
@@ -68,21 +69,6 @@ namespace src.player.skills
 
             pawn.ArmorValue = 0;
             Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
-        }
-
-        private static Vector? GetSpawnVector(CCSPlayerController player)
-        {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return null;
-            
-            var abs = pawn.AbsOrigin;
-            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(player.Team == CsTeam.Terrorist ? "info_player_terrorist" : "info_player_counterterrorist").ToList();
-            if (spawns.Count != 0)
-            {
-                var randomSpawn = spawns[Instance.Random.Next(spawns.Count)];
-                return randomSpawn.AbsOrigin;
-            }
-            return abs == null ? null : new Vector(abs.X, abs.Y, abs.Z);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, int startHealth = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)

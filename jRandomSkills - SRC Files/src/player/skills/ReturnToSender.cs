@@ -35,26 +35,16 @@ namespace src.player.skills
             if (playersToSender.ContainsKey(victim!.Handle))
                 return;
 
-            var spawn = GetSpawnVector(victim);
-            if (spawn == null) return;
-            victim!.PlayerPawn!.Value!.Teleport(spawn);
+            var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
+            if (spawnpoint == null) return;
+
+            victim!.PlayerPawn!.Value!.Teleport(spawnpoint);
             playersToSender.TryAdd(victim.Handle, 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             playersToSender.TryRemove(player.Handle, out _);
-        }
-
-        private static Vector? GetSpawnVector(CCSPlayerController player)
-        {
-            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(player.Team == CsTeam.Terrorist ? "info_player_terrorist" : "info_player_counterterrorist").ToList();
-            if (spawns.Count != 0)
-            {
-                var randomSpawn = spawns[Instance.Random.Next(spawns.Count)];
-                return randomSpawn.AbsOrigin;
-            }
-            return null;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a68132", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)

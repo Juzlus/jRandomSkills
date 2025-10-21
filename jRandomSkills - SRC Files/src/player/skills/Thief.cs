@@ -152,7 +152,7 @@ namespace src.player.skills
                 Instance.SkillAction(enemySkill.ToString(), "DisableSkill", [enemy]);
                 enemyInfo.SpecialSkill = enemySkill;
                 enemyInfo.Skill = Skills.None;
-                enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("thief_enemy_info"));
+                enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("thief_enemy_info"));
             });
         }
 

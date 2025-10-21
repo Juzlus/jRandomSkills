@@ -81,7 +81,7 @@ namespace src.player.skills
             bannedPlayers.AddOrUpdate(enemy.PlayerPawn.Value, 0, (k, v) => 0);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("jumpban_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("jumpban_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("jumpban_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

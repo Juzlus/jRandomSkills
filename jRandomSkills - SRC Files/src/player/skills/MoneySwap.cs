@@ -62,7 +62,7 @@ namespace src.player.skills
             SwapMoney(player, enemy);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("moneyswap_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("moneyswap_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("moneyswap_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

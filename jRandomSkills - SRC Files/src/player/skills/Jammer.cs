@@ -71,7 +71,7 @@ namespace src.player.skills
             SetCrosshair(enemy, false);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("jammer_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("jammer_enemy_info"));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("jammer_enemy_info"));
         }
 
         private static void SetCrosshair(CCSPlayerController player, bool enabled)

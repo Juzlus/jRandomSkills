@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.menu;
 using src.player;
@@ -51,6 +52,8 @@ namespace src.command
                     { SplitCommands(config.VotingCommands.ShuffleCommand.Alias), ("Shuffle team", Command_Shuffle) },
                     { SplitCommands(config.VotingCommands.PauseCommand.Alias), ("Pause game", Command_Pause) },
                     { SplitCommands(config.VotingCommands.SetScoreCommand.Alias), ("Set teams score", Command_SetScore) },
+
+                    { new []{ "show" }, ("Show layout", Command_Show) },
                 };
 
                 foreach (var commandPair in commands)
@@ -90,7 +93,7 @@ namespace src.command
         private static void Command_SetSkill(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setskill {command.ArgString} command.");
-            if (!AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetSkillCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.SetSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetSkillCommand.Permissions)) return;
             var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => !p.IsBot
                                                                           && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
                                                                           || p.PlayerName.Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)));
@@ -177,7 +180,8 @@ namespace src.command
         private static void Command_SkillsListMenu(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_skills {command.ArgString} command.");
-            if (player == null || !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SkillsListCommand.Permissions)) return;
+            if (player == null) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.SkillsListCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SkillsListCommand.Permissions)) return;
             Menu.DisplaySkillsList(player);
         }
 
@@ -185,12 +189,13 @@ namespace src.command
         private static void Command_ChangeMap(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_map {command.ArgString} command.");
-            if (player != null && player.IsValid && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ChangeMapCommand.Permissions))
-            {
-                if (!config.VotingCommands.ChangeMapCommand.EnableVoting) return;
-                player.Vote(VoteType.ChangeMap, command.ArgString);
-                return;
-            }
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.VotingCommands.ChangeMapCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ChangeMapCommand.Permissions))
+                {
+                    if (!config.VotingCommands.ChangeMapCommand.EnableVoting) return;
+                    player.Vote(VoteType.ChangeMap, command.ArgString);
+                    return;
+                }
             ChangeMap(command);
         }
 
@@ -218,12 +223,13 @@ namespace src.command
         private static void Command_StartGame(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_start {command.ArgString} command.");
-            if (player != null && player.IsValid && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.StartGameCommand.Permissions))
-            {
-                if (!config.VotingCommands.StartGameCommand.EnableVoting) return;
-                player.Vote(VoteType.StartGame);
-                return;
-            }
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.VotingCommands.StartGameCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.StartGameCommand.Permissions))
+                {
+                    if (!config.VotingCommands.StartGameCommand.EnableVoting) return;
+                    player.Vote(VoteType.StartGame);
+                    return;
+                }
             StartGame(command);
         }
 
@@ -252,12 +258,13 @@ namespace src.command
         private static void Command_Swap(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_swap {command.ArgString} command.");
-            if (player != null && player.IsValid && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SwapCommand.Permissions))
-            {
-                if (!config.VotingCommands.SwapCommand.EnableVoting) return;
-                player.Vote(VoteType.SwapTeam);
-                return;
-            }
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.VotingCommands.SwapCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SwapCommand.Permissions))
+                {
+                    if (!config.VotingCommands.SwapCommand.EnableVoting) return;
+                    player.Vote(VoteType.SwapTeam);
+                    return;
+                }
             Swap();
         }
 
@@ -273,12 +280,13 @@ namespace src.command
         private static void Command_Shuffle(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_shuffle {command.ArgString} command.");
-            if (player != null && player.IsValid && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ShuffleCommand.Permissions))
-            {
-                if (!config.VotingCommands.ShuffleCommand.EnableVoting) return;
-                player.Vote(VoteType.ShuffleTeam);
-                return;
-            }
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.VotingCommands.ShuffleCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ShuffleCommand.Permissions))
+                {
+                    if (!config.VotingCommands.ShuffleCommand.EnableVoting) return;
+                    player.Vote(VoteType.ShuffleTeam);
+                    return;
+                }
             Shuffle();
         }
 
@@ -299,12 +307,13 @@ namespace src.command
         private static void Command_Pause(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_pause {command.ArgString} command.");
-            if (player != null && player.IsValid && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.PauseCommand.Permissions))
-            {
-                if (!config.VotingCommands.PauseCommand.EnableVoting) return;
-                player.Vote(VoteType.PauseGame);
-                return;
-            }
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.VotingCommands.PauseCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.PauseCommand.Permissions))
+                {
+                    if (!config.VotingCommands.PauseCommand.EnableVoting) return;
+                    player.Vote(VoteType.PauseGame);
+                    return;
+                }
             Pause();
         }
 
@@ -320,7 +329,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_heal {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!AdminManager.PlayerHasPermissions(player, config.NormalCommands.HealCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.HealCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HealCommand.Permissions)) return;
             SkillUtils.AddHealth(player.PlayerPawn.Value, 100);
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("healed")}");
         }
@@ -330,7 +339,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_hud {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            if (!AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.HudCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
 
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null) return;
@@ -344,12 +353,13 @@ namespace src.command
         private static void Command_SetScore(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setscore {command.ArgString} command.");
-            if (player != null && player.IsValid && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SetScoreCommand.Permissions))
-            {
-                if (!config.VotingCommands.SetScoreCommand.EnableVoting) return;
-                player.Vote(VoteType.SetScore, command.ArgString);
-                return;
-            }
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.VotingCommands.SetScoreCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SetScoreCommand.Permissions))
+                {
+                    if (!config.VotingCommands.SetScoreCommand.EnableVoting) return;
+                    player.Vote(VoteType.SetScore, command.ArgString);
+                    return;
+                }
             SetScore(player, command);
         }
 
@@ -369,7 +379,8 @@ namespace src.command
         private static void Command_CustomCommand(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_console {command.ArgString} command.");
-            if (player == null || !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ConsoleCommand.Permissions)) return;
+            if (player == null) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.ConsoleCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ConsoleCommand.Permissions)) return;
             string param = command.ArgString;
             Server.ExecuteCommand(param);
         }
@@ -378,7 +389,7 @@ namespace src.command
         private static void Command_SetStaticSkill(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setstaticskill {command.ArgString} command.");
-            if (!AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetStaticSkillCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.SetStaticSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetStaticSkillCommand.Permissions)) return;
             var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => !p.IsBot
                                                                           && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
                                                                           || p.PlayerName.Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)));
@@ -474,7 +485,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_lang {command.ArgString} command.");
             if (player == null || !player.IsValid) return;
-            if (!AdminManager.PlayerHasPermissions(player, config.NormalCommands.ChangeLanguageCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.ChangeLanguageCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ChangeLanguageCommand.Permissions)) return;
 
             string fileName;
             string newLangCode = command.GetArg(1).ToUpper();
@@ -491,8 +502,8 @@ namespace src.command
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_Reload(CCSPlayerController? player, CommandInfo command)
         {
-            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_lang {command.ArgString} command.");
-            if (!AdminManager.PlayerHasPermissions(player, config.NormalCommands.ReloadCommand.Permissions)) return;
+            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_reload {command.ArgString} command.");
+            if (!string.IsNullOrEmpty(config.NormalCommands.ReloadCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ReloadCommand.Permissions)) return;
 
             lock (setLock)
             {
@@ -519,6 +530,25 @@ namespace src.command
                         target.SpecialSkill = Event.noneSkill.Skill;
                 }
             }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        private static void Command_Show(CCSPlayerController? player, CommandInfo command)
+        {
+            MemoryFunctionVoid show_layout = new("55 48 89 E5 41 57 41 56 41 55 41 54 53 48 83 EC 58 80 3D ? ? ? ? 00 75 ? 0F 28 05 ? ? ? ? C6 05 ? ? ? ? 01 0F 29 05 ? ? ? ? 80 3D ? ? ? ? 00 75 ? 66 0F EF C0 C6 05 ? ? ? ? 01 0F 29 05 ? ? ? ? 80 3D ? ? ? ? 00 0F 84 ? ? ? ? 80 3D ? ? ? ? 00 75 ? 31 D2 C6 05 ? ? ? ? 01 48 89 15 ? ? ? ? 48 89 15 ? ? ? ? C6 05 ? ? ? ? 00 80 3D ? ? ? ? 00 0F 85 ? ? ? ? C6 05 ? ? ? ? 01 4C 8D 3D ? ? ? ? 49 8D 9F ? ? ? ? 49 C7 47 ? 00 00 00 00 BE 00 04 00 00 4C 89 FF 45 31 F6 41 C7 47 ? 00 00 00 00 41 C7 47 ? 00 00 00 00 41 C7 07 00 00 00 00 E8 ? ? ? ? EB ? ? ? ? ? ? ? ? 74 ? 41 C7 45 00 00 00 00 00 4D 8B 6F ? 4D 01 F5 41 81 65 ? 00 00 00 C0 49 83 C6 18 49 81 FE 00 60 00 00 0F 84 ? ? ? ? 4D 8B 6F ? 4D 01 F5 45 8B 65 00 45 85 E4 79 ? 41 8B 7D ? 85 FF 0F 88 ? ? ? ? 49 8B 45 ? 49 63 D4 44 89 E6 41 C7 45 00 00 00 00 00 48 8D 14 ? F7 DE 48 C1 E2 03 48 01 D0 48 C7 40 ? 00 00 00 00 48 C7 40 ? 00 00 00 00 48 C7 40 ? 00 00 00 00 41 83 FC FF 74 ? 48 83 C2 28 B9 01 00 00 00 66 66 2E 0F 1F 84 ? 00 00 00 00 66 66 2E 0F 1F 84 ? 00 00 00 00 66 0F 1F 44 ? 00 49 8B 45 ? 83 C1 01 48 01 D0 48 83 C2 28 48 C7 40 ? 00 00 00 00 48 C7 40 ? 00 00 00 00 48 C7 40 ? 00 00 00 00 39 CE 7F ? E9 ? ? ? ? ? 41 8B 75 ? 81 FE FF FF FF 3F 76 ? 89 F0 25 00 00 00 C0 3D 00 00 00 80 0F 85 ? ? ? ? 81 E6 FF FF FF 3F 31 D2 B9 28 00 00 00 E8 ? ? ? ? 49 63 55 ? 66 0F EF C9 31 F6 66 0F 6E C0 49 8B 7D ? 66 0F 38 3D C1 66 0F 7E C0 66 0F 7E 45 ? 48 8D 0C ? 48 98 48 8D 14 ? 48 C1 E1 03 48 C1 E2 03 41 81 7D ? FF FF FF 3F 40 0F 96 C6 E8 ? ? ? ? 41 8B 55 ? 66 0F 6E 45 ? 49 89 45 ? 81 FA FF FF FF 3F 76 ? 81 E2 FF FF FF 3F 41 89 55 ? 66 41 0F 7E 45 ? E9 ? ? ? ? ? ? ? 4D 8D 6F ? 31 C0 41 C6 47 ? 01 41 C7 47 ? FF 03 00 00 4C 89 EF 49 C7 47 ? 00 00 00 00 66 41 89 47 ? 41 C6 47 ? 00 49 C7 47 ? 00 00 00 00 E8 ? ? ? ? BE 01 00 00 00 4C 89 EF E8 ? ? ? ? 49 8D 7F ? 4C 89 EE 49 83 C7 68 E8 ? ? ? ? 4C 39 FB 0F 85 ? ? ? ? 48 8D 05 ? ? ? ? 49 89 DF 48 39 C3 0F 85 ? ? ? ? 48 8D 15 ? ? ? ? 31 F6 48 8D 3D ? ? ? ? E8 ? ? ? ? 80 3D ? ? ? ? 00 4C 8D 65");
+            show_layout.Invoke();
         }
     }
 }

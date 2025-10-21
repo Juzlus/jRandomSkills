@@ -102,7 +102,11 @@ namespace src.player.skills
         {
             foreach (var enemy in Utilities.GetPlayers().Where(p => p.Team != player.Team))
                 if (enemy != null && enemy.IsValid && enemy.PawnIsAlive && enemy.PlayerPawn.Value != null && enemy.PlayerPawn.Value.IsValid)
-                    enemy.PlayerPawn.Value.EmitSound($"C4.PlantSoundB", volume: 1f);
+                    enemy.PlayerPawn.Value.EmitSound(
+                        enemy.Team == CsTeam.CounterTerrorist
+                        ? SkillsInfo.GetValue<string>(skillName, "CTSoundEvent")
+                        : SkillsInfo.GetValue<string>(skillName, "TSoundEvent")
+                        , volume: 1f);
         }
 
         public class PlayerSkillInfo
@@ -112,9 +116,11 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, float cooldown = 5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, float cooldown = 5f, string ctSoundEvent = "c4.disarmstart", string tSoundEvent = "C4.PlantSoundB") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
         {
             public float Cooldown { get; set; } = cooldown;
+            public string CTSoundEvent { get; set; } = ctSoundEvent;
+            public string TSoundEvent { get; set; } = tSoundEvent;
         }
     }
 }

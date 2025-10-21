@@ -50,10 +50,12 @@ namespace src.player.skills
 
             var roundTime = SkillsInfo.GetValue<int>(skillName, "changeRoundTime");
             Instance.GameRules.RoundTime += player.Team == CsTeam.Terrorist ? roundTime : -roundTime;
+
             if (player.Team == CsTeam.Terrorist)
                 Localization.PrintTranslationToChatAll($" {ChatColors.Orange}{{0}}", ["watchmaker_tt"], [roundTime]);
             else
                 Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], [roundTime]);
+            player.EmitSound(SkillsInfo.GetValue<string>(skillName, "SoundEvent"));
         }
 
         public static void OnTick()
@@ -80,9 +82,10 @@ namespace src.player.skills
             playerInfo.PrintHTML = SkillUtils.SecondsToTimer(seconds);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff462e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, int changeRoundTime = 10) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff462e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, int changeRoundTime = 10, string soundEvent = "UIPanorama.sidemenu_select") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
         {
             public int ChangeRoundTime { get; set; } = changeRoundTime;
+            public string SoundEvent { get; set; } = soundEvent;
         }
     }
 }

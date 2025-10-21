@@ -192,7 +192,7 @@ namespace src.utils
             var data = reader.Find<ConcurrentDictionary<string, object>>(ip);
             if (data == null || data.IsEmpty) return null;
 
-            if (data.TryGetValue("country", out var _country) && _country is ConcurrentDictionary<string, object> country)
+            if (data.TryGetValue("country", out var _country) && _country is Dictionary<string, object> country)
                 if (country.TryGetValue("iso_code", out var _isoCode) && _isoCode is string isoCode)
                 {
                     string fileName = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
