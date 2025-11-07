@@ -50,7 +50,7 @@ namespace src.player.skills
                 }
 
                 string distanceColor = closetDistance > 1500 ? "#00FF00" : closetDistance > 600 ? "#FFFF00" : "#FF0000";
-                playerInfo.PrintHTML = $"{closetEnemy}: <font color='{distanceColor}'>{closetDistance}</font>";
+                playerInfo.PrintHTML = $"{closetEnemy}: <font color='{distanceColor}'>{(closetDistance > 3000 ? "3000+" : closetDistance)}</font>";
             }
         }
 
@@ -65,7 +65,7 @@ namespace src.player.skills
             SkillUtils.ResetPrintHTML(player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00f2ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00f2ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
         }
     }

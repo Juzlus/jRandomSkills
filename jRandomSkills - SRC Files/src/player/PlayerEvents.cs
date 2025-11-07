@@ -69,7 +69,7 @@ namespace src.player
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
 
             VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post);
-            VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Post);
+            VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre);
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -261,6 +261,7 @@ namespace src.player
 
         private static HookResult OnTriggerEnter(DynamicHook hook)
         {
+            Server.PrintToChatAll("Start");
             lock (setLock)
             {
                 CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
@@ -275,6 +276,7 @@ namespace src.player
 
         private static HookResult OnTriggerExit(DynamicHook hook)
         {
+            Server.PrintToChatAll("End");
             lock (setLock)
             {
                                 CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
@@ -576,10 +578,12 @@ namespace src.player
                         Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
                         if (staticSkills.TryGetValue(player.SteamID, out var staticSkill))
                             randomSkill = staticSkill;
-                        else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.NoRepeat)
+                        else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                         {
                             List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-                            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None);
+                            skillList.RemoveAll(s => s?.Skill == Skills.None);
+                            if (gameMode != Config.GameModes.FullRandom)
+                                skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
                             if (validPlayers.Count(p => p.Team == player.Team) == 1)
                             {
@@ -701,10 +705,12 @@ namespace src.player
                     Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
                     if (staticSkills.TryGetValue(player.SteamID, out var staticSkill))
                         randomSkill = staticSkill;
-                    else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.NoRepeat)
+                    else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                     {
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-                        skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None);
+                        skillList.RemoveAll(s => s?.Skill == Skills.None);
+                        if (gameMode != Config.GameModes.FullRandom)
+                            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
                         if (validPlayers.Count(p => p.Team == player.Team) == 1)
                         {

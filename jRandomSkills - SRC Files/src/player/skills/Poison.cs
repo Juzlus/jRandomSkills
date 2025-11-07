@@ -32,6 +32,7 @@ namespace src.player.skills
                 {
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid) continue;
+                    if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
                     SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"));
                 }
             }
@@ -99,10 +100,11 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#902eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, float cooldown = 1, int damage = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#902eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = .85f, int damage = 1, int minHealth = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public int Damage { get; set; } = damage;
             public float Cooldown { get; set; } = cooldown;
+            public int MinHealth { get; set; } = minHealth;
         }
     }
 }

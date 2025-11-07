@@ -1,17 +1,17 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
     public class Darkness : ISkill
     {
         private const Skills skillName = Skills.Darkness;
-        private static readonly ConcurrentDictionary<CCSPlayerController, List<CPostProcessingVolume>> defaultPostProcessings = [];
-        private static readonly ConcurrentBag<CPostProcessingVolume> newPostProcessing = [];
+        private static readonly ConcurrentDictionary<ulong, byte> playersInDark = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -23,14 +23,13 @@ namespace src.player.skills
         {
             lock (setLock)
             {
-                foreach (var player in defaultPostProcessings.Keys)
-                    DisableSkill(player);
-                foreach (var postProcessing in newPostProcessing)
-                    if (postProcessing != null && postProcessing.IsValid)
-                        postProcessing.AcceptInput("Kill");
-                newPostProcessing.Clear();
                 foreach (var player in Utilities.GetPlayers())
+                {
+                    if (playersInDark.ContainsKey(player.SteamID))
+                        DisableSkill(player);
                     SkillUtils.CloseMenu(player);
+                }
+                playersInDark.Clear();
             }
         }
 
@@ -109,7 +108,7 @@ namespace src.player.skills
             }
         }
 
-        private static void SetUpPostProcessing(CCSPlayerController player, bool dontCreateNew = false)
+        private static void SetUpPostProcessing(CCSPlayerController player, bool turnOff = false)
         {
             if (player == null || !player.IsValid) return;
             var pawn = player.PlayerPawn.Value;
@@ -117,48 +116,45 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (!defaultPostProcessings.ContainsKey(player))
-                    defaultPostProcessings.TryAdd(player, []);
-
-                int i = 0;
-                foreach (var postProcessingVolume in pawn.CameraServices.PostProcessingVolumes)
+                if (!turnOff)
                 {
-                    if (postProcessingVolume == null || postProcessingVolume.Value == null)
-                        return;
+                    playersInDark.TryAdd(player.SteamID, 0);
+                    SkillUtils.ApplyScreenColor(player,
+                                r: SkillsInfo.GetValue<int>(skillName, "R"),
+                                g: SkillsInfo.GetValue<int>(skillName, "G"),
+                                b: SkillsInfo.GetValue<int>(skillName, "B"),
+                                a: SkillsInfo.GetValue<int>(skillName, "A"),
+                                duration: 100,
+                                holdTime: 3000);
 
-                    if (dontCreateNew)
-                    {
-                        if (defaultPostProcessings.TryGetValue(player, out var defaultList) && i < defaultList.Count)
-                            postProcessingVolume.Raw = defaultList[i].EntityHandle.Raw;
-                    }
-                    else
-                    {
-                        if (defaultPostProcessings.TryGetValue(player, out var defaultList))
-                            defaultList.Add(postProcessingVolume.Value);
+                    Instance.AddTimer(2.5f, () => {
+                        if (!playersInDark.ContainsKey(player.SteamID))
+                            return;
 
-                        var postProcessing = Utilities.CreateEntityByName<CPostProcessingVolume>("post_processing_volume");
-                        if (postProcessing == null) return;
-
-                        var brightness = SkillsInfo.GetValue<float>(skillName, "brightness");
-                        postProcessing.ExposureControl = true;
-                        postProcessing.MaxExposure = brightness;
-                        postProcessing.MinExposure = brightness;
-
-                        newPostProcessing.Add(postProcessing);
-                        postProcessingVolume.Raw = postProcessing.EntityHandle.Raw;
-                    }
-                    i++;
+                        if (player.IsValid && player.PawnIsAlive)
+                            SkillUtils.ApplyScreenColor(player,
+                                r: SkillsInfo.GetValue<int>(skillName, "R"),
+                                g: SkillsInfo.GetValue<int>(skillName, "G"),
+                                b: SkillsInfo.GetValue<int>(skillName, "B"),
+                                a: SkillsInfo.GetValue<int>(skillName, "A"),
+                                duration: 100,
+                                holdTime: 3000);
+                    }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
                 }
-
-                Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
-                if (dontCreateNew)
-                    defaultPostProcessings.TryRemove(player, out _);
+                else
+                {
+                    SkillUtils.ApplyScreenColor(player, r: 0, g: 0, b: 0, a: 0, duration: 200, holdTime: 0);
+                    playersInDark.TryRemove(player.SteamID, out _);
+                }
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#383838", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, float brightness = .01f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#383838", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int r = 0, int g = 0, int b = 0, int a = 230) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
-            public float Brightness { get; set; } = brightness;
+            public int R { get; set; } = r;
+            public int G { get; set; } = g;
+            public int B { get; set; } = b;
+            public int A { get; set; } = a;
         }
     }
 }

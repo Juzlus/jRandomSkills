@@ -142,6 +142,7 @@
   "gambler_desc": "Select a skill from the list provided.",
   "gambler_select_info": "Select your skill:",
   "gambler_more": "#00FF00|Refresh for ${0}",
+  "gambler_no_money": "Not enough money.",
 
   "ghost": "Ghost",
   "ghost_desc": "You are completely invisible",

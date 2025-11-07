@@ -57,7 +57,7 @@ namespace src.player.skills
             pawn.VelocityModifier = SkillsInfo.GetValue<float>(skillName, "slownessModifier");
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8B4513", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, float slownessTime = 2f, float slownessModifier = .2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8B4513", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float slownessTime = 2f, float slownessModifier = .2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float SlownessTime { get; set; } = slownessTime;
             public float SlownessModifier { get; set; } = slownessModifier;

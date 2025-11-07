@@ -101,7 +101,7 @@ namespace src.utils
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = 999;
-                SkillDescriptionDuration = 7;
+                SkillDescriptionDuration = 999;
                 DisplayAlwaysDescription = false;
                 FlashingHtmlHudFix = true;
                 CS2TraceRayDebug = false;
@@ -260,7 +260,8 @@ namespace src.utils
             TeamSkills = 1,
             SameSkills = 2,
             NoRepeat = 3,
-            Debug = 4
+            FullRandom = 4,
+            Debug = 5
         }
     }
 }

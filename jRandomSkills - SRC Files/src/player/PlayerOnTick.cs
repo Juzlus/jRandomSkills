@@ -27,6 +27,10 @@ namespace src.player
         {
             Instance.GameRules = null;
             Event.OnMapChange();
+
+            foreach (var entity in Utilities.GetAllEntities())
+                if (entity.DesignerName == "post_processing_volume")
+                    entity.AcceptInput("Kill");
         }
 
         private static void InitializeGameRules()

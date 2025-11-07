@@ -4,13 +4,14 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.player;
+using src.player.skills;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using WASDMenuAPI.Classes;
 using WASDSharedAPI;
-using System.Collections.Concurrent;
-using src.player;
-using src.player.skills;
 
 namespace src.utils
 {
@@ -74,6 +75,21 @@ namespace src.utils
             float z = (float)Math.Sin(pitch);
 
             return new Vector(x, y, z);
+        }
+
+        public static void ApplyScreenColor(CCSPlayerController player, int r, int g, int b, int a, int duration, int holdTime, int flags = 1)
+        {
+            using var msg = UserMessage.FromPartialName("Fade");
+            if (msg == null) return;
+            int packageColor = (a << 24) | (r << 16) | (g << 8) | b;
+
+            msg.SetInt("duration", duration);
+            msg.SetInt("hold_time", holdTime);
+
+            msg.SetInt("flags", flags);
+            msg.SetInt("color", packageColor);
+
+            msg.Send(player);
         }
 
         public static void ChangePlayerScale(CCSPlayerController? player, float scale)

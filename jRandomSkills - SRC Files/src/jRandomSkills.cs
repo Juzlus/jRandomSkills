@@ -21,6 +21,7 @@ namespace src
         public ConcurrentBag<jSkill_PlayerInfo> SkillPlayer { get; set; } = [];
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
+        public ConcurrentBag<string> ManifestResources { get; set; } = [ "models/actors/ghost_speaker.vmdl" ];
         public IWasdMenuManager? MenuManager;
         public const string Tag = "jRandomSkills";
 
@@ -43,7 +44,13 @@ namespace src
             WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
             LoadAllSkills();
 
-            Instance.RegisterListener<OnServerPrecacheResources>((ResourceManifest manifest) => manifest.AddResource("models/actors/ghost_speaker.vmdl"));
+            Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
+        }
+
+        internal void LoadManifest(ResourceManifest manifest)
+        {
+            foreach (var prop in ManifestResources)
+                manifest.AddResource(prop);
         }
 
         internal void LoadAllSkills()

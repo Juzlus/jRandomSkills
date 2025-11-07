@@ -44,7 +44,7 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffdd00", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, float damageMultiplier = 2f, float damageRadiusMultiplier = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffdd00", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float damageMultiplier = 2f, float damageRadiusMultiplier = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float DamageMultiplier { get; set; } = damageMultiplier;
             public float DamageRadiusMultiplier { get; set; } = damageRadiusMultiplier;

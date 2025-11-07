@@ -142,6 +142,7 @@
   "gambler_desc": "Selecione uma habilidade da lista.",
   "gambler_select_info": "Escolha sua habilidade:",
   "gambler_more": "#00FF00|Atualizar por ${0}",
+  "gambler_no_money": "Não há dinheiro suficiente.",
 
   "ghost": "Fantasma",
   "ghost_desc": "Você é completamente invisível",

@@ -142,6 +142,7 @@
   "gambler_desc": "从提供的列表中选择一个技能。",
   "gambler_select_info": "选择你的技能：",
   "gambler_more": "#00FF00|刷新 ${0}",
+  "gambler_no_money": "钱不够。",
 
   "ghost": "幽灵",
   "ghost_desc": "你完全隐形",

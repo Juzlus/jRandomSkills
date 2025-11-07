@@ -126,7 +126,7 @@ namespace src.utils
 			}
         }
 
-        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false)
+        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "")
         {
             public bool NeedsTeammates { get; set; } = needsTeammates;
             public bool DisableOnFreezeTime { get; set; } = disableOnFreezeTime;
@@ -134,6 +134,7 @@ namespace src.utils
             public string Color { get; set; } = color;
             public bool Active { get; set; } = active;
             public string Name { get; set; } = skill.ToString();
+            public string RequiredPermission { get; set; } = requiredPermission;
         }
     }
 }

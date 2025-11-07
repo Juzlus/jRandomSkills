@@ -2,9 +2,9 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -12,22 +12,21 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Jackal;
         private static readonly ConcurrentDictionary<ulong, byte> playersInAction = [];
-        private static readonly ConcurrentDictionary<CCSPlayerController, ConcurrentQueue<CBeam>> stepBeams = [];
+        private static readonly ConcurrentDictionary<CCSPlayerController, CParticleSystem?> playersStep = [];
         private static readonly string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf";
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            Instance.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) => manifest.AddResource(particleName));
+            Instance.ManifestResources.Add(SkillsInfo.GetValue<string>(skillName, "particleName"));
         }
 
         public static void NewRound()
         {
-            foreach (var beams in stepBeams.Values)
-                foreach (var beam in beams)
-                    if (beam != null && beam.IsValid)
-                        beam.AcceptInput("Kill");
-            stepBeams.Clear();
+            foreach (var step in playersStep.Values)
+                if (step != null && step.IsValid)
+                    step.AcceptInput("Kill");
+            playersStep.Clear();
             playersInAction.Clear();
         }
 
@@ -36,32 +35,34 @@ namespace src.player.skills
             foreach( var (info, player) in infoList)
             {
                 if (player == null) continue;
-                foreach (var step in stepBeams)
+                foreach (var param in playersStep)
                 {
-                    var enemy = step.Key;
-                    var beams = step.Value;
+                    var enemy = param.Key;
+                    var step = param.Value;
+                    if (step == null || step.IsValid) continue;
 
                     var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
                     var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
                     var observerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer?.SteamID);
 
-                    foreach (var beam in beams)
-                    {
-                        var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)beam.Index);
-                        if (entity == null || !entity.IsValid) continue;
+                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)step.Index);
+                    if (entity == null || !entity.IsValid) continue;
 
-                        if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName)
-                            info.TransmitEntities.Remove(entity.Index);
-                        else if (enemy.Team == player.Team)
-                            info.TransmitEntities.Remove(beam.Index);
-                    }
+                    if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName)
+                        info.TransmitEntities.Remove(entity.Index);
+                    else if (enemy.Team == player.Team)
+                        info.TransmitEntities.Remove(entity.Index);
                 }
             }
         }
 
-        public static void CreatePlayerTrail(CCSPlayerPawn playerPawn)
+        public static void CreatePlayerTrail(CCSPlayerController? player)
         {
-            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return;
+            if (player == null) return;
+            var playerPawn = player.PlayerPawn.Value;
+
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            if (!playersStep.ContainsKey(player)) return;
 
             CParticleSystem particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system")!;
             if (particle == null) return;
@@ -75,10 +76,12 @@ namespace src.player.skills
             particle.AcceptInput("SetParent", playerPawn, particle, "!activator");
             particle.AcceptInput("Start");
 
-            Instance.AddTimer(3f, () => {
+            playersStep.AddOrUpdate(player, particle, (k, v) => particle);
+
+            Instance.AddTimer(2.5f, () => {
                 if (particle != null && particle.IsValid)
                     particle.AcceptInput("Kill");
-                CreatePlayerTrail(playerPawn);
+                CreatePlayerTrail(player);
             });
         }
 
@@ -86,24 +89,25 @@ namespace src.player.skills
         {
             Event.EnableTransmit();
             playersInAction.TryAdd(player.SteamID, 0);
-            foreach (var _player in Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
-                if (!stepBeams.ContainsKey(_player))
-                {
-                    stepBeams.TryAdd(_player, []);
-                    CreatePlayerTrail(player.PlayerPawn.Value);
-                }
+            foreach (var _player in Utilities.GetPlayers().Where(p => p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+            {
+                if (!playersStep.ContainsKey(_player))
+                    playersStep.TryAdd(_player, null);
+                CreatePlayerTrail(_player);
+            }
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            playersStep.TryRemove(player, out _);
             playersInAction.TryRemove(player.SteamID, out _);
             if (playersInAction.IsEmpty)
                 NewRound();
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, int maxStepBeam = 100) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
-            public int MaxStepBeam { get; set; } = maxStepBeam;
+            string ParticleName { get; set; } = particleName;
         }
     }
 }

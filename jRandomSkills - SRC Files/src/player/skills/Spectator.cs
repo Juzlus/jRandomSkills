@@ -57,7 +57,8 @@ namespace src.player.skills
                 if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2.IsValid)
                 {
                     var pawn = cameraInfo.Item3;
-                    if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                    if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE
+                        || (player.PlayerPawn.Value != null && player.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE))
                         ChangeCamera(player, true);
                 }
         }
@@ -65,7 +66,7 @@ namespace src.player.skills
         private static void ChangeCamera(CCSPlayerController player, bool forceToDefault = false)
         {
             uint orginalCameraRaw;
-            uint newCameraRaw;
+            uint newCameraRaw = 0;
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
@@ -73,17 +74,24 @@ namespace src.player.skills
             {
                 orginalCameraRaw = cameraInfo.Item1;
                 cameraInfo.Item2.AcceptInput("Kill");
-                newCameraRaw = CreateCamera(player);
+                if (!forceToDefault)
+                    newCameraRaw = CreateCamera(player);
             } else
             {
                 orginalCameraRaw = pawn.CameraServices.ViewEntity.Raw;
-                newCameraRaw = CreateCamera(player);
+                if (!forceToDefault)
+                    newCameraRaw = CreateCamera(player);
             }
 
-            if (newCameraRaw == 0) return;
+            bool defaultCam = forceToDefault;
+            if (newCameraRaw != 0)
+            {
+                defaultCam = forceToDefault || (pawn.CameraServices.ViewEntity.Raw != orginalCameraRaw);
+                pawn.CameraServices.ViewEntity.Raw = defaultCam ? orginalCameraRaw : newCameraRaw;
+            }
+            else
+                pawn.CameraServices.ViewEntity.Raw = orginalCameraRaw;
 
-            bool defaultCam = forceToDefault || (pawn.CameraServices.ViewEntity.Raw != orginalCameraRaw);
-            pawn.CameraServices.ViewEntity.Raw = defaultCam ? orginalCameraRaw : newCameraRaw;
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
             BlockWeapon(player, !defaultCam);
         }
@@ -137,7 +145,7 @@ namespace src.player.skills
                 }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5da", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, float distance = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5da", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float distance = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float Distance { get; set; } = distance;
         }

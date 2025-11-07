@@ -142,6 +142,7 @@
   "gambler_desc": "Sélectionnez une compétence dans la liste proposée.",
   "gambler_select_info": "Sélectionnez votre compétence :",
   "gambler_more": "#00FF00|Rafraîchir pour ${0}",
+  "gambler_no_money": "Pas assez d'argent.",
 
   "ghost": "Fantôme",
   "ghost_desc": "Vous êtes complètement invisible",
