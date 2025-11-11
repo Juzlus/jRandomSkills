@@ -20,10 +20,14 @@ namespace src.utils
         private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> HEGrenadeProjectile_CreateFunc = new(GameData.GetSignature("HEGrenadeProjectile_CreateFunc"));
         private static readonly MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint> TerminateRoundFunc = new(GameData.GetSignature("CCSGameRules_TerminateRound"));
 
-        public static void PrintToChat(CCSPlayerController player, string msg, bool isError)
+        public static void PrintToChat(CCSPlayerController player, string msg, string border = "tb", string title = jRandomSkills.Tag)
         {
-            string checkIcon = isError ? $"{ChatColors.DarkRed}✖{ChatColors.LightRed}" : $"{ChatColors.Green}✔{ChatColors.Lime}";
-            player.PrintToChat($" {ChatColors.DarkRed}► {ChatColors.Green}[{ChatColors.DarkRed} {jRandomSkills.Tag} {ChatColors.Green}] {checkIcon} {msg}");
+            if (border.Contains('t'))
+                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◢◆◤ {title} ◥◆◣{ChatColors.Green}―――――――――――");
+            if (!string.IsNullOrEmpty(msg))
+                player.PrintToChat($" {ChatColors.Green} {msg}");
+            if (border.Contains('b'))
+                player.PrintToChat($" {ChatColors.Green}―――――――――――――――{new string('―', title.Length)}―――――――――――――――");
         }
 
         public static bool IsFreezeTime()
@@ -81,7 +85,7 @@ namespace src.utils
         {
             using var msg = UserMessage.FromPartialName("Fade");
             if (msg == null) return;
-            int packageColor = (a << 24) | (r << 16) | (g << 8) | b;
+            int packageColor = (a << 24) | (b << 16) | (g << 8) | r;
 
             msg.SetInt("duration", duration);
             msg.SetInt("hold_time", holdTime);

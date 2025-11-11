@@ -96,6 +96,8 @@ namespace src.player.skills
             if (camera == null || !camera.IsValid) return 0;
 
             var pawn = player.PlayerPawn.Value;
+            if (pawn == null) return 0;
+
             Server.NextFrame(() =>
             {
                 camera.SetModel("models/actors/ghost_speaker.vmdl");

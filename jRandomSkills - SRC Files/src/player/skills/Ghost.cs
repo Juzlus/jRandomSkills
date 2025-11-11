@@ -1,12 +1,12 @@
-using System.Collections.Immutable;
-using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -25,20 +25,20 @@ namespace src.player.skills
             "weapon_g3sg1", "weapon_nova", "weapon_xm1014", "weapon_mag7",
             "weapon_sawedoff", "weapon_m249", "weapon_negev"
         ];
-        private static readonly ConcurrentDictionary<ulong, ConcurrentBag<uint>> invisibleEntities = [];
+        private static readonly ConcurrentDictionary<CCSPlayerController, byte> invisiblePlayers = [];
+        private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
 
         public static void LoadSkill()
         {
-            if (SkillsInfo.LoadedConfig.FirstOrDefault(s => s.Name == skillName.ToString())?.Active != true)
-                return;
-
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            Instance.AddToManifest(bloodParticle);
         }
 
         public static void NewRound()
         {
             foreach (var player in Utilities.GetPlayers())
                 SetWeaponAttack(player, false);
+            invisiblePlayers.Clear();
         }
 
         public static void WeaponPickup(EventItemPickup @event)
@@ -48,7 +48,6 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
 
             if (playerInfo?.Skill != skillName) return;
-            SetWeaponVisibility(player!, false);
             SetWeaponAttack(player!, true);
         }
 
@@ -59,7 +58,6 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
 
             if (playerInfo?.Skill != skillName) return;
-            SetWeaponVisibility(player!, false);
             SetWeaponAttack(player!, true);
         }
 
@@ -68,32 +66,37 @@ namespace src.player.skills
             foreach (var (info, player) in infoList)
             {
                 if (player == null) continue;
-                foreach ((var playerId, var itemList) in invisibleEntities)
-                    if (player.SteamID !=  playerId)
-                        foreach (var entityIndex in itemList)
-                        {
-                            var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
-                            if (entity == null || !entity.IsValid) continue;
-                            info.TransmitEntities.Remove(entity.Index);
-                        }
+                foreach (var _player in invisiblePlayers.Keys)
+                    if (player.SteamID != _player.SteamID)
+                    {
+                        var playerPawn = _player.PlayerPawn.Value;
+                        if (playerPawn == null || !playerPawn.IsValid) continue;
+
+                        var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
+                        if (entity == null || !entity.IsValid) continue;
+                        info.TransmitEntities.Remove(entity.Index);
+
+                        var bombIndex = HideBomb(_player);
+                        if (bombIndex == null) continue;
+                        var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
+                        if (bombEntity == null || !bombEntity.IsValid) continue;
+                        info.TransmitEntities.Remove(bombEntity.Index);
+                    }
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             Event.EnableTransmit();
-            SetPlayerVisibility(player, false);
-            SetWeaponVisibility(player, false);
             SetWeaponAttack(player, true);
+            invisiblePlayers.TryAdd(player, 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             SkillUtils.ResetPrintHTML(player);
-            SetPlayerVisibility(player, true);
-            SetWeaponVisibility(player, true);
             SetWeaponAttack(player, false);
-            invisibleEntities.TryRemove(player.SteamID, out _);
+            invisiblePlayers.TryRemove(player, out _);
         }
 
         public static void OnTick()
@@ -104,51 +107,30 @@ namespace src.player.skills
                 if (playerInfo?.Skill == skillName)
                     UpdateHUD(player);
                 if (!player.PawnIsAlive)
-                    if (invisibleEntities.ContainsKey(player.SteamID))
-                        invisibleEntities.TryRemove(player.SteamID, out _);
+                    invisiblePlayers.TryRemove(player, out _);
             }
         }
 
-        private static void SetPlayerVisibility(CCSPlayerController player, bool visible)
+        public static void PlayerHurt(EventPlayerHurt @event)
         {
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+            if (!invisiblePlayers.ContainsKey(player)) return;
+
             var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn != null)
-            {
-                var color = visible ? Color.FromArgb(255, 255, 255, 255) : Color.FromArgb(0, 255, 255, 255);
-                var shadowStrength = visible ? 1.0f : 0.0f;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return;
 
-                playerPawn.Render = color;
-                playerPawn.ShadowStrength = shadowStrength;
-                Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
-            }
-        }
+            CParticleSystem particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system")!;
+            if (particle == null) return;
 
-        private static void SetWeaponVisibility(CCSPlayerController player, bool visible)
-        {
-            if (!Instance.IsPlayerValid(player)) return;
-            var playerPawn = player.PlayerPawn.Value!;
-            if (playerPawn.WeaponServices == null) return;
+            particle.EffectName = bloodParticle;
+            particle.StartActive = true;
 
-            invisibleEntities.TryRemove(player.SteamID, out _);
-            foreach (var weapon in playerPawn.WeaponServices.MyWeapons)
-            {
-                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
-                {
-                    if (!visible)
-                    {
-                        if (invisibleEntities.TryGetValue(player.SteamID, out var items))
-                        {
-                            if (!items.Contains(weapon.Index))
-                                items.Add(weapon.Index);
-                        }
-                        else
-                            invisibleEntities.TryAdd(player.SteamID, [weapon.Index]);
-                    }
-                }
-            }
+            Vector pos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 50);
+            particle.Teleport(pos);
+            particle.DispatchSpawn();
 
-            if (visible)
-                invisibleEntities.TryRemove(player.SteamID, out _);
+            particle.AcceptInput("Start");
         }
 
         private static void SetWeaponAttack(CCSPlayerController player, bool disableWeapon)
@@ -186,6 +168,26 @@ namespace src.player.skills
             }
 
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("disabled_weapon")}</font>";
+        }
+
+        private static uint? HideBomb(CCSPlayerController player)
+        {
+            var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
+            if (bombEntities.Count == 0) return null;
+
+            var bomb = bombEntities.FirstOrDefault();
+            if (bomb == null) return null;
+
+            if (bomb.OwnerEntity.Index != player.Index) return null;
+
+            bomb.EntitySpottedState.Spotted = false;
+            Utilities.SetStateChanged(bomb, "CCSPlayerPawn", "m_entitySpottedState", Schema.GetSchemaOffset("EntitySpottedState_t", "m_bSpotted"));
+
+            for (int i = 0; i < bomb.EntitySpottedState.SpottedByMask.Length; i++)
+                bomb.EntitySpottedState.SpottedByMask[i] = 0;
+            Utilities.SetStateChanged(bomb, "CCSPlayerPawn", "m_entitySpottedState", Schema.GetSchemaOffset("EntitySpottedState_t", "m_bSpottedByMask"));
+
+            return bomb.Index;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FFFFFF", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

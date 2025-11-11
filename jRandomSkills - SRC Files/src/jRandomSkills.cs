@@ -21,7 +21,7 @@ namespace src
         public ConcurrentBag<jSkill_PlayerInfo> SkillPlayer { get; set; } = [];
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
-        public ConcurrentBag<string> ManifestResources { get; set; } = [ "models/actors/ghost_speaker.vmdl" ];
+        private ConcurrentBag<string> ManifestResources { get; set; } = [ "models/actors/ghost_speaker.vmdl" ];
         public IWasdMenuManager? MenuManager;
         public const string Tag = "jRandomSkills";
 
@@ -45,6 +45,12 @@ namespace src
             LoadAllSkills();
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
+        }
+
+        internal void AddToManifest(string prop)
+        {
+            if (!ManifestResources.Contains(prop))
+                ManifestResources.Add(prop);
         }
 
         internal void LoadManifest(ResourceManifest manifest)

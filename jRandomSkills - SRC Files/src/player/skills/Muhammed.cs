@@ -38,7 +38,8 @@ namespace src.player.skills
             SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), player.TeamNum);
            
             foreach (var _p in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist && !p.IsBot))
-                SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}{player.PlayerName}: {ChatColors.Lime}{_p.GetTranslation("muhammed_explosion")}", false);
+                SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}{player.PlayerName}: {ChatColors.Lime}{_p.GetTranslation("muhammed_explosion")}",
+                    border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
 
             var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
             var randomFile = fileNames[new Random().Next(fileNames.Length)];

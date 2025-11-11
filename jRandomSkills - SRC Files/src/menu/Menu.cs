@@ -23,7 +23,7 @@ namespace src.menu
                     string cleanSkillName = Regex.Replace(selectedSkillName, pattern, "");
                     string skillName = cleanSkillName.Replace($" ★ ", "");
                     string skillDesc = player.GetSkillDescription(skillInfo.Skill);
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{skillName}{ChatColors.Lime}: {skillDesc}", false);
+                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{skillName}{ChatColors.Lime}: {skillDesc}", border: "");
                     MenuManager.CloseActiveMenu(player);
                 });
             }

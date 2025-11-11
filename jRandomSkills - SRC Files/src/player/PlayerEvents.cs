@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -11,6 +12,7 @@ using src.utils;
 using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace src.player
 {
@@ -261,7 +263,6 @@ namespace src.player
 
         private static HookResult OnTriggerEnter(DynamicHook hook)
         {
-            Server.PrintToChatAll("Start");
             lock (setLock)
             {
                 CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
@@ -276,10 +277,9 @@ namespace src.player
 
         private static HookResult OnTriggerExit(DynamicHook hook)
         {
-            Server.PrintToChatAll("End");
             lock (setLock)
             {
-                                CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
+                CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
                 CBaseEntity entity = hook.GetParam<CBaseEntity>(1);
 
                 foreach (var playerSkill in Instance.SkillPlayer)
@@ -434,13 +434,11 @@ namespace src.player
 
                         if (Config.LoadedConfig.SummaryAfterTheRound && !string.IsNullOrEmpty(skillsText))
                         {
-                            player.PrintToChat(" ");
-                            player.PrintToChat($" {ChatColors.Lime}{player.GetTranslation("summary_start")}");
+                            SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary_start"), border: "t");
                             foreach (string text in skillsText.Split("\n"))
                                 if (!string.IsNullOrEmpty(text))
-                                    player.PrintToChat(text);
-                            player.PrintToChat($" {ChatColors.Lime}{player.GetTranslation("summary_end")}");
-                            player.PrintToChat(" \n");
+                                    SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
+                            SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary_start"), border: "b");
                         }
                     });
                 }
@@ -482,8 +480,9 @@ namespace src.player
                         if (skillData == null || specialSkillData == null) return HookResult.Continue;
                         string skillDesc = victim.GetSkillDescription(skillData.Skill);
 
-                        SkillUtils.PrintToChat(victim, $"{victim.GetTranslation("enemy_skill")} {ChatColors.DarkRed}{attacker.PlayerName}{ChatColors.Lime}:", false);
-                        SkillUtils.PrintToChat(victim, $"{ChatColors.DarkRed}{(attackerInfo.SpecialSkill == Skills.None ? victim.GetSkillName(skillData.Skill) : $"{victim.GetSkillName(specialSkillData.Skill)} -> {victim.GetSkillName(skillData.Skill)}")}{ChatColors.Lime} - {skillDesc}", false);
+                        SkillUtils.PrintToChat(victim, 
+                            $"{ChatColors.DarkRed}{(attackerInfo.SpecialSkill == Skills.None ? victim.GetSkillName(skillData.Skill) : $"{victim.GetSkillName(specialSkillData.Skill)} -> {victim.GetSkillName(skillData.Skill)}")}{ChatColors.Lime} - {skillDesc}",
+                            title: $"{victim.GetTranslation("enemy_skill")} {ChatColors.DarkRed}{attacker.PlayerName}{ChatColors.Lime}");
                     }
                 }
                 return HookResult.Continue;
@@ -582,6 +581,8 @@ namespace src.player
                         {
                             List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                             skillList.RemoveAll(s => s?.Skill == Skills.None);
+                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+
                             if (gameMode != Config.GameModes.FullRandom)
                                 skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
@@ -626,7 +627,8 @@ namespace src.player
                     }
 
                     if (randomSkill.Display)
-                        SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}", false);
+                        SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
+                            border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
 
                     Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
                     skillPlayer.Skill = randomSkill.Skill;
@@ -661,10 +663,11 @@ namespace src.player
 
                             if (!string.IsNullOrEmpty(teammateSkills))
                             {
-                                SkillUtils.PrintToChat(player, $" {ChatColors.Lime}{player.GetTranslation("teammate_skills")}:", false);
+                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("teammate_skills"), border: "t");
                                 foreach (string text in teammateSkills.Split("\n"))
                                     if (!string.IsNullOrEmpty(text))
-                                        player.PrintToChat(text);
+                                        SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
+                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("teammate_skills"), border: "b");
                             }
                         });
                     }
@@ -709,6 +712,8 @@ namespace src.player
                     {
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                         skillList.RemoveAll(s => s?.Skill == Skills.None);
+                        skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+                        
                         if (gameMode != Config.GameModes.FullRandom)
                             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
@@ -745,7 +750,8 @@ namespace src.player
                 }
 
                 if (randomSkill.Display && Config.LoadedConfig.YourSkillChatInfo)
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}", false);
+                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
+                        border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
 
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;

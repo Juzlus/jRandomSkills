@@ -102,9 +102,7 @@ namespace src.command
                     Server.PrintToConsole(Localization.GetTranslation("correct_form_setskill"));
                     return;
                 }
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("correct_form_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("correct_form_setskill"));
                 return;
             }
 
@@ -115,9 +113,7 @@ namespace src.command
                     Server.PrintToConsole(Localization.GetTranslation("player_not_found_setskill"));
                     return;
                 }
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("player_not_found_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("player_not_found_setskill"));
                 return;
             }
 
@@ -131,9 +127,7 @@ namespace src.command
                     Server.PrintToConsole(Localization.GetTranslation("skill_not_found_setskill"));
                     return;
                 }
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("skill_not_found_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("skill_not_found_setskill"));
                 return;
             }
 
@@ -152,12 +146,10 @@ namespace src.command
                     return;
                 }
 
-                if (skill.Display)
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", false);
+                SkillUtils.PrintToChat(player, $"{player.GetTranslation("done_setskill")}: {ChatColors.LightRed}{player.GetSkillName(skill.Skill)} {ChatColors.Lime}{player.GetTranslation("for_setskill")} {ChatColors.LightRed}{targetPlayer.PlayerName}");
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, $"{player.GetTranslation("done_setskill")}: {ChatColors.LightRed}{player.GetSkillName(skill.Skill)} {ChatColors.Lime}{player.GetTranslation("for_setskill")} {ChatColors.LightRed}{targetPlayer.PlayerName}", false);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                if (skill.Display)
+                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", border: "b");
             }
             else
             {
@@ -167,9 +159,7 @@ namespace src.command
                     return;
                 }
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("error_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("error_setskill"));
             }
         }
 
@@ -365,7 +355,7 @@ namespace src.command
             if (!int.TryParse(command.GetArg(1), out int ctScore) || !int.TryParse(command.GetArg(2), out int tScore))
             {
                 if (player != null && player.IsValid)
-                    SkillUtils.PrintToChat(player, player.GetTranslation("correct_form_setscore"), true);
+                    SkillUtils.PrintToChat(player, player.GetTranslation("correct_form_setscore"));
                 return;
             }
 
@@ -399,9 +389,7 @@ namespace src.command
                     return;
                 }
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("correct_form_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("correct_form_setskill"));
                 return;
             }
 
@@ -413,9 +401,7 @@ namespace src.command
                     return;
                 }
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("player_not_found_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("player_not_found_setskill"));
                 return;
             }
 
@@ -430,9 +416,7 @@ namespace src.command
                     return;
                 }
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("skill_not_found_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("skill_not_found_setskill"));
                 return;
             }
 
@@ -456,12 +440,10 @@ namespace src.command
                     return;
                 }
 
-                if (skill.Display)
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", false);
+                SkillUtils.PrintToChat(player, $"{player.GetTranslation("done_setskill")}: {ChatColors.LightRed}{player.GetSkillName(skill.Skill)} {ChatColors.Lime}{player.GetTranslation("for_setskill")} {ChatColors.LightRed}{targetPlayer.PlayerName}");
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, $"{player.GetTranslation("done_setskill")}: {ChatColors.LightRed}{player.GetSkillName(skill.Skill)} {ChatColors.Lime}{player.GetTranslation("for_setskill")} {ChatColors.LightRed}{targetPlayer.PlayerName}", false);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                if (skill.Display)
+                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", border: "b");
             }
             else
             {
@@ -471,9 +453,7 @@ namespace src.command
                     return;
                 }
 
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
-                SkillUtils.PrintToChat(player, player.GetTranslation("error_setskill"), true);
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◥◣◆◢◤{ChatColors.Green}―――――――――――");
+                SkillUtils.PrintToChat(player, player.GetTranslation("error_setskill"));
             }
         }
 

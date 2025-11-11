@@ -18,7 +18,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
-            Instance.ManifestResources.Add(SkillsInfo.GetValue<string>(skillName, "propModel"));
+            Instance.AddToManifest(SkillsInfo.GetValue<string>(skillName, "propModel"));
         }
 
         public static void NewRound()
