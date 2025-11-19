@@ -87,6 +87,7 @@ namespace src.utils
             public bool DisableSkillsOnRoundEnd { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
             public HtmlHudCustomisation HtmlHudCustomisation {  get; set; }
+            public ChatMessage ChatMessage { get; set; }
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }
 
@@ -143,6 +144,18 @@ namespace src.utils
                     WSADMenuControllsLineColor3 = "green",
                 };
 
+                ChatMessage = new ChatMessage
+                {
+                    MaxWidth = 1280,
+                    LineSymbol = '―',
+                    LineColor = "\x04",
+                    LineShow = true,
+                    InfoPlayerNameColor = "\x02",
+                    InfoSkillColor = "\x06",
+                    InfoMessageShow = true,
+                    TagFormat = "\x02◢◆◤ {TAG} ◥◆◣",
+                };
+
                 NormalCommands = new NormalCommands
                 {
                     SetSkillCommand = new NormalCommand("ustawskill, ustaw_skill, setskill, set_skill, definirhabilidade, configurarhabilidade, 设置技能, 配置技能", "@jRandmosSkills/admin"),
@@ -166,6 +179,18 @@ namespace src.utils
                     SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandmosSkills/owner", 15, 90, 15, 90, 2),
                 };
             }
+        }
+
+        public class ChatMessage
+        {
+            public required float MaxWidth { get; set; }
+            public required char LineSymbol { get; set; }
+            public required string LineColor { get; set; }
+            public required bool LineShow { get; set; }
+            public required string InfoPlayerNameColor { get; set; }
+            public required string InfoSkillColor { get; set; }
+            public required bool InfoMessageShow { get; set; }
+            public required string TagFormat { get; set; }
         }
 
         public class HtmlHudCustomisation

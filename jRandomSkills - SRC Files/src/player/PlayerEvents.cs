@@ -434,11 +434,11 @@ namespace src.player
 
                         if (Config.LoadedConfig.SummaryAfterTheRound && !string.IsNullOrEmpty(skillsText))
                         {
-                            SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary_start"), border: "t");
+                            SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary"), border: "t");
                             foreach (string text in skillsText.Split("\n"))
                                 if (!string.IsNullOrEmpty(text))
                                     SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
-                            SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary_start"), border: "b");
+                            SkillUtils.PrintToChat(player, string.Empty, border: "b");
                         }
                     });
                 }

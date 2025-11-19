@@ -454,8 +454,7 @@
   "bombsite_b": "Bombsite B",
 
   "teammate_skills": "Your teammates' skills",
-  "summary_start": "Summary of the last round",
-  "summary_end": "=======================================",
+  "summary": "Summary of the last round",
 
   "menu_controlls_scroll": "W/S - Scroll",
   "menu_controlls_padding": "   |   ",

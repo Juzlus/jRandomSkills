@@ -23,7 +23,6 @@ namespace src
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = [ "models/actors/ghost_speaker.vmdl" ];
         public IWasdMenuManager? MenuManager;
-        public const string Tag = "jRandomSkills";
 
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";

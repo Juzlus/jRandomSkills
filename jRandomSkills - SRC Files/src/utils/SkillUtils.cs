@@ -20,14 +20,19 @@ namespace src.utils
         private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> HEGrenadeProjectile_CreateFunc = new(GameData.GetSignature("HEGrenadeProjectile_CreateFunc"));
         private static readonly MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint> TerminateRoundFunc = new(GameData.GetSignature("CCSGameRules_TerminateRound"));
 
-        public static void PrintToChat(CCSPlayerController player, string msg, string border = "tb", string title = jRandomSkills.Tag)
+        public static void PrintToChat(CCSPlayerController player, string msg, string border = "tb", string? title = null)
         {
-            if (border.Contains('t'))
-                player.PrintToChat($" {ChatColors.Green}―――――――――――{ChatColors.DarkRed}◢◆◤ {title} ◥◆◣{ChatColors.Green}―――――――――――");
-            if (!string.IsNullOrEmpty(msg))
-                player.PrintToChat($" {ChatColors.Green} {msg}");
-            if (border.Contains('b'))
-                player.PrintToChat($" {ChatColors.Green}―――――――――――――――{new string('―', title.Length)}―――――――――――――――");
+            var config = Config.LoadedConfig.ChatMessage;
+            float maxWidth = config.MaxWidth;
+            char symbol = config.LineSymbol;
+            if (string.IsNullOrEmpty(title)) title = player.GetTranslation("jRandomSkills");
+
+            if (border.Contains('t') && config.LineShow)
+                player.PrintToChat($" {MeansureString.GetTextDashed($"{(config.TagFormat.Contains("{TAG}") ? config.TagFormat.Replace("{TAG}", title) : $"\u0002◢◆◤ {title} ◥◆◣")}", maxWidth, symbol, config.LineColor)}");
+            if (!string.IsNullOrEmpty(msg) && config.InfoMessageShow)
+                player.PrintToChat($" {config.InfoSkillColor} {msg.Replace("\x02", config.InfoPlayerNameColor).Replace("\x06", config.InfoSkillColor)}");
+            if (border.Contains('b') && config.LineShow)
+                player.PrintToChat($" {MeansureString.GetTextDashed("", maxWidth, symbol, config.LineColor)}");
         }
 
         public static bool IsFreezeTime()
