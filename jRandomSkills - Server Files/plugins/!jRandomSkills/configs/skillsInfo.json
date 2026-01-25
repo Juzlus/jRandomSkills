@@ -558,7 +558,7 @@
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
     "Color": "#f542ef",
-    "Active": true,
+    "Active": false,
     "Name": "Jackal"
   },
   {

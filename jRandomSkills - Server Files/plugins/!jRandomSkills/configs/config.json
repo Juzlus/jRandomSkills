@@ -1,7 +1,8 @@
 {
   "GameMode": 3,
-  "KillerSkillInfo": true,
-  "TeamMateSkillInfo": true,
+  "YourSkillChatInfo": true,
+  "KillerSkillChatInfo": true,
+  "TeamMateSkillChatInfo": true,
   "SummaryAfterTheRound": true,
   "DebugMode": true,
   "AlternativeSkillButton": null,
