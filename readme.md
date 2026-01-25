@@ -317,6 +317,14 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.1.10 beta</b></summary>
+  
+- #### General:
+    - ###### Added compatibility with CounterStrikeSharp 1.0.359
+    - ###### Disabled Jackal skill as 1.1.9 beta version
+</details>
+
+<details>
 <summary><b>v1.1.8</b></summary>
   
 - #### General:
