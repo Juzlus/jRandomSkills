@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Reference Include="WASDMenuAPI">
-      <HintPath>F:\CS2 Server\server\game\csgo\addons\counterstrikesharp\plugins\!jRandomSkills\WASDMenuAPI.dll</HintPath>
+      <HintPath>..\WASDMenuAPI - SRC Files\bin\Debug\net8.0\WASDMenuAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
 
