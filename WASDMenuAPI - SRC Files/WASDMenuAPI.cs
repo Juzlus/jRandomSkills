@@ -62,12 +62,8 @@ public class WASDMenuAPI
             }
             
             player.Buttons = player.Player.Buttons;
-            if(player.CenterHtml != "")
-                Server.NextFrame(() =>
-                player.Player.PrintToCenterHtml(player.CenterHtml)
-            );
+            if (!string.IsNullOrEmpty(player.CenterHtml))
+                player.Player.PrintToCenterHtml(player.CenterHtml);
         }
     }
-    
-    
 }

@@ -49,7 +49,9 @@ public class WasdManager : IWasdMenuManager
 
     public bool HasMenu(CCSPlayerController? player)
     {
-        return TryGetPlayer(player, out _);
+        if (TryGetPlayer(player, out var menuPlayer) && menuPlayer != null)
+            return menuPlayer.MainMenu != null;
+        return false;
     }
 
     public void UpdateActiveMenu(CCSPlayerController? player, Dictionary<string, Action<CCSPlayerController, IWasdMenuOption>> list)

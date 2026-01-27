@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -24,7 +25,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            // SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
             jRandomSkills.Instance.AddToManifest(cameraPropModel);
             jRandomSkills.Instance.AddToManifest(cameraViewModel);
         }
@@ -124,6 +125,11 @@ namespace src.player.skills
             BlockWeapon(player.Player, player.CameraActive);
             pawn!.CameraServices!.ViewEntity.Raw = player.CameraActive && player.CameraView != null ? player.CameraView.EntityHandle.Raw : player.PlayerCameraRaw;
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+
+            if (player.CameraActive && player.CameraView != null)
+            {
+                SkillUtils.ApplyScreenColor(player.Player, 0, 0, 255, 20, 100, 1020);
+            }
         }
 
         private static CDynamicProp? CreateCameraProp(CCSPlayerController player)
@@ -233,13 +239,14 @@ namespace src.player.skills
             CTraceFilter filter = new(playerPawn.Index, playerPawn.Index)
             {
                 m_nObjectSetMask = 0xf,
-                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PLAYER_MOVEMENT,
-                m_nInteractsWith = playerPawn.GetInteractsWith(),
+                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PROJECTILE,
+                m_nInteractsWith = 8589946881,
                 m_nInteractsExclude = 0,
                 m_nBits = 11,
                 m_bIterateEntities = true,
                 m_bHitTriggers = false,
-                m_nInteractsAs = 0x40000
+                m_nInteractsAs = 0x40000,
+                m_bOnlyHitIfHasPhysics = true
             };
 
             filter.m_nHierarchyIds[0] = playerPawn.GetHierarchyId();

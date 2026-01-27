@@ -43,16 +43,18 @@ namespace src.player.skills
             if (player == null) return;
 
             players.TryAdd(player, 0);
-            Server.PrintToChatAll($"Enter: {player?.PlayerName}");
         }
 
         public static void OnTriggerExit(CBaseTrigger trigger, CBaseEntity entity)
         {
             if (!trigger.Globalname.StartsWith(triggerName) || entity.DesignerName != "player") return;
-            var player = entity.As<CCSPlayerController>();
+
+            CCSPlayerPawn playerPawn = new(entity.Handle);
+            if (playerPawn == null || playerPawn.Controller?.Value == null) return;
+            CCSPlayerController player = playerPawn.Controller.Value.As<CCSPlayerController>();
             if (player == null) return;
+
             players.TryRemove(player, out _);
-            Server.PrintToChatAll($"Exit: {player?.PlayerName}");
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)

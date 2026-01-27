@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -21,7 +22,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            // SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
         public static void NewRound()
@@ -200,6 +201,31 @@ namespace src.player.skills
             return !trace.DidHit();
         }
 
+        private static float CalculateDamage(CCSPlayerController player, string weaponName, float damage, bool isHeadshot)
+        {
+            float calculatedDamage = damage;
+
+            var weapon = Utilities.FindAllEntitiesByDesignerName<CCSWeaponBase>(weaponName).FirstOrDefault();
+            if (weapon == null) return calculatedDamage;
+
+            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
+            if (vdata == null) return calculatedDamage;
+
+            float penetration = vdata.ArmorRatio * .5f;
+
+            if (isHeadshot)
+            {
+                calculatedDamage *= vdata.HeadshotMultiplier;
+                if (player.PawnHasHelmet)
+                    calculatedDamage *= penetration;
+            }
+            else
+                if (player.PawnArmor > 0)
+                    calculatedDamage *= penetration;
+
+            return calculatedDamage;
+        }
+
         public static void OnTakeDamage(DynamicHook h)
         {
             CEntityInstance param = h.GetParam<CEntityInstance>(0);
@@ -218,12 +244,33 @@ namespace src.player.skills
             var player = Utilities.GetPlayerFromSteamId(steamID);
             if (player == null) return;
 
+            float dealDamage = param2.Damage;
+
             if (playersInfo.TryGetValue(player, out var playerSkill))
             {
+                if (playerSkill.CloneProp != null && playerSkill.CloneProp.IsValid && playerSkill.CloneProp.AbsOrigin != null)
+                {
+                    Vector pos = param2.DamagePosition;
+                    Vector posCl = playerSkill.CloneProp.AbsOrigin;
+                    
+                    bool isHead = false;
+                    float viewOffset = 63.27f;
+                    float diff = 2f;
+
+                    if (pos.Z >= posCl.Z + viewOffset - diff)
+                        isHead = true;
+
+                    float damage = param2.Damage;
+                    string? weapon = param2.Ability?.Value?.DesignerName;
+                    if (weapon != null)
+                        dealDamage = CalculateDamage(player, weapon, damage, isHead);
+                }
+
                 KillClone(playerSkill);
+
                 var playerPawn = player.PlayerPawn.Value;
                 if (playerPawn != null)
-                    SkillUtils.TakeHealth(playerPawn, (int)param2.Damage);
+                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage);
             }
         }
 

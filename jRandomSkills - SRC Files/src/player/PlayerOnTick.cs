@@ -27,10 +27,6 @@ namespace src.player
         {
             Instance.GameRules = null;
             Event.OnMapChange();
-
-            foreach (var entity in Utilities.GetAllEntities())
-                if (entity.DesignerName == "post_processing_volume")
-                    entity.AcceptInput("Kill");
         }
 
         private static void InitializeGameRules()
@@ -124,6 +120,7 @@ namespace src.player
 
             if (string.IsNullOrEmpty(skillLine)) return;
             if (player == null || !player.IsValid) return;
+            if (SkillUtils.HasMenu(player)) return;
             Event.UpdateSkillHUD(player, infoLine, skillLine, remainingLine, isDescription);
         }
     }
