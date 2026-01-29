@@ -4,7 +4,7 @@
   "KillerSkillChatInfo": true,
   "TeamMateSkillChatInfo": true,
   "SummaryAfterTheRound": true,
-  "DebugMode": true,
+  "DebugMode": false,
   "AlternativeSkillButton": null,
   "SkillTimeBeforeStart": 7.0,
   "SkillDescriptionDuration": 7.0,
