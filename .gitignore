@@ -22,7 +22,6 @@ WASDMenuAPI-Source/*/obj/
 *.runtimeconfig.json
 project.lock.json
 project.fragment.lock.json
-packages/
 
 # IDE / editor
 .vs/
