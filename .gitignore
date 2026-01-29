@@ -1,0 +1,43 @@
+# Ignore build outputs recursively
+**/bin/
+**/obj/
+**/publish/
+**/artifacts/
+**/out/
+**/TestResults/
+
+# Ignore specific project-level build dirs (legacy/explicit)
+*/bin/
+*/obj/
+jRandomSkills-Source/bin/
+jRandomSkills-Source/obj/
+WASDMenuAPI-Source/*/bin/
+WASDMenuAPI-Source/*/obj/
+
+# .NET / MSBuild artifacts
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.runtimeconfig.json
+project.lock.json
+project.fragment.lock.json
+packages/
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+
+# Logs, caches, temp
+*.log
+*.cache
+*.tmp
+*.temp
+
+# Other common ignores
+node_modules/
+dist/
