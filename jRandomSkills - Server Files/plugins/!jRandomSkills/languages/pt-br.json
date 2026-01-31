@@ -3,9 +3,9 @@
   "none_desc": "Você não tem nenhuma habilidade",
 
   "aimbot": "Aimbot",
-  "aimbot_desc": "Toda bala que você acertar conta como um headshot",
+  "aimbot_desc": "Toda bala que você acertar conta como um hs",
 
-  "anomaly": "Anomalia",
+  "anomaly": "Máquina do Tempo",
   "anomaly_desc": "Você volta alguns segundos no tempo",
 
   "antyflash": "Anti-Flash",
@@ -22,7 +22,7 @@
   "areareaper_site_disabled": "Bombsite {0} foi desativado - nenhuma bomba pode ser plantada lá!",
   "areareaper_used_info": "Seu poder já foi usado.",
 
-  "armored": "Blindado",
+  "armored": "Super Tiro",
   "armored_desc": "Seu dano é multiplicado por um valor aleatório",
   "armored_desc2": "Seu multiplicador de dano é: {0}x",
 
@@ -33,7 +33,7 @@
   "astronaut_desc": "Sua gravidade é multiplicada por um valor aleatório",
   "astronaut_desc2": "Sua gravidade aleatória é: {0}x",
 
-  "bankrupt": "Pobre",
+  "bankrupt": "Ladrão",
   "bankrupt_desc": "Escolha o jogador que perderá todo o dinheiro",
   "bankrupt_enemy_info": "Você ficou pobre",
   "bankrupt_player_info": "O jogador '{0}' ficou pobre.",
@@ -62,10 +62,10 @@
   "chicken": "Galinha",
   "chicken_desc": "Você é uma galinha com +10% de movimento mais rápido e -50 HP",
   
-  "chillout": "Desligado",
+  "chillout": "Esqueci a Senha",
   "chillout_desc": "Plantar a bomba leva significativamente mais tempo",
   
-  "cutter": "Tramontina",
+  "cutter": "Corte Rápido",
   "cutter_desc": "Você mata instantaneamente com a faca",
   
   "darkness": "Escuridão",
@@ -120,7 +120,7 @@
   "fastreload": "Recarga Rápida",
   "fastreload_desc": "Clique em [css_useSkill] para recarregar a arma que você está segurando",
   
-  "flash": "Flash",
+  "flash": "Ligeirinho",
   "flash_desc": "Velocidade de movimentação aleatória no início da rodada",
   "flash_desc2": "Seu multiplicador de velocidade é: {0}x",
   
@@ -137,7 +137,7 @@
   "frozendecoy": "Decoy Congelante",
   "frozendecoy_desc": "Sua decoy congela os players próximos",
   
-  "gambler": "Cassino",
+  "gambler": "Tigrinho",
   "gambler_desc": "Selecione uma habilidade da lista.",
   "gambler_select_info": "Escolha sua habilidade:",
   "gambler_more": "#00FF00|Atualizar por ${0}",
@@ -148,7 +148,7 @@
   "glaz": "Smoke Transparente",
   "glaz_desc": "Smokes tornam-se transparentes para você",
   
-  "glitch": "Glitch",
+  "glitch": "Sem Mapa",
   "glitch_desc": "Desativa o radar de um inimigo escolhido",
   "glitch_enemy_info": "Seu radar foi desativado.",
   "glitch_player_info": "O radar do jogador '{0}' foi desativado.",
@@ -162,8 +162,8 @@
   "godmode_off": "Imortalidade desativada",
   "godmode_on": "Imortalidade ativada",
   
-  "grenadier": "Bombardeiro",
-  "grenadier_desc": "Você tem granadas HE infinitas",
+  "grenadier": "Bomberman",
+  "grenadier_desc": "Você tem HEs infinitas",
   
   "healingsmoke": "Smoke Amiga",
   "healingsmoke_desc": "Suas smokes curam",
@@ -171,8 +171,8 @@
   "hermit": "Sanguessuga",
   "hermit_desc": "Matar restaura munição e uma parte da sua vida",
   
-  "holyhandgrenade": "Granada Sagrada",
-  "holyhandgrenade_desc": "HE grenade causam dano dobrado e têm alcance dobrado",
+  "holyhandgrenade": "Granada Obesa",
+  "holyhandgrenade_desc": "HEs causam dano dobrado e têm alcance dobrado",
   
   "impostor": "Impostor",
   "impostor_desc": "Você começa a rodada vestido do time inimigo",
@@ -183,7 +183,7 @@
   "jackal": "Lesma",
   "jackal_desc": "Cada adversário deixa um rastro atrás de si",
   
-  "jammer": "Jammer",
+  "jammer": "No Scope",
   "jammer_desc": "Escolha um jogador para desativar a mira",
   "jammer_enemy_info": "Sua mira foi desativada.",
   "jammer_player_info": "A mira do jogador '{0}' foi desativada.",
@@ -191,7 +191,7 @@
   
   "jester": "Palhaço",
   "jester_desc": "No modo bobo você não pode causar nem receber dano. Esse modo muda a cada poucos segundos.",
-  "jester_mode": "Modo Bobo",
+  "jester_mode": "Modo Palhaço",
   "jester_on": "LIG.",
   "jester_off": "DESL.",
   
@@ -205,7 +205,7 @@
   "jumpingjack_desc": "Pular restaura vida",
   
   "killerflash": "Flash Mortal",
-  "killerflash_desc": "Qualquer pessoa cega pela sua granada de flash morre (incluindo você)",
+  "killerflash_desc": "Qualquer pessoa cega pela sua flash morre (incluindo você)",
   
   "lifeswap": "Troca de Vida",
   "lifeswap_desc": "Escolha um jogador para trocar de vida",
@@ -213,7 +213,7 @@
   "lifeswap_player_info": "Você trocou vida com o jogador '{0}'.",
   "lifeswap_select_info": "Trocar de vida com jogador:",
   
-  "longknife": "Katana",
+  "longknife": "Espada",
   "longknife_desc": "Um ataque com faca causa danos independentemente da distância",
   
   "longzeus": "Zeus Longo",
@@ -244,7 +244,7 @@
   "nonades": "Imune a Granadas",
   "nonades_desc": "Granadas não causam dano a você",
   
-  "norecoil": "Foco",
+  "norecoil": "Sem Recoil",
   "norecoil_desc": "Sem recoil ao atirar",
   
   "noclip": "NoClip",
@@ -348,8 +348,8 @@
   "shade_desc2": "Suas chances de se teletransportar para trás de um inimigo atingido são: {0}%",
   "shade_nospace": "Sem espaço disponível",
   
-  "shortbomb": "Pavio Curto",
-  "shortbomb_desc": "A bomba explode muito mais rápido",
+  "shortbomb": "Pavio Longo",
+  "shortbomb_desc": "A bomba demora muito mais para explodir",
   
   "silent": "Shhhiu!",
   "silent_desc": "Seus passos e pulos são silenciosos para OUTROS jogadores",
