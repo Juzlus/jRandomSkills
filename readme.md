@@ -27,7 +27,7 @@ jRandomSkills is a plugin for CounterStrike 2 that brings chaos and fun to gamep
 - **English**
 - **Polish**
 - **French** [by: [@felyjyn](https://github.com/felyjyn)]
-- **Portuguese (Brazilian)** [GrokAI / ChatGPT]
+- **Portuguese (Brazilian)** [by: [@vinicius-trev](https://github.com/vinicius-trev)]
 - **Simplified Chinese** [GrokAI / ChatGPT]
 
 ## 🖼️ Preview
