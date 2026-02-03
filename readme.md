@@ -46,7 +46,7 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
 
-## ✨ Current Skills (111)
+## ✨ Current Skills (112)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -66,10 +66,12 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Blademaster | While holding a knife, you have a high chance to deflect a shot | - |
 | Bunny | You get auto "BunnyHop" | - |
 | C4 Camouflage | You are invisible while holding the bomb | - |
+| Careful Bullets | Select a player who takes damage for every missed shot | - |
 | Catapult | You have a random chance to launch an enemy upwards | (20 - 40)% |
 | Chicken | You get a chicken model + 10% faster movement - 50 HP | - |
 | Chillout | Planting the bomb takes significantly longer | - |
 | Cutter | Instant kill with a knife | - |
+| Cypher | Click [css_useSkill] to create/switch to a camera | 30 s |
 | Darkness | Applies a darkness effect to a chosen enemy | - |
 | Deactivator | Choose a player whose skill you want to disable | - |
 | Deaf | Choose a player to mute all sounds for | - |
@@ -98,6 +100,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Healing Smoke | Your smoke grenades heal | - |
 | Hermit | Killing restores ammo and a portion of health | - |
 | Holy Hand Grenade | Your HE grenades deal double damage and have double range| - |
+| Hologram | Click [css_useSkill] to control your hologram for a few seconds | 30 s |
 | Impostor | You start the round with an enemy player model | - |
 | Infinite Ammo | You receive infinite ammo for all your weapons | - |
 | Tracker | Choose a player who will leave a trail behind them | - |
@@ -246,7 +249,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // 1 - Same skills for the whole team
                                          // 2 - Same skills for all players
                                          // 3 - Random skills for each player (It can't be the same until the map changes)
-                                         // 4 - Full Random: Random skills for each player
+                                         // 4 - Random skills for each player (Full random)
                                          // 5 - Debug: Skills are assigned in turn
         "YourSkillChatInfo": true,       // Show your skill in chat
         "KillerSkillInfo": true,         // Show killer's skill in chat
@@ -296,7 +299,8 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                       // 3 - CounterTerrorist
         "Color": "#ff0000",           // Skill color
         "Active": true,               // Enabled on startup
-        "Name": "Aimbot"              // Skill name
+        "Name": "Aimbot",             // Skill name
+        "RequiredPermission": ""      // Required permission
     },
     ...
 ]
@@ -322,9 +326,68 @@ This plugin uses content from the following projects:
 
 ## 📋 Changelog
 
+<details>
 <summary><b>v1.10.0</b></summary>
 
 - #### General:
+    - ###### Renamed the plugin from `!jRandomSkills` to `jRandomSkills`.
+    - ###### Fixed a typo in permissions from `@jRandmosSkills` to `@jRandomSkills`.
+    - ###### Disabled `DebugMode` by default in the config. (by: [@vinicius-trev](https://github.com/vinicius-trev))
+    - ###### Updated GeoLite dependencies. (by: [@vinicius-trev](https://github.com/vinicius-trev))
+    - ###### Improved `pt-br` language translations. (by: [@vinicius-trev](https://github.com/vinicius-trev))
+    - ###### Added German language support. (by: [@Enrory](https://github.com/Enrory))
+    - ###### Fixed language detection based on ISO codes.
+    - ###### Fixed incorrect references to language files.
+
+- #### Skill improvements:
+    - ##### Enemy Spawn:
+        - ###### Fixed an error with incorrect spawn point interpretation.
+    - ##### Cypher:
+        - ###### Improved camera positioning.
+        - ###### Restricted camera placement to walls only.
+        - ###### Key stability fixes.
+    - ##### Darkness / Hologram:
+        - ###### Added additional validation.
+        - ###### Fixed an issue with an infinite timer.
+    - ##### Jackal:
+        - ###### Minor optimization and fixed a bug where tracks were visible to everyone.
+    - ##### C4 Camouflage / Ghost / Ninja:
+        - ###### Improved bomb hiding function.
+        - ###### Fixed console spam issues.
+    - ##### AntyHead / BladeMaster / Jester / NoNades / OnlyHead / Posthesis / Pyro / Reactive Armor:
+        - ###### Fixed the health restoration function.
+    - ##### NoNades:
+        - ###### Added immunity to Decoy grenades.
+    - ##### RichBoy:
+        - ###### Fixed a bug where all money was removed after a round.
+        - ###### Money is deducted based on spending, where the final amount cannot be less than $3,000.
+    - ##### Dash:
+        - ###### Added `anyDirection` options to the configuration, which define whether a dash can be performed in any direction or only forwards.
+    - ##### BunnyHop / Dash / Pawel Jumper:
+        - ###### Improved jump logic.
+        - ###### Skills can now be triggered using the mouse scroll wheel.
+    - ##### Jumping Jack / Legless:
+        - ###### The ConVar `sv_legacy_jump` has been set to `1` to enable jump detection.
+   - ##### Long Zeus / Long Knife:
+        - ###### Shots are now calculated based on hitboxes instead of collisions.
+        - ###### Fixed RayTrace functionality.
+    - ##### Shade:
+        - ###### Fixed RayTrace functionality.
+    - ##### Planter / Short Bomb:
+        - ###### Added a notification message when the bomb is planted.
+    - ##### Sniper Elite:
+        - ###### General refactoring.
+        - ###### Fixed an issue where weapons were not swapped correctly.
+        - ###### Fixed a weapon duplication bug.
+    - ##### Toxic Smoke:
+        - ###### Skill is now enabled only for Linux systems.
+    - ##### Watchmaker:
+        - ###### Removed the round timer from the center HUD.
+        - ###### Round timer now updates for everyone after throwing utilities.
+        
+- #### New skills:
+    - ##### Careful Bullets:
+        - ###### Select a player who loses HP for every missed shot at another player.
 </details>
 
 <details>
@@ -340,9 +403,9 @@ This plugin uses content from the following projects:
 
     - ###### Cypher:
         - ###### Temporarily disabled.
-        - ###### Improved camera setup.
+        - ###### Improved camera positioning.
 
-    - ###### Iana:
+    - ###### Hologram:
         - ###### Temporarily disabled.
         - ###### Replica can now receive headshot damage.
     
@@ -385,10 +448,10 @@ This plugin uses content from the following projects:
 
 - #### New skills:
     - ###### Cypher:
-        - ###### Click [css_useSkill] to place a camera where you are aiming.
+        - ###### Click [css_useSkill] to create/switch to a camera.
 
-    - ######  Iana:
-        - ###### Click [css_useSkill] to control a clone for 10 seconds (the clone cannot shoot).
+    - ###### Hologram:
+        - ###### Click [css_useSkill] to control your hologram for a few seconds (the hologram cannot shoot).
 </details>
 
 <details>
@@ -463,9 +526,6 @@ This plugin uses content from the following projects:
     - ###### AreaReaper:
         - ###### Fixed incorrect bomb placement order.
 
-    - ###### C4Camouflage:
-        - ###### Possible fix for missing entity when showing the entity again.
-
     - ###### Gambler:
         - ###### Fixed issue where players could reroll their skill even without money.
 
@@ -490,7 +550,6 @@ This plugin uses content from the following projects:
     - ###### Improved the functionality of the !map command.
     - ###### Added the `YourSkillChatInfo` option to the configuration to disable the description of your skill in chat.
     - ###### Disabling player skill when changing maps.
-    - ###### More coming soon
 - #### Skill improvements:
     - ##### Third Eye:
         - ###### Model added to camera.

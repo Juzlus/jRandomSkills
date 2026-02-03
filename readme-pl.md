@@ -26,8 +26,9 @@ jRandomSkills to plugin do CounterStrike 2, który wprowadza chaos i frajdę do 
 ## 💬 Dostępne języki
 - **Angielski**
 - **Polski**
-- **Francuski** [autorstwa: [@felyjyn](https://github.com/felyjyn)]
-- **Portugalski (Brazylijski)** [GrokAI / ChatGPT]
+- **Francuski** [by: [@felyjyn](https://github.com/felyjyn)]
+- **Portugalski (Brazylijski)** [by: [@vinicius-trev](https://github.com/vinicius-trev)]
+- **Niemiecki** [by: [@Enrory](https://github.com/Enrory)]
 - **Chiński uproszczony** [GrokAI / ChatGPT]
 
 ## 🖼️ Prezentacja Pluginu
@@ -44,7 +45,7 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Aktualne Supermoce (109)
+## ✨ Aktualne Supermoce (112)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
@@ -64,10 +65,12 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Mistrz Ostrza | Trzymając nóż, masz duże szanse na odparcie strzału | - |
 | Królik | Otrzymujesz auto "BunnyHopa" | - |
 | C4 Kamuflaż | Kiedy trzymasz bombę, jesteś niewidzialny | - |
+| Ostrożne pociski | Wybierz gracza, który otrzymuje obrażenia za każdy niecelny strzał | - |
 | Katapulta | Masz losową szanse na podrzucenie wroga | (20 - 40)% |
 | Kurczak | Otrzymujesz model kurczaka + jesteś o 10% szybszy - 50hp | - |
 | Wyluzowany | Podłożenie bomby zajmuje 10 sekund | - |
 | Scyzoryk | Natychmiastowe zabójstwo nożem | - |
+| Kamera | Kliknij [css_useSkill], aby utworzyć/przełączyć się na kamerę | 30 s |
 | Mrok | Nadaje efekt ciemności wybranemu przeciwnikowi | - |
 | Deaktywator | Wybierasz gracza, którego supermoc chcesz wyłączyć | - |
 | Głuchy | Wybierasz gracza, dla którego chcesz wyłączyć wszystkie dźwięki | - |
@@ -96,6 +99,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Leczący Dym | Twoje granaty dymne leczą | - |
 | Pustelnik | Zabijanie przywraca amunicję i część zdrowia | - |
 | Święty Granat Ręczny | Twoje granaty uderzeniowe zadają podwójne obrażenia i mają podwójny zasięg | - |
+| Hologram | Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund | - |
 | Szpieg | Na początku rundy otrzymujesz model postaci przeciwnika | - |
 | Nieskończone Ammo | Otrzymujesz nieskończoną ilość amunicji do wszystkich broni | - |
 | Stópkarz | Wybierasz gracza, który pozostawi za sobą ślad | - |
@@ -195,22 +199,22 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 
 | Komenda | Przykład | Opis | Uprawnienia |
 | - | - | - | - |
-| `!setskill <playerName/steamID> <skill>` | `!setskill Juzlus Aimbot` | Przypisanie supermocy do gracza | `@jRandmosSkills/admin` |
+| `!setskill <playerName/steamID> <skill>` | `!setskill Juzlus Aimbot` | Przypisanie supermocy do gracza | `@jRandomSkills/admin` |
 | `!lang <IsoCode>` | `!lang pl` | Zmień język | - |
 | `!skills` | `!skills` | Lista supermocy | - |
-| `!map <mapName>` | `!map de_nuke` | Zmiana mapy | `@jRandmosSkills/admin` |
-| `!map <mapWorkshopId>` | `!map 3332005394` | Zmiana mapy z warsztatu | `@jRandmosSkills/admin` |
-| `!start` | `!start` | Rozpoczęcie gry z parametrami: `mp_forcecamera 0, mp_freezetime 15, mp_overtime_enable 1, sv_cheats 0` | `@jRandmosSkills/admin` |
-| `!start sv` | `!start sv` | Rozpoczęcie gry z parametrami: `mp_forcecamera 0, mp_freezetime 0, mp_overtime_enable 1, sv_cheats 1` | `@jRandmosSkills/admin` |
-| `!console <command>` | `!console sv_cheats 1` | Uruchomienie komendy na serwerze | `@jRandmosSkills/owner` |
-| `!swap` | `!swap` | Zamiana stron | `@jRandmosSkills/admin` |
-| `!shuffle` | `!shuffle` | Losowe dobranie graczy do drużyn | `@jRandmosSkills/admin` |
-| `!pause` | `!pause` | Wstrzymanie gry | `@jRandmosSkills/admin` |
-| `!heal` | `!heal` | Przywrócenie 100 punktów zdrowia | `@jRandmosSkills/admin` |
+| `!map <mapName>` | `!map de_nuke` | Zmiana mapy | `@jRandomSkills/admin` |
+| `!map <mapWorkshopId>` | `!map 3332005394` | Zmiana mapy z warsztatu | `@jRandomSkills/admin` |
+| `!start` | `!start` | Rozpoczęcie gry z parametrami: `mp_forcecamera 0, mp_freezetime 15, mp_overtime_enable 1, sv_cheats 0` | `@jRandomSkills/admin` |
+| `!start sv` | `!start sv` | Rozpoczęcie gry z parametrami: `mp_forcecamera 0, mp_freezetime 0, mp_overtime_enable 1, sv_cheats 1` | `@jRandomSkills/admin` |
+| `!console <command>` | `!console sv_cheats 1` | Uruchomienie komendy na serwerze | `@jRandomSkills/owner` |
+| `!swap` | `!swap` | Zamiana stron | `@jRandomSkills/admin` |
+| `!shuffle` | `!shuffle` | Losowe dobranie graczy do drużyn | `@jRandomSkills/admin` |
+| `!pause` | `!pause` | Wstrzymanie gry | `@jRandomSkills/admin` |
+| `!heal` | `!heal` | Przywrócenie 100 punktów zdrowia | `@jRandomSkills/admin` |
 | `!hud` | `!hud` | Włącz/Wyłącz HUD | - |
-| `!setscore <CT> <TT>` | `!setscore 10 7` | Ustawienie wyniku gry | `@jRandmosSkills/owner` |
-| `!setstaticskill <playerName/steamID> <skill>` | `!setstaticskill Juzlus Aimbot` | Przypisanie supermocy do gracza na stałe | `@jRandmosSkills/admin` |
-| `!setstaticskill <playerName/steamID> None` | `!setstaticskill Juzlus None` | Powrót do normalności | `@jRandmosSkills/admin` |
+| `!setscore <CT> <TT>` | `!setscore 10 7` | Ustawienie wyniku gry | `@jRandomSkills/owner` |
+| `!setstaticskill <playerName/steamID> <skill>` | `!setstaticskill Juzlus Aimbot` | Przypisanie supermocy do gracza na stałe | `@jRandomSkills/admin` |
+| `!setstaticskill <playerName/steamID> None` | `!setstaticskill Juzlus None` | Powrót do normalności | `@jRandomSkills/admin` |
 | `!reload` | `!reload` | Odśwież tłumaczenia | - |
 
 _Większość poleceń wymaga uprawnień, które należy ustawić w pliku: `game/csgo/addons/counterstrikesharp/configs/admins.json`_
@@ -224,7 +228,7 @@ Aby nadać uprawnienia administracyjne w CounterStrikeSharp:
     {
         "Juzlus": {
             "identity": "STEAM_0:0:94913632",
-            "flags": ["@jRandmosSkills/admin", "@jRandmosSkills/owner"]
+            "flags": ["@jRandomSkills/admin", "@jRandomSkills/owner"]
         }
     }
     ```
@@ -243,7 +247,9 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
                                          // 1 - Ta sama supermoc dla całej drużyny
                                          // 2 - Ta sama supermoc dla wszystkich graczy
                                          // 3 - Losowa supermoc dla każdego gracza (Brak powtórek na mapie)
-                                         // 4 - Debug: Supormoce są przydzielane po kolei
+                                         // 4 - Losowa supermoc dla każdego gracza (Pełna losowość)
+                                         // 5 - Debug: Supormoce są przydzielane po kolei
+        "YourSkillChatInfo": true,       // Pokazuj swoją supermoc na czacie
         "KillerSkillInfo": true,         // Pokazuj supermoc zabójcy na czacie
         "TeamMateSkillInfo": true,       // Pokazuj supermoc sojuszników na czacie
         "SummaryAfterTheRound": true,    // Pokazuj podsumowanie z ostatniej rundy
@@ -257,18 +263,21 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
                                          // "Attack3", "Scoreboard", "Inspect"
         "SkillTimeBeforeStart": 7.0,     // Ile sekund przed końcem freeze time należy zakończyć 
                                          // losowanie umiejętności? (freezetime - SkillTimeBeforeStart)
-        "SkillDescriptionDuration": 7.0, // Jak długo opis umiejętności powinien być widoczny?
+        "SkillHudDuration": 999.0,       // Jak długo HUD HTML powinien być widoczny?
+        "SkillDescriptionDuration": 999, // Jak długo opis umiejętności powinien być widoczny?
         "DisplayAlwaysDescription":false,// Zawsze wyświetlaj opis umiejętności
         "DisableSpectateHUD": false,     // Wyłącz HUD HTML bedąc martwym
         "FlashingHtmlHudFix": true,      // Włącz FlashingHtmlHudFix
         "CS2TraceRayDebug": false,       // Włącz widoczność ścieżki dla 'Długi Nóż', 'Długi Zeus'
-        "DisableHUDOnDeathPermission": "@jRandmosSkills/death",  // Wyłącz HUD po śmierci dla graczy z tym uprawnieniem
+        "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Wyłącz HUD po śmierci dla graczy z tym uprawnieniem
         "DisableSkillsOnRoundEnd": false,// Wyłącz wszystkie umiejętności na koniec rundy (gdy widoczne jest podsumowanie)
+
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Język domyślny: en, pl, fr, pt-br, zh
             "DisableGeoLite": false,     // Wyłącz wyszukiwanie języka gracza według geolokalizacji GeoLite2 (MaxMind)
             "LanguageInfos": [...]       // Ustawienie zmiany języków ISO na tłumaczenia
         },
+
         "HtmlHudCustomisation": {        // Ustawienia zmiany kolorów i rozmiarów czcionek
             ...                          // xxxl: 64px, xxl: 40px, xl: 32px
         }                                // l: 24px, ml: 20px, m: 18px
@@ -288,7 +297,8 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
                                       // 3 - CounterTerrorist
         "Color": "#ff0000",           // Kolor supermocy
         "Active": true,               // Włączona przy uruchamianiu
-        "Name": "Aimbot"              // Nazwa supermocy
+        "Name": "Aimbot",             // Nazwa supermocy
+        "RequiredPermission": ""      // Wymagane uprawnienie
     },
     ...
 ]
@@ -302,7 +312,7 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
 }
 ```
 
-## 🔗 Uwzględniona Zależność
+## 🔗 Uznanie
 Plugin korzysta z zawartości następujących projektów:
 - [dRandomSkills](https://github.com/jakubbartosik/dRandomSkills) by [Jakub Bartosik (D3X)](https://github.com/jakubbartosik) - system losowych umiejętności
 - [CS2TraceRay](https://github.com/schwarper/CS2TraceRay) autorstwa [schwarper](https://github.com/schwarper) - system śledzenia promieni (Trace Ray)
@@ -315,12 +325,242 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.10.0</b></summary>
+
+- #### General:
+    - ###### Zmieniono nazwę pluginu z `!jRandomSkills` na `jRandomSkills`.
+    - ###### Poprawiono literówkę w uprawnieniach z `@jRandmosSkills` na `@jRandomSkills`.
+    - ###### Domyślnie wyłączono `DebugMode` w konfiguracji (przez: [@vinicius-trev](https://github.com/vinicius-trev)).
+    - ###### Zaktualizowano zależności GeoLite (przez: [@vinicius-trev](https://github.com/vinicius-trev)).
+    - ###### Poprawiono tłumaczenia w języku `pt-br` (przez: [@vinicius-trev](https://github.com/vinicius-trev)).
+    - ###### Dodano wsparcie dla języka niemieckiego (przez: [@Enrory](https://github.com/Enrory)).
+    - ###### Naprawiono wykrywanie języka na podstawie kodów ISO.
+    - ###### Naprawiono błędne odniesienia do plików językowych.
+
+- #### Poprawki mocy:
+    - ##### Resp Wroga:
+        - ###### Naprawiono błąd z błędną interpretacją punktu odrodzenia (spawnpoint).
+    - ##### Kamera:
+        - ###### Poprawiono pozycjonowanie kamery.
+        - ###### Ograniczono możliwość tworzenia kamery tylko do ścian.
+        - ###### Kluczowe poprawki stabilności.
+    - ##### Mrok / Hologram:
+        - ###### Dodano dodatkową walidację.
+        - ###### Naprawiono problem z niekończącym się timerem.
+    - ##### Stópkarz:
+        - ###### Lekka optymalizacja i naprawienie błędu, przez który ślady były widoczne dla wszystkich.
+    - ##### C4 Kamuflaż / Duszek / Ninja:
+        - ###### Poprawiono funkcję ukrywania bomby.
+        - ###### Naprawiono problem ze spamem w konsoli.
+    - ##### Żelazna Głowa / Mistrz Ostrza / Błazen / Pancernik / Tylko Głowa / Proteza / Pyro / Pancerz Reaktywny:
+        - ###### Poprawiono funkcję przywracania zdrowia.
+    - ##### Pancernik:
+        - ###### Dodano niewrażliwość na granaty decoy.
+    - ##### Bogacz:
+        - ###### Naprawiono błąd, przez który wszystkie pieniądze były usuwane po rundzie.
+        - ###### Pieniądze są odejmowane na podstawie wydatków, a ostateczna kwota nie może być niższa niż $3,000.
+    - ##### Doskok:
+        - ###### Dodano opcję `anyDirection` do konfiguracji, która określa, czy doskok może być wykonany w dowolnym kierunku, czy tylko do przodu.
+    - ##### Królik / Doskok / Pawel Jumper:
+        - ###### Poprawiono logikę skoku.
+        - ###### Moce mogą być teraz aktywowane za pomocą scrolla myszki.
+    - ##### Pajacyk / Beznogi:
+        - ###### Wymuszono ConVar `sv_legacy_jump 1`, aby umożliwić wykrywanie skoków.
+    - ##### Długi Zeus / Długi Nóż:
+        - ###### Strzały są teraz obliczane na podstawie hitboxów, a nie kolizji.
+        - ###### Naprawiono funkcjonalność RayTrace.
+    - ##### Cień:
+        - ###### Naprawiono funkcjonalność RayTrace.
+    - ##### Saper / Krótka Bomba:
+        - ###### Dodano komunikat powiadamiający o podłożeniu bomby.
+    - ##### SzeliS:
+        - ###### Ogólna refaktoryzacja.
+        - ###### Naprawiono błąd, przez który broń nie była poprawnie zamieniana.
+        - ###### Naprawiono błąd z duplikowaniem broni.
+    - ##### Toksyczny Dym:
+        - ###### Umiejętność jest teraz włączona tylko dla systemów Linux.
+    - ##### Zegarmistrz:
+        - ###### Usunięto timer rundy ze środkowego HUD-u.
+        - ###### Timer rundy aktualizuje się teraz dla wszystkich po rzuceniu granatów.
+
+- #### Nowe moce:
+    - ##### Ostrożne pociski:
+        - ###### Wybierz gracza, który traci HP za każdy niecelny strzał w innego przeciwnika.
+</details>
+
+<details>
+<summary><b>v1.1.9f</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano zależności do najnowszej wersji (CSS v1.0.361).
+    - ###### Zaktualizowano kompatybilność WSADMenu z najnowszą wersją CSS.
+
+- #### Poprawki mocy:
+    - ##### Trzęsienie ziemi:
+        - ###### Tymczasowo wyłączono.
+    - ##### Kamera:
+        - ###### Tymczasowo wyłączono.
+        - ###### Poprawiono pozycjonowanie kamery.
+    - ##### Hologram:
+        - ###### Tymczasowo wyłączono.
+        - ###### Replika może teraz otrzymywać obrażenia od strzałów w głowę.
+    - ##### Toksyczny Dym:
+        - ###### Zmieniono sposób obliczania odległości na triggerów.
+</details>
+
+<details>
+<summary><b>v1.1.9e</b></summary>
+
+- #### Ogólne:
+    - ###### Poprawiono wyświetlanie ramek tekstowych oraz ich zawartości.
+    - ###### Dodano opcje personalizacji wyglądu wiadomości na czacie.
+</details>
+
+<details>
+<summary><b>v1.1.9d</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano wygląd wiadomości na czacie.
+
+- #### Poprawki mocy:
+    - ##### C4 Kamuflaż / Duszek / Ninja:
+        - ###### Teraz ukrywany jest cały model postaci, zamiast tylko broni i ustawiania przezroczystości modelu.
+
+    - ##### Re-Zombie:
+        - ###### Zwiększono punkty życia zombie z 200 HP do 250 HP.
+
+    - ##### Replikator:
+        - ###### Zwiększono obrażenia zadawane przez repliki: Twoja drużyna: 10 HP; Drużyna przeciwna: 20 HP.
+        - ###### Dodano możliwość dostosowania obrażeń repliki w pliku `skillsInfo.json`.
+
+    - ##### Toksyczny Dym:
+        - ###### Umiejętność tymczasowo wyłączona w celu przetestowania logiki triggerów.
+
+    - ##### Zegarmistrz:
+        - ###### Zmniejszono zmianę czasu z 10 sekund do 7 sekund.
+
+- #### Nowe moce:
+    - ##### Kamera:
+        - ###### Kliknij [css_useSkill], aby utworzyć/przełączyć się na kamerę.
+
+    - ##### Hologram:
+        - ###### Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund (hologram nie może strzelać).
+</details>
+
+<details>
+<summary><b>v1.1.9c</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano zależności do najnowszej wersji.
+    - ###### Dodano nowy tryb gry "FullRandom", który losuje losowe umiejętności w każdej rundzie (umiejętności mogą się powtarzać).
+    - ###### Dodano opcję `requiredPermission` do konfiguracji każdej umiejętności, określającą uprawnienia wymagane do jej otrzymania.
+
+- #### Poprawki mocy:
+    - ##### Hazardzista:
+        - ###### Dodano powiadomienie tekstowe, gdy gracz nie ma pieniędzy.
+
+    - ##### Mrok:
+        - ###### Usunięto starą logikę post-processingu (nie działała na każdej mapie).
+        - ###### Dodano UTIL_ScreenFade dla bardziej niezawodnego i spójnego efektu ciemności.
+
+    - ##### Odległościomierz:
+        - ###### Ograniczono maksymalną wyświetlaną odległość do 3000 jednostek.
+
+    - ##### Fortnite:
+        - ###### Poprawiono kąt ustawiania barykad.
+
+    - ##### Stópkarz:
+        - ###### Przeprojektowano logikę śladu (bean trail) na system cząsteczek (particles) dla lepszej wydajności.
+
+    - ##### Trutka:
+        - ###### Nieznacznie zwiększono szybkość zadawania obrażeń.
+        - ###### Dodano minimalny próg zdrowia (30 HP), poniżej którego trucizna przestaje działać (konfigurowalne).
+
+    - ##### Obserwator:
+        - ###### Naprawiono problem z kamerą po śmierci.
+</details>
+
+<details>
+<summary><b>v1.1.9b</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano zależności do najnowszej wersji.
+    - ###### Naprawiono problem z pustymi uprawnieniami dla komend.
+    - ###### Dodano opcję `SkillHudExpired` do pliku konfiguracyjnego, która kontroluje czas wyświetlania (w sekundach) środkowego HUD-u.
+    - ###### Dodano logikę obsługi zdarzeń trigger enter / exit.
+    - ###### Automatyczne dopasowanie wielkości liter dla opcji `AlternativeSkillButton` w konfiguracji.
+    - ###### Naprawiono problem z automatycznym wykrywaniem języka.
+    - ###### Próba naprawy błędu ze zmianą rozmiaru modeli.
+
+- #### Poprawki mocy:
+    - ###### Bankrut:
+    - ###### Mrok:
+    - ###### Deaktywator:
+    - ###### Głuchy:
+    - ###### Glitch:
+    - ###### Zakłócacz:
+    - ###### Beznogi:
+    - ###### Zamiana Żyć:
+    - ###### Lupa:
+    - ###### Skarbówka:
+    - ###### Trutka:
+    - ###### Brak Karabinów:
+    - ###### Złodziej:
+        - ###### Naprawiono wyświetlanie wiadomości w języku drugiego gracza.
+
+    - ###### C4 Kamuflaż:
+    - ###### Duszek:
+    - ###### Glaz:
+    - ###### Stópkarz:
+    - ###### Ninja:
+    - ###### Wallhack:
+        - ###### Potencjalna naprawa błędu brakującego bytu (entity) podczas ponownego pokazywania modelu.
+
+    - ###### Niszczyciel Stref:
+        - ###### Naprawiono błędną kolejność wyświetlania bombsite'ów.
+
+    - ###### Hazardzista:
+        - ###### Naprawiono błąd, przez który gracze mogli ponownie losować umiejętność nawet bez posiadania pieniędzy.
+
+    - ###### Dźwiękowiec:
+        - ###### Dodano osobne dźwięki dla obu drużyn (konfigurowalne).
+
+    - ###### Toksyczny Dym:
+        - ###### Zaktualizowano logikę, aby używała triggerów (brak offsetu dla systemów Windows).
+
+    - ###### Zegarmistrz:
+        - ###### Dodano dźwięk podczas aktualizacji czasu (konfigurowalny).
+</details>
+
+<details>
+<summary><b>v1.1.9a</b></summary>
+
+- #### General:
+    - ###### Zaktualizowano zależności do najnowszej wersji.
+    - ###### Aktualizacja sygnatur (jRandomSkills.gamedata.json).
+    - ###### FlashingHtmlHudFix jest teraz wyłączony podczas rozgrzewki.
+    - ###### Naprawiono błędne wyświetlanie tekstu debugowania podczas używania komendy.
+    - ###### Poprawiono funkcjonalność komendy !map.
+    - ###### Dodano opcję `YourSkillChatInfo` do konfiguracji, umożliwiającą wyłączenie opisu własnej umiejętności na czacie.
+    - ###### Wyłączanie umiejętności graczy podczas zmiany mapy.
+- #### Poprawki mocy:
+    - ##### Trzecie Oko:
+        - ###### Dodano model do kamery.
+    - ##### Obserwator:
+        - ###### Dodano model do kamery.
+    - ##### Oko Sokoła:
+        - ###### Dodano model do kamery.
+    - ##### Stópkarz:
+        - ###### Tymczasowo wyłączono w celu napisania kodu na nowo.
+</details>
+
+<details>
 <summary><b>v1.1.8</b></summary>
   
 - #### Ogólne:
     - ###### Dodano opcję `DisableHUDOnDeathPermission` do pliku konfiguracyjnego, aby wyłączyć HUD po śmierci dla graczy posiadających to konkretne uprawnienie.
     - ###### Dodano opcję `DisableSkillsOnRoundEnd` do pliku konfiguracyjnego, aby wyłączyć wszystkie umiejętności na koniec rundy (gdy widoczne jest podsumowanie).
-    - ###### Uprawnienie `@jRandmosSkills/root` zostało zmienione na `@jRandmosSkills/owner`, aby zapobiec problemom z domeną.
+    - ###### Uprawnienie `@jRandomSkills/root` zostało zmienione na `@jRandomSkills/owner`, aby zapobiec problemom z domeną.
     - ###### Dodano polecenie `!hud` do włączania/wyłączania HUD (gdy HUD jest wyłączony, menu WSAD nie będzie wyświetlane).
     - ###### Wyłączenie pierwszej umiejętności, jeżeli podczas pierwszej rundy wylosowano dwie umiejętności.
     - ###### Komenda `!reload` odświeża również status aktywności umiejętności.
