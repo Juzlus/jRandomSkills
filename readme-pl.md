@@ -325,7 +325,7 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
-<summary><b>v1.10.0</b></summary>
+<summary><b>v1.2.0</b></summary>
 
 - #### General:
     - ###### Zmieniono nazwę pluginu z `!jRandomSkills` na `jRandomSkills`.
