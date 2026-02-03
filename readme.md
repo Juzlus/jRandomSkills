@@ -327,7 +327,7 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
-<summary><b>v1.10.0</b></summary>
+<summary><b>v1.2.0</b></summary>
 
 - #### General:
     - ###### Renamed the plugin from `!jRandomSkills` to `jRandomSkills`.
