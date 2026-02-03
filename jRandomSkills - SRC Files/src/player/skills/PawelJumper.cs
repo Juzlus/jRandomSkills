@@ -52,18 +52,20 @@ namespace src.player.skills
             var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
 
+            bool isJumpDown = (playerPawn.MovementServices?.Buttons?.ButtonStates[0] & (ulong)PlayerButtons.Jump) != 0 || (buttons & PlayerButtons.Jump) != 0;
+            bool wasJumpDown = (LB[player.Slot] & PlayerButtons.Jump) != 0;
+
+            bool jumpPressed = (isJumpDown && !wasJumpDown)
+                || (playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0;
+
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerPawn == null || playerInfo == null) return;
 
-            if ((LF[player.Slot] & PlayerFlags.FL_ONGROUND) != 0 && (flags & PlayerFlags.FL_ONGROUND) == 0 && (LB[player.Slot] & PlayerButtons.Jump) == 0 && (buttons & PlayerButtons.Jump) != 0)
-            {
-                //J[player.Slot] ++;
-            }
-            else if ((flags & PlayerFlags.FL_ONGROUND) != 0)
-            {
+            bool isOnGround = (flags & PlayerFlags.FL_ONGROUND) != 0;
+
+            if (isOnGround)
                 J[player.Slot] = 0;
-            }
-            else if ((LB[player.Slot] & PlayerButtons.Jump) == 0 && (buttons & PlayerButtons.Jump) != 0 && J[player.Slot] < playerInfo.SkillChance)
+            else if (jumpPressed && J[player.Slot] < playerInfo.SkillChance + 1)
             {
                 J[player.Slot]++;
                 playerPawn.AbsVelocity.Z = 300;

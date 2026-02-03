@@ -1,10 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using CS2TraceRay.Class;
 using CS2TraceRay.Struct;
-using System.Numerics;
 using static src.jRandomSkills;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 using System.Collections.Concurrent;
@@ -69,29 +67,18 @@ namespace src.player.skills
         {
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
             if (playerInfo == null) return;
-            playerInfo.PrintHTML = $"{player.GetTranslation("shade_nospace")}";
+            playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("shade_nospace")}</font>";
         }
 
         private unsafe static bool CheckTeleport(CCSPlayerController player, Vector startPos, Vector endPos)
         {
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return false;
-            Ray ray = new(new Vector3(-16, -16, -0), new Vector3(16, 16, 72));
-            CTraceFilter filter = new(pawn.Index, pawn.Index)
-            {
-                m_nObjectSetMask = 0xf,
-                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PLAYER_MOVEMENT,
-                m_nInteractsWith = pawn.GetInteractsWith(),
-                m_nInteractsExclude = 0,
-                m_nBits = 11,
-                m_bIterateEntities = true,
-                m_bHitTriggers = false,
-                m_nInteractsAs = 0x40000
-            };
 
-            filter.m_nHierarchyIds[0] = pawn.GetHierarchyId();
-            filter.m_nHierarchyIds[1] = 0;
-            CGameTrace trace = TraceRay.TraceHull(startPos, endPos, filter, ray);
+            ulong mask = pawn.Collision.CollisionAttribute.InteractsWith;
+            ulong contents = pawn.Collision.CollisionGroup;
+            CGameTrace trace = TraceRay.TraceShape(startPos, endPos, mask, contents, player);
+
             return !trace.HitWorld(out _);
         }
 

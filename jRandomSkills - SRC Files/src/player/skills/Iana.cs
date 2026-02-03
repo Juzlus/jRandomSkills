@@ -1,7 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
-using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -9,7 +7,7 @@ using CS2TraceRay.Class;
 using CS2TraceRay.Struct;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Numerics;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
@@ -22,7 +20,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            // SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
         public static void NewRound()
@@ -143,8 +141,9 @@ namespace src.player.skills
                 clone.Teleport(playerPawn.AbsOrigin, new QAngle(0, playerPawn.V_angle.Y, 0));
 
                 playerPawn.Teleport(pos);
-                SkillUtils.ApplyScreenColor(player, 255, 255, 0, 20, 100, 1020);
+                SkillUtils.ApplyScreenColor(player, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
                 BlockWeapon(playerSkill.Player, true);
+
                 playerSkill.UseTime = Server.TickCount;
                 playerSkill.NextUse = Server.TickCount + 64000;
                 playerSkill.CloneProp = clone;
@@ -155,18 +154,25 @@ namespace src.player.skills
                         KillClone(playerSkill);
                 });
 
-                jRandomSkills.Instance.AddTimer(2f, () => {
-                    if (playerSkill.CloneProp == null)
-                        return;
+                Timer? cloneTimer = null;
+                ulong playerSteamID = player.SteamID;
 
-                    if (player.IsValid && player.PawnIsAlive)
-                        SkillUtils.ApplyScreenColor(player,
-                            r: 255,
-                            g: 255,
-                            b: 0,
-                            a: 20,
-                            duration: 100,
-                            holdTime: 1020);
+                cloneTimer = jRandomSkills.Instance.AddTimer(2f, () =>
+                {
+                    var target = Utilities.GetPlayerFromSteamId(playerSteamID);
+                    if (target == null || !target.IsValid || !target.PawnIsAlive)
+                    {
+                        cloneTimer?.Kill();
+                        return;
+                    }
+
+                    if (!playersInfo.TryGetValue(target, out var playerSkill) || playerSkill.CloneProp == null)
+                    {
+                        cloneTimer?.Kill();
+                        return;
+                    }
+
+                    SkillUtils.ApplyScreenColor(target, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
                 }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
             });
 
@@ -181,22 +187,9 @@ namespace src.player.skills
             Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 25);
             endPos.Z += 25;
 
-            Ray ray = new(Vector3.Zero);
-            CTraceFilter filter = new(playerPawn.Index, playerPawn.Index)
-            {
-                m_nObjectSetMask = 0xf,
-                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PLAYER_MOVEMENT,
-                m_nInteractsWith = playerPawn.GetInteractsWith(),
-                m_nInteractsExclude = 0,
-                m_nBits = 11,
-                m_bIterateEntities = true,
-                m_bHitTriggers = false,
-                m_nInteractsAs = 0x40000
-            };
-
-            filter.m_nHierarchyIds[0] = playerPawn.GetHierarchyId();
-            filter.m_nHierarchyIds[1] = 0;
-            CGameTrace trace = TraceRay.TraceHull(eyePos, endPos, filter, ray);
+            ulong mask = playerPawn.Collision.CollisionAttribute.InteractsWith;
+            ulong contents = playerPawn.Collision.CollisionGroup;
+            CGameTrace trace = TraceRay.TraceShape(eyePos, endPos, mask, contents, player);
 
             return !trace.DidHit();
         }
@@ -282,9 +275,7 @@ namespace src.player.skills
             if (playersInfo.TryGetValue(victim, out var playerSkill) && playerSkill.CloneProp != null)
             {
                 KillClone(playerSkill);
-                var victimPawn = victim.PlayerPawn.Value;
-                if (victimPawn ==  null) return;
-                SkillUtils.AddHealth(victimPawn, @event.DmgHealth);
+                SkillUtils.RestoreHealth(victim);
             }
         }
 

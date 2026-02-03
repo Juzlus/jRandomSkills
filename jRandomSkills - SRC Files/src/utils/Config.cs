@@ -98,7 +98,7 @@ namespace src.utils
                 KillerSkillChatInfo = true;
                 TeamMateSkillChatInfo = true;
                 SummaryAfterTheRound = true;
-                DebugMode = true;
+                DebugMode = false;
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = 999;
@@ -107,7 +107,7 @@ namespace src.utils
                 FlashingHtmlHudFix = true;
                 CS2TraceRayDebug = false;
                 DisableSpectateHUD = false;
-                DisableHUDOnDeathPermission = "@jRandmosSkills/death";
+                DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
 
                 LanguageSystem = new LanguageSystem
@@ -116,11 +116,12 @@ namespace src.utils
                     DisableGeoLite = false,
                     LanguageInfos =
                     [
-                        new LanguageInfo("CN, TW, HK, MO, SG", "pt-br"),
-                        new LanguageInfo("PT, BR, AO, CV, GW, MZ, ST, TL", "zh"),
+                        new LanguageInfo("ZH, CN, TW, HK, MO, SG", "zh"),
+                        new LanguageInfo("PT-BR, PT, BR, AO, CV, GW, MZ, ST, TL", "pt-br"),
                         new LanguageInfo("FR, MC, HT", "fr"),
+                        new LanguageInfo("DE, AT, CH, LI, LU, BE", "de"),
                         new LanguageInfo("PL", "pl"),
-                        new LanguageInfo("GB, US", "en")
+                        new LanguageInfo("EN, GB, US", "en")
                     ]
                 };
 
@@ -158,25 +159,25 @@ namespace src.utils
 
                 NormalCommands = new NormalCommands
                 {
-                    SetSkillCommand = new NormalCommand("ustawskill, ustaw_skill, setskill, set_skill, definirhabilidade, configurarhabilidade, 设置技能, 配置技能", "@jRandmosSkills/admin"),
-                    SkillsListCommand = new NormalCommand("supermoc, skille, listamocy, supermoce, skills, listaHabilidades, habilidades, 技能列表, 超能力列表", "@jRandmosSkills/admin"),
-                    UseSkillCommand = new NormalCommand("t, useSkill, usarHabilidade, 技能使用, 使用技能", "@jRandmosSkills/admin"),
-                    HealCommand = new NormalCommand("heal, ulecz, curar, tratar, 治疗, 治愈", "@jRandmosSkills/admin"),
-                    ConsoleCommand = new NormalCommand("console, sv, 控制台, 服务器", "@jRandmosSkills/owner"),
+                    SetSkillCommand = new NormalCommand("ustawskill, ustaw_skill, setskill, set_skill, definirhabilidade, configurarhabilidade, 设置技能, 配置技能", "@jRandomSkills/admin"),
+                    SkillsListCommand = new NormalCommand("supermoc, skille, listamocy, supermoce, skills, listaHabilidades, habilidades, 技能列表, 超能力列表", "@jRandomSkills/admin"),
+                    UseSkillCommand = new NormalCommand("t, useSkill, usarHabilidade, 技能使用, 使用技能", "@jRandomSkills/admin"),
+                    HealCommand = new NormalCommand("heal, ulecz, curar, tratar, 治疗, 治愈", "@jRandomSkills/admin"),
+                    ConsoleCommand = new NormalCommand("console, sv, 控制台, 服务器", "@jRandomSkills/owner"),
                     HudCommand = new NormalCommand("hud, hood", ""),
-                    SetStaticSkillCommand = new NormalCommand("ustawstatycznyskill, ustaw_statyczny_skill, setstaticskill, set_static_skill", "@jRandmosSkills/admin"),
+                    SetStaticSkillCommand = new NormalCommand("ustawstatycznyskill, ustaw_statyczny_skill, setstaticskill, set_static_skill", "@jRandomSkills/admin"),
                     ChangeLanguageCommand = new NormalCommand("lang, language, changelang, change_lang, jezyk, język", ""),
-                    ReloadCommand = new NormalCommand("reload, refresh", "@jRandmosSkills/admin"),
+                    ReloadCommand = new NormalCommand("reload, refresh", "@jRandomSkills/admin"),
                 };
 
                 VotingCommands = new VotingCommands
                 {
-                    StartGameCommand = new StartGameCommand(true, "start, go, começar, iniciar, 开始, 启动", "@jRandmosSkills/admin", "mp_freezetime 15; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 0", "mp_freezetime 0; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 1", 15, 60, 15, 500, 2),
-                    ChangeMapCommand = new VotingCommand(true, "map, mapa, changemap, zmienmape, zmienmape, mudarMapa, trocarMapa, 更换地图, 更改地图", "@jRandmosSkills/admin", 25, 90, 15, 500, 2),
-                    SwapCommand = new VotingCommand(true, "swap, zmiana, trocar, 交换, 切换", "@jRandmosSkills/admin", 15, 90, 15, 20, 2),
-                    ShuffleCommand = new VotingCommand(true, "shuffle, embaralhar, 随机排序, 洗牌", "@jRandmosSkills/admin", 15, 90, 15, 20, 2),
-                    PauseCommand = new VotingCommand(true, "pause, unpause, pausar, despausar, 暂停, 恢复", "@jRandmosSkills/admin", 15, 60, 15, 2, 2),
-                    SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandmosSkills/owner", 15, 90, 15, 90, 2),
+                    StartGameCommand = new StartGameCommand(true, "start, go, começar, iniciar, 开始, 启动", "@jRandomSkills/admin", "mp_freezetime 15; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 0", "mp_freezetime 0; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 1", 15, 60, 15, 500, 2),
+                    ChangeMapCommand = new VotingCommand(true, "map, mapa, changemap, zmienmape, zmienmape, mudarMapa, trocarMapa, 更换地图, 更改地图", "@jRandomSkills/admin", 25, 90, 15, 500, 2),
+                    SwapCommand = new VotingCommand(true, "swap, zmiana, trocar, 交换, 切换", "@jRandomSkills/admin", 15, 90, 15, 20, 2),
+                    ShuffleCommand = new VotingCommand(true, "shuffle, embaralhar, 随机排序, 洗牌", "@jRandomSkills/admin", 15, 90, 15, 20, 2),
+                    PauseCommand = new VotingCommand(true, "pause, unpause, pausar, despausar, 暂停, 恢复", "@jRandomSkills/admin", 15, 60, 15, 2, 2),
+                    SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandomSkills/owner", 15, 90, 15, 90, 2),
                 };
             }
         }

@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using CS2TraceRay.Class;
@@ -9,7 +8,6 @@ using CS2TraceRay.Struct;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
-using System.Numerics;
 using static src.jRandomSkills;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
@@ -23,6 +21,8 @@ namespace src.player.skills
         private const int actionCode = 503;
         private static readonly ConcurrentDictionary<ulong, byte> playersInAction = [];
         private static readonly MemoryFunctionVoid<IntPtr, short> Shoot_Secondary = new(GameData.GetSignature("Shoot_Secondary"));
+
+        private static int i = 0;
 
         public static void LoadSkill()
         {
@@ -100,23 +100,11 @@ namespace src.player.skills
             Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
             Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * SkillsInfo.GetValue<float>(skillName, "maxDistance");
 
-            Ray ray = new(Vector3.Zero);
-            CTraceFilter filter = new(pawn.Index, pawn.Index)
-            {
-                m_nObjectSetMask = 0xf,
-                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PLAYER_MOVEMENT,
-                m_nInteractsWith = pawn.GetInteractsWith(),
-                m_nInteractsExclude = 0,
-                m_nBits = 11,
-                m_bIterateEntities = true,
-                m_bHitTriggers = false,
-                m_nInteractsAs = 0x40000
-            };
-
-            filter.m_nHierarchyIds[0] = pawn.GetHierarchyId();
-            filter.m_nHierarchyIds[1] = 0;
-            CGameTrace trace = TraceRay.TraceHull(eyePos, endPos, filter, ray);
-
+            ulong hitboxes = 0x2;
+            ulong mask = pawn.Collision.CollisionAttribute.InteractsWith | hitboxes;
+            ulong contents = pawn.Collision.CollisionGroup;
+            CGameTrace trace = TraceRay.TraceShape(eyePos, endPos, mask, contents, player);
+            
             if (Config.LoadedConfig.CS2TraceRayDebug)
             {
                 CreateLine(eyePos, endPos, Color.FromArgb(255, 255, 255, 0));
@@ -126,12 +114,17 @@ namespace src.player.skills
                 if (trace.DidHit())
                 {
                     var val = Activator.CreateInstance(typeof(CBaseEntity), trace.HitEntity) as CBaseEntity;
-                    player.PrintToChat($"Hit: {trace.DidHit()}, Entity: {(val == null ? "null" : val.DesignerName)}, Solid: {trace.AllSolid}, Contents: {(Contents)trace.Contents}");
+                    player.PrintToChat($"Hit: {trace.DidHit()}, Entity: {(val == null ? "null" : val.DesignerName)}, Solid: {trace.AllSolid}, Contents: {(Contents)trace.Contents}, Hitbox: {trace.HitboxData[0].HitGroup}");
                 }
                 else
-                    player.PrintToChat($"Hit: {trace.DidHit()}, Entity: {trace.HitEntity}, Solid: {trace.AllSolid}, Contents: {(Contents)trace.Contents}");
+                    player.PrintToChat($"Hit: {trace.DidHit()}, Object: {trace.HitEntity}, Solid: {trace.AllSolid}, Contents: {(Contents)trace.Contents}, Hitbox: {trace.HitboxData[0].HitGroup}");
             }
 
+            CEntityInstance entityInstance = new(trace.HitEntity);
+            if (string.IsNullOrEmpty(entityInstance.DesignerName))
+                return;
+
+            CBaseEntity entity = entityInstance.As<CBaseEntity>();
             if (!trace.HitPlayer(out CCSPlayerController? target) || target == null)
                 return;
 

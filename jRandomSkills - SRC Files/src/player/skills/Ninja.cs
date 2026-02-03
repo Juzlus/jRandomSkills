@@ -68,7 +68,7 @@ namespace src.player.skills
                         if (entity == null || !entity.IsValid) continue;
                         info.TransmitEntities.Remove(entity.Index);
 
-                        var bombIndex = HideBomb(_player);
+                        var bombIndex = GetBombIndex(_player);
                         if (bombIndex == null) continue;
                         var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
                         if (bombEntity == null || !bombEntity.IsValid) continue;
@@ -170,7 +170,7 @@ namespace src.player.skills
             particle.AcceptInput("Start");
         }
 
-        private static uint? HideBomb(CCSPlayerController player)
+        private static uint? GetBombIndex(CCSPlayerController player)
         {
             var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
             if (bombEntities.Count == 0) return null;
@@ -179,14 +179,6 @@ namespace src.player.skills
             if (bomb == null) return null;
 
             if (bomb.OwnerEntity.Index != player.Index) return null;
-
-            bomb.EntitySpottedState.Spotted = false;
-            Utilities.SetStateChanged(bomb, "CCSPlayerPawn", "m_entitySpottedState", Schema.GetSchemaOffset("EntitySpottedState_t", "m_bSpotted"));
-
-            for (int i = 0; i < bomb.EntitySpottedState.SpottedByMask.Length; i++)
-                bomb.EntitySpottedState.SpottedByMask[i] = 0;
-            Utilities.SetStateChanged(bomb, "CCSPlayerPawn", "m_entitySpottedState", Schema.GetSchemaOffset("EntitySpottedState_t", "m_bSpottedByMask"));
-
             return bomb.Index;
         }
 

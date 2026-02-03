@@ -34,23 +34,31 @@ namespace src.player.skills
         {
             foreach( var (info, player) in infoList)
             {
-                if (player == null) continue;
+                if (player == null || !player.IsValid) continue;
+                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+
+                var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
+                bool isObservingJackal = false;
+
+                if (targetHandle != nint.Zero)
+                {
+                    var target = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
+                    var targetInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == target?.SteamID);
+                    if (targetInfo?.Skill == skillName) isObservingJackal = true;
+                }
+
+                bool hasSkill = playerInfo?.Skill == skillName || isObservingJackal;
+
                 foreach (var param in playersStep)
                 {
                     var enemy = param.Key;
                     var step = param.Value;
-                    if (step == null || step.IsValid) continue;
-
-                    var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
-                    var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-                    var observerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer?.SteamID);
+                    if (step == null || !step.IsValid) continue;
 
                     var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)step.Index);
                     if (entity == null || !entity.IsValid) continue;
 
-                    if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName)
-                        info.TransmitEntities.Remove(entity.Index);
-                    else if (enemy.Team == player.Team)
+                    if (!hasSkill || enemy.Team == player.Team)
                         info.TransmitEntities.Remove(entity.Index);
                 }
             }

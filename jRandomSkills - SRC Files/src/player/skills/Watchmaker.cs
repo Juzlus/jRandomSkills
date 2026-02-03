@@ -21,11 +21,6 @@ namespace src.player.skills
             bombPlanted = false;
         }
 
-        public static void DisableSkill(CCSPlayerController player)
-        {
-            SkillUtils.ResetPrintHTML(player);
-        }
-
         public static void BombPlanted(EventBombPlanted _)
         {
             bombPlanted = true;
@@ -56,30 +51,10 @@ namespace src.player.skills
             else
                 Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], [roundTime]);
             player.EmitSound(SkillsInfo.GetValue<string>(skillName, "SoundEvent"));
-        }
 
-        public static void OnTick()
-        {
-            if (bombPlanted) return;
-            if (SkillUtils.IsFreezeTime()) return;
-            foreach (var player in Utilities.GetPlayers())
-            {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-                if (playerInfo?.Skill == skillName)
-                    UpdateHUD(player);
-            }
-        }
-
-        private static void UpdateHUD(CCSPlayerController player)
-        {
-            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == skillName);
-            if (skillData == null || Instance?.GameRules == null || Instance?.GameRules?.RoundTime == null || Instance.GameRules?.RoundStartTime == null) return;
-
-            int seconds = 1 + (int)(Instance.GameRules.RoundTime - (Server.CurrentTime - Instance.GameRules.RoundStartTime));
-            
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
-            if (playerInfo == null) return;
-            playerInfo.PrintHTML = SkillUtils.SecondsToTimer(seconds);
+            var proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
+            if (proxy == null) return;
+            Utilities.SetStateChanged(proxy, "CCSGameRulesProxy", "m_pGameRules");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff462e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int changeRoundTime = 7, string soundEvent = "UIPanorama.sidemenu_select") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

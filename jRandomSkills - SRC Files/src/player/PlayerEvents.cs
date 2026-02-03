@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
@@ -11,7 +12,6 @@ using src.utils;
 using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace src.player
 {
@@ -38,6 +38,7 @@ namespace src.player
         {
             Instance.RegisterEventHandler<EventPlayerConnectFull>(PlayerConnectFull);
             Instance.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnect);
+            // Instance.RegisterEventHandler<EventPlayerChat>(PlayerChat);
             Instance.RegisterEventHandler<EventRoundStart>(RoundStart);
             Instance.RegisterEventHandler<EventRoundEnd>(RoundEnd);
             
@@ -350,6 +351,39 @@ namespace src.player
             }
         }
 
+        private static HookResult PlayerChat(EventPlayerChat @event, GameEventInfo info)
+        {
+            var userID = @event.Userid;
+            if (userID == 0 || string.IsNullOrEmpty(@event.Text)) return HookResult.Continue;
+  
+            string text = @event.Text.Split(' ')[0].Trim();
+
+            string commandName = text.StartsWith('!') || text.StartsWith('/') ? text[1..] : text;
+            
+            foreach (var cmd in Instance.CommandDefinitions)
+                Server.PrintToChatAll("1. " + cmd.Name);
+
+            foreach (var cmd in Instance.CommandListeners.Keys)
+                Server.PrintToChatAll("2. " + cmd?.Target?.ToString());
+
+            var player = Utilities.GetPlayerFromUserid(userID);
+            if (player == null || !player.IsValid) return HookResult.Continue;
+
+            var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (skillPlayer == null) return HookResult.Continue;
+
+            var temp = skillPlayer.SkillHudExpired;
+            skillPlayer.SkillHudExpired = DateTime.MinValue;
+;
+            Instance.AddTimer(5f, () =>
+            {
+                if (skillPlayer.SkillHudExpired == DateTime.MinValue)
+                    skillPlayer.SkillHudExpired = temp;
+            });
+
+            return HookResult.Continue;
+        }
+
         private static HookResult RoundStart(EventRoundStart @event, GameEventInfo info)
         {
             lock (setLock)
@@ -398,7 +432,10 @@ namespace src.player
             lock (setLock)
             {
                 isTransmitRegistered = false;
-                Instance.AddTimer(.1f, () => DisableAll());
+                Instance.AddTimer(.1f, () => {
+                    DisableAll();
+                    ConVar.Find("sv_legacy_jump")?.SetValue("1");
+                });
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
                 playersSkills.Clear();
                 staticSkills.Clear();

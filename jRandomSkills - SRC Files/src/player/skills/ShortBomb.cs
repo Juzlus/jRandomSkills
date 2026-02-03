@@ -26,6 +26,8 @@ namespace src.player.skills
             var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
             if (plantedBomb != null)
                 Server.NextFrame(() => plantedBomb.C4Blow = (float)Server.EngineTime + SkillsInfo.GetValue<int>(skillName, "detonationTime"));
+
+            player!.PrintToCenterAlert(player.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "detonationTime")));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f5b74c", CsTeam onlyTeam = CsTeam.Terrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int detonationTime = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

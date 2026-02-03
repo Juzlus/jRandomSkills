@@ -27,6 +27,8 @@ namespace src.player.skills
             var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
             if (plantedBomb != null)
                 Server.NextFrame(() => plantedBomb.C4Blow = (float)Server.EngineTime + SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime"));
+
+            player!.PrintToCenterAlert(player.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime")));
         }
 
         public static void DisableSkill(CCSPlayerController player)

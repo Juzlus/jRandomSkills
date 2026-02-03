@@ -78,6 +78,9 @@ namespace src.command
             if (playerPawn?.CBodyComponent == null) return;
             if (!player.IsValid || !player.PawnIsAlive) return;
 
+            if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                return;
+
             string[] commands = _.ArgString.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
             Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill}");
             if (commands == null || commands.Length == 0)
@@ -464,14 +467,12 @@ namespace src.command
             if (player == null || !player.IsValid) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.ChangeLanguageCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ChangeLanguageCommand.Permissions)) return;
 
-            string fileName;
+            string fileName = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
             string newLangCode = command.GetArg(1).ToUpper();
             foreach (var langInfo in Config.LoadedConfig.LanguageSystem.LanguageInfos)
                 if (langInfo.IsoCodes.Contains(newLangCode))
                     fileName = langInfo.FileName;
-            if (!Localization.HasTranslation(newLangCode))
-                fileName = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
-            else
+            if (Localization.HasTranslation(newLangCode))
                 fileName = newLangCode.ToLower();
             Localization.ChangePlayerLanguage(player, fileName);
         }
@@ -508,17 +509,5 @@ namespace src.command
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

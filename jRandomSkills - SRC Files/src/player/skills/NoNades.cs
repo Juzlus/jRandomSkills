@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -24,8 +25,8 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
-            if (weapon == "hegrenade" || weapon == "inferno")
-                SkillUtils.AddHealth(player!.PlayerPawn.Value, damage);
+            if (weapon == "hegrenade" || weapon == "inferno" || weapon == "decoy" || weapon == "flashbang" || weapon == "smokegrenade" || weapon == "molotov")
+                SkillUtils.RestoreHealth(player);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a38c1a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

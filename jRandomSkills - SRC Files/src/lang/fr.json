@@ -55,6 +55,12 @@
   "c4camouflage": "Camouflage C4",
   "c4camouflage_desc": "Vous êtes invisible en tenant la bombe",
 
+  "carefulbullets": "Balles prudentes",
+  "carefulbullets_desc": "Sélectionnez un joueur qui subit des dégâts à chaque tir manqué",
+  "carefulbullets_enemy_info": "À partir de maintenant, l'inexactitude fera littéralement mal.",
+  "carefulbullets_player_info": "« {0} » doit désormais être plus prudent.",
+  "carefulbullets_select_info": "L'inexactitude nuit au joueur :",
+
   "catapult": "Catapulte",
   "catapult_desc": "Vous avez une chance aléatoire de projeter un ennemi en l’air",
   "catapult_desc2": "Votre chance de projeter un ennemi à l’impact est : {0}%",
@@ -67,6 +73,10 @@
 
   "cutter": "Trancheur",
   "cutter_desc": "Coup de couteau = mort instantanée",
+
+  "cypher": "Caméra",
+  "cypher_desc": "Cliquez sur [css_useSkill] pour créer/passer à une caméra.",
+  "cypher_nospace": "La caméra doit être positionnée à angle droit par rapport au mur",
 
   "darkness": "Obscurité",
   "darkness_desc": "Applique un effet d’obscurité à un ennemi choisi",
@@ -175,6 +185,9 @@
 
   "holyhandgrenade": "Grenade Sacrée",
   "holyhandgrenade_desc": "Vos grenades HE infligent le double de dégâts et ont une portée doublée",
+
+  "iana": "Hologramme",
+  "iana_desc": "Cliquez sur [css_useSkill] pour contrôler votre hologramme pendant quelques secondes",
 
   "impostor": "Imposteur",
   "impostor_desc": "Vous commencez le round avec un modèle de joueur ennemi",
@@ -357,6 +370,7 @@
   "silent_desc": "Vos pas et vos sauts sont silencieux pour les AUTRES joueurs",
 
   "sniperelite": "Sniper d’Élite",
+  "sniperelite_customname": "Compétence Sniper d’Élite",
   "sniperelite_desc": "Appuyez sur [css_useSkill] pour échanger votre arme actuelle contre un AWP",
 
   "soldier": "Soldat",
@@ -452,10 +466,10 @@
 
   "bombsite_a": "Site de bombe A",
   "bombsite_b": "Site de bombe B",
+  "bombplanted": "La bombe a été posée\n{0} secondes avant l'explosion",
 
   "teammate_skills": "Compétences de vos coéquipiers",
-  "summary_start": "Résumé du dernier round",
-  "summary_end": "===================================",
+  "summary": "Résumé du dernier round",
 
   "menu_controlls_scroll": "W/S - Défilement",
   "menu_controlls_padding": "   |   ",

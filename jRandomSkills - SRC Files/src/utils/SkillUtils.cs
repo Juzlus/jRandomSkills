@@ -9,6 +9,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.player;
 using src.player.skills;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using WASDMenuAPI.Classes;
 using WASDSharedAPI;
@@ -110,14 +111,23 @@ namespace src.utils
             if (scale <= 0 || skeleton == null) return;
 
             skeleton.Scale = scale;
-            playerPawn.AcceptInput("SetScale", null, null, scale.ToString());
-            Server.NextFrame(() => Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent"));
+            playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
+            Server.NextWorldUpdate(() => Utilities.SetStateChanged(player.PlayerPawn.Value!, "CBaseEntity", "m_CBodyComponent"));
         }
 
         public static Vector? GetSpawnPointVector(CCSPlayerController player, bool enemySpawn = false)
         {
-            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(player.Team == CsTeam.Terrorist && !enemySpawn
-                ? "info_player_terrorist" : "info_player_counterterrorist").ToList();
+            if (player == null || player.Team is CsTeam.None or CsTeam.Spectator) return null;
+
+            CsTeam targetTeam = enemySpawn
+                ? (player.Team == CsTeam.CounterTerrorist ? CsTeam.Terrorist : CsTeam.CounterTerrorist)
+                : player.Team;
+
+            string spawnPointName = targetTeam == CsTeam.CounterTerrorist
+                ? "info_player_counterterrorist"
+                : "info_player_terrorist";
+
+            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(spawnPointName).ToList();
             if (spawns.Count != 0)
             {
                 var randomSpawn = spawns[jRandomSkills.Instance.Random.Next(spawns.Count)];
@@ -206,6 +216,19 @@ namespace src.utils
 
             pawn.MaxHealth = maxHealth;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+        }
+
+        public static void RestoreHealth(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid || player.PlayerPawn == null)
+                return;
+
+            CBasePlayerPawn? pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                return;
+
+            pawn.Health = (int)player.PawnHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
         }
 
         public static string GetDesignerName(CBasePlayerWeapon? weapon)

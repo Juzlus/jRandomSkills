@@ -1,14 +1,11 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using CS2TraceRay.Class;
 using CS2TraceRay.Struct;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Numerics;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 using static src.jRandomSkills;
 
@@ -170,22 +167,9 @@ namespace src.player.skills
             Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 25);
             endPos.Z += 25;
 
-            Ray ray = new(Vector3.Zero);
-            CTraceFilter filter = new(playerPawn.Index, playerPawn.Index)
-            {
-                m_nObjectSetMask = 0xf,
-                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PLAYER_MOVEMENT,
-                m_nInteractsWith = playerPawn.GetInteractsWith(),
-                m_nInteractsExclude = 0,
-                m_nBits = 11,
-                m_bIterateEntities = true,
-                m_bHitTriggers = false,
-                m_nInteractsAs = 0x40000
-            };
-
-            filter.m_nHierarchyIds[0] = playerPawn.GetHierarchyId();
-            filter.m_nHierarchyIds[1] = 0;
-            CGameTrace trace = TraceRay.TraceHull(eyePos, endPos, filter, ray);
+            ulong mask = playerPawn.Collision.CollisionAttribute.InteractsWith;
+            ulong contents = playerPawn.Collision.CollisionGroup;
+            CGameTrace trace = TraceRay.TraceShape(eyePos, endPos, mask, contents, player);
 
             return !trace.DidHit();
         }
@@ -225,9 +209,7 @@ namespace src.player.skills
             if (playersInfo.TryGetValue(victim, out var playerSkill) && playerSkill.CloneProp != null)
             {
                 KillClone(playerSkill);
-                var victimPawn = victim.PlayerPawn.Value;
-                if (victimPawn ==  null) return;
-                SkillUtils.AddHealth(victimPawn, @event.DmgHealth);
+                SkillUtils.RestoreHealth(victim);
             }
         }
 

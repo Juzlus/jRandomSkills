@@ -28,6 +28,7 @@ jRandomSkills is a plugin for CounterStrike 2 that brings chaos and fun to gamep
 - **Polish**
 - **French** [by: [@felyjyn](https://github.com/felyjyn)]
 - **Portuguese (Brazilian)** [by: [@vinicius-trev](https://github.com/vinicius-trev)]
+- **German** [by: [@Enrory](https://github.com/Enrory)]
 - **Simplified Chinese** [GrokAI / ChatGPT]
 
 ## 🖼️ Preview
@@ -45,7 +46,7 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
 
-## ✨ Current Skills (109)
+## ✨ Current Skills (111)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -197,22 +198,22 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 
 | Command | Example | Description | Permissions |
 | - | - | - | - |
-| `!setskill <playerName/steamID> <skill>` | `!setskill Juzlus Aimbot` | Giving skill to a player | `@jRandmosSkills/admin` |
+| `!setskill <playerName/steamID> <skill>` | `!setskill Juzlus Aimbot` | Giving skill to a player | `@jRandomSkills/admin` |
 | `!lang <IsoCode>` | `!lang en` | Change the language | - |
 | `!skills` | `!skills` | List of skills | - |
-| `!map <mapName>` | `!map de_nuke` | Change map | `@jRandmosSkills/admin` |
-| `!map <mapWorkshopId>` | `!map 3332005394` | Change map from workshop | `@jRandmosSkills/admin` |
-| `!start` | `!start` | Start game with conditions: `mp_forcecamera 0, mp_freezetime 15, mp_overtime_enable 1, sv_cheats 0` | `@jRandmosSkills/admin` |
-| `!start sv` | `!start sv` | Start the game with conditions: `mp_forcecamera 0, mp_freezetime 0, mp_overtime_enable 1, sv_cheats 1` | `@jRandmosSkills/admin` |
-| `!console <command>` | `!console sv_cheats 1` | Run a command on the server | `@jRandmosSkills/owner` |
-| `!swap` | `!swap` | Switch sides | `@jRandmosSkills/admin` |
-| `!shuffle` | `!shuffle` | Randomly assign players to teams | `@jRandmosSkills/admin` |
-| `!pause` | `!pause` | Pause the game | `@jRandmosSkills/admin` |
-| `!heal` | `!heal` | Restore 100 health points | `@jRandmosSkills/admin` |
+| `!map <mapName>` | `!map de_nuke` | Change map | `@jRandomSkills/admin` |
+| `!map <mapWorkshopId>` | `!map 3332005394` | Change map from workshop | `@jRandomSkills/admin` |
+| `!start` | `!start` | Start game with conditions: `mp_forcecamera 0, mp_freezetime 15, mp_overtime_enable 1, sv_cheats 0` | `@jRandomSkills/admin` |
+| `!start sv` | `!start sv` | Start the game with conditions: `mp_forcecamera 0, mp_freezetime 0, mp_overtime_enable 1, sv_cheats 1` | `@jRandomSkills/admin` |
+| `!console <command>` | `!console sv_cheats 1` | Run a command on the server | `@jRandomSkills/owner` |
+| `!swap` | `!swap` | Switch sides | `@jRandomSkills/admin` |
+| `!shuffle` | `!shuffle` | Randomly assign players to teams | `@jRandomSkills/admin` |
+| `!pause` | `!pause` | Pause the game | `@jRandomSkills/admin` |
+| `!heal` | `!heal` | Restore 100 health points | `@jRandomSkills/admin` |
 | `!hud` | `!hud` | Enable/Disable hud | - |
-| `!setscore <CT> <TT>` | `!setscore 10 7` | Set the game score | `@jRandmosSkills/owner` |
-| `!setstaticskill <playerName/steamID> <skill>` | `!setstaticskill Juzlus Aimbot` | Giving a player a permanent skill | `@jRandmosSkills/admin` |
-| `!setstaticskill <playerName/steamID> None` | `!setstaticskill Juzlus None` | Back to normal | `@jRandmosSkills/admin` |
+| `!setscore <CT> <TT>` | `!setscore 10 7` | Set the game score | `@jRandomSkills/owner` |
+| `!setstaticskill <playerName/steamID> <skill>` | `!setstaticskill Juzlus Aimbot` | Giving a player a permanent skill | `@jRandomSkills/admin` |
+| `!setstaticskill <playerName/steamID> None` | `!setstaticskill Juzlus None` | Back to normal | `@jRandomSkills/admin` |
 | `!reload` | `!reload` | Reload translations | - |
 
 _Most commands require permissions, which must be set in the file: `game/csgo/addons/counterstrikesharp/configs/admins.json`_
@@ -226,7 +227,7 @@ To grant administrative permissions in CounterStrikeSharp:
     {
         "Juzlus": {
             "identity": "STEAM_0:0:94913632",
-            "flags": ["@jRandmosSkills/admin", "@jRandmosSkills/owner"]
+            "flags": ["@jRandomSkills/admin", "@jRandomSkills/owner"]
         }
     }
     ```
@@ -245,11 +246,13 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // 1 - Same skills for the whole team
                                          // 2 - Same skills for all players
                                          // 3 - Random skills for each player (It can't be the same until the map changes)
-                                         // 4 - Debug: Skills are assigned in turn
+                                         // 4 - Full Random: Random skills for each player
+                                         // 5 - Debug: Skills are assigned in turn
+        "YourSkillChatInfo": true,       // Show your skill in chat
         "KillerSkillInfo": true,         // Show killer's skill in chat
         "TeamMateSkillInfo": true,       // Show allies' skills in chat
         "SummaryAfterTheRound": true,    // Show summary of the last round
-        "DebugMode": true,               // Write activity to the ‘Debug’ folder
+        "DebugMode": false,               // Write activity to the ‘Debug’ folder
         "AlternativeSkillButton": null,  // Possible buttons:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",
@@ -259,18 +262,21 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // "Attack3", "Scoreboard", "Inspect"
         "SkillTimeBeforeStart": 7.0,     // How many seconds before freeze time ends should skills
                                          // drawing be completed? (freezetime - SkillTimeBeforeStart)
-        "SkillDescriptionDuration": 7.0, // How long should the skill description be visible for?
+        "SkillHudDuration": 999.0,       // How long should the HUD be visible for?
+        "SkillDescriptionDuration": 999, // How long should the skill description be visible for?
         "DisplayAlwaysDescription":false,// Always display skill description (SkillDescriptionDuration = 9999)
         "DisableSpectateHUD": false,     // Disable HTML HUD when spectating
         "FlashingHtmlHudFix": true,      // Enable FlashingHtmlHudFix
         "CS2TraceRayDebug": false,       // Enable trail visibility for 'Long Knife', 'Long Zeus'
-        "DisableHUDOnDeathPermission": "@jRandmosSkills/death",  // Disable the HUD after death for players with this permission
+        "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Disable the HUD after death for players with this permission
         "DisableSkillsOnRoundEnd": false,// Disable all skills at the end of the round (when the summary is visible)
+        
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Default language: en, pl, fr, pt-br, zh
             "DisableGeoLite": false,     // Disable player language search by geolocation GeoLite2 (MaxMind)
             "LanguageInfos": [...]       // Setting to change ISO languages to translations
         },
+        
         "HtmlHudCustomisation": {        // Settings for changing colours and font sizes
             ...                          // xxxl: 64px, xxl: 40px, xl: 32px
         }                                // l: 24px, ml: 20px, m: 18px
@@ -304,7 +310,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
 }
 ```
 
-## 🔗 Dependency Includes
+## 🔗 Credits
 This plugin uses content from the following projects:
 - [dRandomSkills](https://github.com/jakubbartosik/dRandomSkills) by [Jakub Bartosik (D3X)](https://github.com/jakubbartosik) - random skills system
 - [CS2TraceRay](https://github.com/schwarper/CS2TraceRay) by [schwarper](https://github.com/schwarper) - Trace Ray system
@@ -316,8 +322,165 @@ This plugin uses content from the following projects:
 
 ## 📋 Changelog
 
+<summary><b>v1.10.0</b></summary>
+
+- #### General:
+</details>
+
 <details>
-<summary><b>v1.1.9 BETA</b></summary>
+<summary><b>v1.1.9f</b></summary>
+
+- #### General:
+    - ###### Updated dependencies to the latest version (CSS v1.0.361).
+    - ###### Updated WSADMenu compatibility to the latest CSS version.
+
+- #### Skill improvements:
+    - ###### Earthquake:
+        - ###### Temporarily disabled.
+
+    - ###### Cypher:
+        - ###### Temporarily disabled.
+        - ###### Improved camera setup.
+
+    - ###### Iana:
+        - ###### Temporarily disabled.
+        - ###### Replica can now receive headshot damage.
+    
+    - ###### Toxic Smoke:
+        - ###### Changed distance calculation for triggers.
+</details>
+
+<details>
+<summary><b>v1.1.9e</b></summary>
+
+- #### General:
+    - ###### Improved display of text frame / content.
+    - ###### Added customisation options for chat message appearance.
+</details>
+
+<details>
+<summary><b>v1.1.9d</b></summary>
+
+- #### General:
+    - ###### Updated the appearance of chat messages.
+
+- #### Skill improvements:
+    - ###### C4Camouflage:
+    - ###### Ghost:
+    - ###### Ninja:
+        - ###### Now the entire model is hidden instead of just the weapon and setting the model's transparency.
+
+    - ######  ReZombie:
+        - ###### Increased zombie health from 200 HP to 250 HP.
+
+    - ###### Replicator:
+        - ###### ncreased damage dealt by replicas: Your team: 10 HP; Enemy team: 20 HP
+        - ###### Added the option to customize replica damage in `skillsInfo.json`.
+
+    - ###### ToxicSmoke:
+        - ###### Skill temporarily disabled to test trigger logic.
+
+    - ###### Watchmaker:
+        - ###### Reduced time change from 10 seconds to 7 seconds.
+
+- #### New skills:
+    - ###### Cypher:
+        - ###### Click [css_useSkill] to place a camera where you are aiming.
+
+    - ######  Iana:
+        - ###### Click [css_useSkill] to control a clone for 10 seconds (the clone cannot shoot).
+</details>
+
+<details>
+<summary><b>v1.1.9c</b></summary>
+
+- #### General:
+    - ###### Updated dependency to the latest version.
+    - ###### Added a new game mode, ‘FullRandom,’ which randomly assigns skills each round (skills may be repeated).
+    - ###### Added the `requiredPermission` option to every skill config, defining the permission required for a player to receive that skill.
+
+- #### Skill improvements:
+    - ###### Gambler:
+        - ###### Added text notification when the player has no money.
+
+    - ###### Darkness:
+        - ###### Removed the old post-processing logic (did not work on every map).
+        - ###### Added UTIL_ScreenFade for a more reliable and consistent darkness effect.
+
+    - ###### Distancer:
+        - ###### Limited the maximum display distance to 3000 units.
+
+    - ###### Fortnite:
+        - ###### mproved the placement angle of barricades.
+
+    - ###### Jackal:
+        - ###### Reworked the bean trail logic to a particle system for better performance.
+
+    - ###### Poison:
+        - ###### Slightly increased the poison tick speed.
+        - ###### Added a minimum health threshold (30 HP) below which poison no longer works (configurable).
+
+    - ###### Spectator:
+        - ###### Fixed an issue with the camera after death.
+</details>
+
+<details>
+<summary><b>v1.1.9b</b></summary>
+
+- #### General:
+    - ###### Updated dependency to the latest version.
+    - ###### Fixed an issue with empty permissions for commands.
+    - ###### Added `SkillHudExpired` option to the config file that controls how long (in seconds) the central HUD is visible.
+    - ###### Added logic for trigger enter / exit handling.
+    - ###### Automatic case adjustment for the `AlternativeSkillButton` option in the config.
+    - ###### Fixed an issue with automatic language detection.
+    - ###### Attempt to fix model resizing issue.
+
+- #### Skill improvements:
+    - ###### Bankrupt:
+    - ###### Darkness:
+    - ###### Deactivator:
+    - ######  Deaf:
+    - ###### Glitch:
+    - ###### Jammer:
+    - ###### JumpBan:
+    - ###### LifeSwap:
+    - ###### Magnifier:
+    - ###### MoneySwap:
+    - ###### Poison:
+    - ###### PrimaryBan:
+    - ###### Thief:
+        - ###### Fixed message being shown in the other player's language.
+
+    - ###### C4Camouflage:
+    - ###### Ghost:
+    - ###### Glaz:
+    - ###### Jackal:
+    - ###### Ninja:
+    - ###### Wallhack:
+        - ###### Possible fix for missing entity when showing the entity again.
+
+    - ###### AreaReaper:
+        - ###### Fixed incorrect bomb placement order.
+
+    - ###### C4Camouflage:
+        - ###### Possible fix for missing entity when showing the entity again.
+
+    - ###### Gambler:
+        - ###### Fixed issue where players could reroll their skill even without money.
+
+    - ###### SoundMaker:
+        - ###### Added separate sounds for both teams (configurable).
+
+    - ###### ToxicSmoke:
+        - ###### Updated logic to use triggers (offset not found for Windows system).
+
+    - ###### Watchmaker:
+        - ###### Added a sound when the time updates (configurable).
+</details>
+
+<details>
+<summary><b>v1.1.9a</b></summary>
 
 - #### General:
     - ###### Update the dependency to the latest version.
@@ -345,7 +508,7 @@ This plugin uses content from the following projects:
 - #### General:
     - ###### Added `DisableHUDOnDeathPermission` options to the config, to disable the HUD after death for players with this specific permission.
     - ###### Added `DisableSkillsOnRoundEnd` option to the config, to disable all skills at the end of the round (when the summary is visible).
-    - ###### The permission `@jRandmosSkills/root` has been changed to `@jRandmosSkills/owner` to prevent domain issues.
+    - ###### The permission `@jRandomSkills/root` has been changed to `@jRandomSkills/owner` to prevent domain issues.
     - ###### Added `!hud` command to toggle the HUD on/off (When the HUD is off, the WSAD Menu will not appear).
     - ###### Disabling first skill if two skills are drawn during the first round.
     - ###### The `!reload` command also refreshes the skill activity status.

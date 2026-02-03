@@ -20,6 +20,12 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null) return;
             int moneyBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minMoney"), SkillsInfo.GetValue<int>(skillName, "maxMoney"));
+
+            var moneyServices = player.InGameMoneyServices;
+            if (moneyServices == null) return;
+
+            moneyBonus = Math.Min(moneyBonus, 16000 - moneyServices.Account);
+
             playerInfo.SkillChance = moneyBonus;
             AddMoney(player, moneyBonus);
         }
@@ -28,16 +34,22 @@ namespace src.player.skills
         {
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null) return;
-            AddMoney(player, -(int)(playerInfo.SkillChance ?? 0));
+
+            var moneyServices = player.InGameMoneyServices;
+            if (moneyServices == null) return;
+
+            player.PrintToChat(moneyServices.CashSpentThisRound.ToString());
+            int money = Math.Abs((int)playerInfo.SkillChance! - moneyServices.CashSpentThisRound);
+            AddMoney(player, -money, 3000);
         }
 
-        private static void AddMoney(CCSPlayerController player, int money)
+        private static void AddMoney(CCSPlayerController player, int money, int minimum = 0)
         {
             if (player == null || !player.IsValid) return;
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            moneyServices.Account = Math.Min(Math.Max(moneyServices.Account + money, 0), 16000);
+            moneyServices.Account = Math.Clamp(moneyServices.Account + money, minimum, 16000);
             Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 

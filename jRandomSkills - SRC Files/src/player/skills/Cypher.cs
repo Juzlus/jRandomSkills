@@ -1,8 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using CS2TraceRay.Class;
 using CS2TraceRay.Struct;
@@ -10,6 +9,7 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Numerics;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
@@ -25,7 +25,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            // SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
             jRandomSkills.Instance.AddToManifest(cameraPropModel);
             jRandomSkills.Instance.AddToManifest(cameraViewModel);
         }
@@ -56,7 +56,9 @@ namespace src.player.skills
                 CameraView = null,
                 CameraActive = false,
                 NextCamera = 0,
+                NoSpace = 0,
                 PlayerCameraRaw = player.PlayerPawn.Value.CameraServices.ViewEntity.Raw,
+                LastAngle = QAngle.Zero
             });
         }
 
@@ -85,6 +87,7 @@ namespace src.player.skills
                 playerSkill.CameraProp.AcceptInput("Kill");
                 playerSkill.CameraProp = null;
             }
+            playerSkill.NextCamera = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
         }
 
         public static void OnTick()
@@ -114,8 +117,13 @@ namespace src.player.skills
             {
                 if (player.NextCamera > Server.TickCount) return;
                 player.CameraProp = CreateCameraProp(player.Player);
+                if (player.CameraProp == null)
+                {
+                    player.NoSpace = Server.TickCount + (64 * 2);
+                    return;
+                }
                 player.CameraView = CreateCameraView(player.Player);
-                player.NextCamera = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+                if (player.CameraView == null) return;
             }
 
             var pawn = player.Player.PlayerPawn.Value;
@@ -123,13 +131,52 @@ namespace src.player.skills
                 return;
 
             BlockWeapon(player.Player, player.CameraActive);
-            pawn!.CameraServices!.ViewEntity.Raw = player.CameraActive && player.CameraView != null ? player.CameraView.EntityHandle.Raw : player.PlayerCameraRaw;
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
 
-            if (player.CameraActive && player.CameraView != null)
+            Server.NextWorldUpdate(() =>
             {
-                SkillUtils.ApplyScreenColor(player.Player, 0, 0, 255, 20, 100, 1020);
-            }
+                if (pawn != null && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+                {
+                    if (player.CameraActive && player.CameraProp != null)
+                    {
+                        if ( pawn.AbsRotation != null)
+                            player.LastAngle = new QAngle(pawn.AbsRotation.X, pawn.AbsRotation.Y, pawn.AbsRotation.Z);
+                        pawn.Teleport(null, player.CameraProp.AbsRotation);
+                    }
+                    else if (!forceToDefault)
+                        pawn.Teleport(null, player.LastAngle);
+                }
+
+                if (player.CameraActive && player.CameraView != null)
+                {
+                    pawn!.CameraServices!.ViewEntity.Raw = player.CameraView.EntityHandle.Raw;
+                    SkillUtils.ApplyScreenColor(player.Player, 0, 0, 255, 20, 100, 1020);
+
+                    Timer? cameraTimer = null;
+                    ulong playerSteamID = player.Player.SteamID;
+
+                    cameraTimer = jRandomSkills.Instance.AddTimer(2f, () =>
+                    {
+                        var target = Utilities.GetPlayerFromSteamId(playerSteamID);
+                        if (target == null || !target.IsValid || !target.PawnIsAlive)
+                        {
+                            cameraTimer?.Kill();
+                            return;
+                        }
+
+                        if (!playersInfo.TryGetValue(target, out var playerSkill) || playerSkill.CameraActive == false)
+                        {
+                            cameraTimer?.Kill();
+                            return;
+                        }
+
+                        SkillUtils.ApplyScreenColor(target, 0, 0, 255, 20, 100, 1020);
+                    }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
+                }
+                else
+                    pawn!.CameraServices!.ViewEntity.Raw = player.PlayerCameraRaw;
+
+                Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+            });
         }
 
         private static CDynamicProp? CreateCameraProp(CCSPlayerController player)
@@ -140,7 +187,6 @@ namespace src.player.skills
             camera.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             camera.Entity!.Name = camera.Globalname = $"CypherCamera_{Server.TickCount}_{player.SteamID}";
-            camera.DispatchSpawn();
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return null;
@@ -150,10 +196,14 @@ namespace src.player.skills
             if (cameraVector == null) return null;
             cameraVector = new Vector(cameraVector.X + diffVector.X, cameraVector.Y + diffVector.Y, cameraVector.Z);
 
+            if (!CheckCameraPosition(cameraVector, player))
+                return null;
+
             Server.NextFrame(() =>
             {
                 camera.SetModel(cameraPropModel);
                 camera.Teleport(cameraVector, new QAngle(0, playerPawn.V_angle.Y + 180, 0));
+                camera.DispatchSpawn();
             });
 
             return camera;
@@ -163,7 +213,6 @@ namespace src.player.skills
         {
             var camera = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
             if (camera == null || !camera.IsValid) return null;
-            camera.DispatchSpawn();
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return null;
@@ -172,14 +221,15 @@ namespace src.player.skills
             Vector diffVector = SkillUtils.GetForwardVector(playerPawn.V_angle) * 25;
             if (cameraVector == null) return null;
 
-
             cameraVector = new Vector(cameraVector.X - diffVector.X, cameraVector.Y - diffVector.Y, cameraVector.Z);
             if (cameraVector == null) return null;
+
             Server.NextFrame(() =>
             {
                 camera.SetModel(cameraViewModel);
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
                 camera.Teleport(cameraVector, playerPawn.EyeAngles);
+                camera.DispatchSpawn();
             });
 
             return camera;
@@ -227,7 +277,7 @@ namespace src.player.skills
                 }
         }
 
-        private unsafe static Vector? GetNewCameraPosition(CCSPlayerController player)
+        private static Vector? GetNewCameraPosition(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return null;
@@ -235,28 +285,52 @@ namespace src.player.skills
             Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + playerPawn.ViewOffset.Z);
             Vector endPos = eyePos + SkillUtils.GetForwardVector(playerPawn.V_angle) * 4096f;
 
-            Ray ray = new(Vector3.Zero);
-            CTraceFilter filter = new(playerPawn.Index, playerPawn.Index)
-            {
-                m_nObjectSetMask = 0xf,
-                m_nCollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_PROJECTILE,
-                m_nInteractsWith = 8589946881,
-                m_nInteractsExclude = 0,
-                m_nBits = 11,
-                m_bIterateEntities = true,
-                m_bHitTriggers = false,
-                m_nInteractsAs = 0x40000,
-                m_bOnlyHitIfHasPhysics = true
-            };
+            ulong solid = 0x1;
+            ulong window = 0x1000;
+            ulong passBullets = 0x2000;
 
-            filter.m_nHierarchyIds[0] = playerPawn.GetHierarchyId();
-            filter.m_nHierarchyIds[1] = 0;
-            CGameTrace trace = TraceRay.TraceHull(eyePos, endPos, filter, ray);
+            ulong mask = solid | window | passBullets;
+            ulong contents = playerPawn.Collision.CollisionGroup;
+            CGameTrace trace = TraceRay.TraceShape(eyePos, endPos, mask, contents, player);
 
             if (trace.HitWorld(out _))
-                return new Vector(trace.EndPos.X, trace.EndPos.Y, trace.EndPos.Z);
+            {
+                Vector3 hitPost = trace.EndPos;
+                Vector3 normal = trace.Normal;
+
+                float offset = 8;
+                Vector finalPos = new(
+                        hitPost.X + (normal.X * offset),
+                        hitPost.Y + (normal.Y * offset),
+                        hitPost.Z + (normal.Z * offset)
+                    );
+
+                return finalPos;
+            }
 
             return null;
+        }
+
+        private static bool CheckCameraPosition(Vector cameraVector, CCSPlayerController player)
+        {
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return false;
+
+            Vector endPos = cameraVector + SkillUtils.GetForwardVector(new QAngle(0, playerPawn.V_angle.Y + 180, 0)) * -5;
+            cameraVector += SkillUtils.GetForwardVector(new QAngle(0, playerPawn.V_angle.Y + 180, 0)) * 5;
+
+            ulong solid = 0x1;
+            ulong window = 0x1000;
+            ulong passBullets = 0x2000;
+
+            ulong mask = solid | window | passBullets;
+            ulong contents = playerPawn.Collision.CollisionGroup;
+            CGameTrace trace = TraceRay.TraceShape(cameraVector, endPos, mask, contents, player);
+
+            if (trace.HitWorld(out _))
+                return true;
+
+            return false;
         }
 
         private static void UpdateHUD(PlayerSkill playerSkill)
@@ -270,7 +344,9 @@ namespace src.player.skills
             var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == playerSkill?.Player?.SteamID);
             if (playerInfo == null) return;
 
-            if (cooldown == 0)
+            if (playerSkill.NoSpace >= Server.TickCount)
+                playerInfo.PrintHTML = $"<font color='#FF0000'>{playerSkill.Player.GetTranslation("cypher_nospace")}</font>";
+            else if (cooldown == 0)
                 playerInfo.PrintHTML = null;
             else if (playerSkill?.CameraProp ==  null)
                 playerInfo.PrintHTML = $"{playerSkill?.Player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
@@ -284,6 +360,8 @@ namespace src.player.skills
             public uint PlayerCameraRaw { get; set; }
             public bool CameraActive { get; set; }
             public float NextCamera { get; set; }
+            public float NoSpace { get; set; }
+            public required QAngle LastAngle { get; set; }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

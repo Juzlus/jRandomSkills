@@ -50,25 +50,13 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker))
             {
                 if (victimInfo?.Skill == skillName)
-                    RestoreHealth(victim!, @event.DmgHealth);
+                    SkillUtils.RestoreHealth(victim);
                 return;
             }
 
             var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
             if (attackerInfo?.Skill == skillName || victimInfo?.Skill == skillName)
-                RestoreHealth(victim!, @event.DmgHealth);
-        }
-
-        private static void RestoreHealth(CCSPlayerController victim, float damage)
-        {
-            var playerPawn = victim.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid) return;
-            var newHealth = playerPawn.Health + damage;
-
-            if (newHealth > 100)
-                newHealth = 100;
-
-            playerPawn.Health = (int)newHealth;
+                SkillUtils.RestoreHealth(victim);
         }
 
         public static void EnableSkill(CCSPlayerController _)

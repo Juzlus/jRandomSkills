@@ -23,19 +23,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
             if (playerInfo?.Skill == skillName && hitgroup == (int)HitGroup_t.HITGROUP_HEAD)
-                ApplyIronHeadEffect(victim!, @event.DmgHealth);
-        }
-
-        private static void ApplyIronHeadEffect(CCSPlayerController victim, float damage)
-        {
-            var playerPawn = victim.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid) return;
-            var newHealth = playerPawn.Health + damage;
-
-            if (newHealth > 100)
-                newHealth = 100;
-
-            playerPawn.Health = (int)newHealth;
+                SkillUtils.RestoreHealth(victim);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8B4513", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

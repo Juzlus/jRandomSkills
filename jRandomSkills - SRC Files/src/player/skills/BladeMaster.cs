@@ -66,20 +66,7 @@ namespace src.player.skills
             if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife")
                 return;
 
-            RestoreHealth(victim, damage);
-        }
-
-        private static void RestoreHealth(CCSPlayerController victim, float damage)
-        {
-            var playerPawn = victim.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid || playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var newHealth = playerPawn.Health + damage;
-
-            if (newHealth > 100)
-                newHealth = 100;
-
-            playerPawn.Health = (int)newHealth;
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+            SkillUtils.RestoreHealth(victim);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float torseReflectionChance = .95f, float legReflectionChance = .80f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

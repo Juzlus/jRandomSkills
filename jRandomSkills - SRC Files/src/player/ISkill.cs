@@ -64,6 +64,7 @@ public enum Skills
     BladeMaster,
     BunnyHop,
     C4Camouflage,
+    CarefulBullets,
     Catapult,
     Chicken,
     ChillOut,

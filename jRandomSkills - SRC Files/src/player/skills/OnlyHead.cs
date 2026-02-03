@@ -28,20 +28,7 @@ namespace src.player.skills
 
             HitGroup_t[] disabledHitbox = [HitGroup_t.HITGROUP_LEFTARM, HitGroup_t.HITGROUP_RIGHTARM, HitGroup_t.HITGROUP_LEFTLEG, HitGroup_t.HITGROUP_RIGHTLEG];
             if (hitgroup != HitGroup_t.HITGROUP_HEAD)
-                RestoreHealth(victim!, damage);
-        }
-
-        private static void RestoreHealth(CCSPlayerController victim, float damage)
-        {
-            var playerPawn = victim.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid) return;
-            var newHealth = playerPawn.Health + damage;
-
-            if (newHealth > 100)
-                newHealth = 100;
-
-            playerPawn.Health = (int)newHealth;
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                SkillUtils.RestoreHealth(victim);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#3c47de", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

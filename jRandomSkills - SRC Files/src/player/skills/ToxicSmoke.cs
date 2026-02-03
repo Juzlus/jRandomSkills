@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -19,7 +20,8 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
         public static void NewRound()

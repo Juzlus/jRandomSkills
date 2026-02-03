@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 using static src.jRandomSkills;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
@@ -111,34 +112,32 @@ namespace src.player.skills
         private static void SetUpPostProcessing(CCSPlayerController player, bool turnOff = false)
         {
             if (player == null || !player.IsValid) return;
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
+            ulong playerSteamID = player.SteamID;
 
             lock (setLock)
             {
                 if (!turnOff)
                 {
-                    playersInDark.TryAdd(player.SteamID, 0);
-                    SkillUtils.ApplyScreenColor(player,
-                                r: SkillsInfo.GetValue<int>(skillName, "R"),
-                                g: SkillsInfo.GetValue<int>(skillName, "G"),
-                                b: SkillsInfo.GetValue<int>(skillName, "B"),
-                                a: SkillsInfo.GetValue<int>(skillName, "A"),
-                                duration: 100,
-                                holdTime: 3000);
+                    playersInDark.TryAdd(playerSteamID, 0);
+                    ApplyColor(player);
 
-                    Instance.AddTimer(2.5f, () => {
-                        if (!playersInDark.ContainsKey(player.SteamID))
+                    Timer? darkTimer = null;
+                    darkTimer = Instance.AddTimer(5f, () => {
+                        if (!playersInDark.ContainsKey(playerSteamID))
+                        {
+                            darkTimer?.Kill();
                             return;
+                        }
 
-                        if (player.IsValid && player.PawnIsAlive)
-                            SkillUtils.ApplyScreenColor(player,
-                                r: SkillsInfo.GetValue<int>(skillName, "R"),
-                                g: SkillsInfo.GetValue<int>(skillName, "G"),
-                                b: SkillsInfo.GetValue<int>(skillName, "B"),
-                                a: SkillsInfo.GetValue<int>(skillName, "A"),
-                                duration: 100,
-                                holdTime: 3000);
+                        var target = Utilities.GetPlayerFromSteamId(playerSteamID);
+                        if (target == null || !target.IsValid)
+                        {
+                            darkTimer?.Kill();
+                            return;
+                        }
+
+                        if (target.PawnIsAlive)
+                            ApplyColor(player);
                     }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
                 }
                 else
@@ -147,6 +146,17 @@ namespace src.player.skills
                     playersInDark.TryRemove(player.SteamID, out _);
                 }
             }
+        }
+
+        private static void ApplyColor(CCSPlayerController player)
+        {
+            SkillUtils.ApplyScreenColor(player,
+                r: SkillsInfo.GetValue<int>(skillName, "R"),
+                g: SkillsInfo.GetValue<int>(skillName, "G"),
+                b: SkillsInfo.GetValue<int>(skillName, "B"),
+                a: SkillsInfo.GetValue<int>(skillName, "A"),
+                duration: 100,
+                holdTime: 3000);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#383838", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int r = 0, int g = 0, int b = 0, int a = 230) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

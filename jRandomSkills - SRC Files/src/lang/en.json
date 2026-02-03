@@ -55,6 +55,12 @@
   "c4camouflage": "C4 Camouflage",
   "c4camouflage_desc": "You are invisible while holding the bomb",
 
+  "carefulbullets": "Careful Bullets",
+  "carefulbullets_desc": "Select a player who takes damage for every missed shot",
+  "carefulbullets_enemy_info": "From now on, inaccuracy will literally hurt.",
+  "carefulbullets_player_info": "'{0}' must now be more careful.",
+  "carefulbullets_select_info": "Inaccuracy hurts the player:",
+
   "catapult": "Catapult",
   "catapult_desc": "You have a random chance to launch an enemy upwards",
   "catapult_desc2": "Your chance to launch an enemy on hit is: {0}%",
@@ -67,6 +73,10 @@
 
   "cutter": "Cutter",
   "cutter_desc": "Instant kill with a knife",
+
+  "cypher": "Cypher",
+  "cypher_desc": "Click [css_useSkill] to create/switch to a camera",
+  "cypher_nospace": "The camera must be positioned at right angles to the wall",
 
   "darkness": "Darkness",
   "darkness_desc": "Applies a darkness effect to a chosen enemy",
@@ -175,6 +185,9 @@
 
   "holyhandgrenade": "Holy Hand Grenade",
   "holyhandgrenade_desc": "Your HE grenades deal double damage and have double range",
+
+  "iana": "Hologram",
+  "iana_desc": "Click [css_useSkill] to control your hologram for a few seconds",
 
   "impostor": "Impostor",
   "impostor_desc": "You start the round with an enemy player model",
@@ -357,6 +370,7 @@
   "silent_desc": "Your footsteps and jumps are silent to OTHER players",
 
   "sniperelite": "Sniper Elite",
+  "sniperelite_customname": "Sniper Elite Skill",
   "sniperelite_desc": "Click [css_useSkill] to swap your current weapon for an AWP",
 
   "soldier": "Soldier",
@@ -452,6 +466,7 @@
 
   "bombsite_a": "Bombsite A",
   "bombsite_b": "Bombsite B",
+  "bombplanted": "The bomb has been planted\n{0} seconds till detonation",
 
   "teammate_skills": "Your teammates' skills",
   "summary": "Summary of the last round",

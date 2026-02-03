@@ -55,6 +55,12 @@
   "c4camouflage": "C4伪装",
   "c4camouflage_desc": "你持有炸弹时隐形",
 
+  "carefulbullets": "谨慎的子弹",
+  "carefulbullets_desc": "选择一名球员，每当他投篮未中时就会受到伤害",
+  "carefulbullets_enemy_info": "从现在起，不准确将带来切实的伤害。",
+  "carefulbullets_player_info": "'{0}' 现在必须更加谨慎。",
+  "carefulbullets_select_info": "不准确会伤害玩家：",
+
   "catapult": "弹射",
   "catapult_desc": "你有随机几率将敌人向上弹射",
   "catapult_desc2": "你击中敌人将其弹射的几率是：{0}%",
@@ -67,6 +73,10 @@
 
   "cutter": "切割者",
   "cutter_desc": "用刀可立即杀死敌人",
+
+  "cypher": "相机",
+  "cypher_desc": "点击 [css_useSkill] 创建/切换摄像机",
+  "cypher_nospace": "相机必须与墙壁呈直角放置",
 
   "darkness": "黑暗",
   "darkness_desc": "对选定的敌人施加黑暗效果",
@@ -175,6 +185,9 @@
 
   "holyhandgrenade": "神圣手榴弹",
   "holyhandgrenade_desc": "你的高爆手榴弹造成双倍伤害并拥有双倍范围",
+
+  "iana": "全息图",
+  "iana_desc": "点击 [css_useSkill] 可控制你的全息影像数秒",
 
   "impostor": "冒名顶替者",
   "impostor_desc": "回合开始时你获得敌方玩家模型",
@@ -357,6 +370,7 @@
   "silent_desc": "你的脚步和跳跃对其他玩家无声",
 
   "sniperelite": "狙击精英",
+  "sniperelite_customname": "狙击精英技能",
   "sniperelite_desc": "点击 [css_useSkill] 将当前武器替换为AWP",
 
   "soldier": "士兵",
@@ -452,10 +466,10 @@
 
   "bombsite_a": "爆轰区A",
   "bombsite_b": "爆轰区B",
+  "bombplanted": "炸弹已安装完毕{0}秒后引爆",
 
   "teammate_skills": "你队友的技能",
-  "summary_start": "上一回合总结",
-  "summary_end": "=======================================",
+  "summary": "上一回合总结",
 
   "menu_controlls_scroll": "W/S - 滚动",
   "menu_controlls_padding": "   |   ",

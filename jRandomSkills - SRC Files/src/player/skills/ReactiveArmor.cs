@@ -47,7 +47,7 @@ namespace src.player.skills
                 if (!victim.IsValid || !victim.PawnIsAlive || !skillInfo.CanUse) return;
                 skillInfo.CanUse = false;
                 skillInfo.Cooldown = DateTime.Now;
-                RestoreHealth(victim, damage);
+                SkillUtils.RestoreHealth(victim);
             }
         }
 
@@ -86,19 +86,6 @@ namespace src.player.skills
                 playerInfo.PrintHTML = null;
             else
                 playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
-        }
-
-        private static void RestoreHealth(CCSPlayerController victim, float damage)
-        {
-            var playerPawn = victim.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid) return;
-            var newHealth = playerPawn.Health + damage;
-
-            if (newHealth > 100)
-                newHealth = 100;
-
-            playerPawn.Health = (int)newHealth;
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
         }
 
         public class PlayerSkillInfo

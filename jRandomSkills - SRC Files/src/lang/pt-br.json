@@ -55,6 +55,12 @@
   "c4camouflage": "Camuflagem C4",
   "c4camouflage_desc": "Você fica invisível enquanto segura a bomba",
 
+  "carefulbullets": "Balas cuidadosas",
+  "carefulbullets_desc": "Selecione um jogador que sofra dano por cada tiro errado",
+  "carefulbullets_enemy_info": "A partir de agora, a imprecisão vai literalmente doer.",
+  "carefulbullets_player_info": "Agora, '{0}' precisa ter mais cuidado.",
+  "carefulbullets_select_info": "A imprecisão prejudica o jogador:",
+
   "catapult": "Catapulta",
   "catapult_desc": "Você tem uma chance aleatória de lançar um inimigo para cima",
   "catapult_desc2": "Sua chance de lançar um inimigo ao acertar é: {0}%",
@@ -67,6 +73,10 @@
 
   "cutter": "Cortador",
   "cutter_desc": "Mata instantaneamente com uma faca",
+
+  "cypher": "Câmera",
+  "cypher_desc": "Clique em [css_useSkill] para criar/mudar para uma câmera",
+  "cypher_nospace": "A câmera deve ser posicionada em ângulo reto com a parede",
 
   "darkness": "Escuridão",
   "darkness_desc": "Aplica um efeito de escuridão a um inimigo escolhido",
@@ -175,6 +185,9 @@
 
   "holyhandgrenade": "Granada Sagrada",
   "holyhandgrenade_desc": "Suas granadas explosivas causam dano dobrado e têm alcance dobrado",
+
+  "iana": "Holograma",
+  "iana_desc": "Clique em [css_useSkill] para controlar seu holograma por alguns segundos",
 
   "impostor": "Impostor",
   "impostor_desc": "Você começa a rodada com um modelo de jogador inimigo",
@@ -357,6 +370,7 @@
   "silent_desc": "Seus passos e pulos são silenciosos para OUTROS jogadores",
 
   "sniperelite": "Atirador de Elite",
+  "sniperelite_customname": "Habilidade de Atirador de Elite",
   "sniperelite_desc": "Clique em [css_useSkill] para trocar sua arma atual por uma AWP",
 
   "soldier": "Soldado",
@@ -452,10 +466,10 @@
 
   "bombsite_a": "Zona de detonação A",
   "bombsite_b": "Zona de detonação B",
+  "bombplanted": "A bomba foi colocada\n{0} segundos até a detonação",
 
   "teammate_skills": "Habilidades dos seus companheiros de equipe",
-  "summary_start": "Resumo da última rodada",
-  "summary_end": "=======================================",
+  "summary": "Resumo da última rodada",
 
   "menu_controlls_scroll": "W/S - Rolar",
   "menu_controlls_padding": "   |   ",

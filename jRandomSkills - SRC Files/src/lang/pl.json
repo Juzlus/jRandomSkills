@@ -55,6 +55,12 @@
   "c4camouflage": "C4 Kamuflaż",
   "c4camouflage_desc": "Kiedy trzymasz bombę, jesteś niewidzialny",
 
+  "carefulbullets": "Ostrożne pociski",
+  "carefulbullets_desc": "Wybierz gracza, który otrzymuje obrażenia za każdy niecelny strzał",
+  "carefulbullets_enemy_info": "Od teraz niecelność będzie dosłownie bolała.",
+  "carefulbullets_player_info": "'{0}' musi teraz być bardziej ostrożny.",
+  "carefulbullets_select_info": "Niedokładność szkodzi graczowi:",
+
   "catapult": "Katapulta",
   "catapult_desc": "Masz losową szanse na podrzucenie wroga",
   "catapult_desc2": "Twoje szanse na podrzucenie wroga po trafieniu to: {0}%",
@@ -68,6 +74,10 @@
   "cutter": "Scyzoryk",
   "cutter_desc": "Natychmiastowe zabójstwo nożem",
 
+  "cypher": "Kamera",
+  "cypher_desc": "Kliknij [css_useSkill], aby utworzyć/przełączyć się na kamerę",
+  "cypher_nospace": "Kamera musi być ustawiona pod kątem prostym do ściany",
+  
   "darkness": "Mrok",
   "darkness_desc": "Nadaje efekt ciemności wybranemu przeciwnikowi",
   "darkness_enemy_info": "Niech zgasną światła.",
@@ -175,6 +185,9 @@
 
   "holyhandgrenade": "Święty Granat Ręczny",
   "holyhandgrenade_desc": "Twoje granaty uderzeniowe zadają podwójne obrażenia i mają podwójny zasięg",
+
+  "iana": "Hologram",
+  "iana_desc": "Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund",
 
   "impostor": "Szpieg",
   "impostor_desc": "Na początku rundy otrzymujesz model postaci przeciwnika",
@@ -357,6 +370,7 @@
   "silent_desc": "Twoje kroki i skoki są niesłyszalne dla INNYCH graczy",
 
   "sniperelite": "SzeliS",
+  "sniperelite_customname": "Mityczna AWP",
   "sniperelite_desc": "Kliknij [css_useSkill], aby zamienić aktualną broń na AWP",
 
   "soldier": "Żołnierz",
@@ -452,10 +466,10 @@
 
   "bombsite_a": "Strefa detonacji A",
   "bombsite_b": "Strefa detonacji B",
+  "bombplanted": "Bomba została podłożona\n{0} sekund do detonacji",
 
   "teammate_skills": "Supermoce twoich sojuszników",
-  "summary_start": "Podsumowanie z ostatniej rundy",
-  "summary_end": "============================================",
+  "summary": "Podsumowanie z ostatniej rundy",
 
   "menu_controlls_scroll": "W/S – Przewijanie",
   "menu_controlls_padding": "   |   ",

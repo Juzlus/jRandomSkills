@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
+using System.Collections.Concurrent;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -9,6 +10,7 @@ namespace src.player.skills
     public class BunnyHop : ISkill
     {
         private const Skills skillName = Skills.BunnyHop;
+        private static readonly ConcurrentDictionary<ulong, int> playersLastJump = [];
 
         public static void LoadSkill()
         {
@@ -34,7 +36,13 @@ namespace src.player.skills
             var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
 
-            if (buttons.HasFlag(PlayerButtons.Jump) && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !playerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
+            if ((playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0)
+                playersLastJump.AddOrUpdate(player.SteamID, Server.TickCount, (_, _) => Server.TickCount);
+
+            bool jumpPressed = buttons.HasFlag(PlayerButtons.Jump)
+                || (playersLastJump.TryGetValue(player.SteamID, out int tick) && tick + 20 >= Server.TickCount);
+
+            if (jumpPressed && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !playerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
             {
                 playerPawn.AbsVelocity.Z = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
                 var maxSpeed = SkillsInfo.GetValue<float>(skillName, "maxSpeed");

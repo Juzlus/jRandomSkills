@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace src.player.skills.Properties {
+namespace jRandomSkills.Properties {
     using System;
     
     
