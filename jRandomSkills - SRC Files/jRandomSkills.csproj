@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\source\repos\WASDMenuAPI-master\WASDMenuAPI\WASDMenuAPI.csproj" />
+    <ProjectReference Include="../WASDMenuAPI - SRC Files/WASDMenuAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
