@@ -20,6 +20,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
+  <!-- Relative path to the WASDMenuAPI source code -->
   <ItemGroup>
     <ProjectReference Include="../WASDMenuAPI - SRC Files/WASDMenuAPI.csproj" />
   </ItemGroup>
@@ -39,4 +40,31 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <PropertyGroup>
+    <SourceLangDir>$(MSBuildProjectDirectory)\src\lang</SourceLangDir>
+    <ServerLangDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills\languages</ServerLangDir>
+    <SourceDLL>$(MSBuildProjectDirectory)\bin\Debug\net8.0</SourceDLL>
+    <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills</ServerDLL>
+  </PropertyGroup>
+
+  <!-- Copy language files to server directory -->
+  <Target Name="CopyLangFilesToServer" AfterTargets="Build">
+    <Message Text="Copying language files from $(SourceLangDir) to $(ServerLangDir)" Importance="High" />
+    <ItemGroup>
+      <LangFiles Include="$(SourceLangDir)\**\*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(ServerLangDir)" Condition="!Exists('$(ServerLangDir)')" />
+    <Copy SourceFiles="@(LangFiles)" DestinationFiles="@(LangFiles->'$(ServerLangDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+  </Target>
+
+  <!-- Copy compiled DLL to server directory -->
+  <Target Name="CopyDLLToServer" AfterTargets="Build">
+    <Message Text="Copying compiled DLL from $(SourceDLL) to $(ServerDLL)" Importance="High" />
+    <ItemGroup>
+      <CompiledDLL Include="$(SourceDLL)\jRandomSkills.dll" />
+      <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.dll" />
+    </ItemGroup>
+    <MakeDir Directories="$(ServerDLL)" Condition="!Exists('$(ServerDLL)')" />
+    <Copy SourceFiles="@(CompiledDLL)" DestinationFiles="@(CompiledDLL->'$(ServerDLL)\\%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+  </Target>
 </Project>
