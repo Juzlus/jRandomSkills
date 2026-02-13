@@ -7,15 +7,13 @@
 **/TestResults/
 
 # Ignore specific project-level build dirs (legacy/explicit)
-*/bin/
-*/obj/
-jRandomSkills-Source/bin/
-jRandomSkills-Source/obj/
-WASDMenuAPI-Source/*/bin/
-WASDMenuAPI-Source/*/obj/
+!jRandomSkills\ -\ Server Files/*
+jRandomSkills\ -\ SRC Files/*/bin/
+jRandomSkills\ -\ SRC Files/*/obj/
+WASDMenuAPI\ -\ SRC Files/*/bin/
+WASDMenuAPI\ -\ SRC Files/*/obj/
 
 # .NET / MSBuild artifacts
-*.dll
 *.exe
 *.pdb
 *.nupkg
