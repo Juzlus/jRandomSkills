@@ -154,12 +154,13 @@ namespace src.player.skills
                         KillClone(playerSkill);
                 });
 
-                Timer? cloneTimer = null;
-                ulong playerSteamID = player.SteamID;
+                ulong? playerSteamID = player?.SteamID;
+                if (playerSteamID == null) return;
 
+                Timer? cloneTimer = null;
                 cloneTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                 {
-                    var target = Utilities.GetPlayerFromSteamId(playerSteamID);
+                    var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.SteamID == playerSteamID);
                     if (target == null || !target.IsValid || !target.PawnIsAlive)
                     {
                         cloneTimer?.Kill();

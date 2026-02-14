@@ -62,7 +62,7 @@ namespace src.player
                 infoLine = player.GetTranslation("your_skill");
                 skillLine = player.GetTranslation("none");
             }
-            else if (skillPlayer.IsDrawing)
+            else if (skillPlayer.IsDrawing && player.PawnIsAlive)
             {
                 var randomSkill = SkillData.Skills.ToArray()[Instance.Random.Next(SkillData.Skills.Count)];
                 infoLine = player.GetTranslation("drawing_skill");

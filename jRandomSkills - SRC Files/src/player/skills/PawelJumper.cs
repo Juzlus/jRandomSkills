@@ -9,7 +9,6 @@ namespace src.player.skills
     public class PawelJumper : ISkill
     {
         private const Skills skillName = Skills.PawelJumper;
-        private static readonly PlayerFlags[] LF = new PlayerFlags[64];
         private static readonly int?[] J = new int?[64];
         private static readonly PlayerButtons[] LB = new PlayerButtons[64];
 
@@ -71,7 +70,6 @@ namespace src.player.skills
                 playerPawn.AbsVelocity.Z = 300;
             }
 
-            LF[player.Slot] = flags;
             LB[player.Slot] = buttons;
         }
 

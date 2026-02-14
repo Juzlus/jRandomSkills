@@ -13,7 +13,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Wallhack;
         private static readonly ConcurrentDictionary<ulong, byte> playersInAction = [];
-        private static readonly ConcurrentBag<(CDynamicProp, CDynamicProp, CsTeam)> glows = [];
+        private static readonly ConcurrentBag<(CDynamicProp, CDynamicProp, CsTeam, uint)> glows = [];
 
         public static void LoadSkill()
         {
@@ -32,8 +32,11 @@ namespace src.player.skills
 
                 foreach (var glow in glows)
                 {
-                    if (glow.Item3 != player.Team && (playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName)))
-                        continue;
+                    var enemy = Utilities.GetPlayers().FirstOrDefault(e => e.IsValid && e.Index == glow.Item4);
+
+                    if (enemy != null && enemy.PawnIsAlive)
+                        if (glow.Item3 != player.Team && (playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName)))
+                            continue;
 
                     var glowEntity1 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glow.Item1.Index);
                     if (glowEntity1 == null || !glowEntity1.IsValid) continue;
@@ -110,7 +113,7 @@ namespace src.player.skills
 
                 modelRelay.AcceptInput("FollowEntity", enemyPawn, modelRelay, "!activator");
                 modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
-                glows.Add((modelRelay, modelGlow, enemy.Team));
+                glows.Add((modelRelay, modelGlow, enemy.Team, enemy.Index));
             }
         }
 

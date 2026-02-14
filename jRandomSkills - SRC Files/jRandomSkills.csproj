@@ -1,70 +1,86 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="src\command\Command.cs~RF4f34d1e7.TMP" />
-    <None Remove="src\player\PlayerOnTick.cs~RF38b6229.TMP" />
-    <None Remove="src\player\skills\RespWroga.cs~RF528d210.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.362" />
-    <PackageReference Include="CS2TraceRay" Version="1.0.9" />
-    <PackageReference Include="MaxMind.Db" Version="4.3.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
-  <!-- Relative path to the WASDMenuAPI source code -->
-  <ItemGroup>
-    <ProjectReference Include="../WASDMenuAPI - SRC Files/WASDMenuAPI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <PropertyGroup>
-    <SourceLangDir>$(MSBuildProjectDirectory)\src\lang</SourceLangDir>
-    <ServerLangDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills\languages</ServerLangDir>
-    <SourceDLL>$(MSBuildProjectDirectory)\bin\Debug\net8.0</SourceDLL>
-    <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills</ServerDLL>
-  </PropertyGroup>
-
-  <!-- Copy language files to server directory -->
-  <Target Name="CopyLangFilesToServer" AfterTargets="Build">
-    <Message Text="Copying language files from $(SourceLangDir) to $(ServerLangDir)" Importance="High" />
     <ItemGroup>
-      <LangFiles Include="$(SourceLangDir)\**\*.*" />
+        <None Remove="src\command\Command.cs~RF4f34d1e7.TMP" />
+        <None Remove="src\player\PlayerOnTick.cs~RF38b6229.TMP" />
+        <None Remove="src\player\skills\RespWroga.cs~RF528d210.TMP" />
     </ItemGroup>
-    <MakeDir Directories="$(ServerLangDir)" Condition="!Exists('$(ServerLangDir)')" />
-    <Copy SourceFiles="@(LangFiles)" DestinationFiles="@(LangFiles->'$(ServerLangDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-  </Target>
 
-  <!-- Copy compiled DLL to server directory -->
-  <Target Name="CopyDLLToServer" AfterTargets="Build">
-    <Message Text="Copying compiled DLL from $(SourceDLL) to $(ServerDLL)" Importance="High" />
     <ItemGroup>
-      <CompiledDLL Include="$(SourceDLL)\jRandomSkills.dll" />
-      <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.dll" />
+        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.362" />
+        <PackageReference Include="CS2TraceRay" Version="1.0.9" />
+        <PackageReference Include="MaxMind.Db" Version="4.3.4">
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
-    <MakeDir Directories="$(ServerDLL)" Condition="!Exists('$(ServerDLL)')" />
-    <Copy SourceFiles="@(CompiledDLL)" DestinationFiles="@(CompiledDLL->'$(ServerDLL)\\%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-  </Target>
+
+    <!-- Relative path to the WASDMenuAPI source code -->
+    <ItemGroup>
+        <ProjectReference Include="../WASDMenuAPI - SRC Files/WASDMenuAPI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Properties\Resources.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <SourceLangDir>$(MSBuildProjectDirectory)\src\lang</SourceLangDir>
+        <ServerLangDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills\languages</ServerLangDir>
+        <SourceDLL>$(MSBuildProjectDirectory)\bin\Debug\net8.0</SourceDLL>
+        <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills</ServerDLL>
+        <SourceGamedataDir>$(MSBuildProjectDirectory)\src\gamedata</SourceGamedataDir>
+		<ServerGamedataDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\gamedata</ServerGamedataDir>
+    </PropertyGroup>
+
+    <!-- Copy language files to server directory -->
+    <Target Name="CopyLangFilesToServer" AfterTargets="Build">
+        <Message Text="Copying language files from $(SourceLangDir) to $(ServerLangDir)" Importance="High" />
+        <ItemGroup>
+            <LangFiles Include="$(SourceLangDir)\**\*.*" />
+        </ItemGroup>
+        <MakeDir Directories="$(ServerLangDir)" Condition="!Exists('$(ServerLangDir)')" />
+        <Copy SourceFiles="@(LangFiles)" DestinationFiles="@(LangFiles->'$(ServerLangDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+    </Target>
+
+    <!-- Copy compiled DLL to server directory -->
+    <Target Name="CopyDLLToServer" AfterTargets="Build">
+        <Message Text="Copying compiled DLL from $(SourceDLL) to $(ServerDLL)" Importance="High" />
+        <ItemGroup>
+            <CompiledDLL Include="$(SourceDLL)\jRandomSkills.dll" />
+            <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.dll" />
+	        <CompiledDLL Include="$(SourceDLL)\MaxMind.Db.dll" />
+	        <CompiledDLL Include="$(SourceDLL)\Newtonsoft.Json.dll" />
+        </ItemGroup>
+        <MakeDir Directories="$(ServerDLL)" Condition="!Exists('$(ServerDLL)')" />
+        <Copy SourceFiles="@(CompiledDLL)" DestinationFiles="@(CompiledDLL->'$(ServerDLL)\\%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+    </Target>
+
+	<!-- Copy gamedata files to server directory -->
+	<Target Name="CopyGamedataFilesToServer" AfterTargets="Build">
+		<Message Text="Copying gamedata files from $(SourceGamedataDir) to $(ServerGamedataDir)" Importance="High" />
+		<ItemGroup>
+			<GamedataFiles Include="$(SourceGamedataDir)\**\*.*" />
+		</ItemGroup>
+		<MakeDir Directories="$(ServerGamedataDir)" Condition="!Exists('$(ServerGamedataDir)')" />
+		<Copy SourceFiles="@(GamedataFiles)" DestinationFiles="@(GamedataFiles->'$(ServerGamedataDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+	</Target>
 </Project>

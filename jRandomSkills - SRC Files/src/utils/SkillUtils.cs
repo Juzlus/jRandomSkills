@@ -9,6 +9,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.player;
 using src.player.skills;
 using System.Collections.Concurrent;
+using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using WASDMenuAPI.Classes;
@@ -19,14 +20,20 @@ namespace src.utils
     public static class SkillUtils
     {
         private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> HEGrenadeProjectile_CreateFunc = new(GameData.GetSignature("HEGrenadeProjectile_CreateFunc"));
+        private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> SmokeGrenadeProjectile_CreateFunc = new(GameData.GetSignature("SmokeGrenadeProjectile_CreateFunc"));
         private static readonly MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint> TerminateRoundFunc = new(GameData.GetSignature("CCSGameRules_TerminateRound"));
 
         public static void PrintToChat(CCSPlayerController player, string msg, string border = "tb", string? title = null)
         {
+            if (!player.IsValid) return;
+
             var config = Config.LoadedConfig.ChatMessage;
             float maxWidth = config.MaxWidth;
             char symbol = config.LineSymbol;
             if (string.IsNullOrEmpty(title)) title = player.GetTranslation("jRandomSkills");
+
+            if (Illiterate.CheckIlliterateSkill(player))
+                msg = Illiterate.GetRandomText(msg);
 
             if (border.Contains('t') && config.LineShow)
                 player.PrintToChat($" {MeansureString.GetTextDashed($"{(config.TagFormat.Contains("{TAG}") ? config.TagFormat.Replace("{TAG}", title) : $"\u0002◢◆◤ {title} ◥◆◣")}", maxWidth, symbol, config.LineColor)}");
@@ -86,9 +93,29 @@ namespace src.utils
 
             return new Vector(x, y, z);
         }
-
-        public static void ApplyScreenColor(CCSPlayerController player, int r, int g, int b, int a, int duration, int holdTime, int flags = 1)
+        public static CBeam? CreateLine(Vector start, Vector end, Color color)
         {
+            CBeam beam = Utilities.CreateEntityByName<CBeam>("beam")!;
+            if (beam == null) return null;
+
+            beam.Render = color;
+            beam.Width = 2.0f;
+            beam.EndWidth = 2.0f;
+            beam.Teleport(start);
+
+            beam.EndPos.X = end.X;
+            beam.EndPos.Y = end.Y;
+            beam.EndPos.Z = end.Z;
+
+            beam.DispatchSpawn();
+
+            return beam;
+        }
+
+        public static void ApplyScreenColor(CCSPlayerController? player, int r, int g, int b, int a, int duration, int holdTime, int flags = 1)
+        {
+            if (player == null || !player.IsValid) return;
+
             using var msg = UserMessage.FromPartialName("Fade");
             if (msg == null) return;
             int packageColor = (a << 24) | (b << 16) | (g << 8) | r;
@@ -140,6 +167,11 @@ namespace src.utils
         public static void CreateHEGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
             HEGrenadeProjectile_CreateFunc.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
+        }
+
+        public static void CreateSmokeGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
+        {
+            SmokeGrenadeProjectile_CreateFunc.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
         }
 
         public static void TakeHealth(CCSPlayerPawn? pawn, int damage)
@@ -280,9 +312,11 @@ namespace src.utils
             var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null) return;
 
+            bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
+
             Dictionary<string, Action<CCSPlayerController, IWasdMenuOption>> list = [];
             foreach (var item in items)
-                list.TryAdd(item.Item1, (p, option) =>
+                list.TryAdd(isIlliterate ? Illiterate.GetRandomText(item.Item1) : item.Item1, (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
                     manager.CloseMenu(p);
@@ -329,15 +363,17 @@ namespace src.utils
             string itemText = $"<font class='fontSize-{config.WSADMenuItemLineSize}' color='{config.WSADMenuItemLineColor}'>{{0}}</font><br>";
             string itemHoverText = $"<font class='fontSize-{config.WSADMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WSADMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
 
+            bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
+
             IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
             foreach (var enemy in enemies)
-                menu.Add(enemy.Item1, (p, option) =>
+                menu.Add(isIlliterate ? Illiterate.GetRandomText(enemy.Item1) : enemy.Item1, (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
                     manager.CloseMenu(p);
                 });
             if (lastElement != null)
-                menu.Add(lastElement.Value.Item1, (p, option) =>
+                menu.Add(isIlliterate ? Illiterate.GetRandomText(lastElement.Value.Item1) : lastElement.Value.Item1, (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
                     if (lastElement.Value.Item3)

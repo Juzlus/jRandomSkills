@@ -51,6 +51,9 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
             decoys.TryAdd(decoy, 0);
+
+            decoy.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
+            decoy.Collision.CollisionGroup = pawn.Collision.CollisionGroup;
         }
 
         public static void DecoyStarted(EventDecoyStarted @event)

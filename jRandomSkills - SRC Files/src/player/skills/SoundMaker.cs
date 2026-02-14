@@ -1,17 +1,21 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
     public class SoundMaker : ISkill
     {
         private const Skills skillName = Skills.SoundMaker;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<ulong, byte> SkillPlayerInfo = [];
         private static readonly object setLock = new();
+
+        private const string soundEventName = "Hostage.Pain";
+        private const uint soundEventHash = 1876781570;
 
         public static void LoadSkill()
         {
@@ -26,12 +30,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
-            {
-                SteamID = player.SteamID,
-                CanUse = true,
-                Cooldown = DateTime.MinValue,
-            });
+            SkillPlayerInfo.TryAdd(player.SteamID, 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -49,78 +48,40 @@ namespace src.player.skills
                 SkillPlayerInfo.TryRemove(player.SteamID, out _);
         }
 
+        public static void PlayerMakeSound(UserMessage um)
+        {
+            var soundevent = um.ReadUInt("soundevent_hash");
+            if (soundevent != soundEventHash) return;
+
+            var userIndex = um.ReadUInt("source_entity_index");
+            if (userIndex == 0) return;
+
+            var sourcePlayer = Utilities.GetPlayers().FirstOrDefault(p => p.Pawn?.Value != null && p.Pawn.Value.IsValid && p.Pawn.Value.Index == userIndex);
+            if (sourcePlayer == null || !sourcePlayer.IsValid) return;
+
+            var toRemove = um.Recipients.Where(r =>
+            {
+                if (r.Team == sourcePlayer.Team) return true;
+                if (SkillPlayerInfo.ContainsKey(r.SteamID)) return false;
+                return true;
+            }).ToList();
+
+            foreach (var player in toRemove)
+                um.Recipients.Remove(player);
+        }
+
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
-            {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-                if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
-                        UpdateHUD(player, skillInfo);
-            }
+            if (Server.TickCount % (60 * SkillsInfo.GetValue<int>(skillName, "cooldown")) != 0) return;
+
+            foreach (var player in Utilities.GetPlayers()
+                .Where(p => p != null && p.IsValid && p.PawnIsAlive && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid))
+                    player.PlayerPawn.Value!.EmitSound(soundEventName, volume: 1f);
         }
 
-        private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int cooldown = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
-            float cooldown = 0;
-            if (skillInfo != null)
-            {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "Cooldown")) - DateTime.Now).TotalSeconds);
-                cooldown = Math.Max(time, 0);
-
-                if (cooldown == 0 && skillInfo?.CanUse == false)
-                    skillInfo.CanUse = true;
-            }
-
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
-            if (playerInfo == null) return;
-
-            if (cooldown == 0)
-                playerInfo.PrintHTML = null;
-            else
-                playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
-        }
-
-        public static void UseSkill(CCSPlayerController player)
-        {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn?.CBodyComponent == null) return;
-
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
-            {
-                if (!player.IsValid || !player.PawnIsAlive) return;
-                if (skillInfo.CanUse)
-                {
-                    skillInfo.CanUse = false;
-                    skillInfo.Cooldown = DateTime.Now;
-                    MakeSound(player);
-                }
-            }
-        }
-
-        private static void MakeSound(CCSPlayerController player)
-        {
-            foreach (var enemy in Utilities.GetPlayers().Where(p => p.Team != player.Team))
-                if (enemy != null && enemy.IsValid && enemy.PawnIsAlive && enemy.PlayerPawn.Value != null && enemy.PlayerPawn.Value.IsValid)
-                    enemy.PlayerPawn.Value.EmitSound(
-                        enemy.Team == CsTeam.CounterTerrorist
-                        ? SkillsInfo.GetValue<string>(skillName, "CTSoundEvent")
-                        : SkillsInfo.GetValue<string>(skillName, "TSoundEvent")
-                        , volume: 1f);
-        }
-
-        public class PlayerSkillInfo
-        {
-            public ulong SteamID { get; set; }
-            public bool CanUse { get; set; }
-            public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float cooldown = 5f, string ctSoundEvent = "c4.disarmstart", string tSoundEvent = "C4.PlantSoundB") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public string CTSoundEvent { get; set; } = ctSoundEvent;
-            public string TSoundEvent { get; set; } = tSoundEvent;
+            public int Cooldown { get; set; } = cooldown;
         }
     }
 }

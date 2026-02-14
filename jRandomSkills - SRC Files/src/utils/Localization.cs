@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Collections.Concurrent;
 using src.player;
+using src.player.skills;
 
 namespace src.utils
 {
@@ -80,7 +81,7 @@ namespace src.utils
             }
 
             var value = Math.Round((double)(chance ?? 1), 2);
-            var skillNameText = GetTranslation(skill.ToString().ToLower(), langCode, value);
+            var skillNameText = GetTranslation(skill.ToString().ToLower(), langCode, player, value);
             if (skillNameText.Contains('%')) skillNameText = skillNameText.Replace(value.ToString(), Math.Round(value * 100, 0).ToString());
             return skillNameText;
         }
@@ -104,7 +105,7 @@ namespace src.utils
 
             var skillName = $"{skill.ToString().ToLower()}_desc2";
             var value = Math.Round((double)(chance ?? 1), 2);
-            var desc2 = GetTranslation(skillName, langCode, value);
+            var desc2 = GetTranslation(skillName, langCode, player, value);
 
             var skilLDescription = desc2 == skillName
                 ? player.GetTranslation($"{skill.ToString().ToLower()}_desc")
@@ -127,7 +128,7 @@ namespace src.utils
                 for (int i = 0; i < key.Length; i++)
                 {
                     object[] currentArgs = args != null && i < args.Length ? args[i] : [];
-                    string translation = GetTranslation(key[i], langCode, currentArgs);
+                    string translation = GetTranslation(key[i], langCode, null, currentArgs);
                     translations.Add(translation);
                 }
                 player.PrintToChat(string.Format(message, [.. translations]));
@@ -137,10 +138,10 @@ namespace src.utils
         public static string GetTranslation(this CCSPlayerController player, string key, params object[] args)
         {
             string langCode = GetLangCode(player);
-            return GetTranslation(key, langCode, args);
+            return GetTranslation(key, langCode, player, args);
         }
 
-        public static string GetTranslation(string key, string? langCode = null, params object[] args)
+        public static string GetTranslation(string key, string? langCode = null, CCSPlayerController? player = null, params object[] args)
         {
             langCode ??= defaultLangCode;
             if (_translations.TryGetValue(langCode, out var langDict) && langDict.TryGetValue(key, out var translation))
@@ -152,9 +153,14 @@ namespace src.utils
                     output = output.Replace("CHATCOLORS.RED", ChatColors.Red.ToString());
                     if (Config.LoadedConfig.AlternativeSkillButton != null)
                         output = output.Replace("css_useSkill", $"css_useSkill/{Config.LoadedConfig.AlternativeSkillButton}");
+
+                    if (Illiterate.CheckIlliterateSkill(player))
+                        return Illiterate.GetRandomText(output);
                     return output;
                 }
 
+            if (langCode != defaultLangCode)
+                return GetTranslation(key, null, player, args);
             return key;
         }
 
@@ -188,7 +194,10 @@ namespace src.utils
             if (string.IsNullOrEmpty(playerIP)) return null;
             if (!File.Exists(geoliteFilePath)) return null;
             using var reader = new Reader(geoliteFilePath);
-            var ip = IPAddress.Parse(playerIP);
+
+            if (!IPAddress.TryParse(playerIP, out var ip))
+                return null;
+
             var data = reader.Find<ConcurrentDictionary<string, object>>(ip);
             if (data == null || data.IsEmpty) return null;
 

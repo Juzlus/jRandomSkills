@@ -38,6 +38,7 @@ namespace src.player.skills
             {
                 SteamID = player.SteamID,
                 Fuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel"),
+                LastButtons = 0
             });
         }
 
@@ -49,16 +50,37 @@ namespace src.player.skills
 
         private static void HandlePilot(CCSPlayerController player)
         {
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid) return;
+
+            if (!PlayerPilotInfo.TryGetValue(player.SteamID, out var pilotInfo)) return;
+
+            var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
+
+            bool isJumpDown = (playerPawn.MovementServices?.Buttons?.ButtonStates[0] & (ulong)PlayerButtons.Jump) != 0 || (buttons & PlayerButtons.Jump) != 0;
+            bool wasJumpDown = (pilotInfo.LastButtons & PlayerButtons.Jump) != 0;
+
+            bool jumpPressed = (isJumpDown && !wasJumpDown)
+                || (playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0;
+
+            bool isOnGround = (flags & PlayerFlags.FL_ONGROUND) != 0;
+            bool inUse = jumpPressed && !isOnGround;
+
             var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
-            if (PlayerPilotInfo.TryGetValue(player.SteamID, out var pilotInfo))
-            {
-                pilotInfo.Fuel = Math.Min(Math.Max(0, pilotInfo.Fuel - (buttons.HasFlag(PlayerButtons.Use) ? SkillsInfo.GetValue<float>(skillName, "fuelConsumption") : -SkillsInfo.GetValue<float>(skillName, "refuelling"))), maximumFuel);
-                if (buttons.HasFlag(PlayerButtons.Use))
-                    if (pilotInfo.Fuel > 0 && player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid && !player.PlayerPawn.Value.IsDefusing)
-                        ApplyPilotEffect(player);
-                UpdateHUD(player, pilotInfo);
-            }
+            pilotInfo.Fuel = Math.Min(
+                Math.Max(
+                    0,
+                    pilotInfo.Fuel - (inUse 
+                        ? SkillsInfo.GetValue<float>(skillName, "fuelConsumption")
+                        : -SkillsInfo.GetValue<float>(skillName, "refuelling"))), 
+                maximumFuel);
+            pilotInfo.LastButtons = buttons;
+
+            if (inUse && pilotInfo.Fuel > 0)
+                ApplyPilotEffect(player);
+
+            UpdateHUD(player, pilotInfo);
         }
 
         private static void UpdateHUD(CCSPlayerController player, Pilot_PlayerInfo pilotInfo)
@@ -121,6 +143,7 @@ namespace src.player.skills
         {
             public ulong SteamID { get; set; }
             public float Fuel { get; set; }
+            public PlayerButtons LastButtons { get; set; }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float maximumFuel = 150f, float fuelConsumption = .64f, float refuelling = .1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

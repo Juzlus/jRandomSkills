@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using static src.jRandomSkills;
 
 namespace src.utils
@@ -69,6 +71,9 @@ namespace src.utils
 
         public class SettingsModel
         {
+            [DisplayName("Game Mode")]
+            [Description("TESTfafw..")]
+            [Range(0, 5)]
             public int GameMode { get; set; }
             public bool YourSkillChatInfo { get; set; }
             public bool KillerSkillChatInfo { get; set; }
@@ -120,6 +125,8 @@ namespace src.utils
                         new LanguageInfo("PT-BR, PT, BR, AO, CV, GW, MZ, ST, TL", "pt-br"),
                         new LanguageInfo("FR, MC, HT", "fr"),
                         new LanguageInfo("DE, AT, CH, LI, LU, BE", "de"),
+                        new LanguageInfo("TR", "tr"),
+                        new LanguageInfo("CZ", "cs"),
                         new LanguageInfo("PL", "pl"),
                         new LanguageInfo("EN, GB, US", "en")
                     ]

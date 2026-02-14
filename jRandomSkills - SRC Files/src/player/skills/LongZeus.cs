@@ -45,9 +45,9 @@ namespace src.player.skills
 
             if (Config.LoadedConfig.CS2TraceRayDebug)
             {
-                CreateLine(eyePos, endPos, Color.FromArgb(255, 255, 255, 0));
-                CreateLine(new Vector(trace.StartPos.X, trace.StartPos.Y, trace.StartPos.Z), new Vector(trace.EndPos.X, trace.EndPos.Y, trace.EndPos.Z), Color.FromArgb(255, 255, 0, 0));
-                CreateLine(new Vector(trace.StartPos.X, trace.StartPos.Y, trace.StartPos.Z), new Vector(trace.Position.X, trace.Position.Y, trace.Position.Z), Color.FromArgb(255, 0, 0, 255));
+                SkillUtils.CreateLine(eyePos, endPos, Color.FromArgb(255, 255, 255, 0));
+                SkillUtils.CreateLine(new Vector(trace.StartPos.X, trace.StartPos.Y, trace.StartPos.Z), new Vector(trace.EndPos.X, trace.EndPos.Y, trace.EndPos.Z), Color.FromArgb(255, 255, 0, 0));
+                SkillUtils.CreateLine(new Vector(trace.StartPos.X, trace.StartPos.Y, trace.StartPos.Z), new Vector(trace.Position.X, trace.Position.Y, trace.Position.Z), Color.FromArgb(255, 0, 0, 255));
 
                 if (trace.DidHit())
                 {
@@ -68,24 +68,6 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             SkillUtils.TryGiveWeapon(player, CsItem.Zeus);
-        }
-
-        private static void CreateLine(Vector start, Vector end, Color color)
-        {
-            CBeam beam = Utilities.CreateEntityByName<CBeam>("beam")!;
-            if (beam == null) return;
-
-            beam.Render = color;
-            beam.Width = 2.0f;
-            beam.EndWidth = 2.0f;
-            beam.Teleport(start);
-
-            beam.EndPos.X = end.X;
-            beam.EndPos.Y = end.Y;
-            beam.EndPos.Z = end.Z;
-
-            beam.DispatchSpawn();
-            beam.AcceptInput("FollowEntity", beam, null!, "");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#6effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float maxDistance = 4096f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

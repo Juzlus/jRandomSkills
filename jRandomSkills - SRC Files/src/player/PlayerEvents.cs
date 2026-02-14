@@ -8,15 +8,18 @@ using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player
 {
     public static partial class Event
     {
+        private static Timer? setSkillTimer = null;
         private static DateTime freezeTimeEnd = DateTime.MinValue;
         private static bool isTransmitRegistered = false;
         public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillsInfo.GetValue<string>(Skills.None, "color"), false);
@@ -39,6 +42,7 @@ namespace src.player
             Instance.RegisterEventHandler<EventPlayerConnectFull>(PlayerConnectFull);
             Instance.RegisterEventHandler<EventPlayerDisconnect>(PlayerDisconnect);
             // Instance.RegisterEventHandler<EventPlayerChat>(PlayerChat);
+            Instance.RegisterEventHandler<EventPlayerSpawned>(PlayerSpawned);
             Instance.RegisterEventHandler<EventRoundStart>(RoundStart);
             Instance.RegisterEventHandler<EventRoundEnd>(RoundEnd);
             
@@ -384,6 +388,32 @@ namespace src.player
             return HookResult.Continue;
         }
 
+        private static HookResult PlayerSpawned(EventPlayerSpawned @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                var player = @event.Userid;
+                if (player == null || !player.IsValid) return HookResult.Continue;
+
+                var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                if (skillPlayer == null) return HookResult.Continue;
+
+                if (setSkillTimer != null)
+                {
+                    skillPlayer.IsDrawing = true;
+                    return HookResult.Continue;
+                }
+
+                skillPlayer.IsDrawing = false;
+                if (Instance?.GameRules != null &&
+                    Instance?.GameRules.WarmupPeriod == false &&
+                    skillPlayer.Skill == Skills.None &&
+                    skillPlayer.SpecialSkill == Skills.None)
+                    SetRandomSkill(player);
+                return HookResult.Continue;
+            }
+        }
+
         private static HookResult RoundStart(EventRoundStart @event, GameEventInfo info)
         {
             lock (setLock)
@@ -401,7 +431,11 @@ namespace src.player
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
                 int freezetime = ConVar.Find("mp_freezetime")?.GetPrimitiveValue<Int32>() ?? 0;
                 freezeTimeEnd = DateTime.Now.AddSeconds(freezetime + (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0));
-                Instance?.AddTimer((Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f, SetSkill);
+
+                setSkillTimer?.Kill();
+
+                float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
+                setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill);
                 return HookResult.Continue;
             }
         }
@@ -447,6 +481,7 @@ namespace src.player
 
         private static HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
+            Illiterate.Disable();
             lock (setLock)
             {
                 foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
@@ -567,6 +602,7 @@ namespace src.player
 
         private static void SetSkill()
         {
+            setSkillTimer = null;
             lock (setLock)
             {
                 var validPlayers = Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).ToList();
@@ -670,14 +706,20 @@ namespace src.player
                     skillPlayer.Skill = randomSkill.Skill;
                     skillPlayer.SpecialSkill = Skills.None;
 
-                    if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                        Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
-                        {
-                            if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == randomSkill.Skill) == null) return;
+                    if (randomSkill.Skill == Skills.Illiterate)
+                        Illiterate.Enable();
+
+                    Instance?.AddTimer(.2f, () =>
+                    {
+                        if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                            Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
+                            {
+                                if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == randomSkill.Skill) == null) return;
+                                Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                            });
+                        else
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
-                        });
-                    else
-                        Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                    });
 
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
                     skillPlayer.SkillHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillHudDuration);
@@ -685,7 +727,7 @@ namespace src.player
 
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
                     {
-                        Instance?.AddTimer(.5f, () =>
+                        Instance?.AddTimer(.6f, () =>
                         {
                             foreach (var teammate in teammates)
                             {
@@ -732,6 +774,7 @@ namespace src.player
                 var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
                 if (skillPlayer == null) return;
 
+                skillPlayer.IsDrawing = false;
                 if (player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
                 {
                     skillPlayer.Skill = Skills.None;
@@ -792,13 +835,20 @@ namespace src.player
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
 
-                if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                    Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () => {
-                        if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == randomSkill.Skill) == null) return;
+                if (randomSkill.Skill == Skills.Illiterate)
+                    Illiterate.Enable();
+
+                Instance?.AddTimer(.2f, () =>
+                {
+                    if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                        Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
+                        {
+                            if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == randomSkill.Skill) == null) return;
+                            Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                        });
+                    else
                         Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
-                    });
-                else
-                    Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                });
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
                 skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
@@ -820,6 +870,14 @@ namespace src.player
             lock (setLock)
             {
                 if (player == null || !player.IsValid) return;
+
+                if (Illiterate.CheckIlliterateSkill(player))
+                {
+                    headerLine = Illiterate.GetRandomText(headerLine);
+                    centerLine = Illiterate.GetRandomText(centerLine);
+                    extraLine = Illiterate.GetRandomText(extraLine);
+                }
+
                 var config = Config.LoadedConfig.HtmlHudCustomisation;
                 var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(headerLine) ? "l" : "ml")}'> </font>";
                 var emptySymbol2 = $"<font class='fontSize-ml'> </font>";

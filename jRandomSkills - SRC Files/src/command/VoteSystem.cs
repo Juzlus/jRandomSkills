@@ -3,12 +3,27 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.command
 {
     public static class VoteSystem
     {
         private static readonly ConcurrentDictionary<VoteData, byte> votes = [];
+
+        private static void StartVoteTimer(VoteData vote, string commandName)
+        {
+            vote.ActiveTimer?.Kill();
+
+            vote.ActiveTimer = jRandomSkills.Instance.AddTimer(vote.TimeToVote, () =>
+            {
+                if (!votes.ContainsKey(vote) || !vote.GetActive()) return;
+
+                vote.SetActive(false);
+                vote.TimeToNextSameVoting = vote.TimeToNextVoting;
+                Localization.PrintTranslationToChatAll($" {ChatColors.Red}{{0}}", ["vote_timeout"], [commandName]);
+            });
+        }
 
         private static VoteData? CreateVote(VoteType voteType, string? args = null)
         {
@@ -27,21 +42,15 @@ namespace src.command
             foreach (var player in Utilities.GetPlayers())
                 player.EmitSound("UIPanorama.tab_mainmenu_news");
 
-            if (vote == null) return vote;
-            jRandomSkills.Instance.AddTimer(vote.TimeToVote, () =>
-            {
-                if (!votes.ContainsKey(vote) || !vote.GetActive()) return;
-                vote.SetActive(false);
-                vote.TimeToNextSameVoting = vote.TimeToNextVoting;
-                Localization.PrintTranslationToChatAll($" {ChatColors.Red}{{0}}", ["vote_timeout"], [commandName]);
-            });
+            StartVoteTimer(vote!, commandName);
 
-            float[] times = [vote.TimeToVote, vote.TimeToVote + vote.TimeToNextVoting, vote.TimeToVote + vote.TimeToNextSameVoting];
+            float[] times = [vote!.TimeToVote, vote.TimeToVote + vote.TimeToNextVoting, vote.TimeToVote + vote.TimeToNextSameVoting];
             jRandomSkills.Instance.AddTimer(times.Max(), () =>
             {
                 if (!votes.ContainsKey(vote)) return;
                 votes.TryRemove(vote, out _);
             });
+
             return vote;
         }
 
@@ -78,16 +87,21 @@ namespace src.command
         private static void CheckVote(VoteData vote)
         {
             int voted = vote.PlayersVoted.Count;
-            int playerCount = Utilities.GetPlayers().Where(p => !p.IsBot).ToArray().Length;
+            int playerCount = Utilities.GetPlayers().Count(p => !p.IsBot);
             int playersNeeded = (int)Math.Ceiling(playerCount * (vote.PercentagesToSuccess / 100f));
+            string commandName = $"!{VoteTypeCommands.GetCommand(vote.Type)?.Replace("css_", "")}{(!string.IsNullOrEmpty(vote?.Args) ? $" {vote?.Args}" : "")}";
 
             if (voted >= playersNeeded)
             {
+                vote!.ActiveTimer?.Kill();
                 vote.SuccessAction.Invoke();
                 vote.SetActive(false);
             }
             else
-                Localization.PrintTranslationToChatAll($" {ChatColors.Yellow}{{0}} '!{VoteTypeCommands.GetCommand(vote.Type)?.Replace("css_", "")}{(!string.IsNullOrEmpty(vote?.Args) ? $" {vote?.Args}" : "")}': {ChatColors.Green}{voted}/{playersNeeded}", ["vote_vote"]);
+            {
+                StartVoteTimer(vote!, commandName);
+                Localization.PrintTranslationToChatAll($" {ChatColors.Yellow}{{0}} '': {ChatColors.Green}{voted}/{playersNeeded}", ["vote_vote"]);
+            }
         }
     }
 
@@ -103,7 +117,7 @@ namespace src.command
         public VoteType Type { get; set; } = type;
         public string? Args { get; set; } = args;
         public ConcurrentDictionary<ulong, byte> PlayersVoted { get; set; } = [];
-
+        public Timer? ActiveTimer { get; set; }
         private DateTime CreatedTime { get; set; } = DateTime.Now;
 
         public void SetActive(bool active)

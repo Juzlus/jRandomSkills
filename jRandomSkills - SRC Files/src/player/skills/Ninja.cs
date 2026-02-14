@@ -1,7 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
-using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -57,9 +56,20 @@ namespace src.player.skills
         {
             foreach (var (info, player) in infoList)
             {
-                if (player == null) continue;
+                if (player == null || !player.IsValid) continue;
+
+                var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
+                bool isObservingNinja = false;
+
+                if (targetHandle != nint.Zero)
+                {
+                    var target = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
+                    var targetInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == target?.SteamID);
+                    if (targetInfo?.Skill == skillName) isObservingNinja = true;
+                }
+
                 foreach (var _player in invisiblePlayers.Keys)
-                    if (player.SteamID != _player.SteamID)
+                    if (player.SteamID != _player.SteamID && !isObservingNinja)
                     {
                         var playerPawn = _player.PlayerPawn.Value;
                         if (playerPawn == null || !playerPawn.IsValid) continue;

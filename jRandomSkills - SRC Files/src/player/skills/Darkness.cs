@@ -112,24 +112,26 @@ namespace src.player.skills
         private static void SetUpPostProcessing(CCSPlayerController player, bool turnOff = false)
         {
             if (player == null || !player.IsValid) return;
-            ulong playerSteamID = player.SteamID;
+
+            ulong? playerSteamID = player?.SteamID;
+            if (playerSteamID == null) return;
 
             lock (setLock)
             {
                 if (!turnOff)
                 {
-                    playersInDark.TryAdd(playerSteamID, 0);
+                    playersInDark.TryAdd((ulong)playerSteamID, 0);
                     ApplyColor(player);
 
                     Timer? darkTimer = null;
                     darkTimer = Instance.AddTimer(5f, () => {
-                        if (!playersInDark.ContainsKey(playerSteamID))
+                        if (!playersInDark.ContainsKey((ulong)playerSteamID))
                         {
                             darkTimer?.Kill();
                             return;
                         }
 
-                        var target = Utilities.GetPlayerFromSteamId(playerSteamID);
+                        var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.SteamID == playerSteamID);
                         if (target == null || !target.IsValid)
                         {
                             darkTimer?.Kill();
@@ -137,18 +139,18 @@ namespace src.player.skills
                         }
 
                         if (target.PawnIsAlive)
-                            ApplyColor(player);
+                            ApplyColor(target);
                     }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
                 }
                 else
                 {
                     SkillUtils.ApplyScreenColor(player, r: 0, g: 0, b: 0, a: 0, duration: 200, holdTime: 0);
-                    playersInDark.TryRemove(player.SteamID, out _);
+                    playersInDark.TryRemove((ulong)playerSteamID, out _);
                 }
             }
         }
 
-        private static void ApplyColor(CCSPlayerController player)
+        private static void ApplyColor(CCSPlayerController? player)
         {
             SkillUtils.ApplyScreenColor(player,
                 r: SkillsInfo.GetValue<int>(skillName, "R"),

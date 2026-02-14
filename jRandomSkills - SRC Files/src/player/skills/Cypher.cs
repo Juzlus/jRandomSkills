@@ -151,12 +151,13 @@ namespace src.player.skills
                     pawn!.CameraServices!.ViewEntity.Raw = player.CameraView.EntityHandle.Raw;
                     SkillUtils.ApplyScreenColor(player.Player, 0, 0, 255, 20, 100, 1020);
 
-                    Timer? cameraTimer = null;
-                    ulong playerSteamID = player.Player.SteamID;
+                    ulong? playerSteamID = player.Player?.SteamID;
+                    if (playerSteamID == null) return;
 
+                    Timer? cameraTimer = null;
                     cameraTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                     {
-                        var target = Utilities.GetPlayerFromSteamId(playerSteamID);
+                        var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.SteamID == playerSteamID);
                         if (target == null || !target.IsValid || !target.PawnIsAlive)
                         {
                             cameraTimer?.Kill();

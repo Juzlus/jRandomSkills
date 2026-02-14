@@ -95,10 +95,6 @@ namespace src.player.skills
             var trigger = SkillUtils.CreateTrigger(triggerName, SkillsInfo.GetValue<float>(skillName, "smokeRadius"), new Vector(@event.X, @event.Y, @event.Z));
             if (trigger == null) return;
             triggers.TryAdd(trigger, 0);
-
-            new VirtualFunctionVoid<CBaseEntity>(trigger.Handle, 153);
-            
-            
         }
 
         public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
@@ -138,7 +134,7 @@ namespace src.player.skills
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = false, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int smokeDamage = 2, float smokeRadius = 180) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int smokeDamage = 2, float smokeRadius = 180) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public int SmokeDamage { get; set; } = smokeDamage;
             public float SmokeRadius { get; set; } = smokeRadius;

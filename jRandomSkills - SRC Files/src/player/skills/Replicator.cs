@@ -99,9 +99,6 @@ namespace src.player.skills
 
             float distance = 40;
             Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
-
-            if (((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_DUCKING))
-                pos.Z -= 19;
             
             replica.Flags = playerPawn.Flags;
             replica.Flags |= (uint)Flags_t.FL_DUCKING;
@@ -109,6 +106,13 @@ namespace src.player.skills
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
             replica.Entity!.Name = replica.Globalname = $"Replica_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
+
+            replica.UseAnimGraph = false;
+            string animName = "idle_for_turns_stand_pistol";
+            if (((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_DUCKING))
+                animName = "idle_for_turns_crouch_pistol";
+
+            replica.AcceptInput("SetAnimation", value: animName);
             replica.Teleport(pos, playerPawn.AbsRotation, null);
             replica.DispatchSpawn();
         }
