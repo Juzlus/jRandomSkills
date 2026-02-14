@@ -1,442 +1,440 @@
 {
-  "none": "Nenhum",
+  "none": "Nenhuma",
   "none_desc": "Você não tem nenhuma habilidade",
 
   "aimbot": "Aimbot",
-  "aimbot_desc": "Cada bala que você acertar conta como um tiro na cabeça",
+  "aimbot_desc": "Toda bala que você acertar conta como um hs",
 
-  "anomaly": "Anomalia",
-  "anomaly_desc": "Você retrocede alguns segundos no tempo",
+  "anomaly": "Máquina do Tempo",
+  "anomaly_desc": "Você volta alguns segundos no tempo",
 
   "antyflash": "Anti-Flash",
-  "antyflash_desc": "Você é imune a granadas de flash, e suas granadas de flash duram 7 segundos",
+  "antyflash_desc": "Você é imune a flashes, e flashbangs duram 7 segundos",
 
   "antyhead": "Cabeça de Ferro",
-  "antyhead_desc": "Você não recebe dano de tiros na cabeça",
+  "antyhead_desc": "Você não recebe dano de headshots",
 
-  "areareaper": "Ceifador de Zonas",
-  "areareaper_desc": "Você pode escolher um local de bomba para desativar",
-  "areareaper_incorrect_site": "Nenhum local de bomba encontrado.",
-  "areareaper_no_site": "Nenhum local de bomba encontrado.",
-  "areareaper_select_info": "Escolha área p/ desativar:",
-  "areareaper_site_disabled": "Local de bomba {0} foi desativado - nenhuma bomba pode ser plantada lá!",
+  "areareaper": "Ceifador de Bombsite",
+  "areareaper_desc": "Você pode escolher um bombsite para desativar",
+  "areareaper_incorrect_site": "Nenhum bombsite encontrado.",
+  "areareaper_no_site": "Nenhum bombsite encontrado.",
+  "areareaper_select_info": "Escolha o bomb p/ desativar:",
+  "areareaper_site_disabled": "Bombsite {0} foi desativado - nenhuma bomba pode ser plantada lá!",
   "areareaper_used_info": "Seu poder já foi usado.",
 
-  "armored": "Blindado",
-  "armored_desc": "Você tem um multiplicador de dano recebido aleatório",
-  "armored_desc2": "Seu multiplicador de dano recebido é: {0}x",
+  "armored": "Super Tiro",
+  "armored_desc": "Seu dano é multiplicado por um valor aleatório",
+  "armored_desc2": "Seu multiplicador de dano é: {0}x",
 
   "assassin": "Assassino",
-  "assassin_desc": "Você causa mais dano aos inimigos por trás",
+  "assassin_desc": "Você causa mais dano aos inimigos de costas",
 
   "astronaut": "Astronauta",
-  "astronaut_desc": "Você recebe um valor de gravidade aleatório no início da rodada",
+  "astronaut_desc": "Sua gravidade é multiplicada por um valor aleatório",
   "astronaut_desc2": "Sua gravidade aleatória é: {0}x",
 
-  "bankrupt": "Falido",
+  "bankrupt": "Ladrão",
   "bankrupt_desc": "Escolha o jogador que perderá todo o dinheiro",
-  "bankrupt_enemy_info": "Você faliu.",
-  "bankrupt_player_info": "O jogador '{0}' faliu.",
-  "bankrupt_select_info": "Escolha jogador p/ falir:",
+  "bankrupt_enemy_info": "Você ficou pobre",
+  "bankrupt_player_info": "O jogador '{0}' ficou pobre.",
+  "bankrupt_select_info": "Escolha jogador p/ ficar pobre:",
 
-  "baseball": "Jogador de Beisebol",
-  "baseball_desc": "Seu chamariz ricocheteia nas paredes e mata instantaneamente um inimigo ao acertar",
+  "baseball": "Decoy Aleluia",
+  "baseball_desc": "Sua decoy ricocheteia nas paredes e mata instantaneamente um inimigo ao acertá-lo",
 
-  "behind": "Giro do Inimigo",
+  "behind": "Pião do Baú",
   "behind_desc": "Você tem uma chance aleatória de girar um inimigo 180 graus ao acertá-lo",
-  "behind_desc2": "Sua chance de girar um inimigo ao acertar é: {0}%",
+  "behind_desc2": "Sua chance de girar um inimigo ao acertá-lo é: {0}%",
 
   "blademaster": "Mestre das Lâminas",
-  "blademaster_desc": "Enquanto segura uma faca, você tem uma alta chance de desviar de um tiro",
-
+  "blademaster_desc": "Enquanto segura a faca, você tem chance de desviar de um tiro",
+  
   "bunnyhop": "Coelho",
   "bunnyhop_desc": "Você ganha \"BunnyHop\" automático",
-
+  
   "c4camouflage": "Camuflagem C4",
   "c4camouflage_desc": "Você fica invisível enquanto segura a bomba",
 
-  "carefulbullets": "Balas cuidadosas",
-  "carefulbullets_desc": "Selecione um jogador que sofra dano por cada tiro errado",
-  "carefulbullets_enemy_info": "A partir de agora, a imprecisão vai literalmente doer.",
-  "carefulbullets_player_info": "Agora, '{0}' precisa ter mais cuidado.",
-  "carefulbullets_select_info": "A imprecisão prejudica o jogador:",
+  "carefulbullets": "Errou, mamou",
+  "carefulbullets_desc": "Selecione um jogador vai sofrer dano ao errar cada tiro",
+  "carefulbullets_enemy_info": "A partir de agora, seu erro vai literalmente doer.",
+  "carefulbullets_player_info": "'{0}' agora precisa ter mais cuidado.",
+  "carefulbullets_select_info": "O erro prejudica o jogador:",
 
   "catapult": "Catapulta",
   "catapult_desc": "Você tem uma chance aleatória de lançar um inimigo para cima",
-  "catapult_desc2": "Sua chance de lançar um inimigo ao acertar é: {0}%",
-
+  "catapult_desc2": "Sua chance de lançar um inimigo ao acertá-lo é: {0}%",
+  
   "chicken": "Galinha",
-  "chicken_desc": "Você ganha um modelo de galinha + 10% de movimento mais rápido - 50 HP",
-
-  "chillout": "Descontraído",
+  "chicken_desc": "Você é uma galinha com +10% de movimento mais rápido e -50 HP",
+  
+  "chillout": "Esqueci a Senha",
   "chillout_desc": "Plantar a bomba leva significativamente mais tempo",
+  
+  "cutter": "Corte Rápido",
+  "cutter_desc": "Você mata instantaneamente com a faca",
 
-  "cutter": "Cortador",
-  "cutter_desc": "Mata instantaneamente com uma faca",
-
-  "cypher": "Câmera",
+  "cypher": "CFTV",
   "cypher_desc": "Clique em [css_useSkill] para criar/mudar para uma câmera",
   "cypher_nospace": "A câmera deve ser posicionada em ângulo reto com a parede",
-
+  
   "darkness": "Escuridão",
   "darkness_desc": "Aplica um efeito de escuridão a um inimigo escolhido",
   "darkness_enemy_info": "Que as luzes se apaguem.",
   "darkness_player_info": "A escuridão tomou conta do jogador '{0}'.",
   "darkness_select_info": "Escolha jogador: escuridão:",
-
+  
   "deactivator": "Desativador",
-  "deactivator_desc": "Escolha um jogador cuja habilidade você deseja desativar",
+  "deactivator_desc": "Escolha um jogador para desativar a habilidade",
   "deactivator_enemy_info": "Sua habilidade foi desativada.",
   "deactivator_player_info": "A habilidade do jogador '{0}' foi desativada.",
   "deactivator_select_info": "Desativar skill do jogador:",
-
+  
   "deaf": "Surdo",
-  "deaf_desc": "Escolha um jogador para silenciar todos os sons",
+  "deaf_desc": "Escolha um jogador para desativar todos os sons",
   "deaf_enemy_info": "Seus fones de ouvido saíram do jogo.",
   "deaf_player_info": "O som foi desativado para o jogador '{0}'.",
   "deaf_select_info": "Silenciar jogador:",
-
+  
   "disarmament": "Desarmamento",
-  "disarmament_desc": "Você tem uma chance aleatória de fazer um inimigo largar sua arma ao acertá-lo",
+  "disarmament_desc": "Você tem uma chance aleatória de fazer um inimigo dropar a arma ao acertá-lo",
   "disarmament_desc2": "Sua chance de desarmar um inimigo é: {0}%",
 
   "distancer": "Medidor de Distância",
   "distancer_desc": "Você pode ver a distância até o inimigo mais próximo",
-
-  "dash": "Dash",
-  "dash_desc": "Execute um segundo salto para dar um dash",
-
+  
+  "dash": "Impulso",
+  "dash_desc": "Pule novamente para receber um impulso",
+  
   "dracula": "Drácula",
-  "dracula_desc": "Acertar um inimigo restaura saúde igual a uma porcentagem do dano causado",
-
-  "duplicator": "Duplicador",
-  "duplicator_desc": "Escolha um jogador para copiar sua habilidade",
+  "dracula_desc": "Acertar um inimigo restaura sua vida igual a ao dano causado",
+  
+  "duplicator": "ctrl+c ctrl+v",
+  "duplicator_desc": "Escolha um jogador para copiar a habilidade",
   "duplicator_player_info": "A habilidade do jogador '{0}' foi copiada.",
   "duplicator_select_info": "Copiar skill do jogador:",
-
+  
   "dwarf": "Anão",
-  "dwarf_desc": "Tamanho de personagem aleatório no início da rodada",
-  "dwarf_desc2": "Seu multiplicador de tamanho é: {0}x",
-
+  "dwarf_desc": "Sua altura agora é aleatória",
+  "dwarf_desc2": "Seu multiplicador de altura é: {0}x",
+  
   "enemyspawn": "Spawn Inimigo",
-  "enemyspawn_desc": "Clique em [css_useSkill] para se teletransportar para o spawn inimigo",
-
+  "enemyspawn_desc": "Clique em [css_useSkill] para se teletransportar para a base inimiga",
+  
   "explosiveshot": "Tiro Explosivo",
   "explosiveshot_desc": "Chance aleatória de disparar uma bala explosiva enquanto atira",
   "explosiveshot_desc2": "Sua chance de disparar uma bala explosiva: {0}%",
-
-  "falconeye": "Olho de Falcão",
-  "falconeye_desc": "Clique em [css_useSkill] para ativar uma câmera com visão aérea",
-
+  
+  "falconeye": "Olho de Águia",
+  "falconeye_desc": "Clique em [css_useSkill] para ativar uma câmera 360 com visão aérea",
+  
   "fastreload": "Recarga Rápida",
   "fastreload_desc": "Clique em [css_useSkill] para recarregar a arma que você está segurando",
-
-  "flash": "Flash",
-  "flash_desc": "Velocidade de jogador aleatória no início da rodada",
+  
+  "flash": "Ligeirinho",
+  "flash_desc": "Velocidade de movimentação aleatória no início da rodada",
   "flash_desc2": "Seu multiplicador de velocidade é: {0}x",
-
+  
   "fortnite": "Fortnite",
-  "fortnite_desc": "Clique em [css_useSkill] para criar uma barricada destrutível",
-
+  "fortnite_desc": "Clique em [css_useSkill] para criar uma barreira destrutível",
+  
   "fragilebomb": "Bomba Frágil",
   "fragilebomb_desc": "Atirar na bomba a danifica",
   "fragilebomb_bomb_health": "Vida da bomba",
-
+  
   "friendlyfire": "Fogo Amigo",
   "friendlyfire_desc": "Atirar em companheiros de equipe os cura",
-
-  "frozendecoy": "Chamariz Congelante",
-  "frozendecoy_desc": "Seu chamariz congela todos os jogadores próximos",
-
-  "gambler": "Apostador",
+  
+  "frozendecoy": "Decoy Congelante",
+  "frozendecoy_desc": "Sua decoy congela os players próximos",
+  
+  "gambler": "Tigrinho",
   "gambler_desc": "Selecione uma habilidade da lista.",
   "gambler_select_info": "Escolha sua habilidade:",
   "gambler_more": "#00FF00|Atualizar por ${0}",
-  "gambler_no_money": "Não há dinheiro suficiente.",
-
+  
   "ghost": "Fantasma",
   "ghost_desc": "Você é completamente invisível",
-
-  "glaz": "Glaz",
-  "glaz_desc": "Você não pode ver granadas de fumaça",
-
-  "glitch": "Glitch",
+  
+  "glaz": "Smoke Transparente",
+  "glaz_desc": "Smokes tornam-se transparentes para você",
+  
+  "glitch": "Sem Mapa",
   "glitch_desc": "Desativa o radar de um inimigo escolhido",
   "glitch_enemy_info": "Seu radar foi desativado.",
   "glitch_player_info": "O radar do jogador '{0}' foi desativado.",
   "glitch_select_info": "Desativar radar do jogador:",
-
-  "glue": "Cola",
+  
+  "glue": "Semtex",
   "glue_desc": "Suas granadas grudam nas paredes",
-
+  
   "godmode": "Modo Deus",
-  "godmode_desc": "Clique em [css_useSkill] para se tornar imortal por um curto período",
+  "godmode_desc": "Clique em [css_useSkill] para se tornar imortal por alguns segundos",
   "godmode_off": "Imortalidade desativada",
   "godmode_on": "Imortalidade ativada",
+  
+  "grenadier": "Bomberman",
+  "grenadier_desc": "Você tem HEs infinitas",
+  
+  "healingsmoke": "Smoke Amiga",
+  "healingsmoke_desc": "Suas smokes curam",
+  
+  "hermit": "Sanguessuga",
+  "hermit_desc": "Matar restaura munição e uma parte da sua vida",
 
-  "grenadier": "Grenadier",
-  "grenadier_desc": "Você tem granadas HE infinitas",
-
-  "healingsmoke": "Fumaça Curativa",
-  "healingsmoke_desc": "Suas granadas de fumaça curam",
-
-  "hermit": "Eremita",
-  "hermit_desc": "Matar restaura munição e uma porção de saúde",
-
-  "holyhandgrenade": "Granada Sagrada",
-  "holyhandgrenade_desc": "Suas granadas explosivas causam dano dobrado e têm alcance dobrado",
+  "holyhandgrenade": "Granada Obesa",
+  "holyhandgrenade_desc": "HEs causam dano dobrado e têm alcance dobrado",
 
   "iana": "Holograma",
   "iana_desc": "Clique em [css_useSkill] para controlar seu holograma por alguns segundos",
-
+  
   "impostor": "Impostor",
-  "impostor_desc": "Você começa a rodada com um modelo de jogador inimigo",
-
+  "impostor_desc": "Você começa a rodada vestido do time inimigo",
+  
   "infiniteammo": "Munição Infinita",
   "infiniteammo_desc": "Você recebe munição infinita para todas as suas armas",
-
-  "jackal": "Rastreador",
+  
+  "jackal": "Lesma",
   "jackal_desc": "Cada adversário deixa um rastro atrás de si",
 
-  "jammer": "Jammer",
-  "jammer_desc": "Escolha um jogador para desativar sua mira",
+  "jammer": "No Scope",
+  "jammer_desc": "Escolha um jogador para desativar a mira",
   "jammer_enemy_info": "Sua mira foi desativada.",
   "jammer_player_info": "A mira do jogador '{0}' foi desativada.",
   "jammer_select_info": "Desativar mira do jogador:",
-
-  "jester": "Bobo",
+  
+  "jester": "Palhaço",
   "jester_desc": "No modo bobo você não pode causar nem receber dano. Esse modo muda a cada poucos segundos.",
-  "jester_mode": "Modo Bobo",
+  "jester_mode": "Modo Palhaço",
   "jester_on": "LIG.",
   "jester_off": "DESL.",
-
-  "jumpban": "Sem Pernas",
+  
+  "jumpban": "Perneta",
   "jumpban_desc": "Escolha um jogador que não poderá pular",
-  "jumpban_enemy_info": "Alguém cortou suas pernas.",
+  "jumpban_enemy_info": "Cortaram as suas pernas.",
   "jumpban_player_info": "O jogador '{0}' não pode mais pular.",
   "jumpban_select_info": "Banir pulo do jogador:",
-
+  
   "jumpingjack": "Pula-Pula",
-  "jumpingjack_desc": "Pular restaura saúde",
-
+  "jumpingjack_desc": "Pular restaura vida",
+  
   "killerflash": "Flash Mortal",
-  "killerflash_desc": "Qualquer um completamente cego pela sua granada de flash morre (incluindo você)",
-
+  "killerflash_desc": "Qualquer pessoa cega pela sua flash morre (incluindo você)",
+  
   "lifeswap": "Troca de Vida",
-  "lifeswap_desc": "Escolha um jogador para trocar saúde com ele",
-  "lifeswap_enemy_info": "Alguém pegou sua saúde emprestada.",
-  "lifeswap_player_info": "Você trocou saúde com o jogador '{0}'.",
-  "lifeswap_select_info": "Trocar vida com jogador:",
-
-  "longknife": "Faca Longa",
+  "lifeswap_desc": "Escolha um jogador para trocar de vida",
+  "lifeswap_enemy_info": "Alguém pegou sua vida emprestada.",
+  "lifeswap_player_info": "Você trocou vida com o jogador '{0}'.",
+  "lifeswap_select_info": "Trocar de vida com jogador:",
+  
+  "longknife": "Espada",
   "longknife_desc": "Um ataque com faca causa danos independentemente da distância",
-
+  
   "longzeus": "Zeus Longo",
   "longzeus_desc": "Zeus causa dano independentemente da distância",
-
+  
   "magnifier": "Lupa",
-  "magnifier_desc": "Força a tela do inimigo a ampliar, reduzindo seu campo de visão",
+  "magnifier_desc": "Força a tela do inimigo a dar um zoom, reduzindo seu campo de visão",
   "magnifier_enemy_info": "Seu campo de visão foi distorcido!",
-  "magnifier_player_info": "O jogador ‘{0}’ foi forçado a entrar no modo de zoom.",
+  "magnifier_player_info": "O jogador ‘{0}’ foi forçado a entrar no modo zoom.",
   "magnifier_select_info": "Ampliar tela do jogador:",
-
+  
   "medic": "Médico",
-  "medic_desc": "Clique em [css_useSkill] para usar uma carga de cura que restaura 50 de saúde",
-
-  "moneyswap": "Cobrador de Impostos",
-  "moneyswap_desc": "Escolha um jogador para trocar dinheiro com ele",
-  "moneyswap_enemy_info": "A receita federal te pegou.",
+  "medic_desc": "Clique em [css_useSkill] para usar uma injeção que restaura 50 de vida",
+  
+  "moneyswap": "Troca de Grana",
+  "moneyswap_desc": "Escolha um jogador para trocar de dinheiro com ele",
+  "moneyswap_enemy_info": "Você provavelmente virou classe B",
   "moneyswap_player_info": "Você trocou dinheiro com o jogador '{0}'.",
   "moneyswap_select_info": "Trocar dinheiro c/ jogador:",
-
+  
   "muhammed": "Muhammed",
-  "muhammed_desc": "Você explode ao morrer, matando jogadores próximos",
+  "muhammed_desc": "Você explode ao morrer, matando os jogadores próximos",
   "muhammed_explosion": "ALLAHU AKBAR!!!",
-
+  
   "ninja": "Ninja",
   "ninja_desc": "Ficar parado aumenta sua invisibilidade em 33%, agachar em 33%, e segurar uma faca em 33%",
-
-  "nonades": "Sem Granadas",
+  
+  "nonades": "Imune a Granadas",
   "nonades_desc": "Granadas não causam dano a você",
-
-  "norecoil": "Foco",
-  "norecoil_desc": "Sem recuo ao atirar",
-
+  
+  "norecoil": "Sem Recoil",
+  "norecoil_desc": "Sem recoil ao atirar",
+  
   "noclip": "NoClip",
-  "noclip_desc": "Clique em [css_useSkill] para ativar noclip por um curto período",
-
-  "oneshot": "Tiro Único",
+  "noclip_desc": "Clique em [css_useSkill] para ativar noclip por poucos segundos",
+  
+  "oneshot": "Ignorante",
   "oneshot_desc": "Acertar um inimigo o mata instantaneamente",
-
-  "onlyhead": "Apenas Cabeça",
-  "onlyhead_desc": "Você só recebe dano na cabeça",
-
-  "paweljumper": "Pawel Jumper",
-  "paweljumper_desc": "Você recebe um número aleatório de saltos extras",
-  "paweljumper_desc2": "Você ganha {0} saltos extras",
-
+  
+  "onlyhead": "Só na Cabeçinha",
+  "onlyhead_desc": "Você só recebe headshot",
+  
+  "paweljumper": "Parkourista",
+  "paweljumper_desc": "Você recebe um número aleatório de pulos extras",
+  "paweljumper_desc2": "Você ganha {0} pulos extras",
+  
   "phoenix": "Fênix",
   "phoenix_desc": "Você tem uma chance aleatória de renascer após a morte",
   "phoenix_desc2": "Sua chance de renascer após a morte: {0}%",
   "phoenix_respawn": "Você foi ressuscitado das cinzas graças ao poder de: CHATCOLORS.REDPhoenix",
-
+  
   "psychicdefusing": "Desarme Psíquico",
-  "psychicdefusing_desc": "Quando você está perto da bomba, começa a desarmá-la",
+  "psychicdefusing_desc": "Quando você está proximo da bomba, começa a desarmá-la automaticamente",
   "psychicdefusing_hud_info": "{0} segundos restantes para desarmar",
-
-  "pilot": "Piloto",
+  
+  "pilot": "Jetpack",
   "pilot_desc": "Voe por um tempo limitado. Segure [USE - E] para voar",
   "pilot_hud_info": "Combustível",
-
-  "planter": "Plantador Livre",
+  
+  "planter": "Meu Bombsite Minha Vida",
   "planter_desc": "Você pode plantar a bomba em qualquer lugar, com um tempo de detonação de 60 segundos.",
-
+  
   "poison": "Veneno",
   "poison_desc": "Escolha um jogador que receberá dano a cada poucos segundos",
   "poison_enemy_info": "Você foi envenenado.",
   "poison_player_info": "O jogador '{0}' foi envenenado.",
   "poison_select_info": "Envenenar jogador:",
-
-  "primaryban": "Sem Rifles",
+  
+  "primaryban": "Sem Rifle",
   "primaryban_desc": "Escolha um jogador que não poderá usar rifles",
   "primaryban_enemy_info": "Você não pode mais usar rifles.",
   "primaryban_player_info": "O jogador '{0}' não pode mais usar rifles.",
   "primaryban_select_info": "Banir rifles do jogador:",
-
+  
   "prosthesis": "Prótese",
   "prosthesis_desc": "Braços e pernas são à prova de balas",
-
-  "push": "Empurrador",
-  "push_desc": "Você tem uma chance aleatória de empurrar um inimigo para trás ao acertá-lo",
-  "push_desc2": "Suas chances de repelir o inimigo são: {0}%",
-
-  "pyro": "Piro",
-  "pyro_desc": "Molotov restaura saúde",
-
+  
+  "push": "Empurrão",
+  "push_desc": "Você tem uma chance aleatória de empurrar um inimigo ao acertá-lo",
+  "push_desc2": "Suas chances de empurrar o inimigo são: {0}%",
+  
+  "pyro": "Pirotecnia",
+  "pyro_desc": "Molotov recupera vida",
+  
   "quickshot": "Tiro Rápido",
-  "quickshot_desc": "Todas as balas são disparadas muito rapidamente",
-
-  "radarhack": "Hack de Radar",
-  "radarhack_desc": "Inimigos são visíveis no radar",
-
+  "quickshot_desc": "Todas as balas são disparadas extremamente rapidas",
+  
+  "radarhack": "Hack de Mapa",
+  "radarhack_desc": "Inimigos são visíveis no mapa",
+  
   "rambo": "Rambo",
-  "rambo_desc": "Você recebe uma quantidade aleatória de saúde no início da rodada",
-
+  "rambo_desc": "Você recebe uma quantidade aleatória de vida no início da rodada",
+  
   "randomweapon": "Arma Aleatória",
   "randomweapon_desc": "Clique em [css_useSkill] para receber uma arma aleatória",
-
-  "rezombie": "Re-Zumbi",
-  "rezombie_desc": "Após a morte, você renasce como um zumbi com mais saúde e sem armas",
-
+  
+  "rezombie": "Walking Dead",
+  "rezombie_desc": "Após morrer, você renasce como um zumbi com mais vida porém sem armas",
+  
   "reactivearmor": "Armadura Reativa",
   "reactivearmor_desc": "A armadura absorve o primeiro dano recebido",
-
+  
   "regeneration": "Regeneração",
-  "regeneration_desc": "Você restaura saúde a cada poucos segundos",
-
-  "replicator": "Replicador",
-  "replicator_desc": "Clique em [css_useSkill] para criar uma réplica que causa dano ao acertar",
-
-  "retreat": "Recuo",
+  "regeneration_desc": "Você restaura vida a cada poucos segundos",
+  
+  "replicator": "Clone",
+  "replicator_desc": "Clique em [css_useSkill] para criar um clone que causa dano ao ser atingido",
+  
+  "retreat": "De Volta as Origens",
   "retreat_desc": "Clique em [css_useSkill] para retornar ao spawn",
-
+  
   "returntosender": "Devolução ao Remetente",
-  "returntosender_desc": "O primeiro acerto em um inimigo o envia de volta ao seu spawn",
-
-  "richboy": "Garoto Rico",
+  "returntosender_desc": "O primeiro tiro em um inimigo o envia de volta a sua base",
+  
+  "richboy": "Filhinho de Papai",
   "richboy_desc": "Você recebe uma quantidade aleatória de dinheiro no início da rodada",
-
+  
   "robinhood": "Robin Hood",
-  "robinhood_desc": "Causar dano a um inimigo rouba seu dinheiro",
-
+  "robinhood_desc": "Atirar em um inimigo rouba seu dinheiro",
+  
   "rubber": "Balas de Borracha",
-  "rubber_desc": "Suas balas retardam significativamente os jogadores",
-
-  "saper": "Sapeador",
+  "rubber_desc": "Seus tiros deixam os jogadores lentos ao serem atingidos",
+  
+  "saper": "Especialista",
   "saper_desc": "Você pode plantar e desarmar bombas mais rápido",
-
+  
   "secondlife": "Segunda Chance",
-  "secondlife_desc": "Após a morte, você renasce com a mesma quantidade de saúde",
-
+  "secondlife_desc": "Após morrer, você renasce com a mesma quantidade de vida",
+  
   "shade": "Sombra",
-  "shade_desc": "Você tem uma chance aleatória de se teletransportar para trás de um inimigo atingido",
+  "shade_desc": "Você tem uma chance aleatória de teletransportar para trás de um inimigo ao atingi-lo",
   "shade_desc2": "Suas chances de se teletransportar para trás de um inimigo atingido são: {0}%",
   "shade_nospace": "Sem espaço disponível",
-
-  "shortbomb": "Fusível Curto",
-  "shortbomb_desc": "A bomba explode muito mais rápido",
-
-  "silent": "Silencioso",
+  
+  "shortbomb": "Pavio Longo",
+  "shortbomb_desc": "A bomba demora muito mais para explodir",
+  
+  "silent": "Shhhiu!",
   "silent_desc": "Seus passos e pulos são silenciosos para OUTROS jogadores",
-
-  "sniperelite": "Atirador de Elite",
-  "sniperelite_customname": "Habilidade de Atirador de Elite",
+  
+  "sniperelite": "Sniper do BOPE",
   "sniperelite_desc": "Clique em [css_useSkill] para trocar sua arma atual por uma AWP",
-
+  
   "soldier": "Soldado",
-  "soldier_desc": "Você tem um multiplicador de dano aleatório",
+  "soldier_desc": "Seus tiros causam mais dano",
   "soldier_desc2": "Seu multiplicador de dano é: {0}x",
-
+  
   "soundmaker": "Criador de Som",
-  "soundmaker_desc": "Clique em [css_useSkill] para acionar um som para cada inimigo",
-
+  "soundmaker_desc": "Clique em [css_useSkill] para tocar um som para cada inimigo",
+  
   "spectator": "Espectador",
-  "spectator_desc": "Clique em [css_useSkill] para observar um inimigo aleatório",
-
+  "spectator_desc": "Clique em [css_useSkill] para ver a tela de um inimigo aleatório",
+  
   "swapposition": "Troca de Posição",
   "swapposition_desc": "Clique em [css_useSkill] para trocar de lugar com um inimigo aleatório",
-
+  
   "teleporter": "Teletransportador",
-  "teleporter_desc": "Você troca de lugar com o inimigo acertado",
-
-  "thief": "Ladrão",
+  "teleporter_desc": "Você troca de lugar com o inimigo que acertar",
+  
+  "thief": "Lula",
   "thief_desc": "Você pode roubar uma habilidade de um jogador escolhido",
   "thief_enemy_info": "Sua habilidade foi roubada.",
   "thief_player_info": "A habilidade do jogador '{0}' foi roubada.",
   "thief_select_info": "Roubar skill do jogador:",
   "thief_incorrect_skill": "Esta habilidade não pode ser selecionada!",
-
+  
   "thirdeye": "Terceiro Olho",
-  "thirdeye_desc": "Clique em [css_useSkill] para ativar a visão em terceira pessoa",
-
-  "thorns": "Espinhos",
+  "thirdeye_desc": "Clique em [css_useSkill] para ativar a terceira pessoa",
+  
+  "thorns": "Porco Espinho",
   "thorns_desc": "Seu oponente receberá uma parte do dano que causou a você",
-
-  "toxicsmoke": "Fumaça Tóxica",
-  "toxicsmoke_desc": "Suas granadas de fumaça causam dano",
-
+  
+  "toxicsmoke": "Smoke Tóxica",
+  "toxicsmoke_desc": "Suas smokes causam dano",
+  
   "wallhack": "Wallhack",
   "wallhack_desc": "Você pode ver inimigos através das paredes",
-
+  
   "watchmaker": "Relojoeiro",
   "watchmaker_desc": "Cada arremesso de granada altera o tempo da rodada",
   "watchmaker_ct": "Tempo da rodada reduzido em {0} segundos.",
   "watchmaker_tt": "Tempo da rodada estendido em {0} segundos.",
-
+  
   "weaponsswap": "Troca de Armas",
   "weaponsswap_desc": "Clique em [css_useSkill] para trocar armas com um inimigo aleatório",
   "weaponsswap_hud_info2": "Você não tem arma para trocar",
-
+  
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 recarrega instantaneamente",
-
-  "your_skill": "Seu poder atual",
+  
+  "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
-  "observer_skill": "Poder do jogador",
+  "observer_skill": "Habilidade do jogador",
   "welcome_message": "Bem-vindo {PLAYER} ao {SERVER_NAME}!\nVersão atual do jRandomSkills: {VERSION} ({SKILLS_COUNT} habilidades).\n\nCriado originalmente por:\n{AUTHOR1}\nModificado e aprimorado por:\n{AUTHOR2}\nDiscord oficial: https://discord.gg/9H8EZYBpPF",
   "drawing_skill": "Sorteando uma habilidade",
   "disabled_weapon": "Você não pode usar esta arma",
-
+  
   "hud_info": "Espere mais {0} segundos",
   "hud_info_no_enemy": "Nenhum inimigo encontrado",
   "active_hud_info": "Ativo por mais {0} milissegundos",
-
+  
   "skills_menu": "Lista de Habilidades",
   "no_player": "Nenhum jogador correspondente encontrado.",
   "duplicate_player": "Mais de um jogador encontrado com o mesmo nome.",
   "selectplayerskill_command": "Digite /t",
   "selectplayerskill_incorrect_enemy_index": "Não foram encontrados jogadores para selecionar.",
-
+  
   "skill_not_found_setskill": "Nenhuma habilidade CHATCOLORS.RED encontrada",
   "player_not_found_setskill": "Nenhum jogador CHATCOLORS.RED encontrado",
   "correct_form_setskill": "Uso correto: CHATCOLORS.RED!setskill <apelido> <habilidade>",
@@ -444,10 +442,10 @@
   "done_setskill": "Habilidade definida",
   "error_setskill": "Falha ao definir a habilidade CHATCOLORS.RED",
   "for_setskill": "para",
-
-  "invalid_map": "Nome do mapa inserido incorretamente!",
+  
+  "invalid_map": "Nome do mapa inválido!",
   "loading_map": "Carregando um novo mapa",
-
+  
   "pause": "Partida pausada.",
   "unpause": "Partida retomada.",
   "healed": "Você foi curado.",
@@ -455,7 +453,7 @@
   "reload": "Os idiomas e as configurações foram recarregados.",
   "hud_on": "O HUD foi ativado.",
   "hud_off": "O HUD foi desativado.",
-
+  
   "vote_started": "Votação iniciada: '{0}'",
   "vote_timeout": "Votação '{0}' expirou!",
   "vote_wait": "Você precisa esperar antes de iniciar outra votação!",
@@ -463,14 +461,14 @@
   "vote_not_enough_players": "Não há jogadores suficientes para iniciar uma votação!",
   "vote_alredy_voted": "Você já votou!",
   "vote_vote": "Votar",
-
-  "bombsite_a": "Zona de detonação A",
-  "bombsite_b": "Zona de detonação B",
-  "bombplanted": "A bomba foi colocada\n{0} segundos até a detonação",
-
+  
+  "bombsite_a": "Bombsite A",
+  "bombsite_b": "Bombsite B",
+  "bombplanted": "A bomba foi plantada\n{0} segundos até a detonação",
+  
   "teammate_skills": "Habilidades dos seus companheiros de equipe",
   "summary": "Resumo da última rodada",
-
+  
   "menu_controlls_scroll": "W/S - Rolar",
   "menu_controlls_padding": "   |   ",
   "menu_controlls_select": "E - Selecionar"
