@@ -21,7 +21,7 @@ namespace src
         public ConcurrentBag<jSkill_PlayerInfo> SkillPlayer { get; set; } = [];
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
-        private ConcurrentBag<string> ManifestResources { get; set; } = [ "models/actors/ghost_speaker.vmdl" ];
+        private ConcurrentBag<string> ManifestResources { get; set; } = ["models/actors/ghost_speaker.vmdl"];
         public IWasdMenuManager? MenuManager;
 
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
