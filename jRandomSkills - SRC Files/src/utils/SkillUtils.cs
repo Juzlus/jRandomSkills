@@ -20,10 +20,11 @@ namespace src.utils
     public static class SkillUtils
     {
         private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> HEGrenadeProjectile_CreateFunc = new(GameData.GetSignature("HEGrenadeProjectile_CreateFunc"));
-        private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> SmokeGrenadeProjectile_CreateFunc = new(GameData.GetSignature("SmokeGrenadeProjectile_CreateFunc"));
+        private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile> SmokeGrenadeProjectile_CreateFunc = new(GameData.GetSignature("SmokeGrenadeProjectile_CreateFunc"));
         private static readonly MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint> TerminateRoundFunc = new(GameData.GetSignature("CCSGameRules_TerminateRound"));
+        private static readonly MemoryFunctionVoid<CBasePlayerPawn, QAngle> SnapViewAngles = new(GameData.GetSignature("SnapViewAngles"));
 
-        public static void PrintToChat(CCSPlayerController player, string msg, string border = "tb", string? title = null)
+        public static void PrintToChat(CCSPlayerController player, string? msg, string border = "tb", string? title = null)
         {
             if (!player.IsValid) return;
 
@@ -93,6 +94,13 @@ namespace src.utils
 
             return new Vector(x, y, z);
         }
+
+        public static void Look(this CBasePlayerPawn pawn, QAngle angle)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+            SnapViewAngles.Invoke(pawn, angle);
+        }
+
         public static CBeam? CreateLine(Vector start, Vector end, Color color)
         {
             CBeam beam = Utilities.CreateEntityByName<CBeam>("beam")!;

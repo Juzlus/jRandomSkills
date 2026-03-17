@@ -5,13 +5,16 @@ using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
+using CounterStrikeSharp.API.Modules.Timers;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
-    public class Replicator : ISkill
+    public class Illusionist : ISkill
     {
-        private const Skills skillName = Skills.Replicator;
+        private const Skills skillName = Skills.Illusionist;
         private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<int, Timer> ActiveTimers = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -28,9 +31,12 @@ namespace src.player.skills
 
         private static void ClearAllReplicas()
         {
+            foreach (var timer in ActiveTimers.Values) timer?.Kill();
+            ActiveTimers.Clear();
+
             var entities = Utilities.FindAllEntitiesByDesignerName<CDynamicProp>("prop_dynamic_override");
             foreach (var entity in entities)
-                if (entity != null && entity.IsValid && entity.Entity != null && !string.IsNullOrEmpty(entity.Entity.Name) && (entity.Entity.Name?.StartsWith("Replica_") ?? false))
+                if (entity != null && entity.IsValid && entity.Entity != null && !string.IsNullOrEmpty(entity.Entity.Name) && (entity.Entity.Name?.StartsWith("Illusionist_") ?? false))
                     entity.AcceptInput("Kill");
         }
 
@@ -38,6 +44,8 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
+                if (player == null || !player.IsValid || player.IsBot) continue;
+
                 var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
                 if (playerInfo?.Skill == skillName)
                     if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
@@ -84,46 +92,84 @@ namespace src.player.skills
 
         public static void UseSkill(CCSPlayerController player)
         {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn?.CBodyComponent == null) return;
+            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo) && skillInfo.CanUse)
             {
-                if (!player.IsValid || !player.PawnIsAlive) return;
-                if (skillInfo.CanUse)
-                {
-                    skillInfo.CanUse = false;
-                    skillInfo.Cooldown = DateTime.Now;
-                    CreateReplica(player);
-                }
+                skillInfo.CanUse = false;
+                skillInfo.Cooldown = DateTime.Now;
+                CreateReplica(player);
             }
         }
 
         private static void CreateReplica(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var replica = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
-            if (replica == null || playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null)
-                return;
+            if (playerPawn == null || !playerPawn.IsValid) return;
+            if (playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return;
 
-            float distance = 40;
-            Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
-            
-            replica.Flags = playerPawn.Flags;
-            replica.Flags |= (uint)Flags_t.FL_DUCKING;
+            var replica = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+            if (replica == null || !replica.IsValid) return;
+
             replica.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
+           
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
-            replica.Entity!.Name = replica.Globalname = $"Replica_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
+            replica.Entity!.Name = replica.Globalname = $"Illusionist_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
 
             replica.UseAnimGraph = false;
-            string animName = "idle_for_turns_stand_pistol";
-            if (((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_DUCKING))
-                animName = "idle_for_turns_crouch_pistol";
-
-            replica.AcceptInput("SetAnimation", value: animName);
-            replica.Teleport(pos, playerPawn.AbsRotation, null);
             replica.DispatchSpawn();
+
+            float distance = 40;
+            Vector startPos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
+            QAngle angle = new(0, playerPawn.EyeAngles.Y, 0);
+            replica.Teleport(startPos, angle, new Vector(0, 0, -100));
+
+            bool ducking = ((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_DUCKING);
+
+            string animName = ducking ? "crouch_new_knife_n" : "run_new_knife_n";
+            replica.AcceptInput("SetAnimation", value: animName);
+            replica.AcceptInput("SetPlaybackRate", value: "1.0");
+
+            float speed = ducking ? 1.25f : 3.5f;
+            Vector forwardVec = SkillUtils.GetForwardVector(angle);
+            int replicaIndex = (int)replica.Index;
+
+            Instance.AddTickTimer(10, () => {
+                var moveTimer = Instance.AddTickTimer(1, () =>
+                {
+                    if (replica == null || !replica.IsValid)
+                    {
+                        if (ActiveTimers.TryRemove(replicaIndex, out var timer)) timer?.Kill();
+                        return;
+                    }
+
+                    if (ducking && Server.TickCount % 50 == 0)
+                    {
+                        replica.AcceptInput("SetAnimation", value: animName);
+                        replica.AcceptInput("SetPlaybackRate", value: "1.0");
+                    }
+
+                    Vector currentPos = replica.AbsOrigin!;
+                    Vector nexPos = new(
+                        currentPos.X + (forwardVec.X * speed),
+                        currentPos.Y + (forwardVec.Y * speed),
+                        currentPos.Z
+                    );
+                    replica.Teleport(nexPos, null, null);
+                }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+                ActiveTimers.TryAdd(replicaIndex, moveTimer);
+            });
+
+            float duration = SkillsInfo.GetValue<float>(skillName, ducking ? "durationCrouch" : "durationRun");
+            Instance.AddTimer(duration, () =>
+            {
+                if (replica != null && replica.IsValid)
+                {
+                    replica.AcceptInput("Kill");
+                    if (ActiveTimers.TryRemove(replicaIndex, out var timer)) timer?.Kill();
+                }
+            });
         }
 
         public static void OnTakeDamage(DynamicHook h)
@@ -135,16 +181,17 @@ namespace src.player.skills
                 return;
 
             if (string.IsNullOrEmpty(param.Entity.Name)) return;
-            if (!param.Entity.Name.StartsWith("Replica_")) return;
+            if (!param.Entity.Name.StartsWith("Illusionist_")) return;
 
-            var replica = param.As<CPhysicsPropMultiplayer>();
+            var replica = param.As<CDynamicProp>();
             if (replica == null || !replica.IsValid) return;
+
             replica.EmitSound("GlassBottle.BulletImpact", volume: 1f);
+            if (ActiveTimers.TryRemove((int)replica.Index, out var timer)) timer?.Kill();
             replica.AcceptInput("Kill");
 
             CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            if (attackerPawn.DesignerName != "player")
-                return;
+            if (attackerPawn.DesignerName != "player") return;
 
             var attackerTeam = attackerPawn.TeamNum;
             var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
@@ -158,9 +205,11 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a3000b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 15f, int yourTeamDamage = 10, int enemyTeamDamage = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 30f, float durationRun = 5, float durationCrouch = 12, int yourTeamDamage = 10, int enemyTeamDamage = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float Cooldown { get; set; } = cooldown;
+            public float DurationRun { get; set; } = durationRun;
+            public float DurationCrouch { get; set; } = durationCrouch;
             public int YourTeamDamage { get; set; } = yourTeamDamage;
             public int EnemyTeamDamage { get; set; } = enemyTeamDamage;
         }

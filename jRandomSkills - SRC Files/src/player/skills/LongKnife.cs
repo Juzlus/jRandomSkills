@@ -59,7 +59,7 @@ namespace src.player.skills
             var weapon = hook.GetParam<CBasePlayerWeapon>(0);
             var action = hook.GetParam<short>(1);
 
-            if (action != actionCode || weapon?.DesignerName != "weapon_knife") return HookResult.Continue;
+            if (action != actionCode || (weapon?.DesignerName != "weapon_knife" && weapon?.DesignerName != "weapon_bayonet")) return HookResult.Continue;
             if (weapon.OwnerEntity.Value == null || !weapon.OwnerEntity.Value.IsValid) return HookResult.Continue;
 
             var pawn = weapon.OwnerEntity.Value.As<CCSPlayerPawn>();
@@ -87,7 +87,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.WeaponServices == null) return;
 
             var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
-            if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_knife") return;
+            if (activeWeapon == null || !activeWeapon.IsValid || (activeWeapon.DesignerName != "weapon_knife" && activeWeapon.DesignerName != "weapon_bayonet")) return;
 
             KnifeHit(player, false);
         }

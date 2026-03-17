@@ -47,8 +47,8 @@ namespace src.player.skills
             return Utilities.GetPlayers().Any(
                 p => p.IsValid &&
                 p.PawnIsAlive &&
-                p.Team != player.Team
-                && playersWithSkill.Contains(p.SteamID));
+                p.Team != player.Team &&
+                playersWithSkill.Contains(p.SteamID));
         }
 
         public static string? GetRandomText(string? input)

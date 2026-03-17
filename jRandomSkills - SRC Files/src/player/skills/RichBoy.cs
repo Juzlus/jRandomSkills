@@ -38,7 +38,6 @@ namespace src.player.skills
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            player.PrintToChat(moneyServices.CashSpentThisRound.ToString());
             int money = Math.Abs((int)playerInfo.SkillChance! - moneyServices.CashSpentThisRound);
             AddMoney(player, -money, 3000);
         }

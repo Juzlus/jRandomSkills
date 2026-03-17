@@ -8,9 +8,9 @@ using static src.jRandomSkills;
 
 namespace src.player.skills
 {
-    public class FrozenDecoy : ISkill
+    public class MagneticDecoy : ISkill
     {
-        private const Skills skillName = Skills.FrozenDecoy;
+        private const Skills skillName = Skills.MagneticDecoy;
         private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
 
         public static void LoadSkill()
@@ -52,13 +52,22 @@ namespace src.player.skills
                 foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 {
                     var decoyRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
+
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+
                     double distance = SkillUtils.GetDistance(decoyPos, pawn.AbsOrigin);
-                    if (distance <= decoyRadius)
+                    if (distance <= decoyRadius &&  distance > 10)
                     {
-                        double modifier = Math.Clamp(distance / decoyRadius, 0f, 1f);
-                        pawn.VelocityModifier = (float)Math.Pow(modifier, SkillsInfo.GetValue<int>(skillName, "slownessMultiplier"));
+                        Vector direction = new(decoyPos.X - pawn.AbsOrigin.X, decoyPos.Y - pawn.AbsOrigin.Y, 0);
+                        float length = direction.Length();
+
+                        Vector normalized = direction / length;
+                        float ratio = 1 - (float)(distance / decoyRadius);
+                        float strenght = SkillsInfo.GetValue<float>(skillName, "strenght") * ratio;
+
+                        pawn.AbsVelocity.X += normalized.X * strenght;
+                        pawn.AbsVelocity.Y += normalized.Y * strenght;
                     }
                 }
         }
@@ -68,10 +77,10 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00eaff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float triggerRadius = 180, int slownessMultiplier = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#81f0c4", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float triggerRadius = 180, float strenght = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float TriggerRadius { get; set; } = triggerRadius;
-            public int SlownessMultiplier { get; set; } = slownessMultiplier;
+            public float Strenght { get; set; } = strenght;
         }
     }
 }

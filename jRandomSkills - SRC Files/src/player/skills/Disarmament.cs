@@ -31,7 +31,7 @@ namespace src.player.skills
                     if (weaponServices?.ActiveWeapon == null) return;
 
                     var weaponName = weaponServices?.ActiveWeapon?.Value?.DesignerName;
-                    if (weaponName != null && !weaponName.Contains("weapon_knife") && !weaponName.Contains("weapon_c4"))
+                    if (weaponName != null && !weaponName.Contains("weapon_knife") && !weaponName.Contains("weapon_bayonet") && !weaponName.Contains("weapon_c4"))
                         victim.DropActiveWeapon();
                 }
             }

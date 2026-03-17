@@ -1,20 +1,19 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Attributes;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using Microsoft.Extensions.Logging;
 using src.utils;
 using System.Collections.Concurrent;
 using static src.jRandomSkills;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
     public class Smoker : ISkill
     {
         private const Skills skillName = Skills.Smoker;
-        private readonly static ConcurrentDictionary<uint, int> smokes = [];
+        private readonly static ConcurrentDictionary<ulong, List<Timer>> playerSmokes = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -25,9 +24,11 @@ namespace src.player.skills
         public static void NewRound()
         {
             lock (setLock)
-                smokes.Clear();
-
-
+            {
+                foreach (var timers in playerSmokes.Values)
+                    timers.ForEach(t => t?.Kill());
+                playerSmokes.Clear();
+            }
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -35,28 +36,13 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
         }
 
-        public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event)
+        public static void DisableSkill(CCSPlayerController player)
         {
-            Server.PrintToChatAll("BOOM");
-            var player = @event.Userid;
-            if (player == null || !player.IsValid) return;
-
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (playerInfo?.Skill != skillName) return;
-
-            var smoke = Utilities.GetEntityFromIndex<CSmokeGrenadeProjectile>(@event.Entityid);
-            if (smoke == null || !smoke.IsValid) return;
-
-            smokes.TryAdd(smoke.Index, Server.TickCount);
-
-            // smoke.SmokeEffectTickBegin = Server.TickCount - ((19 - 15) * 64);
-            smoke.NextThinkTick = 0;
-
-            // Utilities.SetStateChanged(smoke, "CSmokeGrenadeProjectile", "m_nSmokeEffectTickBegin");
-            Utilities.SetStateChanged(smoke, "CBaseEntity", "m_nNextThinkTick");
+            if (playerSmokes.TryRemove(player.SteamID, out var timers))
+                timers.ForEach(t => t?.Kill());
         }
 
-        public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
+        public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event)
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
@@ -65,7 +51,22 @@ namespace src.player.skills
             if (playerInfo?.Skill != skillName) return;
 
             Vector pos = new(@event.X, @event.Y, @event.Z);
-            SkillUtils.CreateSmokeGrenadeProjectile(pos, new QAngle(0, 0, 0), new Vector(0, 0, 0), player.TeamNum);
+            float refillInterval = 15.5f;
+
+            Timer? smokeTimer = null;
+            smokeTimer = Instance.AddTimer(refillInterval, () =>
+            {
+                if (player == null || !player.IsValid)
+                {
+                    smokeTimer?.Kill();
+                    return;
+                }
+
+                Server.PrintToChatAll("Create Smoke");
+                SkillUtils.CreateSmokeGrenadeProjectile(pos, QAngle.Zero, Vector.Zero, player.TeamNum);
+            }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+
+            playerSmokes.AddOrUpdate(player.SteamID, [smokeTimer], (_, list) => { list.Add(smokeTimer); return list; });
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

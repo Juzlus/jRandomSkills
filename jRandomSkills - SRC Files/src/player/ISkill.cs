@@ -51,6 +51,7 @@ public enum Skills
 {
     None,
     Aimbot,
+    AimLock, // <-
     Anomaly,
     AntyFlash,
     AntyHead,
@@ -79,7 +80,7 @@ public enum Skills
     Dracula,
     Duplicator,
     Dwarf,
-    Earthquake,
+    Earthquake, // <-
     EnemySpawn,
     ExplosiveShot,
     FalconEye,
@@ -96,11 +97,15 @@ public enum Skills
     Glue,
     GodMode,
     Grenadier,
+    HealingChicken, // <-
     HealingSmoke,
     Hermit,
     HolyHandGrenade,
+    HomingNades, // <-
+    HotBomb,
     Iana,
     Illiterate,
+    Illusionist,
     Impostor,
     InfiniteAmmo,
     Jackal,
@@ -112,6 +117,8 @@ public enum Skills
     LifeSwap,
     LongKnife,
     LongZeus,
+    MagneticDecoy,
+    Magneto,
     Magnifier,
     Medic,
     MoneySwap,
@@ -125,7 +132,7 @@ public enum Skills
     PawelJumper,
     Phoenix,
     PsychicDefusing,
-    Pilot,
+    Pilot, // <- 
     Planter,
     Poison,
     PrimaryBan,
@@ -136,7 +143,7 @@ public enum Skills
     RadarHack,
     Rambo,
     RandomWeapon,
-    RCMelon,
+    RCMelon, // <-
     ReZombie,
     ReactiveArmor,
     Regeneration,
@@ -149,10 +156,10 @@ public enum Skills
     Saper,
     SecondLife,
     Shade,
-    ShortBomb,
+    ShortBomb, // <- short
     Silent,
-    Smoker,
-    SniperElite,
+    Smoker, // <- nie dziala
+    SniperElite, // <- nie dziala
     Soldier,
     SoundMaker,
     Spectator,
@@ -161,9 +168,12 @@ public enum Skills
     Thief,
     ThirdEye,
     Thorns,
+    ThrowingKnife,
     ToxicSmoke,
     Wallhack,
     Watchmaker,
     WeaponsSwap,
+    Weightless,
+    WildThrow,
     Zeus,
 }

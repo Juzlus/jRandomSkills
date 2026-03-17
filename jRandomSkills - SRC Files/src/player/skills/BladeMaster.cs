@@ -9,7 +9,7 @@ namespace src.player.skills
     public class BladeMaster : ISkill
     {
         private const Skills skillName = Skills.BladeMaster;
-        private static readonly string[] noReflectionWeapon = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade", "knife", "taser"];
+        private static readonly string[] noReflectionWeapon = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade", "knife", "taser", "bayonet"];
 
         public static void LoadSkill()
         {
@@ -30,7 +30,7 @@ namespace src.player.skills
 
                 var weaponServices = playerPawn.WeaponServices;
                 if (weaponServices == null) return;
-                if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife")
+                if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife" && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
                     return;
 
                 playerPawn.VelocityModifier = SkillsInfo.GetValue<float>(skillName, "velocityModifier");
@@ -63,7 +63,7 @@ namespace src.player.skills
 
             var weaponServices = pawn.WeaponServices;
             if (weaponServices == null) return;
-            if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife")
+            if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife" && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
                 return;
 
             SkillUtils.RestoreHealth(victim);

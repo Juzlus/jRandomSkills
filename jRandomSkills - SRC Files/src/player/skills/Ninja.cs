@@ -127,7 +127,7 @@ namespace src.player.skills
 
             if (buttons.HasFlag(PlayerButtons.Duck))
                 percentInvisibility += SkillsInfo.GetValue<float>(skillName, "duckPercentInvisibility");
-            if (activeWeapon != null && activeWeapon.DesignerName == "weapon_knife")
+            if (activeWeapon != null && (activeWeapon.DesignerName == "weapon_knife" || activeWeapon.DesignerName == "weapon_bayonet"))
                 percentInvisibility += SkillsInfo.GetValue<float>(skillName, "knifePercentInvisibility");
             if (!buttons.HasFlag(PlayerButtons.Moveleft) && !buttons.HasFlag(PlayerButtons.Moveright) && !buttons.HasFlag(PlayerButtons.Forward) && !buttons.HasFlag(PlayerButtons.Back) && flags.HasFlag(PlayerFlags.FL_ONGROUND))
                 percentInvisibility += SkillsInfo.GetValue<float>(skillName, "idlePercentInvisibility");

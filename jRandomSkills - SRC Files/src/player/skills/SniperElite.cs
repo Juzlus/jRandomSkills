@@ -75,16 +75,33 @@ namespace src.player.skills
             if (playerAWPIndexes.TryGetValue(player.SteamID, out var AWPs))
                 foreach (var index in AWPs.ToList())
                 {
-                    var ent = Utilities.GetEntityFromIndex<CBaseEntity>((int)index);
-                    if (ent != null && ent.IsValid)
-                        ent.AcceptInput("Kill");
+                    var pawn = player.PlayerPawn.Value;
+                    if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) continue;
+
+                    var weapon = pawn.WeaponServices.MyWeapons.FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && AWPs.Contains(w.Value.Index));
+                    if (weapon == null) continue;
+
+                    weapon.Value?.AddEntityIOEvent("Kill", weapon.Value, delay: 0.1f);
                 }
 
             if (savedWeapons.TryGetValue(player.SteamID, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))    
-                Server.NextFrame(() => 
-                    player.PlayerPawn.Value?.ItemServices?.As<CCSPlayer_ItemServices>().GiveNamedItem<CEntityInstance>(savedWeapon));
+                Server.NextFrame(() =>
+                {
+                    if (player == null || !player.IsValid || !player.PawnIsAlive) return;
 
-            Server.NextFrame(() => player.ExecuteClientCommand("lastinv"));
+                    var pawn = player.PlayerPawn.Value;
+                    if (pawn == null || !pawn.IsValid) return;
+
+                    var itemServices = pawn.ItemServices;
+                    if (itemServices != null && itemServices.Handle != IntPtr.Zero)
+                        player.GiveNamedItem(savedWeapon);
+                });
+
+            Server.NextFrame(() =>
+            {
+                if (player != null && player.IsValid && player.PawnIsAlive)
+                    player.ExecuteClientCommand("lastinv");
+            });
 
             savedWeapons.TryRemove(player.SteamID, out _);
             playerAWPIndexes.TryRemove(player.SteamID, out _);
@@ -135,7 +152,7 @@ namespace src.player.skills
                         weaponToGive = weapon_awp + "_script";
                     }
 
-                    activeRifle.AcceptInput("Kill");
+                    activeRifle.AddEntityIOEvent("Kill", activeRifle, delay: 0.1f);
                 }
                 else
                 {
@@ -200,7 +217,7 @@ namespace src.player.skills
                         {
                             var ent = Utilities.GetEntityFromIndex<CBaseEntity>((int)index);
                             if (ent != null && ent.IsValid)
-                                ent.AcceptInput("Kill");
+                                ent.AddEntityIOEvent("Kill", ent, delay: 0.1f);
 
                             AWPs.Remove(index);
                         }

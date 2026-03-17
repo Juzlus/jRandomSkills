@@ -41,6 +41,7 @@ namespace src.player.skills
 
             CCSPlayerPawn playerPawn = new(entity.Handle);
             if (playerPawn == null || playerPawn.Controller?.Value == null)return;
+
             CCSPlayerController player = playerPawn.Controller.Value.As<CCSPlayerController>();
             if (player == null) return;
 

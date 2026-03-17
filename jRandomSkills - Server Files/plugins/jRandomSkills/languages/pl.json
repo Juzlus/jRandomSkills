@@ -5,6 +5,9 @@
   "aimbot": "Aimbot",
   "aimbot_desc": "Każdy twój trafiony pocisk liczy się jako strzał w głowę",
 
+  "aimlock": "Aim Lock",
+  "aimlock_desc": "Kliknij [css_useSkill], aby wycelować na najbliższego wroga",
+
   "anomaly": "Anomalia",
   "anomaly_desc": "Cofasz się o kilka sekund do tyłu",
 
@@ -77,7 +80,7 @@
   "cypher": "Kamera",
   "cypher_desc": "Kliknij [css_useSkill], aby utworzyć/przełączyć się na kamerę",
   "cypher_nospace": "Kamera musi być ustawiona pod kątem prostym do ściany",
-  
+
   "darkness": "Mrok",
   "darkness_desc": "Nadaje efekt ciemności wybranemu przeciwnikowi",
   "darkness_enemy_info": "Niech zgasną światła.",
@@ -186,8 +189,17 @@
   "holyhandgrenade": "Święty Granat Ręczny",
   "holyhandgrenade_desc": "Twoje granaty uderzeniowe zadają podwójne obrażenia i mają podwójny zasięg",
 
+  "homingnades": "Namierzające Granaty",
+  "homingnades_desc": "Twoje granaty (oprócz dymnych) są przyciągane do wrogów",
+
+  "hotbomb": "Gorąca Bomba",
+  "hotbomb_desc": "Póki żyjesz, bomba zadaje obrażenia nosicielowi",
+
   "iana": "Hologram",
   "iana_desc": "Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund",
+
+  "illiterate": "Analfabeta",
+  "illiterate_desc": "Dopóki żyjesz, twoi wrogowie nie potrafią czytać",
 
   "impostor": "Szpieg",
   "impostor_desc": "Na początku rundy otrzymujesz model postaci przeciwnika",
@@ -233,6 +245,12 @@
 
   "longzeus": "Długi Zeus",
   "longzeus_desc": "Zeus zadaje obrażenia niezależnie od odległości",
+
+  "magneticdecoy": "Magnetyczny Decoy",
+  "magneticdecoy_desc": "Twój wabik przyciąga graczy wokół siebie",
+
+  "magneto": "Magneto",
+  "magneto_desc": "Wszystkie granaty przeciwnika są odpychane od ciebie",
 
   "magnifier": "Lupa",
   "magnifier_desc": "Przybiżasz ekran wybranemu przeciwnikowi",
@@ -285,7 +303,7 @@
   "psychicdefusing_hud_info": "Pozostało {0} sekund do rozbrojenia",
 
   "pilot": "Pilot",
-  "pilot_desc": "Latanie przez określony czas. Przytrzymaj [USE - E], aby latać",
+  "pilot_desc": "Latanie przez określony czas. Kliknij dwukrotnie skok, aby latać",
   "pilot_hud_info": "Paliwo",
 
   "planter": "Samowolka",
@@ -369,7 +387,10 @@
   "silent": "Cichociemny",
   "silent_desc": "Twoje kroki i skoki są niesłyszalne dla INNYCH graczy",
 
-  "sniperelite": "SzeliS",
+  "smoker": "Zadymiarz",
+  "smoker_desc": "Twoje granaty dymne nigdy się nie kończą",
+
+  "sniperelite": "Papito",
   "sniperelite_customname": "Mityczna AWP",
   "sniperelite_desc": "Kliknij [css_useSkill], aby zamienić aktualną broń na AWP",
 
@@ -378,7 +399,7 @@
   "soldier_desc2": "Twój mnożnik obrażeń wynosi: {0}x",
 
   "soundmaker": "Dźwiękowiec",
-  "soundmaker_desc": "Kliknij [css_useSkill], aby wywołać dzwięk u każdego przeciwnika",
+  "soundmaker_desc": "Co jakiś czas szłyszysz krzyki graczy",
 
   "spectator": "Obserwator",
   "spectator_desc": "Kliknij [css_useSkill], aby obserwować losowego przeciwnika",
@@ -402,6 +423,9 @@
   "thorns": "Ciernie",
   "thorns_desc": "Twój przeciwnik otrzymuje część obrażeń, które zadał ci",
 
+  "throwingknife": "Nóż do Rzucania",
+  "throwingknife_desc": "Kliknij [css_useSkill], aby rzucić nożem. Ale uważaj na innych",
+
   "toxicsmoke": "Toksyczny Dym",
   "toxicsmoke_desc": "Twoje granaty dymny zadają obrażenia",
 
@@ -416,6 +440,14 @@
   "weaponsswap": "Zamiana Broni",
   "weaponsswap_desc": "Kliknij [css_useSkill], aby zamienić się bronią z losowym przeciwnikiem",
   "weaponsswap_hud_info2": "Nie posiadasz broni na zamiane",
+
+  "weightless": "Stan Nieważkości",
+  "weightless_desc": "Twoje granaty nie podlegają grawitacji i lecą szybciej",
+
+  "wildthrow": "Dzikie rzuty",
+  "wildthrow_desc": "Wybierz gracza, który będzie miał trudności z rzucaniem granatami",
+  "wildthrow_player_info": "Gracz '{0}' zapomniał wszystkie lineup'y",
+  "wildthrow_select_info": "Wybierz gracza:",
 
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 natychmiastowo się odnawia",

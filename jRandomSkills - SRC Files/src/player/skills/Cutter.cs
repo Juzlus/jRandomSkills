@@ -25,7 +25,7 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
-            if (weapon == "knife")
+            if (weapon == "knife" || weapon == "bayonet")
                 SkillUtils.TakeHealth(victim!.PlayerPawn.Value, 9999);
         }
 

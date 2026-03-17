@@ -285,7 +285,7 @@
   "psychicdefusing_hud_info": "{0} seconds remaining to defuse",
 
   "pilot": "Pilot",
-  "pilot_desc": "Fly for a limited time. Hold [USE - E] to fly",
+  "pilot_desc": "Fly for a limited time. Double-click the jump to fly",
   "pilot_hud_info": "Fuel",
 
   "planter": "Free Planter",
@@ -369,6 +369,9 @@
   "silent": "Silent",
   "silent_desc": "Your footsteps and jumps are silent to OTHER players",
 
+  "smoker": "Smoker",
+  "smoker_desc": "Your smoke grenades never run out",
+
   "sniperelite": "Sniper Elite",
   "sniperelite_customname": "Sniper Elite Skill",
   "sniperelite_desc": "Click [css_useSkill] to swap your current weapon for an AWP",
@@ -378,7 +381,7 @@
   "soldier_desc2": "Your damage multiplier is: {0}x",
 
   "soundmaker": "Soundmaker",
-  "soundmaker_desc": "Click [css_useSkill] to trigger a sound for every enemy",
+  "soundmaker_desc": "Every now and then, you hear player screams",
 
   "spectator": "Spectator",
   "spectator_desc": "Click [css_useSkill] to spectate a random enemy",
@@ -473,5 +476,52 @@
 
   "menu_controlls_scroll": "W/S - Scroll",
   "menu_controlls_padding": "   |   ",
-  "menu_controlls_select": "E - Select"
+  "menu_controlls_select": "E - Select",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "aimlock": "Aim Lock",
+  "aimlock_desc": "Click [css_useSkill] to lock your aim on the nearest enemy",
+
+  "homingnades": "Homing Grenades",
+  "homingnades_desc": "Your grenades (except smokes) are attracted to enemies",
+
+  "hotbomb": "Hot Bomb",
+  "hotbomb_desc": "As long as you are alive, the bomb deals damage to its carrier",
+  "hotbomb_hint": "Careful, the bomb is hot!",
+
+  "illiterate": "Illiterate",
+  "illiterate_desc": "As long as you are alive, your enemies cannot read",
+
+  "illusionist": "Illusionist",
+  "illusionist_desc": "Click [css_useSkill] to deploy a replica that walks straight ahead",
+
+  "magneticdecoy": "Magnetic Decoy",
+  "magneticdecoy_desc": "Your decoy attracts nearby players towards itself",
+
+  "magneto": "Magneto",
+  "magneto_desc": "All enemy grenades are repelled away from you",
+
+  "weightless": "Weightlessness",
+  "weightless_desc": "Your grenades are not affected by gravity and fly faster",
+
+  "wildthrow": "Wild Throws",
+  "wildthrow_desc": "Choose a player who will have trouble throwing grenades",
+  "wildthrow_player_info": "Player '{0}' has forgotten all their lineups",
+  "wildthrow_select_info": "Select a player:",
+
+  "throwingknife": "Throwing Knife",
+  "throwingknife_desc": "Click [css_useSkill] to throw a knife. But watch out for others"
 }
