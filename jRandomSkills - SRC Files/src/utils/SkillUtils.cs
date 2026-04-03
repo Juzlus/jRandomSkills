@@ -187,12 +187,16 @@ namespace src.utils
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return;
 
-            if (pawn.Controller.Value != null && pawn.Controller.Value.IsValid)
+            var player = pawn.Controller.Value;
+            if (player != null && player.IsValid && player.SteamID != 0)
             {
-                var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == pawn.Controller.Value.SteamID);
+                ulong steamId = player.SteamID;
+
+                var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == steamId);
                 if (playerInfo == null) return;
-                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterMode())
-                    return;
+
+                var jester = Jester.GetJesterInfo(steamId);
+                if (jester?.Active == true) return;
             }
 
             int newHealth = (int)(pawn.Health - damage);
@@ -245,16 +249,18 @@ namespace src.utils
             return trigger;
         }
 
-        public static void AddHealth(CCSPlayerPawn? pawn, int extraHealth, int maxHealth = 100)
+        public static void AddHealth(CCSPlayerPawn? pawn, int extraHealth, int? maxHealth = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return;
 
+            maxHealth ??= pawn.MaxHealth;
+
             int newHealth = (int)(pawn.Health + extraHealth);
-            pawn.Health = Math.Min(newHealth, maxHealth);
+            pawn.Health = Math.Min(newHealth, (int)maxHealth);
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
 
-            pawn.MaxHealth = maxHealth;
+            pawn.MaxHealth = (int)maxHealth;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
         }
 

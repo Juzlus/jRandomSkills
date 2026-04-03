@@ -1,5 +1,4 @@
-﻿using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using CS2TraceRay.Class;
@@ -62,6 +61,8 @@ namespace src.player.skills
                 return;
 
             if (target.Handle == player.Handle) return;
+            if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
+            
             SkillUtils.TakeHealth(target.PlayerPawn.Value, 9999);
         }
 
@@ -70,9 +71,10 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.Zeus);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#6effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float maxDistance = 4096f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#6effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float maxDistance = 4096f, bool friendlyFire = false) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float MaxDistance { get; set; } = maxDistance;
+            public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

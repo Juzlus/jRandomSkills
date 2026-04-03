@@ -40,6 +40,8 @@ namespace src.command
                     { SplitCommands(config.NormalCommands.UseSkillCommand.Alias), ("Use/Type skill", Command_UseTypeSkill) },
                     { SplitCommands(config.NormalCommands.ConsoleCommand.Alias), ("Console command", Command_CustomCommand) },
                     { SplitCommands(config.NormalCommands.HealCommand.Alias), ("Heal", Command_Heal) },
+                    { SplitCommands(config.NormalCommands.HealthCommand.Alias), ("Set heath", Command_Health) },
+                    { SplitCommands(config.NormalCommands.PlantedBomb.Alias), ("Spawn planted bomb", Command_PlantedBomb) },
                     { SplitCommands(config.NormalCommands.HudCommand.Alias), ("Enable/Disable HUD", Command_HUD) },
                     { SplitCommands(config.NormalCommands.SetStaticSkillCommand.Alias), ("Set static skill", Command_SetStaticSkill) },
                     { SplitCommands(config.NormalCommands.ChangeLanguageCommand.Alias), ("Change language", Command_ChangeLanguage) },
@@ -314,7 +316,7 @@ namespace src.command
             gamePaused = !gamePaused;
         }
 
-        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_Heal(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_heal {command.ArgString} command.");
@@ -322,6 +324,41 @@ namespace src.command
             if (!string.IsNullOrEmpty(config.NormalCommands.HealCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HealCommand.Permissions)) return;
             SkillUtils.AddHealth(player.PlayerPawn.Value, 100);
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("healed")}");
+        }
+
+        [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        private static void Command_Health(CCSPlayerController? player, CommandInfo command)
+        {
+            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_health {command.ArgString} command.");
+            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.HealthCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HealthCommand.Permissions)) return;
+
+            var pawn = player.PlayerPawn.Value;
+            if (int.TryParse(command.GetArg(1), out int health))
+                SkillUtils.AddHealth(pawn, health - pawn.Health, health);
+            
+            player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("healed")}");
+        }
+
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        private static void Command_PlantedBomb(CCSPlayerController? player, CommandInfo command)
+        {
+            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_plantedbomb {command.ArgString} command.");
+            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.PlantedBomb.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.PlantedBomb.Permissions)) return;
+
+            CPlantedC4? bomb = Utilities.CreateEntityByName<CPlantedC4>("planted_c4");
+            if (bomb == null || !bomb.IsValid) return;
+
+            var pawn = player.PlayerPawn.Value;
+            bomb.Teleport(pawn.AbsOrigin, pawn.AbsRotation);
+            bomb.DispatchSpawn();
+            bomb.BombTicking = true;
+
+            if (!int.TryParse(command.GetArg(1), out int time))
+                time = 40;
+
+            bomb.C4Blow = (float)Server.EngineTime + time;
         }
 
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]

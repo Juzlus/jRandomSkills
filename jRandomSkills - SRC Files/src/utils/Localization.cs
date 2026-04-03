@@ -155,7 +155,7 @@ namespace src.utils
                         output = output.Replace("css_useSkill", $"css_useSkill/{Config.LoadedConfig.AlternativeSkillButton}");
 
                     if (Illiterate.CheckIlliterateSkill(player))
-                        return Illiterate.GetRandomText(output);
+                        return Illiterate.GetRandomText(output)!;
                     return output;
                 }
 
