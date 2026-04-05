@@ -61,6 +61,8 @@ namespace src.player.skills
             foreach (var item in noSpace)
                 if (item.Value >= Server.TickCount)
                     UpdateHUD(item.Key);
+                else
+                    SkillUtils.ResetPrintHTML(item.Key);
         }
 
         private static void UpdateHUD(CCSPlayerController player)
@@ -75,11 +77,40 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return false;
 
+            Vector s = startPos + new Vector(0, 0, pawn.ViewOffset.Z / 2);
+            Vector e = endPos + new Vector(0, 0, pawn.ViewOffset.Z / 2);
+
             ulong mask = pawn.Collision.CollisionAttribute.InteractsWith;
             ulong contents = pawn.Collision.CollisionGroup;
             CGameTrace trace = TraceRay.TraceShape(startPos, endPos, mask, contents, player);
 
-            return !trace.HitWorld(out _);
+            if (trace.DidHit()) return false;
+            return IsPositionSafe(player, endPos);
+        }
+
+        private static bool IsPositionSafe(CCSPlayerController player, Vector pos)
+        {
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return false;
+
+            float footHeight = 0;
+            float headHeight = 70;
+            float innerDist = 12;
+
+            ulong mask = playerPawn.Collision.CollisionAttribute.InteractsWith;
+            ulong contents = playerPawn.Collision.CollisionGroup;
+
+            Vector s1 = new(pos.X - innerDist, pos.Y - innerDist, pos.Z + footHeight);
+            Vector e1 = new(pos.X + innerDist, pos.Y + innerDist, pos.Z + headHeight);
+            CGameTrace t1 = TraceRay.TraceShape(s1, e1, mask, contents, player);
+            if (t1.DidHit() || t1.AllSolid) return false;
+
+            Vector s2 = new(pos.X + innerDist, pos.Y - innerDist, pos.Z + footHeight);
+            Vector e2 = new(pos.X - innerDist, pos.Y + innerDist, pos.Z + headHeight);
+            CGameTrace t2 = TraceRay.TraceShape(s2, e2, mask, contents, player);
+            if (t2.DidHit() || t2.AllSolid) return false;
+
+            return true;
         }
 
         private static void TeleportAttackerBehindVictim(CCSPlayerController attacker, CCSPlayerController victim)
@@ -89,22 +120,29 @@ namespace src.player.skills
 
             if (victimPawn == null || attackerPawn == null || victimPawn.AbsOrigin == null || victimPawn.AbsRotation == null) return;
 
-            QAngle victimAngles = victimPawn.AbsRotation;
-            Vector victimEyePos = new(victimPawn.AbsOrigin.X, victimPawn.AbsOrigin.Y, victimPawn.AbsOrigin.Z + victimPawn.ViewOffset.Z);
-            int[] angles = [0, 90, -90];
+            Vector victimPos = new(victimPawn.AbsOrigin.X, victimPawn.AbsOrigin.Y, victimPawn.AbsOrigin.Z);
+            QAngle victimAngles = new(victimPawn.AbsRotation.X, victimPawn.AbsRotation.Y, victimPawn.AbsRotation.Z);
+            float distance = SkillsInfo.GetValue<float>(skillName, "teleportDistance");
 
+            int[] angles = [0, 90, -90];
             bool teleported = false;
+
             foreach (int extraAngle in angles)
             {
-                QAngle newAngle = new(victimAngles.X, victimAngles.Y + extraAngle, victimAngles.Z);
-                Vector behindPosition = victimEyePos - SkillUtils.GetForwardVector(newAngle) * SkillsInfo.GetValue<float>(skillName, "teleportDistance");
-                if (!CheckTeleport(victim, victimEyePos, behindPosition)) continue;
-                attackerPawn.Teleport(behindPosition, newAngle, new(0, 0, 0));
-                teleported = true;
-                break;
+                QAngle targetAngle = new(0, victimAngles.Y + extraAngle, 0);
+                Vector direction = SkillUtils.GetForwardVector(targetAngle);
+                Vector targetPos = victimPos - (direction * distance);
+
+                if (CheckTeleport(victim, victimPos, targetPos))
+                {
+                    attackerPawn.Teleport(targetPos, targetAngle, Vector.Zero);
+                    teleported = true;
+                    break;
+                }
             }
+
             if (!teleported)
-                noSpace.AddOrUpdate(attacker, Server.TickCount + (64 * 2), (k, v) => Server.TickCount + (64 * 2));
+                noSpace.AddOrUpdate(attacker, Server.TickCount + (64 * 2), (_, _) => Server.TickCount + (64 * 2));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#4d4d4d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float teleportDistance = 100f, float chanceFrom = .3f, float chanceTo = .45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

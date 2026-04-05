@@ -121,6 +121,7 @@ namespace src.player
             if (string.IsNullOrEmpty(skillLine)) return;
             if (player == null || !player.IsValid) return;
             if (SkillUtils.HasMenu(player)) return;
+
             Event.UpdateSkillHUD(player, infoLine, skillLine, remainingLine, isDescription);
         }
     }

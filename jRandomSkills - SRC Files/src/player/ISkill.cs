@@ -32,6 +32,7 @@ public interface ISkill
     public static void GrenadeThrown(EventGrenadeThrown _) { }
 
     public static void BombBeginplant(EventBombBeginplant _) { }
+    public static void BombAbortplant(EventBombAbortplant _) { }
     public static void BombPlanted(EventBombPlanted _) { }
     public static void BombBegindefuse(EventBombBegindefuse _) { }
 
@@ -121,6 +122,7 @@ public enum Skills
     Magneto,
     Magnifier,
     Medic,
+    Miner,
     MoneySwap,
     Muhammed,
     Ninja,

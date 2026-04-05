@@ -62,7 +62,6 @@ namespace src.player.skills
                     return;
                 }
 
-                Server.PrintToChatAll("Create Smoke");
                 SkillUtils.CreateSmokeGrenadeProjectile(pos, QAngle.Zero, Vector.Zero, player.TeamNum);
             }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
 

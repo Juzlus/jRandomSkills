@@ -11,7 +11,7 @@ namespace src.player.skills
     public class HomingNades : ISkill
     {
         private const Skills skillName = Skills.HomingNades;
-        private readonly static ConcurrentDictionary<uint, (Vector, double)> nades = [];
+        private readonly static ConcurrentDictionary<uint, Vector> nades = [];
 
         public static void LoadSkill()
         {
@@ -30,7 +30,7 @@ namespace src.player.skills
             foreach (var index in nades.Keys.ToList())
             {
                 if (!nades.TryGetValue(index, out var data)) continue;
-                (Vector oldPos, double createdTime) = data;
+                Vector oldPos = data;
                 
                 var nade = Utilities.GetEntityFromIndex<CBaseCSGrenadeProjectile>((int)index);
                 if (nade == null || !nade.IsValid || nade.AbsOrigin == null)
@@ -43,14 +43,13 @@ namespace src.player.skills
                 double distanceMoved = SkillUtils.GetDistance(currentPos, oldPos);
                 Vector calculatedVelocity = CalculateVelocity(nade, nade.TeamNum);
 
-                Server.PrintToChatAll($"Dist: {distanceMoved}, vel: {calculatedVelocity}");
+                bool isZero = calculatedVelocity.IsZero();
 
-                if (distanceMoved < 4 || calculatedVelocity.IsZero())
+                if (distanceMoved < 4 || isZero)
                 {
-                    Server.PrintToChatAll($"Short, {Server.TickedTime} -> {createdTime + 3}, {createdTime + 3 - Server.TickedTime}s");
-
-                    nade.DetonateTime = (float)createdTime + 3;
+                    nade.DetonateTime = isZero ? 0 : nade.CreateTime + 3;
                     Utilities.SetStateChanged(nade, "CBaseGrenade", "m_flDetonateTime");
+   
                     nades.TryRemove(index, out _);
                     continue;
                 }
@@ -63,7 +62,7 @@ namespace src.player.skills
                 if (speed > maxVelocity)
                     newVelocity *= (maxVelocity / speed);
 
-                nades[index] = (currentPos, createdTime);
+                nades[index] = currentPos;
                 nade.Teleport(null, null, newVelocity);
             }
         }
@@ -84,9 +83,6 @@ namespace src.player.skills
                 double dist = SkillUtils.GetDistance(nadePos, pawn.AbsOrigin);
                 if (dist < SkillsInfo.GetValue<float>(skillName, "detonationRange"))
                 {
-                    nade.DetonateTime = 0;
-                    Utilities.SetStateChanged(nade, "CBaseGrenade", "m_flDetonateTime");
-
                     nades.TryRemove(nade.Index, out _);
                     return Vector.Zero;
                 }
@@ -134,10 +130,15 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
-            grenade.DetonateTime = (float)Server.TickedTime + 6;
-
             Vector pos = new(grenade.AbsOrigin?.X, grenade.AbsOrigin?.Y, grenade.AbsOrigin?.Z);
-            nades.TryAdd(grenade.Index, (pos, Server.TickedTime));
+            nades.TryAdd(grenade.Index, pos);
+
+            Server.NextWorldUpdate(() =>
+            {
+                if (grenade == null || !grenade.IsValid) return;
+                grenade.DetonateTime += 100f;
+                Utilities.SetStateChanged(grenade, "CBaseGrenade", "m_flDetonateTime");
+            });
         }
 
         public static void EnableSkill(CCSPlayerController player)

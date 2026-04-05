@@ -1,7 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
+using System.Collections.Concurrent;
 using static src.jRandomSkills;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
@@ -11,10 +13,16 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Muhammed;
         private static readonly QAngle angle = new(10, -5, 9);
+        private static readonly ConcurrentDictionary<int, byte> nades = [];
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+        }
+
+        public static void NewRound()
+        {
+            nades.Clear();
         }
 
         public static void PlayerDeath(EventPlayerDeath @event)
@@ -22,9 +30,20 @@ namespace src.player.skills
             var player = @event.Userid;
             if (!IsDeadPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
-            if (playerInfo?.Skill == skillName)
-                SpawnExplosion(player!);
+            CsTeam lastTeam = player!.Team;
+
+            Server.NextWorldUpdate(() =>
+            {
+
+                if (player == null || !player.IsValid || player.Team != lastTeam) return;
+
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null ||  !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
+
+                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+                if (playerInfo?.Skill == skillName)
+                    SpawnExplosion(player!);
+            });
         }
 
         private static void SpawnExplosion(CCSPlayerController player)
@@ -32,7 +51,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            Vector pos = pawn.AbsOrigin;
+            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z);
             pos.Z += 10;
 
             SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), player.TeamNum);
@@ -44,6 +63,8 @@ namespace src.player.skills
             var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
             var randomFile = fileNames[new Random().Next(fileNames.Length)];
             player.ExecuteClientCommand($"play vo/agents/balkan/{randomFile}.vsnd");
+
+            nades.AddOrUpdate(Server.TickCount, player.TeamNum, (_, _) => player.TeamNum);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -52,6 +73,8 @@ namespace src.player.skills
 
             var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
             if (heProjectile == null || !heProjectile.IsValid || heProjectile.AbsRotation == null) return;
+
+            int lastTick = Server.TickCount;
 
             Server.NextFrame(() =>
             {
@@ -63,7 +86,35 @@ namespace src.player.skills
                 heProjectile.Damage = SkillsInfo.GetValue<int>(skillName, "explosionDamage");
                 heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
                 heProjectile.DetonateTime = 0;
+
+                if (nades.TryRemove(lastTick, out byte teamNum))
+                    heProjectile.Globalname = $"muhammed_team_{teamNum}_{heProjectile.Index}";
             });
+        }
+
+        public static void OnTakeDamage(DynamicHook h)
+        {
+            CEntityInstance param = h.GetParam<CEntityInstance>(0);
+            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+
+            if (param == null || param.Entity == null || param2 == null) return;
+
+            var nade = param2.Attacker.Value;
+            if (nade == null || !nade.IsValid) return;
+
+            if (nade.DesignerName != "hegrenade_projectile") return;
+            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("muhammed_team_")) return;
+
+            if (!int.TryParse(nade.Globalname.Split('_')[2], out int nadeTeam)) return;
+
+            CCSPlayerPawn victimPawn = new(param.Handle);
+
+            if (victimPawn.DesignerName != "player") return;
+            if (victimPawn == null || victimPawn.Controller?.Value == null) return;
+            if (victimPawn.TeamNum != nadeTeam) return;
+
+            float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
+            param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
@@ -73,12 +124,11 @@ namespace src.player.skills
             return player != null && player.IsValid && player.PlayerPawn?.Value != null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = .5f, bool explosionAfterWorldDeath = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
-            public bool ExplosionAfterWorldDeath { get; set; } = explosionAfterWorldDeath;
 
         }
     }

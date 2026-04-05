@@ -118,8 +118,8 @@ namespace src
         public Skills SpecialSkill { get; set; }
         public float? SkillChance { get; set; }
         public bool IsDrawing { get; set; }
-        public DateTime SkillHudExpired { get; set; }
-        public DateTime SkillDescriptionHudExpired { get; set; }
+        public DateTime SkillHudExpired { get; set; } = Config.LoadedConfig.SkillHudDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillHudDuration);
+        public DateTime SkillDescriptionHudExpired { get; set; } = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
         public string? PrintHTML { get; set; }
         public bool DisplayHUD { get; set; }
         public bool SkillUsed = false;

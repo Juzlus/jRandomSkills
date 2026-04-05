@@ -42,6 +42,7 @@ namespace src.command
                     { SplitCommands(config.NormalCommands.HealCommand.Alias), ("Heal", Command_Heal) },
                     { SplitCommands(config.NormalCommands.HealthCommand.Alias), ("Set heath", Command_Health) },
                     { SplitCommands(config.NormalCommands.PlantedBomb.Alias), ("Spawn planted bomb", Command_PlantedBomb) },
+                    { SplitCommands(config.NormalCommands.BotPlace.Alias), ("Place bot on your position", Command_BotPlace) },
                     { SplitCommands(config.NormalCommands.HudCommand.Alias), ("Enable/Disable HUD", Command_HUD) },
                     { SplitCommands(config.NormalCommands.SetStaticSkillCommand.Alias), ("Set static skill", Command_SetStaticSkill) },
                     { SplitCommands(config.NormalCommands.ChangeLanguageCommand.Alias), ("Change language", Command_ChangeLanguage) },
@@ -337,7 +338,7 @@ namespace src.command
             if (int.TryParse(command.GetArg(1), out int health))
                 SkillUtils.AddHealth(pawn, health - pawn.Health, health);
             
-            player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("healed")}");
+            player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("set_health")}");
         }
 
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
@@ -358,7 +359,38 @@ namespace src.command
             if (!int.TryParse(command.GetArg(1), out int time))
                 time = 40;
 
-            bomb.C4Blow = (float)Server.EngineTime + time;
+            bomb.C4Blow = Server.CurrentTime + time;
+            player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("planted_bomb_spawned", [time])}");
+        }
+
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        private static void Command_BotPlace(CCSPlayerController? player, CommandInfo command)
+        {
+            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_bot_place {command.ArgString} command.");
+            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            if (!string.IsNullOrEmpty(config.NormalCommands.BotPlace.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.BotPlace.Permissions)) return;
+
+            var pawn = player.PlayerPawn.Value;
+            if (!player.PawnIsAlive || pawn.AbsOrigin == null || pawn.AbsRotation == null) return;
+
+            if (!int.TryParse(command.GetArg(1), out int botSlot))
+                botSlot = -1;
+
+            var bot = Utilities.GetPlayers().Where(p => p != null && p.IsValid && p.IsBot && p.PawnIsAlive && (botSlot == -1 || p.Slot == botSlot)).FirstOrDefault();
+            if (bot == null || bot.PlayerPawn.Value == null || !bot.PlayerPawn.Value.IsValid)
+            {
+                player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("bot_placed_not_found")}");
+                return;
+            }
+
+            bot.PlayerPawn.Value.Teleport(new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z), new QAngle(pawn.AbsRotation.X, pawn.AbsRotation.Y, pawn.AbsRotation.Z), Vector.Zero);
+
+            bot.PlayerPawn.Value.TakesDamage = true;
+            if ((bool.TryParse(command.GetArg(2), out bool godmode) && godmode == true)
+                || (int.TryParse(command.GetArg(2), out int godmodeInt) && godmodeInt == 1))
+                bot.PlayerPawn.Value.TakesDamage = false;
+
+            player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("bot_placed")}");
         }
 
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]

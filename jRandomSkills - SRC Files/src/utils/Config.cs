@@ -170,8 +170,9 @@ namespace src.utils
                     SkillsListCommand = new NormalCommand("supermoc, skille, listamocy, supermoce, skills, listaHabilidades, habilidades, 技能列表, 超能力列表", "@jRandomSkills/admin"),
                     UseSkillCommand = new NormalCommand("t, useSkill, usarHabilidade, 技能使用, 使用技能", "@jRandomSkills/admin"),
                     HealCommand = new NormalCommand("heal, ulecz, curar, tratar, 治疗, 治愈", "@jRandomSkills/admin"),
-                    HealthCommand = new NormalCommand("sethealth, health", "@jRandomSkills/admin"),
-                    PlantedBomb = new NormalCommand("plantedbomb, bomb", "@jRandomSkills/admin"),
+                    HealthCommand = new NormalCommand("sethealth, set_health, health", "@jRandomSkills/admin"),
+                    PlantedBomb = new NormalCommand("plantedbomb, planted_bomb, bomb", "@jRandomSkills/admin"),
+                    BotPlace = new NormalCommand("botplace, bot_place", "@jRandomSkills/admin"),
                     ConsoleCommand = new NormalCommand("console, sv, 控制台, 服务器", "@jRandomSkills/owner"),
                     HudCommand = new NormalCommand("hud, hood", ""),
                     SetStaticSkillCommand = new NormalCommand("ustawstatycznyskill, ustaw_statyczny_skill, setstaticskill, set_static_skill", "@jRandomSkills/admin"),
@@ -250,6 +251,7 @@ namespace src.utils
             public required NormalCommand HealCommand { get; set; }
             public required NormalCommand HealthCommand { get; set; }
             public required NormalCommand PlantedBomb { get; set; }
+            public required NormalCommand BotPlace { get; set; }
             public required NormalCommand ConsoleCommand { get; set; }
             public required NormalCommand HudCommand { get; set; }
             public required NormalCommand SetStaticSkillCommand { get; set; }

@@ -165,8 +165,7 @@ namespace src.player.skills
                         weaponToGive = weapon_awp + "_script";
                 }
 
-                Server.NextFrame(() =>
-                {
+                Instance.AddTimer(.15f, () => {
                     if (player != null && player.IsValid && player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid)
                     {
                         var createdWeapon = player.PlayerPawn.Value?.ItemServices?.As<CCSPlayer_ItemServices>().GiveNamedItem<CEntityInstance>(weaponToGive.Replace("_script", ""));
@@ -190,7 +189,7 @@ namespace src.player.skills
 
                     DeleteDroppedAWP(player);
                     isProcessing.TryRemove(steamID, out _);
-                });
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
             catch {
                 isProcessing.TryRemove(steamID, out _);

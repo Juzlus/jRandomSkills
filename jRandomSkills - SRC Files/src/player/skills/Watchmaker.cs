@@ -30,8 +30,7 @@ namespace src.player.skills
         {
             if (bombPlanted) return;
             var name = entity.DesignerName;
-            if (!name.EndsWith("_projectile"))
-                return;
+            if (!name.EndsWith("_projectile")) return;
 
             var grenade = entity.As<CBaseCSGrenadeProjectile>();
             if (grenade.OwnerEntity.Value == null || !grenade.OwnerEntity.Value.IsValid) return;

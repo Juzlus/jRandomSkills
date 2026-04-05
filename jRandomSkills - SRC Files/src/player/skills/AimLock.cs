@@ -31,7 +31,12 @@ namespace src.player.skills
                 var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
                 if (playerInfo?.Skill == skillName)
                     if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                    {
                         UpdateHUD(player, skillInfo);
+
+                        if (skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "duration")) > DateTime.Now)
+                            LookAtEnemey(player);
+                    }
             }
         }
 
@@ -100,7 +105,7 @@ namespace src.player.skills
             foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team))
             {
                 var enemyPawn = enemy.PlayerPawn.Value;
-                if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null) return;
+                if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null) continue;
 
                 double dist = SkillUtils.GetDistance(enemyPawn.AbsOrigin, pawn.AbsOrigin);
                 if (dist < minDist)
@@ -112,11 +117,13 @@ namespace src.player.skills
 
             if (closetEnemy != null)
             {
-                Vector enemyPos = closetEnemy.PlayerPawn.Value!.AbsOrigin!;
-                Vector myPos = pawn.AbsOrigin;
+                var enemyPawn = closetEnemy.PlayerPawn.Value;
+                if (enemyPawn == null || enemyPawn.AbsOrigin == null) return;
 
+                Vector myEyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
+                Vector enemyEyePos = new(enemyPawn.AbsOrigin.X, enemyPawn.AbsOrigin.Y, enemyPawn.AbsOrigin.Z + enemyPawn.ViewOffset.Z + SkillsInfo.GetValue<float>(skillName, "offsetZ"));
 
-                Vector direction = enemyPos - myPos;
+                Vector direction = enemyEyePos - myEyePos;
                 QAngle angle = VectorToAngle(direction);
 
                 pawn.Look(angle);
@@ -138,9 +145,11 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#fa7b48", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#fa7b48", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 20f, float duration = .3f, float offsetZ = 0) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float Cooldown { get; set; } = cooldown;
+            public float Duration { get; set; } = duration;
+            public float Offset { get; set; } = offsetZ;
         }
     }
 }
