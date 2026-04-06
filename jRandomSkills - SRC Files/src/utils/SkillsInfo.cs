@@ -108,6 +108,7 @@ namespace src.utils
 
         public class SkillsInfoModel : ConcurrentBag<DefaultSkillInfo>
         {
+            public string Name { get; set; } = "Default";
             public SkillsInfoModel()
             {
                 foreach (var skill in

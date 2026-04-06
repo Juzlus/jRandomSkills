@@ -74,6 +74,7 @@ namespace src.utils
             [DisplayName("Game Mode")]
             [Description("TESTfafw..")]
             [Range(0, 5)]
+            public string ConfigName { get; set; }
             public int GameMode { get; set; }
             public bool YourSkillChatInfo { get; set; }
             public bool KillerSkillChatInfo { get; set; }
@@ -98,6 +99,7 @@ namespace src.utils
 
             public SettingsModel()
             {
+                ConfigName = "Default";
                 GameMode = (int)GameModes.NoRepeat;
                 YourSkillChatInfo = true;
                 KillerSkillChatInfo = true;
@@ -106,8 +108,8 @@ namespace src.utils
                 DebugMode = false;
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
-                SkillHudDuration = 999;
-                SkillDescriptionDuration = 999;
+                SkillHudDuration = -1;
+                SkillDescriptionDuration = -1;
                 DisplayAlwaysDescription = false;
                 FlashingHtmlHudFix = true;
                 CS2TraceRayDebug = false;
