@@ -34,12 +34,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            PlayerPilotInfo.TryAdd(player.SteamID, new Pilot_PlayerInfo
-            {
-                SteamID = player.SteamID,
-                Fuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel"),
-                LastButtons = 0
-            });
+            PlayerPilotInfo.TryAdd(player.SteamID, new Pilot_PlayerInfo { SteamID = player.SteamID });
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -57,29 +52,55 @@ namespace src.player.skills
 
             var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
+            float currentTime = Server.CurrentTime;
 
-            bool isJumpDown = (playerPawn.MovementServices?.Buttons?.ButtonStates[0] & (ulong)PlayerButtons.Jump) != 0 || (buttons & PlayerButtons.Jump) != 0;
+            bool isJumpDown = (buttons & PlayerButtons.Jump) != 0
+                || (playerPawn.MovementServices?.Buttons?.ButtonStates[0] & (ulong)PlayerButtons.Jump) != 0;
             bool wasJumpDown = (pilotInfo.LastButtons & PlayerButtons.Jump) != 0;
-
             bool jumpPressed = (isJumpDown && !wasJumpDown)
                 || (playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0;
-
             bool isOnGround = (flags & PlayerFlags.FL_ONGROUND) != 0;
-            bool inUse = jumpPressed && !isOnGround;
 
-            var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
-            pilotInfo.Fuel = Math.Min(
-                Math.Max(
-                    0,
-                    pilotInfo.Fuel - (inUse 
-                        ? SkillsInfo.GetValue<float>(skillName, "fuelConsumption")
-                        : -SkillsInfo.GetValue<float>(skillName, "refuelling"))), 
-                maximumFuel);
-            pilotInfo.LastButtons = buttons;
+            if (jumpPressed && !isOnGround)
+            {
+                if (pilotInfo.JumpCount == 0)
+                    pilotInfo.JumpCount++;
+                else
+                {
+                    pilotInfo.JumpCount++;
+                    pilotInfo.LastJumpTime = currentTime;
 
-            if (inUse && pilotInfo.Fuel > 0)
+                    if (pilotInfo.JumpCount >= 2)
+                        pilotInfo.IsFlying = true;
+                }
+            }
+            else if (!isJumpDown && currentTime - pilotInfo.LastJumpTime > .1f)
+                pilotInfo.IsFlying = false;
+
+            if (isOnGround)
+            {
+                pilotInfo.IsFlying = false;
+                if (isOnGround) pilotInfo.JumpCount = 0;
+            }
+
+            bool inUse = pilotInfo.IsFlying && pilotInfo.Fuel > 0 && !isOnGround;
+
+            float maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
+            float consumption = SkillsInfo.GetValue<float>(skillName, "fuelConsumption");
+            float refuelling = SkillsInfo.GetValue<float>(skillName, "refuelling");
+
+            pilotInfo.Fuel = Math.Clamp(
+                pilotInfo.Fuel + (inUse ? -consumption : refuelling),
+                0,
+                maximumFuel
+            );
+
+            if (inUse)
                 ApplyPilotEffect(player);
+            else if (pilotInfo.Fuel <= 0)
+                pilotInfo.IsFlying = false;
 
+            pilotInfo.LastButtons = buttons;
             UpdateHUD(player, pilotInfo);
         }
 
@@ -141,9 +162,12 @@ namespace src.player.skills
 
         public class Pilot_PlayerInfo
         {
-            public ulong SteamID { get; set; }
-            public float Fuel { get; set; }
-            public PlayerButtons LastButtons { get; set; }
+            public required ulong SteamID { get; set; }
+            public float Fuel { get; set; } = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
+            public PlayerButtons LastButtons { get; set; } = 0;
+            public int JumpCount { get; set; } = 0;
+            public float LastJumpTime { get; set; } = 0;
+            public bool IsFlying { get; set; } = false;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float maximumFuel = 150f, float fuelConsumption = .64f, float refuelling = .1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

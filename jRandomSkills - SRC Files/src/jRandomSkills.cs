@@ -28,7 +28,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.1.b3";
+        public override string ModuleVersion => "1.2.1.b4";
 
         public override void Load(bool hotReload)
         {
@@ -197,7 +197,7 @@ namespace src
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", SkillButton: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write(Config.LoadedConfig.AlternativeSkillButton);
+            Console.Write(Config.LoadedConfig.AlternativeSkillButton ?? "(NULL)");
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", HtmlHudFix: ");
@@ -239,7 +239,7 @@ namespace src
             foreach (Skills skill in Enum.GetValues(typeof(Skills)))
                 if (skill.ToString() == "None")
                     continue;
-                else if (SkillsInfo.GetValue<bool>(skill, "active"))
+                else if (SkillData.Skills.Any(s => s.Skill == skill))
                     enabled.Add(skill);
                 else
                     disabled.Add(skill);

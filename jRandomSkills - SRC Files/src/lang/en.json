@@ -523,5 +523,7 @@
   "wildthrow_select_info": "Select a player:",
 
   "throwingknife": "Throwing Knife",
-  "throwingknife_desc": "Click [css_useSkill] to throw a knife. But watch out for others"
+  "throwingknife_desc": "Click [css_useSkill] to throw a knife. But watch out for others",
+
+  "planter_planting": "Planting ({0})..."
 }

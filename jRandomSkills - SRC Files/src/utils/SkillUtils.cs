@@ -162,12 +162,12 @@ namespace src.utils
                 ? "info_player_counterterrorist"
                 : "info_player_terrorist";
 
-            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(spawnPointName).ToList();
+            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(spawnPointName).Where(s => s.IsValid && s.Enabled).ToList();
             if (spawns.Count != 0)
             {
                 var randomSpawn = spawns[jRandomSkills.Instance.Random.Next(spawns.Count)];
                 if (randomSpawn != null && randomSpawn.IsValid && randomSpawn.AbsOrigin != null)
-                    return randomSpawn.AbsOrigin;
+                    return new Vector(randomSpawn.AbsOrigin.X, randomSpawn.AbsOrigin.Y, randomSpawn.AbsOrigin.Z);
             }
             return null;
         }
@@ -415,7 +415,8 @@ namespace src.utils
             short tScore = (short)(winnerTeam == CsTeam.Terrorist ? tTeams.Score + 1 : tTeams.Score);
 
             UpdateServerTeamScores(ctScore, tScore);
-            TerminateRoundFunc.Invoke(jRandomSkills.Instance.GameRules.Handle, 5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed, 0, 0);
+            jRandomSkills.Instance.GameRules?.TerminateRound(5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed);
+            // TerminateRoundFunc.Invoke(jRandomSkills.Instance.GameRules.Handle, 5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed, 0, 0);
         }
 
         private static void UpdateServerTeamScores(short ctScore, short tScore)

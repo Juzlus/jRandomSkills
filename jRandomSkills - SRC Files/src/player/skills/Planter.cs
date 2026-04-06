@@ -47,7 +47,7 @@ namespace src.player.skills
             if (plantedBomb != null)
                 Server.NextFrame(() => plantedBomb.C4Blow = Server.CurrentTime + SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime"));
 
-            foreach (var p in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive))
+            foreach (var p in Utilities.GetPlayers().Where(p => p.IsValid))
                 p.PrintToCenterAlert(p.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime")));
         }
 
@@ -94,7 +94,7 @@ namespace src.player.skills
                 {
                     float remaining = plantTime + 3f - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";
-                    player.PrintToCenter("");
+                    player.PrintToCenter(" ");
                 }
             }
         }

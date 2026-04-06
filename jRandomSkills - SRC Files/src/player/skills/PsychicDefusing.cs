@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 
 namespace src.player.skills
 {

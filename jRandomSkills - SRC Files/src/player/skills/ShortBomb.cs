@@ -27,7 +27,7 @@ namespace src.player.skills
             if (plantedBomb != null)
                 Server.NextFrame(() => plantedBomb.C4Blow = Server.CurrentTime + SkillsInfo.GetValue<int>(skillName, "detonationTime"));
 
-            foreach (var p in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive))
+            foreach (var p in Utilities.GetPlayers().Where(p => p.IsValid))
                 p.PrintToCenterAlert(p.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "detonationTime")));
         }
 

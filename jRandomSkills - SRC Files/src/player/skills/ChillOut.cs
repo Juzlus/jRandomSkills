@@ -87,7 +87,6 @@ namespace src.player.skills
                 {
                     float remaining = plantTime + extraTime - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";
-                    player.PrintToCenter("");
                 }
             }
         }
