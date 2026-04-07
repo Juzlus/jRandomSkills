@@ -80,6 +80,7 @@ namespace src.player
 
             VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post);
             VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre);
+            VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre);
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -388,6 +389,44 @@ namespace src.player
             }
         }
 
+        private static HookResult OnWeaponCanAcquire(DynamicHook hook)
+        {
+            lock (setLock)
+            {
+                CCSPlayer_ItemServices itemServices = hook.GetParam<CCSPlayer_ItemServices>(0);
+                if (itemServices == null || itemServices.Pawn.Value == null || !itemServices.Pawn.Value.IsValid) return HookResult.Continue;
+
+                CEconItemView econItem = hook.GetParam<CEconItemView>(1);
+                if (econItem == null) return HookResult.Continue;
+
+                CBasePlayerPawn pawn = itemServices.Pawn.Value;
+                if (pawn == null || !pawn.IsValid || pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return HookResult.Continue;
+
+                CCSPlayerController player = pawn.Controller.Value.As<CCSPlayerController>();
+                if (player == null || !player.IsValid) return HookResult.Continue;
+
+                CCSWeaponBaseVData vdata = VirtualFunctions.GetCSWeaponDataFromKeyFunc.Invoke(-1, econItem.ItemDefinitionIndex.ToString());
+                if (vdata == null) return HookResult.Continue;
+
+                var activeSkills = Instance.SkillPlayer
+                    .Where(p => !p.IsDrawing)
+                    .Select(p => p.Skill.ToString())
+                    .Distinct();
+
+                bool block = false;
+                foreach (string skillName in activeSkills)
+                {
+                    bool? result = (bool?)Instance.SkillAction(skillName, "OnWeaponCanAcquire", [hook, player, econItem, vdata]);
+                    if (result == true)
+                    {
+                        block = true;
+                        break;
+                    }
+                }
+                return block ? HookResult.Stop : HookResult.Continue;
+            }
+        }
+        
         private static void OnTick()
         {
             lock (setLock)
@@ -827,10 +866,6 @@ namespace src.player
                         }
                     }
 
-                    if (randomSkill.Display)
-                        SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
-                            border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
-
                     Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
                     skillPlayer.Skill = randomSkill.Skill;
                     skillPlayer.SpecialSkill = Skills.None;
@@ -840,6 +875,10 @@ namespace src.player
 
                     Instance?.AddTimer(.2f, () =>
                     {
+                        if (randomSkill.Display)
+                            SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
+                                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+
                         if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
@@ -1016,10 +1055,10 @@ namespace src.player
                 }
 
                 var config = Config.LoadedConfig.HtmlHudCustomisation;
-                var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(headerLine) ? "l" : "ml")}'> </font>";
+                var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(headerLine) || string.IsNullOrEmpty(config.HeaderLineSize) ? "l" : "ml")}'> </font>";
                 var emptySymbol2 = $"<font class='fontSize-ml'> </font>";
 
-                string infoLine = string.IsNullOrEmpty(headerLine)
+                string infoLine = string.IsNullOrEmpty(headerLine) || string.IsNullOrEmpty(config.HeaderLineSize)
                     ? ""
                     : $"<font class='fontWeight-Bold fontSize-{config.HeaderLineSize}' color='{config.HeaderLineColor}'>{headerLine}:</font><br>";
 
@@ -1030,6 +1069,7 @@ namespace src.player
                     : $"<br>{emptySymbol}<font class='fontSize-{(isDescription ? config.SkillDescriptionLineSize : config.InfoLineSize)}' color='{(isDescription ? config.SkillDescriptionLineColor : config.InfoLineColor)}'>{extraLine}</font>{emptySymbol}";
 
                 var hudContent = infoLine + skillLine + remainingLine;
+
                 player.PrintToCenterHtml(hudContent);
             }
         }

@@ -24,6 +24,7 @@
   "areareaper_select_info": "Wybierz strefę do dezaktyw.:",
   "areareaper_site_disabled": "Strefa detonacji {0} została dezaktywowana - nie można na niej podłożyć bomby!",
   "areareaper_used_info": "Twoja moc została już wykorzystana.",
+  "areareaper_bombsite_disabled": "Ten bombsite został wyłączony!",
 
   "armored": "Gruby",
   "armored_desc": "Masz losowy mnożnik otrzymywanych obrażeń",
@@ -189,17 +190,21 @@
   "holyhandgrenade": "Święty Granat Ręczny",
   "holyhandgrenade_desc": "Twoje granaty uderzeniowe zadają podwójne obrażenia i mają podwójny zasięg",
 
-  "homingnades": "Namierzające Granaty",
-  "homingnades_desc": "Twoje granaty (oprócz dymnych) są przyciągane do wrogów",
+  "homingnades": "Naprowadzane Granaty",
+  "homingnades_desc": "Twoje granaty (z wyjątkiem dymnych) są przyciągane do wrogów",
 
   "hotbomb": "Gorąca Bomba",
-  "hotbomb_desc": "Póki żyjesz, bomba zadaje obrażenia nosicielowi",
+  "hotbomb_desc": "Dopóki żyjesz, bomba zadaje obrażenia osobie, która ją niesie",
+  "hotbomb_hint": "Ostrożnie, bomba parzy!",
 
   "iana": "Hologram",
   "iana_desc": "Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund",
 
   "illiterate": "Analfabeta",
-  "illiterate_desc": "Dopóki żyjesz, twoi wrogowie nie potrafią czytać",
+  "illiterate_desc": "Dopóki żyjesz, Twoi wrogowie nie potrafią czytać",
+
+  "illusionist": "Iluzjonista",
+  "illusionist_desc": "Naciśnij [css_useSkill], aby wypuścić replikę idącą prosto przed siebie",
 
   "impostor": "Szpieg",
   "impostor_desc": "Na początku rundy otrzymujesz model postaci przeciwnika",
@@ -246,11 +251,11 @@
   "longzeus": "Długi Zeus",
   "longzeus_desc": "Zeus zadaje obrażenia niezależnie od odległości",
 
-  "magneticdecoy": "Magnetyczny Decoy",
-  "magneticdecoy_desc": "Twój wabik przyciąga graczy wokół siebie",
+  "magneticdecoy": "Magnetyczny Wabik",
+  "magneticdecoy_desc": "Twój wabik przyciąga pobliskich graczy do siebie",
 
   "magneto": "Magneto",
-  "magneto_desc": "Wszystkie granaty przeciwnika są odpychane od ciebie",
+  "magneto_desc": "Wszystkie granaty wroga są odpychane od Ciebie",
 
   "magnifier": "Lupa",
   "magnifier_desc": "Przybiżasz ekran wybranemu przeciwnikowi",
@@ -260,6 +265,9 @@
 
   "medic": "Medyk",
   "medic_desc": "Kliknij [css_useSkill], aby użyć ładunku leczniczego, który przywraca 50 punktów zdrowia",
+
+  "miner": "Bomberman",
+  "miner_desc": "Twoje granaty HE wybuchają tylko wtedy, gdy w pobliżu jest wróg",
 
   "moneyswap": "Skarbówka",
   "moneyswap_desc": "Wybierasz gracza, z którym chcesz zamienić się pieniędzmi",
@@ -303,11 +311,12 @@
   "psychicdefusing_hud_info": "Pozostało {0} sekund do rozbrojenia",
 
   "pilot": "Pilot",
-  "pilot_desc": "Latanie przez określony czas. Kliknij dwukrotnie skok, aby latać",
+  "pilot_desc": "Lataj przez ograniczony czas. Kliknij dwa razy skok, aby lecieć",
   "pilot_hud_info": "Paliwo",
 
   "planter": "Samowolka",
   "planter_desc": "Bombę można podłożyć w dowolnym miejscu, a czas detonacji wynosi 60 sekund.",
+  "planter_planting": "Plantowanie ({0})...",
 
   "poison": "Trutka",
   "poison_desc": "Wybierasz gracza, który co kilka sekund będzie otrzymywał obrażenia",
@@ -408,7 +417,8 @@
   "swapposition_desc": "Kliknij [css_useSkill], aby zamienić się miejscami z losowym przeciwnikiem",
 
   "teleporter": "Teleporter",
-  "teleporter_desc": "Zamieniasz się miejscami z trafionym przeciwnikiem",
+  "teleporter_desc": "Masz szansę na zamianę miejsc z trafionym wrogiem",
+  "teleporter_desc2": "Szansa na zamianę miejsc po trafieniu: {0}%",
 
   "thief": "Złodziej",
   "thief_desc": "Możesz ukraść supermoc wybranemu graczowi",
@@ -424,7 +434,7 @@
   "thorns_desc": "Twój przeciwnik otrzymuje część obrażeń, które zadał ci",
 
   "throwingknife": "Nóż do Rzucania",
-  "throwingknife_desc": "Kliknij [css_useSkill], aby rzucić nożem. Ale uważaj na innych",
+  "throwingknife_desc": "Naciśnij [css_useSkill], aby rzucić nożem. Ale uważaj na innych",
 
   "toxicsmoke": "Toksyczny Dym",
   "toxicsmoke_desc": "Twoje granaty dymny zadają obrażenia",
@@ -441,10 +451,10 @@
   "weaponsswap_desc": "Kliknij [css_useSkill], aby zamienić się bronią z losowym przeciwnikiem",
   "weaponsswap_hud_info2": "Nie posiadasz broni na zamiane",
 
-  "weightless": "Stan Nieważkości",
+  "weightless": "Nieważkość",
   "weightless_desc": "Twoje granaty nie podlegają grawitacji i lecą szybciej",
 
-  "wildthrow": "Dzikie rzuty",
+  "wildthrow": "Dzikie Rzuty",
   "wildthrow_desc": "Wybierz gracza, który będzie miał trudności z rzucaniem granatami",
   "wildthrow_player_info": "Gracz '{0}' zapomniał wszystkie lineup'y",
   "wildthrow_select_info": "Wybierz gracza:",

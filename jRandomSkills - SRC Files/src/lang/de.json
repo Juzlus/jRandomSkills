@@ -5,6 +5,9 @@
     "aimbot": "Aimbot",
     "aimbot_desc": "Jede Kugel, die du triffst, zählt als Kopfschuss",
 
+    "aimlock": "Aim-Lock",
+    "aimlock_desc": "Klicke [css_useSkill], um dein Visier auf den nächsten Gegner zu fixieren",
+
     "anomaly": "Anomalie",
     "anomaly_desc": "Du spulst die Zeit um einige Sekunden zurück",
 
@@ -21,6 +24,7 @@
     "areareaper_select_info": "Standort zum Deaktivieren auswählen:",
     "areareaper_site_disabled": "Bombenstandort {0} wurde deaktiviert – dort können keine Bomben platziert werden!",
     "areareaper_used_info": "Deine Fähigkeit wurde bereits eingesetzt.",
+    "areareaper_bombsite_disabled": "Dieser Bombenplatz wurde deaktiviert!",
 
     "armored": "Gepanzert",
     "armored_desc": "Du hast einen zufälligen Schadensmultiplikator",
@@ -186,8 +190,21 @@
     "holyhandgrenade": "Heilige Handgranate",
     "holyhandgrenade_desc": "Deine HE-Granaten verursachen doppelten Schaden und haben doppelte Reichweite",
 
+    "homingnades": "Zielsuchende Granaten",
+    "homingnades_desc": "Deine Granaten (außer Smokes) werden von Gegnern angezogen",
+
+    "hotbomb": "Heiße Bombe",
+    "hotbomb_desc": "Solange du am Leben bist, fügt die Bombe ihrem Träger Schaden zu",
+    "hotbomb_hint": "Vorsicht, die Bombe ist heiß!",
+
     "iana": "Hologramm",
     "iana_desc": "Klicken Sie auf [css_useSkill], um Ihr Hologramm für einige Sekunden zu steuern",
+
+    "illiterate": "Analphabet",
+    "illiterate_desc": "Solange du am Leben bist, können deine Feinde nichts lesen",
+
+    "illusionist": "Illusionist",
+    "illusionist_desc": "Klicke [css_useSkill], um ein Abbild zu schicken, das geradeaus läuft",
 
     "impostor": "Betrüger",
     "impostor_desc": "Du beginnst die Runde mit einem feindlichen Spielermodell",
@@ -234,6 +251,12 @@
     "longzeus": "Langer Zeus",
     "longzeus_desc": "Zeus verursacht unabhängig von der Entfernung Schaden",
 
+    "magneticdecoy": "Magnetischer Köder",
+    "magneticdecoy_desc": "Dein Köder zieht Spieler in der Nähe zu sich heran",
+
+    "magneto": "Magneto",
+    "magneto_desc": "Alle feindlichen Granaten werden von dir weggestoßen",
+
     "magnifier": "Lupe",
     "magnifier_desc": "Vergrößert den Bildschirm des Gegners und verringert dessen Sichtfeld",
     "magnifier_enemy_info": "Dein Sichtfeld wurde verzerrt!",
@@ -242,6 +265,9 @@
 
     "medic": "Sanitäter",
     "medic_desc": "Klicke auf [css_useSkill], um eine Heilungsladung zu verwenden, die 50 Gesundheitspunkte wiederherstellt",
+
+    "miner": "Bomben-Miner",
+    "miner_desc": "Deine HE-Granate explodiert nur, wenn ein Gegner in der Nähe ist",
 
     "bankrupt": "Bankrott",
     "bankrupt_desc": "Wähle den Spieler aus, der sein gesamtes Geld verlieren wird",
@@ -285,11 +311,12 @@
     "psychicdefusing_hud_info": "{0} Sekunden verbleibend bis zur Entschärfung",
 
     "pilot": "Pilot",
-    "pilot_desc": "Fliege für eine begrenzte Zeit. Halte [USE - E] gedrückt, um zu fliegen",
+    "pilot_desc": "Fliege für begrenzte Zeit. Doppelklick auf Sprung zum Fliegen",
     "pilot_hud_info": "Treibstoff",
 
     "planter": "Freier Planter",
     "planter_desc": "Du kannst die Bombe überall platzieren, die Detonationszeit beträgt 60 Sekunden.",
+    "planter_planting": "Bombe wird gelegt ({0})...",
 
     "poison": "Gift",
     "poison_desc": "Wähle einen Spieler aus, der alle paar Sekunden Schaden nimmt",
@@ -369,8 +396,11 @@
     "silent": "Leise",
     "silent_desc": "Deine Schritte und Sprünge sind für ANDERE Spieler lautlos",
 
+    "smoker": "Smoker",
+    "smoker_desc": "Deine Rauchgranaten gehen nie aus",
+
     "sniperelite": "Sniper Elite",
-    "sniperelite_customname": "Sniper Elite-Fähigkeit",
+    "sniperelite_customname": "Sniper-Elite-Skill",
     "sniperelite_desc": "Klicke auf [css_useSkill], um deine aktuelle Waffe gegen eine AWP auszutauschen",
 
     "soldier": "Soldat",
@@ -387,7 +417,8 @@
     "swapposition_desc": "Klicke auf [css_useSkill], um mit einem zufälligen Gegner die Plätze zu tauschen",
 
     "teleporter": "Teleporter",
-    "teleporter_desc": "Du tauschst mit dem getroffenen Gegner die Plätze",
+    "teleporter_desc": "Du hast die Chance, die Plätze mit einem getroffenen Gegner zu tauschen",
+    "teleporter_desc2": "Deine Chance auf Platztausch nach einem Treffer: {0}%",
 
     "thief": "Dieb",
     "thief_desc": "Du kannst einem ausgewählten Spieler eine Fertigkeit stehlen",
@@ -401,6 +432,9 @@
 
     "thorns": "Dornen",
     "thorns_desc": "Dein Gegner erhält einen Teil des Schadens, den er dir zugefügt hat",
+
+    "throwingknife": "Wurfmesser",
+    "throwingknife_desc": "Klicke [css_useSkill], um ein Messer zu werfen. Aber nimm dich vor anderen in Acht",
 
     "toxicsmoke": "Giftiger Rauch",
     "toxicsmoke_desc": "Deine Rauchgranaten verursachen Schaden",
@@ -416,6 +450,14 @@
     "weaponsswap": "Waffenwechsel",
     "weaponsswap_desc": "Klicke auf [css_useSkill], um mit einem zufälligen Gegner die Waffen zu tauschen",
     "weaponsswap_hud_info2": "Du hast keine Waffe zum Tauschen",
+
+    "weightless": "Schwerelosigkeit",
+    "weightless_desc": "Deine Granaten werden nicht von der Schwerkraft beeinflusst und fliegen schneller",
+
+    "wildthrow": "Wilder Wurf",
+    "wildthrow_desc": "Wähle einen Spieler aus, der Probleme beim Werfen von Granaten haben wird",
+    "wildthrow_player_info": "Spieler '{0}' hat all seine Lineups vergessen",
+    "wildthrow_select_info": "Wähle einen Spieler aus:",
 
     "zeus": "Zeus",
     "zeus_desc": "Zeus x27 lädt sich sofort wieder auf",

@@ -105,7 +105,7 @@ namespace src.player
                     var observeredPlayerSpecialSkillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == observeredPlayerSkill.SpecialSkill);
                     if (observeredPlayerSpecialSkillInfo == null) return;
 
-                    string pName = observeredPlayerSkill.PlayerName;
+                    string pName = System.Net.WebUtility.HtmlEncode(observeredPlayerSkill.PlayerName);
                     if (pName.Length > 18)
                         pName = $"{pName[..17]}...";
                     var observerSkill = player.GetTranslation("observer_skill");

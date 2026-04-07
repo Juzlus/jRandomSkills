@@ -44,6 +44,7 @@ public interface ISkill
 
     public static void OnTriggerEnter(CBaseTrigger _, CBaseEntity __) { }
     public static void OnTriggerExit(CBaseTrigger _, CBaseEntity __) { }
+    public static bool OnWeaponCanAcquire(DynamicHook _, CCSPlayerController __, CEconItemView ___, CCSWeaponBaseVData ____) { return false; }
 
     public class SkillConfig { }
 }
@@ -52,7 +53,7 @@ public enum Skills
 {
     None,
     Aimbot,
-    AimLock, // <-
+    AimLock,
     Anomaly,
     AntyFlash,
     AntyHead,
@@ -81,7 +82,7 @@ public enum Skills
     Dracula,
     Duplicator,
     Dwarf,
-    Earthquake, // <-
+    Earthquake,
     EnemySpawn,
     ExplosiveShot,
     FalconEye,
@@ -98,11 +99,11 @@ public enum Skills
     Glue,
     GodMode,
     Grenadier,
-    HealingChicken, // <-
+    HealingChicken,
     HealingSmoke,
     Hermit,
     HolyHandGrenade,
-    HomingNades, // <-
+    HomingNades,
     HotBomb,
     Iana,
     Illiterate,
@@ -134,7 +135,7 @@ public enum Skills
     PawelJumper,
     Phoenix,
     PsychicDefusing,
-    Pilot, // <- 
+    Pilot,
     Planter,
     Poison,
     PrimaryBan,
@@ -145,7 +146,7 @@ public enum Skills
     RadarHack,
     Rambo,
     RandomWeapon,
-    RCMelon, // <-
+    RCMelon,
     ReZombie,
     ReactiveArmor,
     Regeneration,
@@ -158,10 +159,10 @@ public enum Skills
     Saper,
     SecondLife,
     Shade,
-    ShortBomb, // <- short
+    ShortBomb,
     Silent,
-    Smoker, // <- nie dziala
-    SniperElite, // <- nie dziala
+    Smoker,
+    SniperElite,
     Soldier,
     SoundMaker,
     Spectator,

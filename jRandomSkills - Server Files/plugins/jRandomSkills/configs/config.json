@@ -1,4 +1,5 @@
 {
+  "ConfigName": "Default",
   "GameMode": 3,
   "YourSkillChatInfo": true,
   "KillerSkillChatInfo": true,
@@ -7,8 +8,8 @@
   "DebugMode": false,
   "AlternativeSkillButton": null,
   "SkillTimeBeforeStart": 7.0,
-  "SkillHudDuration": 999.0,
-  "SkillDescriptionDuration": 999.0,
+  "SkillHudDuration": -1.0,
+  "SkillDescriptionDuration": 7.0,
   "DisplayAlwaysDescription": false,
   "DisableSpectateHUD": false,
   "FlashingHtmlHudFix": true,
@@ -36,6 +37,14 @@
         "FileName": "de"
       },
       {
+        "IsoCodes": "TR",
+        "FileName": "tr"
+      },
+      {
+        "IsoCodes": "CZ",
+        "FileName": "cs"
+      },
+      {
         "IsoCodes": "PL",
         "FileName": "pl"
       },
@@ -47,7 +56,7 @@
   },
   "HtmlHudCustomisation": {
     "HeaderLineColor": "#FFFFFF",
-    "HeaderLineSize": "ml",
+    "HeaderLineSize": "",
     "SkillLineSize": "l",
     "InfoLineColor": "#FFFFFF",
     "InfoLineSize": "sm",
@@ -88,6 +97,18 @@
     },
     "HealCommand": {
       "Alias": "heal, ulecz, curar, tratar, 治疗, 治愈",
+      "Permissions": "@jRandomSkills/admin"
+    },
+    "HealthCommand": {
+      "Alias": "sethealth, set_health, health",
+      "Permissions": "@jRandomSkills/admin"
+    },
+    "PlantedBomb": {
+      "Alias": "plantedbomb, planted_bomb, bomb",
+      "Permissions": "@jRandomSkills/admin"
+    },
+    "BotPlace": {
+      "Alias": "botplace, bot_place",
       "Permissions": "@jRandomSkills/admin"
     },
     "ConsoleCommand": {

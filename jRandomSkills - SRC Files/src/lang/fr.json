@@ -5,6 +5,9 @@
   "aimbot": "Aimbot",
   "aimbot_desc": "Chaque balle que vous touchez compte comme un headshot",
 
+  "aimlock": "Verrouillage de visée",
+  "aimlock_desc": "Cliquez sur [css_useSkill] pour verrouiller votre visée sur l'ennemi le plus proche",
+
   "anomaly": "Anomalie",
   "anomaly_desc": "Vous revenez quelques secondes en arrière dans le temps",
 
@@ -21,6 +24,7 @@
   "areareaper_select_info": "Sélectionnez un site à désactiver :",
   "areareaper_site_disabled": "Le site de bombe {0} a été désactivé – aucune bombe ne peut y être posée !",
   "areareaper_used_info": "Votre compétence a déjà été utilisée.",
+  "areareaper_bombsite_disabled": "Ce site de bombe a été désactivé !",
 
   "armored": "Blindé",
   "armored_desc": "Vous avez un multiplicateur de dégâts subis aléatoire",
@@ -186,8 +190,21 @@
   "holyhandgrenade": "Grenade Sacrée",
   "holyhandgrenade_desc": "Vos grenades HE infligent le double de dégâts et ont une portée doublée",
 
+  "homingnades": "Grenades à tête chercheuse",
+  "homingnades_desc": "Vos grenades (sauf les fumigènes) sont attirées par les ennemis",
+
+  "hotbomb": "Bombe brûlante",
+  "hotbomb_desc": "Tant que vous êtes en vie, la bombe inflige des dégâts à son porteur",
+  "hotbomb_hint": "Attention, la bombe est brûlante !",
+
   "iana": "Hologramme",
   "iana_desc": "Cliquez sur [css_useSkill] pour contrôler votre hologramme pendant quelques secondes",
+
+  "illiterate": "Illettré",
+  "illiterate_desc": "Tant que vous êtes en vie, vos ennemis ne mogą pas lire",
+
+  "illusionist": "Illusionniste",
+  "illusionist_desc": "Cliquez sur [css_useSkill] pour déployer une réplique qui marche droit devant",
 
   "impostor": "Imposteur",
   "impostor_desc": "Vous commencez le round avec un modèle de joueur ennemi",
@@ -234,6 +251,12 @@
   "longzeus": "Zeus Longue Portée",
   "longzeus_desc": "Le Zeus inflige des dégâts quelle que soit la distance",
 
+  "magneticdecoy": "Leurre magnétique",
+  "magneticdecoy_desc": "Votre leurre attire les joueurs à proximité vers lui",
+
+  "magneto": "Magneto",
+  "magneto_desc": "Toutes les grenades ennemies są repoussées loin de vous",
+
   "magnifier": "Loupe",
   "magnifier_desc": "Force l’écran de l’ennemi à zoomer, réduisant son champ de vision",
   "magnifier_enemy_info": "Votre champ de vision a été déformé !",
@@ -242,6 +265,9 @@
 
   "medic": "Médecin",
   "medic_desc": "Appuyez sur [css_useSkill] pour utiliser une charge de soin qui restaure 50 PV",
+
+  "miner": "Poseur de mines",
+  "miner_desc": "Votre grenade HE n'explose que lorsqu'un ennemi est à proximité",
 
   "bankrupt": "Faillite",
   "bankrupt_desc": "Choisissez le joueur qui perdra tout son argent",
@@ -285,11 +311,12 @@
   "psychicdefusing_hud_info": "{0} secondes restantes pour désamorcer",
 
   "pilot": "Pilote",
-  "pilot_desc": "Volez pendant un temps limité. Maintenez [UTILISER - E] pour voler",
+  "pilot_desc": "Volez pendant un temps limité. Double-cliquez sur saut pour voler",
   "pilot_hud_info": "Carburant",
 
   "planter": "Poseur Libre",
   "planter_desc": "Vous pouvez planter la bombe n’importe où, avec un temps de détonation de 60 secondes.",
+  "planter_planting": "Amorçage ({0})...",
 
   "poison": "Poison",
   "poison_desc": "Choisissez un joueur qui subira des dégâts toutes les quelques secondes",
@@ -369,6 +396,9 @@
   "silent": "Silencieux",
   "silent_desc": "Vos pas et vos sauts sont silencieux pour les AUTRES joueurs",
 
+  "smoker": "Fumeur",
+  "smoker_desc": "Vos grenades fumigènes sont illimitées",
+
   "sniperelite": "Sniper d’Élite",
   "sniperelite_customname": "Compétence Sniper d’Élite",
   "sniperelite_desc": "Appuyez sur [css_useSkill] pour échanger votre arme actuelle contre un AWP",
@@ -387,7 +417,8 @@
   "swapposition_desc": "Appuyez sur [css_useSkill] pour échanger de place avec un ennemi aléatoire",
 
   "teleporter": "Téléporteur",
-  "teleporter_desc": "Vous échangez de place avec l’ennemi touché",
+  "teleporter_desc": "Vous avez une chance d'échanger votre place avec un ennemi touché",
+  "teleporter_desc2": "Vos chances d'échanger votre place après un coup : {0}%",
 
   "thief": "Voleur",
   "thief_desc": "Vous pouvez voler la compétence d’un joueur choisi",
@@ -401,6 +432,9 @@
 
   "thorns": "Épines",
   "thorns_desc": "Votre adversaire recevra une partie des dégâts qu’il vous a infligés",
+
+  "throwingknife": "Couteau de lancer",
+  "throwingknife_desc": "Cliquez sur [css_useSkill] pour lancer un couteau. Mais attention aux autres",
 
   "toxicsmoke": "Fumée Toxique",
   "toxicsmoke_desc": "Vos grenades fumigènes infligent des dégâts",
@@ -416,6 +450,14 @@
   "weaponsswap": "Échange d’Armes",
   "weaponsswap_desc": "Appuyez sur [css_useSkill] pour échanger vos armes avec un ennemi aléatoire",
   "weaponsswap_hud_info2": "Vous n’avez aucune arme à échanger",
+
+  "weightless": "Apesanteur",
+  "weightless_desc": "Vos grenades ne sont pas affectées par la gravité et volent plus vite",
+
+  "wildthrow": "Lancers sauvages",
+  "wildthrow_desc": "Choisissez un joueur qui aura des difficultés à lancer des grenades",
+  "wildthrow_player_info": "Le joueur '{0}' a oublié tous ses alignements (lineups)",
+  "wildthrow_select_info": "Sélectionnez un joueur :",
 
   "zeus": "Zeus",
   "zeus_desc": "Le Zeus x27 se recharge instantanément",

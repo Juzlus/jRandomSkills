@@ -109,7 +109,7 @@ namespace src.utils
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;
-                SkillDescriptionDuration = -1;
+                SkillDescriptionDuration = 7;
                 DisplayAlwaysDescription = false;
                 FlashingHtmlHudFix = true;
                 CS2TraceRayDebug = false;
@@ -137,7 +137,7 @@ namespace src.utils
                 HtmlHudCustomisation = new HtmlHudCustomisation
                 {
                     HeaderLineColor = "#FFFFFF",
-                    HeaderLineSize = "ml",
+                    HeaderLineSize = "",
                     SkillLineSize = "l",
                     InfoLineColor = "#FFFFFF",
                     InfoLineSize = "sm",

@@ -9,6 +9,24 @@
     "RequiredPermission": ""
   },
   {
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#384728",
+    "Active": true,
+    "Name": "WildThrow",
+    "RequiredPermission": ""
+  },
+  {
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#8f6dc9",
+    "Active": true,
+    "Name": "Weightless",
+    "RequiredPermission": ""
+  },
+  {
     "Cooldown": 30.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
@@ -41,12 +59,24 @@
   {
     "SmokeDamage": 2,
     "SmokeRadius": 180.0,
+    "TickCooldown": 17,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
     "Color": "#507529",
     "Active": true,
     "Name": "ToxicSmoke",
+    "RequiredPermission": ""
+  },
+  {
+    "FriendlyFire": false,
+    "Damage": 9999,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "OnlyTeam": 0,
+    "Color": "#8f108f",
+    "Active": true,
+    "Name": "ThrowingKnife",
     "RequiredPermission": ""
   },
   {
@@ -79,6 +109,8 @@
     "RequiredPermission": ""
   },
   {
+    "ChanceFrom": 0.5,
+    "ChanceTo": 0.6,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -109,9 +141,7 @@
     "RequiredPermission": ""
   },
   {
-    "Cooldown": 5.0,
-    "CTSoundEvent": "c4.disarmstart",
-    "TSoundEvent": "C4.PlantSoundB",
+    "Cooldown": 2,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -138,6 +168,15 @@
     "Color": "#e0873a",
     "Active": true,
     "Name": "SniperElite",
+    "RequiredPermission": ""
+  },
+  {
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#b5ab8f",
+    "Active": true,
+    "Name": "Smoker",
     "RequiredPermission": ""
   },
   {
@@ -489,6 +528,7 @@
   },
   {
     "Cooldown": 30.0,
+    "CooldownWhenStuck": 5.0,
     "Duration": 2.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
@@ -513,6 +553,7 @@
   {
     "ExplosionRadius": 500.0,
     "ExplosionDamage": 999,
+    "DmgReductionForTeamates": 0.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -528,6 +569,16 @@
     "Color": "#52f54c",
     "Active": true,
     "Name": "MoneySwap",
+    "RequiredPermission": ""
+  },
+  {
+    "DetonationRange": 130.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#adf542",
+    "Active": true,
+    "Name": "Miner",
     "RequiredPermission": ""
   },
   {
@@ -553,7 +604,29 @@
     "RequiredPermission": ""
   },
   {
+    "Radius": 100.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#f081ec",
+    "Active": true,
+    "Name": "Magneto",
+    "RequiredPermission": ""
+  },
+  {
+    "TriggerRadius": 180.0,
+    "Strenght": 30.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#81f0c4",
+    "Active": true,
+    "Name": "MagneticDecoy",
+    "RequiredPermission": ""
+  },
+  {
     "MaxDistance": 4096.0,
+    "FriendlyFire": false,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -564,6 +637,7 @@
   },
   {
     "MaxDistance": 4096.0,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -583,6 +657,7 @@
   },
   {
     "FlashDuration": 1.0,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -659,6 +734,32 @@
   },
   {
     "Cooldown": 30.0,
+    "DurationRun": 5.0,
+    "DurationCrouch": 12.0,
+    "YourTeamDamage": 10,
+    "EnemyTeamDamage": 20,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "OnlyTeam": 0,
+    "Color": "#42f5ef",
+    "Active": true,
+    "Name": "Illusionist",
+    "RequiredPermission": ""
+  },
+  {
+    "MaximumFuel": 150.0,
+    "FuelConsumption": 0.64,
+    "Refuelling": 0.1,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "OnlyTeam": 0,
+    "Color": "#1466F5",
+    "Active": true,
+    "Name": "Illiterate",
+    "RequiredPermission": ""
+  },
+  {
+    "Cooldown": 30.0,
     "Duration": 10.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
@@ -666,6 +767,29 @@
     "Color": "#d0d930",
     "Active": true,
     "Name": "Iana",
+    "RequiredPermission": ""
+  },
+  {
+    "Cooldown": 1.0,
+    "Damage": 2,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 3,
+    "Color": "#baf081",
+    "Active": true,
+    "Name": "HotBomb",
+    "RequiredPermission": ""
+  },
+  {
+    "Strength": 150.0,
+    "MaxVelocity": 2000.0,
+    "DetonationRange": 130.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#384728",
+    "Active": true,
+    "Name": "HomingNades",
     "RequiredPermission": ""
   },
   {
@@ -680,7 +804,7 @@
     "RequiredPermission": ""
   },
   {
-    "HealthToAdd": 25,
+    "HealthToAdd": 100,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -692,12 +816,25 @@
   {
     "SmokeHeal": 1,
     "SmokeRadius": 180.0,
+    "TickCooldown": 16,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
     "Color": "#1fe070",
     "Active": true,
     "Name": "HealingSmoke",
+    "RequiredPermission": ""
+  },
+  {
+    "Amount": 3,
+    "Heal": 2,
+    "TickCooldown": 16,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#b5ab8f",
+    "Active": true,
+    "Name": "HealingChicken",
     "RequiredPermission": ""
   },
   {
@@ -1165,6 +1302,18 @@
     "Color": "#a86eff",
     "Active": true,
     "Name": "Anomaly",
+    "RequiredPermission": ""
+  },
+  {
+    "Cooldown": 20.0,
+    "Duration": 0.3,
+    "Offset": 0.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "OnlyTeam": 0,
+    "Color": "#fa7b48",
+    "Active": true,
+    "Name": "AimLock",
     "RequiredPermission": ""
   },
   {

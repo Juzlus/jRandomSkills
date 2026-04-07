@@ -50,7 +50,7 @@ namespace src.player.skills
                 }
 
                 string distanceColor = closetDistance > 1500 ? "#00FF00" : closetDistance > 600 ? "#FFFF00" : "#FF0000";
-                playerInfo.PrintHTML = $"{closetEnemy}: <font color='{distanceColor}'>{(closetDistance > 3000 ? "3000+" : closetDistance)}</font>";
+                playerInfo.PrintHTML = $"{System.Net.WebUtility.HtmlEncode(closetEnemy)}: <font color='{distanceColor}'>{(closetDistance > 3000 ? "3000+" : closetDistance)}</font>";
             }
         }
 

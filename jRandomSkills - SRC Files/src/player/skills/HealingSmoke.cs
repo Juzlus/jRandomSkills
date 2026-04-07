@@ -27,8 +27,10 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
+
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
+
             smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
         }
 
@@ -36,8 +38,10 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
+
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
+
             foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))    
                 smokes.TryRemove(smoke, out _);
         }
@@ -71,12 +75,20 @@ namespace src.player.skills
         public static void OnTick()
         {
             int tick = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
+            if (Server.TickCount % tick != 0) return;
+
+            float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
+            int smokeHeal = SkillsInfo.GetValue<int>(skillName, "smokeHeal");
+
             foreach (Vector smokePos in smokes.Keys)
-                foreach (var player in Utilities.GetPlayers())
-                    if (Server.TickCount % tick == 0)
-                        if (player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid && player.PlayerPawn.Value.AbsOrigin != null)
-                            if (SkillUtils.GetDistance(smokePos, player.PlayerPawn.Value.AbsOrigin) <= SkillsInfo.GetValue<float>(skillName, "smokeRadius"))
-                                AddHealth(player.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "smokeHeal"));
+                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive))
+                {
+                    var pawn = player.PlayerPawn.Value;
+                    if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+
+                    if (SkillUtils.GetDistance(smokePos, pawn.AbsOrigin) <= smokeRadius)
+                        AddHealth(pawn, smokeHeal);
+                }
         }
 
         public static void EnableSkill(CCSPlayerController player)

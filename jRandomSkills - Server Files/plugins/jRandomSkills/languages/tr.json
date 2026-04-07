@@ -5,6 +5,9 @@
   "aimbot": "Aimbot",
   "aimbot_desc": "Vurduğun her mermi kafadan vuruş (headshot) sayılır",
 
+  "aimlock": "Nişan Kilidi",
+  "aimlock_desc": "En yakın düşmana nişan almak için [css_useSkill] tuşuna basın",
+
   "anomaly": "Anomali",
   "anomaly_desc": "Zamanı birkaç saniye geriye alırsın",
 
@@ -21,6 +24,7 @@
   "areareaper_select_info": "Devre dışı bırakılacak alanı seçin:",
   "areareaper_site_disabled": "Bomba alanı {0} devre dışı bırakıldı - buraya bomba kurulamaz!",
   "areareaper_used_info": "Yeteneğin zaten kullanıldı.",
+  "areareaper_bombsite_disabled": "Bu bomba alanı devre dışı bırakıldı!",
 
   "armored": "Zırhlı",
   "armored_desc": "Rastgele bir hasar alma çarpanına sahip olursun",
@@ -186,8 +190,21 @@
   "holyhandgrenade": "Kutsal El Bombası",
   "holyhandgrenade_desc": "El bombaların iki kat hasar verir ve iki kat menzile sahiptir",
 
+  "homingnades": "Güdümlü El Bombaları",
+  "homingnades_desc": "El bombalarınız (sis hariç) düşmanlara yönelir",
+
+  "hotbomb": "Sıcak Bomba",
+  "hotbomb_desc": "Siz hayatta olduğunuz sürece, bomba taşıyıcısına hasar verir",
+  "hotbomb_hint": "Dikkatli ol, bomba çok sıcak!",
+
   "iana": "Hologram",
   "iana_desc": "Hologramını birkaç saniyeliğine kontrol etmek için E tuşuna bas",
+
+  "illiterate": "Okuryazar Olmayan",
+  "illiterate_desc": "Siz hayatta olduğunuz sürece, düşmanlarınız yazıları okuyamaz",
+
+  "illusionist": "İllüzyonist",
+  "illusionist_desc": "Düz ilerleyen bir kopya oluşturmak için [css_useSkill] tuşuna basın",
 
   "impostor": "Sahtekar",
   "impostor_desc": "Raunda düşman oyuncu modeliyle başlarsın",
@@ -234,6 +251,12 @@
   "longzeus": "Uzak Zeus",
   "longzeus_desc": "Zeus mesafeden bağımsız olarak hasar verir",
 
+  "magneticdecoy": "Manyetik Yanıltıcı",
+  "magneticdecoy_desc": "Yanıltıcı bombanız yakındaki oyuncuları kendine çeker",
+
+  "magneto": "Magneto",
+  "magneto_desc": "Tüm düşman el bombaları sizden uzaklaştırılır",
+
   "magnifier": "Büyüteç",
   "magnifier_desc": "Düşmanın ekranını yakınlaştırarak görüş alanını daraltır",
   "magnifier_enemy_info": "Görüş alanın bozuldu!",
@@ -242,6 +265,9 @@
 
   "medic": "Sıhhiye",
   "medic_desc": "50 can yenileyen bir iyileştirme yükü kullanmak için E tuşuna bas",
+
+  "miner": "Bomba Madencisi",
+  "miner_desc": "El bombanız (HE) sadece yakında bir düşman olduğunda patlar",
 
   "bankrupt": "İflas",
   "bankrupt_desc": "Tüm parasını kaybedecek bir oyuncu seç",
@@ -285,11 +311,12 @@
   "psychicdefusing_hud_info": "İmha için {0} saniye kaldı",
 
   "pilot": "Pilot",
-  "pilot_desc": "Sınırlı bir süre uç. Uçmak için [USE - E] tuşuna basılı tut",
+  "pilot_desc": "Sınırlı bir süre uçun. Uçmak için zıplama tuşuna iki kez basın",
   "pilot_hud_info": "Yakıt",
 
   "planter": "Serbest Kurucu",
   "planter_desc": "Bombayı her yere kurabilirsin, patlama süresi 60 saniyedir.",
+  "planter_planting": "Kuruluyor ({0})...",
 
   "poison": "Zehir",
   "poison_desc": "Birkaç saniyede bir hasar alacak bir oyuncu seç",
@@ -369,6 +396,9 @@
   "silent": "Sessiz",
   "silent_desc": "Ayak seslerin ve zıplamaların DİĞER oyunculara duyulmaz",
 
+  "smoker": "Tiryaki",
+  "smoker_desc": "Sis bombalarınız asla bitmez",
+
   "sniperelite": "Keskin Nişancı",
   "sniperelite_customname": "Keskin Nişancı Yeteneği",
   "sniperelite_desc": "Mevcut silahını bir AWP ile değiştirmek için E tuşuna bas",
@@ -387,7 +417,8 @@
   "swapposition_desc": "Rastgele bir düşmanla yer değiştirmek için E tuşuna bas",
 
   "teleporter": "Işınlayıcı",
-  "teleporter_desc": "Vurduğun düşmanla yer değiştirirsin",
+  "teleporter_desc": "Vurulan bir düşmanla yer değiştirme şansınız var",
+  "teleporter_desc2": "Vuruştan sonra yer değiştirme şansınız: %{0}",
 
   "thief": "Hırsız",
   "thief_desc": "Seçilen bir oyuncudan yeteneğini çalabilirsin",
@@ -401,6 +432,9 @@
 
   "thorns": "Dikenler",
   "thorns_desc": "Rakibin, sana verdiği hasarın bir kısmını geri alır",
+
+  "throwingknife": "Fırlatma Bıçağı",
+  "throwingknife_desc": "Bıçak fırlatmak için [css_useSkill] tuşuna basın. Ama başkalarına dikkat edin",
 
   "toxicsmoke": "Zehirli Sis",
   "toxicsmoke_desc": "Sis bombaların hasar verir",
@@ -416,6 +450,14 @@
   "weaponsswap": "Silah Takası",
   "weaponsswap_desc": "Rastgele bir düşmanla silahları takas etmek için E tuşuna bas",
   "weaponsswap_hud_info2": "Takas edilecek silahın yok",
+
+  "weightless": "Yerçekimsiz",
+  "weightless_desc": "El bombalarınız yerçekiminden etkilenmez ve daha hızlı uçar",
+
+  "wildthrow": "Vahşi Atış",
+  "wildthrow_desc": "El bombası atmakta zorluk çekecek bir oyuncu seçin",
+  "wildthrow_player_info": "'{0}' adlı oyuncu tüm taktiklerini unuttu",
+  "wildthrow_select_info": "Bir oyuncu seçin:",
 
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 anında şarj olur",

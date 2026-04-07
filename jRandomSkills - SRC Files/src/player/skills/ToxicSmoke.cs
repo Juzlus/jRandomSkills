@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -12,51 +11,39 @@ namespace src.player.skills
     public class ToxicSmoke : ISkill
     {
         private const Skills skillName = Skills.ToxicSmoke;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> players = [];
-        private static readonly ConcurrentDictionary<CTriggerMultiple, byte> triggers = [];
-
-        private const string triggerName = "toxic_smoke";
+        private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
 
         public static void LoadSkill()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
         public static void NewRound()
         {
-            players.Clear();
-            triggers.Clear();
+            smokes.Clear();
         }
 
-        public static void EnableSkill(CCSPlayerController player)
+        public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event)
         {
-            SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
+            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (playerInfo?.Skill != skillName) return;
+
+            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
         }
 
-        public static void OnTriggerEnter(CBaseTrigger trigger, CBaseEntity entity)
+        public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
         {
-            if (!trigger.Globalname.StartsWith(triggerName) || entity.DesignerName != "player") return;
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
 
-            CCSPlayerPawn playerPawn = new(entity.Handle);
-            if (playerPawn == null || playerPawn.Controller?.Value == null)return;
+            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (playerInfo?.Skill != skillName) return;
 
-            CCSPlayerController player = playerPawn.Controller.Value.As<CCSPlayerController>();
-            if (player == null) return;
-
-            players.TryAdd(player, 0);
-        }
-
-        public static void OnTriggerExit(CBaseTrigger trigger, CBaseEntity entity)
-        {
-            if (!trigger.Globalname.StartsWith(triggerName) || entity.DesignerName != "player") return;
-
-            CCSPlayerPawn playerPawn = new(entity.Handle);
-            if (playerPawn == null || playerPawn.Controller?.Value == null) return;
-            CCSPlayerController player = playerPawn.Controller.Value.As<CCSPlayerController>();
-            if (player == null) return;
-
-            players.TryRemove(player, out _);
+            foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
+                smokes.TryRemove(smoke, out _);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -85,30 +72,28 @@ namespace src.player.skills
             });
         }
 
-        public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event)
+        public static void OnTick()
         {
-            var player = @event.Userid;
-            if (player == null || !player.IsValid) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (playerInfo?.Skill != skillName) return;
+            int tick = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
+            if (Server.TickCount % tick != 0) return;
 
-            var trigger = SkillUtils.CreateTrigger(triggerName, SkillsInfo.GetValue<float>(skillName, "smokeRadius"), new Vector(@event.X, @event.Y, @event.Z));
-            if (trigger == null) return;
-            triggers.TryAdd(trigger, 0);
+            float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
+            int smokeDamage = SkillsInfo.GetValue<int>(skillName, "smokeDamage");
+
+            foreach (Vector smokePos in smokes.Keys)
+                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive))
+                {
+                    var pawn = player.PlayerPawn.Value;
+                    if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+
+                    if (SkillUtils.GetDistance(smokePos, pawn.AbsOrigin) <= smokeRadius)
+                        AddHealth(pawn, -smokeDamage);
+                }
         }
 
-        public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
+        public static void EnableSkill(CCSPlayerController player)
         {
-            var player = @event.Userid;
-            if (player == null || !player.IsValid) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (playerInfo?.Skill != skillName) return;
-
-            foreach (var trigger in triggers.Keys.Where(t => t.AbsOrigin?.X == @event.X && t.AbsOrigin?.Y == @event.Y && t.AbsOrigin?.Z == @event.Z))
-            {
-                triggers.TryRemove(trigger, out _);
-                trigger.AcceptInput("Kill");
-            }
+            SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
         }
 
         private static void AddHealth(CCSPlayerPawn player, int health)
@@ -124,20 +109,11 @@ namespace src.player.skills
                 player.CommitSuicide(false, true);
         }
 
-        public static void OnTick()
-        {
-            if (Server.TickCount % 17 != 0) return;
-            foreach (var player in players.Keys)
-            {
-                if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || !player.PawnIsAlive) return;
-                AddHealth(player.PlayerPawn.Value, -SkillsInfo.GetValue<int>(skillName, "smokeDamage"));
-            }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int smokeDamage = 2, float smokeRadius = 180) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public int SmokeDamage { get; set; } = smokeDamage;
             public float SmokeRadius { get; set; } = smokeRadius;
+            public int TickCooldown { get; set; } = tickCooldown;
         }
     }
 }

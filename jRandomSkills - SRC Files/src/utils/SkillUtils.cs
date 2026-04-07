@@ -75,6 +75,24 @@ namespace src.utils
             return Math.Sqrt(Math.Pow(vector2.X - vector1.X, 2) + Math.Pow(vector2.Y - vector1.Y, 2) + Math.Pow(vector2.Z - vector1.Z, 2));
         }
 
+        public static float Distance(this Vector vector1, Vector vector2)
+        {
+            return (float)GetDistance(vector1, vector2);
+        }
+
+        public static float Dot(this Vector vector1, Vector vector2)
+        {
+            return (vector1.X * vector2.X) + (vector1.Y * vector2.Y) + (vector1.Z * vector2.Z);
+        }
+
+        public static Vector Normalize(this Vector vector)
+        {
+            float length = vector.Length();
+            if (length > 0)
+                return new Vector(vector.X / length, vector.Y / length, vector.Z / length);
+            return Vector.Zero;
+        }
+
         public static string SecondsToTimer(int totalSeconds)
         {
             if (totalSeconds <= 0) return "00:00";
@@ -330,7 +348,9 @@ namespace src.utils
 
             Dictionary<string, Action<CCSPlayerController, IWasdMenuOption>> list = [];
             foreach (var item in items)
-                list.TryAdd(isIlliterate ? Illiterate.GetRandomText(item.Item1) : item.Item1, (p, option) =>
+                list.TryAdd(isIlliterate
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(item.Item1)!)
+                    : System.Net.WebUtility.HtmlEncode(item.Item1), (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
                     manager.CloseMenu(p);
@@ -360,12 +380,16 @@ namespace src.utils
                 ? ""
                 : $"<font class='fontWeight-Bold fontSize-{config.HeaderLineSize}' color='{config.HeaderLineColor}'>{your_skill}:</font><br>";
 
-            string skillLine = $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>{player.GetSkillName(skillData.Skill)}</font><br>";
+            string skillLine = Illiterate.CheckIlliterateSkill(player)
+                ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}</font><br>"
+                : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>{player.GetSkillName(skillData.Skill)}</font><br>";
 
             var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLower()}_select_info");
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
                 ? ""
                 : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
+
+
 
             var hudContent = infoLine + skillLine + remainingLine;
 
@@ -381,13 +405,17 @@ namespace src.utils
 
             IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
             foreach (var enemy in enemies)
-                menu.Add(isIlliterate ? Illiterate.GetRandomText(enemy.Item1) : enemy.Item1, (p, option) =>
+                menu.Add(isIlliterate 
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(enemy.Item1)!)
+                    : System.Net.WebUtility.HtmlEncode(enemy.Item1), (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
                     manager.CloseMenu(p);
                 });
             if (lastElement != null)
-                menu.Add(isIlliterate ? Illiterate.GetRandomText(lastElement.Value.Item1) : lastElement.Value.Item1, (p, option) =>
+                menu.Add(isIlliterate
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(lastElement.Value.Item1)!)
+                    : System.Net.WebUtility.HtmlEncode(lastElement.Value.Item1), (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
                     if (lastElement.Value.Item3)

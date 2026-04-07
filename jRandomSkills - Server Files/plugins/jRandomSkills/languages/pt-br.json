@@ -5,6 +5,9 @@
   "aimbot": "Aimbot",
   "aimbot_desc": "Toda bala que você acertar conta como um hs",
 
+  "aimlock": "Aim Lock",
+  "aimlock_desc": "Clique em [css_useSkill] para travar a mira no inimigo mais próximo",
+
   "anomaly": "Máquina do Tempo",
   "anomaly_desc": "Você volta alguns segundos no tempo",
 
@@ -21,6 +24,7 @@
   "areareaper_select_info": "Escolha o bomb p/ desativar:",
   "areareaper_site_disabled": "Bombsite {0} foi desativado - nenhuma bomba pode ser plantada lá!",
   "areareaper_used_info": "Seu poder já foi usado.",
+  "areareaper_bombsite_disabled": "Este local de bomba foi desativado!",
 
   "armored": "Super Tiro",
   "armored_desc": "Seu dano é multiplicado por um valor aleatório",
@@ -152,6 +156,7 @@
   "gambler_desc": "Selecione uma habilidade da lista.",
   "gambler_select_info": "Escolha sua habilidade:",
   "gambler_more": "#00FF00|Atualizar por ${0}",
+  "gambler_no_money": "Yetersiz bakiye.",
   
   "ghost": "Fantasma",
   "ghost_desc": "Você é completamente invisível",
@@ -185,9 +190,22 @@
   "holyhandgrenade": "Granada Obesa",
   "holyhandgrenade_desc": "HEs causam dano dobrado e têm alcance dobrado",
 
+  "homingnades": "Granadas Teleguiadas",
+  "homingnades_desc": "Suas granadas (exceto fumaça) são atraídas por inimigos",
+
+  "hotbomb": "Bomba Quente",
+  "hotbomb_desc": "Enquanto você estiver vivo, a bomba causa dano ao portador",
+  "hotbomb_hint": "Cuidado, a bomba está quente!",
+
   "iana": "Holograma",
   "iana_desc": "Clique em [css_useSkill] para controlar seu holograma por alguns segundos",
   
+  "illiterate": "Analfabeto",
+  "illiterate_desc": "Enquanto você estiver vivo, seus inimigos não conseguem ler",
+
+  "illusionist": "Ilusionista",
+  "illusionist_desc": "Clique em [css_useSkill] para enviar uma réplica que caminha em frente",
+
   "impostor": "Impostor",
   "impostor_desc": "Você começa a rodada vestido do time inimigo",
   
@@ -233,6 +251,12 @@
   "longzeus": "Zeus Longo",
   "longzeus_desc": "Zeus causa dano independentemente da distância",
   
+  "magneticdecoy": "Decoy Magnético",
+  "magneticdecoy_desc": "Seu decoy atrai jogadores próximos para si mesmo",
+
+  "magneto": "Magneto",
+  "magneto_desc": "Todas as granadas inimigas są repelidas para longe de você",
+
   "magnifier": "Lupa",
   "magnifier_desc": "Força a tela do inimigo a dar um zoom, reduzindo seu campo de visão",
   "magnifier_enemy_info": "Seu campo de visão foi distorcido!",
@@ -242,6 +266,9 @@
   "medic": "Médico",
   "medic_desc": "Clique em [css_useSkill] para usar uma injeção que restaura 50 de vida",
   
+  "miner": "Mineiro de Bombas",
+  "miner_desc": "Sua granada HE só explode quando há um inimigo por perto",
+
   "moneyswap": "Troca de Grana",
   "moneyswap_desc": "Escolha um jogador para trocar de dinheiro com ele",
   "moneyswap_enemy_info": "Você provavelmente virou classe B",
@@ -284,11 +311,12 @@
   "psychicdefusing_hud_info": "{0} segundos restantes para desarmar",
   
   "pilot": "Jetpack",
-  "pilot_desc": "Voe por um tempo limitado. Segure [USE - E] para voar",
+  "pilot_desc": "Voe por tempo limitado. Clique duas vezes no pulo para voar",
   "pilot_hud_info": "Combustível",
   
   "planter": "Meu Bombsite Minha Vida",
   "planter_desc": "Você pode plantar a bomba em qualquer lugar, com um tempo de detonação de 60 segundos.",
+  "planter_planting": "Plantando ({0})...",
   
   "poison": "Veneno",
   "poison_desc": "Escolha um jogador que receberá dano a cada poucos segundos",
@@ -367,10 +395,14 @@
   
   "silent": "Shhhiu!",
   "silent_desc": "Seus passos e pulos são silenciosos para OUTROS jogadores",
+
+  "smoker": "Tiryaki",
+  "smoker_desc": "Sis bombalarınız asla bitmez",
   
   "sniperelite": "Sniper do BOPE",
   "sniperelite_desc": "Clique em [css_useSkill] para trocar sua arma atual por uma AWP",
-  
+  "sniperelite_customname": "Keskin Nişancı Elit Yeteneği",
+
   "soldier": "Soldado",
   "soldier_desc": "Seus tiros causam mais dano",
   "soldier_desc2": "Seu multiplicador de dano é: {0}x",
@@ -385,7 +417,8 @@
   "swapposition_desc": "Clique em [css_useSkill] para trocar de lugar com um inimigo aleatório",
   
   "teleporter": "Teletransportador",
-  "teleporter_desc": "Você troca de lugar com o inimigo que acertar",
+  "teleporter_desc": "Você tem a chance de trocar de lugar com um inimigo atingido",
+  "teleporter_desc2": "Sua chance de trocar de lugar após o acerto: {0}%",
   
   "thief": "Lula",
   "thief_desc": "Você pode roubar uma habilidade de um jogador escolhido",
@@ -400,6 +433,9 @@
   "thorns": "Porco Espinho",
   "thorns_desc": "Seu oponente receberá uma parte do dano que causou a você",
   
+  "throwingknife": "Faca de Arremesso",
+  "throwingknife_desc": "Clique em [css_useSkill] para lançar uma faca. Mas cuidado com os outros",
+
   "toxicsmoke": "Smoke Tóxica",
   "toxicsmoke_desc": "Suas smokes causam dano",
   
@@ -415,6 +451,14 @@
   "weaponsswap_desc": "Clique em [css_useSkill] para trocar armas com um inimigo aleatório",
   "weaponsswap_hud_info2": "Você não tem arma para trocar",
   
+  "weightless": "Gravidade Zero",
+  "weightless_desc": "Suas granadas não são afetadas pela gravidade e voam mais rápido",
+
+  "wildthrow": "Arremesso Selvagem",
+  "wildthrow_desc": "Escolha um jogador que terá problemas para lançar granadas",
+  "wildthrow_player_info": "O jogador '{0}' esqueceu todos os seus lineups",
+  "wildthrow_select_info": "Selecione um jogador:",
+
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 recarrega instantaneamente",
   

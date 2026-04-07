@@ -28,7 +28,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.1.b4";
+        public override string ModuleVersion => "1.2.1.b7";
 
         public override void Load(bool hotReload)
         {
@@ -77,7 +77,7 @@ namespace src
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
 
-        internal void SkillAction(string skill, string methodName, object[]? param = null)
+        internal object? SkillAction(string skill, string methodName, object[]? param = null)
         {
             string className = $"src.player.skills.{skill}";
             Type? type = Type.GetType(className);
@@ -85,10 +85,11 @@ namespace src
             if (type != null && typeof(ISkill).IsAssignableFrom(type))
             {
                 MethodInfo? method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
-                method?.Invoke(null, param);
+                return method?.Invoke(null, param);
             }
             else
                 Server.PrintToConsole($"Could not find or load {className}");
+            return null;
         }
 
         internal void RegisterListener<T>(Action onTick, HookMode pre)

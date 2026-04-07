@@ -9,7 +9,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Illiterate;
         private static bool isActive = false;
-        private static int offset = jRandomSkills.Instance.Random.Next(0, 26);
+        private static int offset = jRandomSkills.Instance.Random.Next(2, 26);
 
         public static void LoadSkill()
         {
@@ -55,7 +55,7 @@ namespace src.player.skills
         {
             if (string.IsNullOrEmpty(input)) return null;
             if (Server.TickCount % 64 == 0)
-                offset = jRandomSkills.Instance.Random.Next(1, 26);
+                offset = jRandomSkills.Instance.Random.Next(2, 26);
 
             return new string([.. input.Select(c =>
             {

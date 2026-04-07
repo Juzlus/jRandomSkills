@@ -5,6 +5,9 @@
   "aimbot": "自动瞄准",
   "aimbot_desc": "你击中的每颗子弹都算作爆头",
 
+  "aimlock": "自瞄锁定",
+  "aimlock_desc": "点击 [css_useSkill] 锁定距离最近的敌人",
+
   "anomaly": "异常",
   "anomaly_desc": "你会倒退几秒钟的时间",
 
@@ -21,6 +24,7 @@
   "areareaper_select_info": "选择你想禁用的炸弹点：",
   "areareaper_site_disabled": "炸弹点 {0} 已被禁用 - 无法在此放置炸弹！",
   "areareaper_used_info": "你的能力已被使用。",
+  "areareaper_bombsite_disabled": "该炸弹安置点已被禁用！",
 
   "armored": "装甲",
   "armored_desc": "你有随机受到伤害的倍率",
@@ -186,8 +190,21 @@
   "holyhandgrenade": "神圣手榴弹",
   "holyhandgrenade_desc": "你的高爆手榴弹造成双倍伤害并拥有双倍范围",
 
+  "homingnades": "追踪手雷",
+  "homingnades_desc": "你的手雷（烟雾弹除外）会自动追踪敌人",
+
+  "hotbomb": "烫手山芋",
+  "hotbomb_desc": "只要你还活着，炸弹就会对携带者造成伤害",
+  "hotbomb_hint": "小心，炸弹很烫！",
+
   "iana": "全息图",
   "iana_desc": "点击 [css_useSkill] 可控制你的全息影像数秒",
+
+  "illiterate": "文盲",
+  "illiterate_desc": "只要你还活着，你的敌人就无法阅读信息",
+
+  "illusionist": "幻術师",
+  "illusionist_desc": "点击 [css_useSkill] 部署一个直线行走的幻象",
 
   "impostor": "冒名顶替者",
   "impostor_desc": "回合开始时你获得敌方玩家模型",
@@ -234,6 +251,12 @@
   "longzeus": "长宙斯",
   "longzeus_desc": "宙斯电击枪无论距离多远都能造成伤害",
 
+  "magneticdecoy": "磁性诱饵",
+  "magneticdecoy_desc": "你的诱饵弹会将附近的玩家吸引到自己身边",
+
+  "magneto": "万磁王",
+  "magneto_desc": "所有敌方手雷都会被你弹开",
+
   "magnifier": "放大镜",
   "magnifier_desc": "强制敌方屏幕放大，缩小其视野范围",
   "magnifier_enemy_info": "你的视野已被扭曲！",
@@ -242,6 +265,9 @@
 
   "medic": "医务兵",
   "medic_desc": "点击 [css_useSkill] 使用治疗装置恢复50点生命值",
+
+  "miner": "炸弹矿工",
+  "miner_desc": "你的高爆手雷仅在附近有敌人时才会爆炸",
 
   "moneyswap": "税务员",
   "moneyswap_desc": "选择一个玩家以交换金钱",
@@ -285,11 +311,12 @@
   "psychicdefusing_hud_info": "拆除还剩 {0} 秒",
 
   "pilot": "飞行员",
-  "pilot_desc": "在有限时间内飞行。按住 [USE - E] 飞行",
+  "pilot_desc": "限时飞行。双击跳跃键开始飞行",
   "pilot_hud_info": "燃料",
 
   "planter": "自由种植者",
   "planter_desc": "你可以在任何地方放置炸弹，引爆时间为60秒。",
+  "planter_planting": "安放炸弹中 ({0})...",
 
   "poison": "毒药",
   "poison_desc": "选择一个玩家，每隔几秒受到伤害",
@@ -369,6 +396,9 @@
   "silent": "无声",
   "silent_desc": "你的脚步和跳跃对其他玩家无声",
 
+  "smoker": "烟雾使者",
+  "smoker_desc": "你的烟雾弹永远用不完",
+
   "sniperelite": "狙击精英",
   "sniperelite_customname": "狙击精英技能",
   "sniperelite_desc": "点击 [css_useSkill] 将当前武器替换为AWP",
@@ -387,7 +417,8 @@
   "swapposition_desc": "点击 [css_useSkill] 与随机敌人交换位置",
 
   "teleporter": "传送者",
-  "teleporter_desc": "你与被击中的敌人交换位置",
+  "teleporter_desc": "击中敌人后你有机会与其交换位置",
+  "teleporter_desc2": "击中后交换位置的概率为：{0}%",
 
   "thief": "小偷",
   "thief_desc": "你可以从选定玩家那里偷取技能",
@@ -401,6 +432,9 @@
 
   "thorns": "荊棘",
   "thorns_desc": "你的對手將承受其對你造成傷害的一部分",
+
+  "throwingknife": "投掷飞刀",
+  "throwingknife_desc": "点击 [css_useSkill] 扔出飞刀。但要小心其他人",
 
   "toxicsmoke": "毒烟",
   "toxicsmoke_desc": "你的烟雾弹会造成伤害",
@@ -416,6 +450,14 @@
   "weaponsswap": "武器交换",
   "weaponsswap_desc": "点击 [css_useSkill] 与随机敌人交换武器",
   "weaponsswap_hud_info2": "你没有可交换的武器",
+
+  "weightless": "失重状态",
+  "weightless_desc": "你的手雷不受重力影响，且飞行速度更快",
+
+  "wildthrow": "乱扔手雷",
+  "wildthrow_desc": "选择一名丢雷会遇到麻烦的玩家",
+  "wildthrow_player_info": "玩家 '{0}' 已经忘记了所有投掷角度",
+  "wildthrow_select_info": "选择一名玩家：",
 
   "zeus": "宙斯",
   "zeus_desc": "宙斯x27立即充能",

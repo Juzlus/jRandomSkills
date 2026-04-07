@@ -5,6 +5,9 @@
   "aimbot": "Aimbot",
   "aimbot_desc": "Every bullet you hit counts as a headshot",
 
+  "aimlock": "Aim Lock",
+  "aimlock_desc": "Click [css_useSkill] to lock your aim on the nearest enemy",
+
   "anomaly": "Anomaly",
   "anomaly_desc": "You rewind a few seconds back in time",
 
@@ -21,6 +24,7 @@
   "areareaper_select_info": "Select site to deactivate:",
   "areareaper_site_disabled": "Bomb site {0} has been deactivated - no bombs can be planted there!",
   "areareaper_used_info": "Your skill has already been used.",
+  "areareaper_bombsite_disabled": "This bombsite has been disabled!",
 
   "armored": "Armored",
   "armored_desc": "You have a random damage taken multiplier",
@@ -175,7 +179,7 @@
   "godmode_on": "Immortality enabled",
 
   "grenadier": "Grenadier",
-  "grenadier_desc": "You have infinite hegranade",
+  "grenadier_desc": "You have infinite hegrenade",
 
   "healingsmoke": "Healing Smoke",
   "healingsmoke_desc": "Your smoke grenades heal",
@@ -186,8 +190,21 @@
   "holyhandgrenade": "Holy Hand Grenade",
   "holyhandgrenade_desc": "Your HE grenades deal double damage and have double range",
 
+  "homingnades": "Homing Grenades",
+  "homingnades_desc": "Your grenades (except smokes) are attracted to enemies",
+
+  "hotbomb": "Hot Bomb",
+  "hotbomb_desc": "As long as you are alive, the bomb deals damage to its carrier",
+  "hotbomb_hint": "Careful, the bomb is hot!",
+
   "iana": "Hologram",
   "iana_desc": "Click [css_useSkill] to control your hologram for a few seconds",
+
+  "illiterate": "Illiterate",
+  "illiterate_desc": "As long as you are alive, your enemies cannot read",
+
+  "illusionist": "Illusionist",
+  "illusionist_desc": "Click [css_useSkill] to deploy a replica that walks straight ahead",
 
   "impostor": "Impostor",
   "impostor_desc": "You start the round with an enemy player model",
@@ -234,6 +251,12 @@
   "longzeus": "Long Zeus",
   "longzeus_desc": "Zeus deals damage regardless of distance",
 
+  "magneticdecoy": "Magnetic Decoy",
+  "magneticdecoy_desc": "Your decoy attracts nearby players towards itself",
+
+  "magneto": "Magneto",
+  "magneto_desc": "All enemy grenades are repelled away from you",
+
   "magnifier": "Magnifier",
   "magnifier_desc": "Forces the enemy's screen to zoom in, reducing their field of view",
   "magnifier_enemy_info": "Your field of view has been distorted!",
@@ -242,6 +265,9 @@
 
   "medic": "Medic",
   "medic_desc": "Click [css_useSkill] to use a healing charge that restores 50 health",
+
+  "miner": "Bomb Miner",
+  "miner_desc": "Your HE grenade only explode when there is an enemy nearby",
 
   "bankrupt": "Bankrupt",
   "bankrupt_desc": "Choose the player who will lose all their money",
@@ -290,6 +316,7 @@
 
   "planter": "Free Planter",
   "planter_desc": "You can plant the bomb anywhere, with a detonation time of 60 seconds.",
+  "planter_planting": "Planting ({0})...",
 
   "poison": "Poison",
   "poison_desc": "Choose a player who will take damage every few seconds",
@@ -390,7 +417,8 @@
   "swapposition_desc": "Click [css_useSkill] to swap places with a random enemy",
 
   "teleporter": "Teleporter",
-  "teleporter_desc": "You swap places with the hit enemy",
+  "teleporter_desc": "You have the chance to swap places with a hit enemy",
+  "teleporter_desc2": "Your chances of swapping places after a hit: {0}%",
 
   "thief": "Thief",
   "thief_desc": "You can steal a skill from a chosen player",
@@ -404,6 +432,9 @@
 
   "thorns": "Thorns",
   "thorns_desc": "Your opponent will receive a portion of the damage that they inflicted on you",
+
+  "throwingknife": "Throwing Knife",
+  "throwingknife_desc": "Click [css_useSkill] to throw a knife. But watch out for others",
 
   "toxicsmoke": "Toxic Smoke",
   "toxicsmoke_desc": "Your smoke grenades deal damage",
@@ -419,6 +450,14 @@
   "weaponsswap": "Weapon Swap",
   "weaponsswap_desc": "Click [css_useSkill] to swap weapons with a random enemy",
   "weaponsswap_hud_info2": "You have no weapon to swap",
+
+  "weightless": "Weightlessness",
+  "weightless_desc": "Your grenades are not affected by gravity and fly faster",
+
+  "wildthrow": "Wild Throws",
+  "wildthrow_desc": "Choose a player who will have trouble throwing grenades",
+  "wildthrow_player_info": "Player '{0}' has forgotten all their lineups",
+  "wildthrow_select_info": "Select a player:",
 
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 instantly recharges",
@@ -476,54 +515,5 @@
 
   "menu_controlls_scroll": "W/S - Scroll",
   "menu_controlls_padding": "   |   ",
-  "menu_controlls_select": "E - Select",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  "aimlock": "Aim Lock",
-  "aimlock_desc": "Click [css_useSkill] to lock your aim on the nearest enemy",
-
-  "homingnades": "Homing Grenades",
-  "homingnades_desc": "Your grenades (except smokes) are attracted to enemies",
-
-  "hotbomb": "Hot Bomb",
-  "hotbomb_desc": "As long as you are alive, the bomb deals damage to its carrier",
-  "hotbomb_hint": "Careful, the bomb is hot!",
-
-  "illiterate": "Illiterate",
-  "illiterate_desc": "As long as you are alive, your enemies cannot read",
-
-  "illusionist": "Illusionist",
-  "illusionist_desc": "Click [css_useSkill] to deploy a replica that walks straight ahead",
-
-  "magneticdecoy": "Magnetic Decoy",
-  "magneticdecoy_desc": "Your decoy attracts nearby players towards itself",
-
-  "magneto": "Magneto",
-  "magneto_desc": "All enemy grenades are repelled away from you",
-
-  "weightless": "Weightlessness",
-  "weightless_desc": "Your grenades are not affected by gravity and fly faster",
-
-  "wildthrow": "Wild Throws",
-  "wildthrow_desc": "Choose a player who will have trouble throwing grenades",
-  "wildthrow_player_info": "Player '{0}' has forgotten all their lineups",
-  "wildthrow_select_info": "Select a player:",
-
-  "throwingknife": "Throwing Knife",
-  "throwingknife_desc": "Click [css_useSkill] to throw a knife. But watch out for others",
-
-  "planter_planting": "Planting ({0})..."
+  "menu_controlls_select": "E - Select"
 }

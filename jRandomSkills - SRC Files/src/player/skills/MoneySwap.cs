@@ -33,7 +33,7 @@ namespace src.player.skills
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => ($"{e.PlayerName} : {(e.InGameMoneyServices == null ? 0 : e.InGameMoneyServices.Account)}$", e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"{e.PlayerName} : {(e.InGameMoneyServices == null ? 0 : e.InGameMoneyServices.Account + e.InGameMoneyServices.CashSpentThisRound)}$", e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -74,7 +74,7 @@ namespace src.player.skills
             var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => ($"{e.PlayerName} : {(e.InGameMoneyServices == null ? 0 : e.InGameMoneyServices.Account)}$", e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"{e.PlayerName} : {(e.InGameMoneyServices == null ? 0 : e.InGameMoneyServices.Account + e.InGameMoneyServices.CashSpentThisRound)}$", e.Index.ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -90,7 +90,7 @@ namespace src.player.skills
             if (playerMoneyServices == null || enemyMoneyServices == null) return;
 
             int playerMoney = playerMoneyServices.Account;
-            playerMoneyServices.Account = enemyMoneyServices.Account;
+            playerMoneyServices.Account = enemyMoneyServices.Account + enemyMoneyServices.CashSpentThisRound;
             Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
 
             enemyMoneyServices.Account = playerMoney;
