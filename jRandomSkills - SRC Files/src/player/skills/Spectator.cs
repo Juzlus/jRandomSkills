@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Spectator : ISkill
     {
         private const Skills skillName = Skills.Spectator;
-        private static readonly ConcurrentDictionary<ulong, (uint, CDynamicProp, CCSPlayerPawn)> cameras = [];
+        private static readonly ConcurrentDictionary<ulong, (uint, uint, uint)> cameras = [];
 
         public static void LoadSkill()
         {
@@ -20,9 +20,13 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var camera in cameras)
-                if (camera.Value.Item2 != null && camera.Value.Item2.IsValid)
-                    camera.Value.Item2.AcceptInput("Kill");
+            foreach (var info in cameras)
+            {
+                var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)info.Value.Item2);
+                if (cam != null && cam.IsValid)
+                    cam.AcceptInput("Kill");
+            }
+                
             cameras.Clear();
         }
 
@@ -54,10 +58,24 @@ namespace src.player.skills
         public static void OnTick()
         {
             foreach (var player in Utilities.GetPlayers())
-                if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2.IsValid)
+                if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
-                    var pawn = cameraInfo.Item3;
-                    if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE
+
+                    var enemy = Utilities.GetPlayerFromIndex((int)cameraInfo.Item3);
+                    if (enemy == null || !enemy.IsValid || enemy.PlayerPawn == null)
+                    {
+                        ChangeCamera(player, true);
+                        return;
+                    }
+
+                    var enemyPawn = player.PlayerPawn.Value;
+                    if (enemyPawn == null || !enemyPawn.IsValid)
+                    {
+                        ChangeCamera(player, true);
+                        return;
+                    }
+
+                    if (enemyPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE
                         || (player.PlayerPawn.Value != null && player.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE))
                         ChangeCamera(player, true);
                 }
@@ -70,10 +88,14 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
-            if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != null && cameraInfo.Item2.IsValid)
+            if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
-                cameraInfo.Item2.AcceptInput("Kill");
+
+                var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
+                if (cam != null && cam.IsValid)
+                    cam.AcceptInput("Kill");
+
                 if (!forceToDefault)
                     newCameraRaw = CreateCamera(player);
             } else
@@ -109,22 +131,25 @@ namespace src.player.skills
             var pawn = enemy.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null || pawn.AbsOrigin == null) return 0;
 
-            var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * SkillsInfo.GetValue<float>(skillName, "distance");
+            QAngle angle = new(0, pawn.EyeAngles.Y, 0);
+
+            var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(angle) * SkillsInfo.GetValue<float>(skillName, "distance");
             pos.Z += pawn.ViewOffset.Z;
 
             Server.NextFrame(() =>
             {
+                if (camera == null || !camera.IsValid) return;
                 camera.SetModel("models/actors/ghost_speaker.vmdl");
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
-                camera.Teleport(pos, new QAngle(0, pawn.EyeAngles.Y, 0));
+                camera.Teleport(pos, angle);
                 camera.DispatchSpawn();
                 camera.AcceptInput("SetParent", pawn, pawn, "!activator");
             });
 
             if (cameras.TryGetValue(player.SteamID, out var cameraInfo))
-                cameras.AddOrUpdate(player.SteamID, (cameraInfo.Item1, camera, pawn), (k, v) => (cameraInfo.Item1, camera, pawn));
+                cameras.AddOrUpdate(player.SteamID, (cameraInfo.Item1, camera.Index, player.Index), (k, v) => (cameraInfo.Item1, camera.Index, player.Index));
             else
-                cameras.AddOrUpdate(player.SteamID, (pawn.CameraServices.ViewEntity.Raw, camera, pawn), (k, v) => (pawn.CameraServices.ViewEntity.Raw, camera, pawn));
+                cameras.AddOrUpdate(player.SteamID, (pawn.CameraServices.ViewEntity.Raw, camera.Index, player.Index), (k, v) => (pawn.CameraServices.ViewEntity.Raw, camera.Index, player.Index));
             return camera.EntityHandle.Raw;
         }
 

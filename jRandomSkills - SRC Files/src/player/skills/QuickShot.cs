@@ -30,9 +30,14 @@ namespace src.player.skills
                    
                     var weapon = weaponServices.ActiveWeapon.Value;
                     if (weapon == null || !weapon.IsValid || pawn.CameraServices == null) continue;
-                    
-                    pawn.AimPunchTickBase = 0;
-                    pawn.AimPunchTickFraction = 0f;
+
+                    if (pawn.AimPunchServices != null)
+                    {
+                        pawn.AimPunchServices.PredictableBaseTick = 0;
+                        pawn.AimPunchServices.PredictableBaseTickInterpAmount = 0;
+                        pawn.AimPunchServices.UnpredictableBaseTick = 0;
+                    }
+
                     pawn.CameraServices.CsViewPunchAngleTick = 0;
                     pawn.CameraServices.CsViewPunchAngleTickRatio = 0f;
 

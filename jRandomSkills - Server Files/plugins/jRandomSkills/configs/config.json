@@ -13,7 +13,7 @@
   "DisplayAlwaysDescription": false,
   "DisableSpectateHUD": false,
   "FlashingHtmlHudFix": true,
-  "CS2TraceRayDebug": false,
+  "TraceRayBeam": false,
   "DisableHUDOnDeathPermission": "@jRandomSkills/death",
   "DisableSkillsOnRoundEnd": false,
   "LanguageSystem": {
@@ -129,6 +129,10 @@
     },
     "ReloadCommand": {
       "Alias": "reload, refresh",
+      "Permissions": "@jRandomSkills/admin"
+    },
+    "NextCommand": {
+      "Alias": "next_skill",
       "Permissions": "@jRandomSkills/admin"
     }
   },

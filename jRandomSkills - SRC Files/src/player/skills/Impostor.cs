@@ -11,8 +11,8 @@ namespace src.player.skills
     public class Impostor : ISkill
     {
         private const Skills skillName = Skills.Impostor;
-        private static readonly string defaultCTModel = "characters/models/ctm_sas/ctm_sas.vmdl";
-        private static readonly string defaultTModel = "characters/models/tm_phoenix/tm_phoenix.vmdl";
+        private static readonly string defaultCTModel = "agents//models/ctm_sas/ctm_sas.vmdl";
+        private static readonly string defaultTModel = "agents/models/tm_phoenix/tm_phoenix.vmdl";
         private static readonly ConcurrentDictionary<ulong, string> originalModels = [];
 
         public static void LoadSkill()
@@ -63,6 +63,7 @@ namespace src.player.skills
 
             Server.NextFrame(() =>
             {
+                if (pawn == null || !pawn.IsValid) return;
                 pawn.SetModel(model);
 
                 var originalRender = pawn.Render;

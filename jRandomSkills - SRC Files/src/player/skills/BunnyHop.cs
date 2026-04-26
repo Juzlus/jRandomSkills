@@ -31,7 +31,7 @@ namespace src.player.skills
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
-            if (JumpBan.bannedPlayers.ContainsKey(playerPawn)) return;
+            if (JumpBan.bannedPlayers.ContainsKey(player.Index)) return;
 
             var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;

@@ -29,7 +29,9 @@ public interface ISkill
     public static void WeaponEquip(EventItemEquip _) { }
     public static void WeaponPickup(EventItemPickup _) { }
     public static void WeaponReload(EventWeaponReload _) { }
+    public static bool WeaponDrop(DynamicHook _, CCSPlayerController __) { return false; }
     public static void GrenadeThrown(EventGrenadeThrown _) { }
+    public static void BulletImpact(EventBulletImpact _) { }
 
     public static void BombBeginplant(EventBombBeginplant _) { }
     public static void BombAbortplant(EventBombAbortplant _) { }
@@ -146,7 +148,6 @@ public enum Skills
     RadarHack,
     Rambo,
     RandomWeapon,
-    RCMelon,
     ReZombie,
     ReactiveArmor,
     Regeneration,

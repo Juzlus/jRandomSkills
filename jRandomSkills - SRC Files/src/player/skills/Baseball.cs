@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Baseball : ISkill
     {
         private const Skills skillName = Skills.Baseball;
-        private static readonly ConcurrentDictionary<CDecoyProjectile, byte> decoys = [];
+        private static readonly ConcurrentDictionary<uint, byte> decoys = [];
 
         public static void LoadSkill()
         {
@@ -50,7 +50,7 @@ namespace src.player.skills
 
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
-            decoys.TryAdd(decoy, 0);
+            decoys.TryAdd(decoy.Index, 0);
 
             decoy.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
             decoy.Collision.CollisionGroup = pawn.Collision.CollisionGroup;
@@ -60,25 +60,33 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
+            
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
-            var decoy = decoys.FirstOrDefault(d => d.Key.Index == @event.Entityid).Key;
-            if (decoy != null && decoy.IsValid)
-                decoy.AcceptInput("Kill");
+            if (decoys.ContainsKey((uint)@event.Entityid))
+            {
+                var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>(@event.Entityid);
+                if (decoy != null && decoy.IsValid)
+                    decoy.AcceptInput("Kill");
+            }
         }
 
         public static void OnTick()
         {
-            foreach (var decoy in decoys.Keys)
+            foreach (var decoyIndex in decoys.Keys)
             {
-                if (!decoy.IsValid)
+                var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>((int)decoyIndex);
+
+                if (decoy == null || !decoy.IsValid)
                 {
-                    decoys.TryRemove(decoy, out _);
+                    decoys.TryRemove(decoyIndex, out _);
                     continue;
                 }
+
                 decoy.Bounces = 0;
                 if (Server.TickCount % 8 != 0) continue;
+                
                 var vel = decoy.AbsVelocity;
                 float speed = vel.Length();
                 float targetSpeed = Math.Min(speed * SkillsInfo.GetValue<float>(skillName, "speedMultipier"), SkillsInfo.GetValue<float>(skillName, "maxSpeed"));

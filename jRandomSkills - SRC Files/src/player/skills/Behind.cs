@@ -45,16 +45,8 @@ namespace src.player.skills
 
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (int)LifeState_t.LIFE_ALIVE) return;
 
-            var currentPosition = pawn.AbsOrigin;
-            var currentAngles = pawn.EyeAngles;
-
-            QAngle newAngles = new(
-                currentAngles.X,
-                currentAngles.Y + 180,
-                currentAngles.Z
-            );
-
-            pawn.Teleport(currentPosition, newAngles, new Vector(0, 0, 0));
+            QAngle look = new(pawn.V_angle.X, pawn.V_angle.Y + 180, 0);
+            pawn.Look(look);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00FF00", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float chanceFrom = .2f, float chanceTo = .4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

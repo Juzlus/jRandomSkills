@@ -10,7 +10,7 @@ namespace src.player.skills
     public class Poison : ISkill
     {
         private const Skills skillName = Skills.Poison;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> poisonedPlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> poisonedPlayers = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -28,10 +28,14 @@ namespace src.player.skills
         {
             if (Server.TickCount % (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")) == 0)
             {
-                foreach (var player in poisonedPlayers.Keys)
+                foreach (var playerIndex in poisonedPlayers.Keys)
                 {
+                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    if (player == null || !player.IsValid || player.PlayerPawn == null) continue;
+
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid) continue;
+
                     if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
                     SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"));
                 }
@@ -72,7 +76,7 @@ namespace src.player.skills
                 return;
             }
 
-            poisonedPlayers.TryAdd(enemy, 0);
+            poisonedPlayers.TryAdd(enemy.Index, 0);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("poison_player_info", enemy.PlayerName));
             enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("poison_enemy_info"));
@@ -96,7 +100,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            poisonedPlayers.TryRemove(player, out _);
+            poisonedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }
 

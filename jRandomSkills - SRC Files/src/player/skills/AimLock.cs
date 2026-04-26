@@ -121,9 +121,15 @@ namespace src.player.skills
                 if (enemyPawn == null || enemyPawn.AbsOrigin == null) return;
 
                 Vector myEyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
-                Vector enemyEyePos = new(enemyPawn.AbsOrigin.X, enemyPawn.AbsOrigin.Y, enemyPawn.AbsOrigin.Z + enemyPawn.ViewOffset.Z + SkillsInfo.GetValue<float>(skillName, "offsetZ"));
 
-                Vector direction = enemyEyePos - myEyePos;
+                Vector diff = SkillUtils.GetForwardVector(enemyPawn.AbsRotation!) * 5;
+                Vector enemyHead = new(
+                    enemyPawn.AbsOrigin.X + diff.X,
+                    enemyPawn.AbsOrigin.Y + diff.Y,
+                    enemyPawn.AbsOrigin.Z + enemyPawn.ViewOffset.Z + 2
+                );
+
+                Vector direction = enemyHead - myEyePos;
                 QAngle angle = VectorToAngle(direction);
 
                 pawn.Look(angle);
@@ -145,11 +151,10 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#fa7b48", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 20f, float duration = .3f, float offsetZ = 0) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#fa7b48", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 20f, float duration = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
             public float Cooldown { get; set; } = cooldown;
             public float Duration { get; set; } = duration;
-            public float Offset { get; set; } = offsetZ;
         }
     }
 }

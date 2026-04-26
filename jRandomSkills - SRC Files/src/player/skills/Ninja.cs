@@ -13,7 +13,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Ninja;
         private static readonly ConcurrentDictionary<nint, float> invisibilityChanged = [];
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> invisiblePlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
         private static readonly object setLock = new();
 
@@ -68,22 +68,28 @@ namespace src.player.skills
                     if (targetInfo?.Skill == skillName) isObservingNinja = true;
                 }
 
-                foreach (var _player in invisiblePlayers.Keys)
-                    if (player.SteamID != _player.SteamID && !isObservingNinja)
+                foreach (var playerIndex in invisiblePlayers.Keys)
+                {
+                    var playerController = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    if (playerController == null || !playerController.IsValid || playerController.SteamID == player.SteamID)
+                        continue;
+
+                    if (!isObservingNinja)
                     {
-                        var playerPawn = _player.PlayerPawn.Value;
+                        var playerPawn = playerController.PlayerPawn.Value;
                         if (playerPawn == null || !playerPawn.IsValid) continue;
 
                         var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
                         if (entity == null || !entity.IsValid) continue;
                         info.TransmitEntities.Remove(entity.Index);
 
-                        var bombIndex = GetBombIndex(_player);
+                        var bombIndex = GetBombIndex(playerController);
                         if (bombIndex == null) continue;
                         var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
                         if (bombEntity == null || !bombEntity.IsValid) continue;
                         info.TransmitEntities.Remove(bombEntity.Index);
                     }
+                }
             }
         }
 
@@ -95,7 +101,7 @@ namespace src.player.skills
                 if (playerInfo?.Skill == skillName)
                     UpdateNinja(player);
                 if (!player.PawnIsAlive)
-                    invisiblePlayers.TryRemove(player, out _);
+                    invisiblePlayers.TryRemove(player.Index, out _);
             }
         }
 
@@ -107,7 +113,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             SetPlayerVisibility(player, 0);
-            invisiblePlayers.TryRemove(player, out _);
+            invisiblePlayers.TryRemove(player.Index, out _);
         }
 
         private static void UpdateNinja(CCSPlayerController? player)
@@ -136,14 +142,14 @@ namespace src.player.skills
                 if (percentInvisibility == oldInvisibility)
                     return;
 
-            invisibilityChanged.TryAdd(player.Handle, percentInvisibility);
+            invisibilityChanged.AddOrUpdate(player.Handle, percentInvisibility, (_, _) => percentInvisibility);
 
             if (percentInvisibility > .9)
-                invisiblePlayers.TryAdd(player, 0);
+                invisiblePlayers.TryAdd(player.Index, 0);
             else
             {
                 SetPlayerVisibility(player, percentInvisibility);
-                invisiblePlayers.TryRemove(player, out _);
+                invisiblePlayers.TryRemove(player.Index, out _);
             }
         }
 
@@ -162,7 +168,7 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
-            if (!invisiblePlayers.ContainsKey(player)) return;
+            if (!invisiblePlayers.ContainsKey(player.Index)) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return;

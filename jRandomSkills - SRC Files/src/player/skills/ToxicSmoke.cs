@@ -65,6 +65,7 @@ namespace src.player.skills
 
             Server.NextFrame(() =>
             {
+                if (entity == null || !entity.IsValid) return;
                 var smoke = entity.As<CSmokeGrenadeProjectile>();
                 smoke.SmokeColor.X = 255;
                 smoke.SmokeColor.Y = 0;

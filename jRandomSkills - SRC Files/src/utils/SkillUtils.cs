@@ -165,7 +165,11 @@ namespace src.utils
 
             skeleton.Scale = scale;
             playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
-            Server.NextWorldUpdate(() => Utilities.SetStateChanged(player.PlayerPawn.Value!, "CBaseEntity", "m_CBodyComponent"));
+            
+            Server.NextWorldUpdate(() => {
+                if (playerPawn == null || !playerPawn.IsValid) return;
+                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+            });
         }
 
         public static Vector? GetSpawnPointVector(CCSPlayerController player, bool enemySpawn = false)
@@ -224,6 +228,7 @@ namespace src.utils
             if (pawn.Health <= 0)
                 Server.NextFrame(() =>
                 {
+                    if (pawn == null || !pawn.IsValid) return;
                     pawn?.CommitSuicide(false, true);
                 });
         }

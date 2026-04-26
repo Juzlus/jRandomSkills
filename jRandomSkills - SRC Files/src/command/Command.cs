@@ -17,6 +17,7 @@ namespace src.command
         private static bool gamePaused = false;
         private static Config.SettingsModel config = Config.LoadedConfig;
         private static readonly ConcurrentDictionary<string, CommandInfo.CommandCallback> oldCommands = [];
+        private static readonly ConcurrentDictionary<uint, int> nextSkill = [];
         private static readonly object setLock = new();
 
         public static void Load()
@@ -47,6 +48,7 @@ namespace src.command
                     { SplitCommands(config.NormalCommands.SetStaticSkillCommand.Alias), ("Set static skill", Command_SetStaticSkill) },
                     { SplitCommands(config.NormalCommands.ChangeLanguageCommand.Alias), ("Change language", Command_ChangeLanguage) },
                     { SplitCommands(config.NormalCommands.ReloadCommand.Alias), ("Reaload configs", Command_Reload) },
+                    { SplitCommands(config.NormalCommands.NextCommand.Alias), ("Next skill", Command_Next) },
 
                     { SplitCommands(config.VotingCommands.ChangeMapCommand.Alias), ("Change map", Command_ChangeMap) },
                     { SplitCommands(config.VotingCommands.StartGameCommand.Alias), ("Start game", Command_StartGame) },
@@ -142,7 +144,7 @@ namespace src.command
             {
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
                 skillPlayer.Skill = skill.Skill;
-                skillPlayer.SpecialSkill = src.player.Skills.None;
+                skillPlayer.SpecialSkill = Skills.None;
                 Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
                 skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
 
@@ -337,7 +339,7 @@ namespace src.command
             var pawn = player.PlayerPawn.Value;
             if (int.TryParse(command.GetArg(1), out int health))
                 SkillUtils.AddHealth(pawn, health - pawn.Health, health);
-            
+
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("set_health")}");
         }
 
@@ -577,6 +579,49 @@ namespace src.command
                         target.SpecialSkill = Event.noneSkill.Skill;
                 }
             }
+        }
+
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        private static void Command_Next(CCSPlayerController? player, CommandInfo command)
+        {
+            if (player == null || !player.IsValid) return;
+
+            Debug.WriteToDebug($"Player {player.PlayerName} used the css_next {command.ArgString} command.");
+            if (!string.IsNullOrEmpty(config.NormalCommands.NextCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.NextCommand.Permissions)) return;
+
+            var skillsList = SkillData.Skills.OrderBy(s => s.Skill.ToString()).ToList();
+            if (skillsList.Count == 0) return;
+
+            nextSkill.TryGetValue(player.Index, out int currentIndex);
+
+            int nextIndex = (currentIndex + 1) % skillsList.Count;
+
+            string arg = command.GetArg(1);
+            if (!string.IsNullOrEmpty(arg))
+            {
+                if (arg == "-1")
+                    nextIndex--;
+                else
+                    nextIndex = int.Parse(arg);
+            }
+            
+            var skill = skillsList[nextIndex];
+            player.PrintToChat(nextIndex.ToString());
+
+            var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (skillPlayer == null) return;
+
+            Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+            skillPlayer.Skill = skill.Skill;
+            skillPlayer.SpecialSkill = Skills.None;
+
+            nextSkill[player.Index] = nextIndex;
+
+            Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
+            skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+
+            if (skill.Display)
+                SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", border: "b");
         }
     }
 }

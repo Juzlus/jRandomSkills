@@ -25,7 +25,10 @@ namespace src.player.skills
                 {
                     var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
                     if (plantedBomb != null)
-                        Server.NextFrame(() => plantedBomb.DefuseCountDown = 0);
+                        Server.NextFrame(() => {
+                            if (plantedBomb != null && plantedBomb.IsValid)
+                                plantedBomb.DefuseCountDown = 0;
+                        });
                 }
             }
         }

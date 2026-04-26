@@ -44,16 +44,16 @@ namespace src.player.skills
 
         private static void PushEnemy(CCSPlayerController player, QAngle attackerAngle)
         {
-            if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.PlayerPawn.Value.LifeState != (int)LifeState_t.LIFE_ALIVE)
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.LifeState != (int)LifeState_t.LIFE_ALIVE)
                 return;
 
-            var currentPosition = player.PlayerPawn.Value.AbsOrigin;
-            var currentAngles = player.PlayerPawn.Value.EyeAngles;
+            var currentPosition = playerPawn.AbsOrigin;
 
             Vector newVelocity = SkillUtils.GetForwardVector(attackerAngle) * SkillsInfo.GetValue<float>(skillName, "pushVelocity");
-            newVelocity.Z = player.PlayerPawn.Value.AbsVelocity.Z + SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+            newVelocity.Z = playerPawn.AbsVelocity.Z + SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
 
-            player.PlayerPawn.Value.Teleport(currentPosition, currentAngles, newVelocity);
+            playerPawn.Teleport(currentPosition, null, newVelocity);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1e9ab0", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float chanceFrom = .3f, float chanceTo = .4f, float jumpVelocity = 300f, float pushVelocity = 400f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

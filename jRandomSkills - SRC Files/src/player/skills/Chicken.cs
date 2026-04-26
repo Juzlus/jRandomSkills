@@ -21,9 +21,9 @@ namespace src.player.skills
             "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
             "weapon_negev"
         ];
-        private static readonly ConcurrentDictionary<CCSPlayerController, CBaseModelEntity> chickens = [];
-        private static readonly string defaultCTModel = "characters/models/ctm_sas/ctm_sas.vmdl";
-        private static readonly string defaultTModel = "characters/models/tm_phoenix/tm_phoenix.vmdl";
+        private static readonly ConcurrentDictionary<uint, uint> chickens = [];
+        private static readonly string defaultCTModel = "agents/models/ctm_sas/ctm_sas.vmdl";
+        private static readonly string defaultTModel = "agents/models/tm_phoenix/tm_phoenix.vmdl";
         private static readonly ConcurrentDictionary<ulong, string> originalModels = [];
 
         public static void LoadSkill()
@@ -35,9 +35,14 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
                 SetWeaponAttack(player, false);
+
             foreach (var valuePair in chickens)
-                if (valuePair.Value != null && valuePair.Value.IsValid)
-                    valuePair.Value.AcceptInput("Kill");
+            {
+                var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)valuePair.Value);
+                if (chicken != null && chicken.IsValid)
+                    chicken.AcceptInput("Kill");
+            }
+                
             chickens.Clear();
             originalModels.Clear();
         }
@@ -96,11 +101,12 @@ namespace src.player.skills
                 SetWeaponAttack(player, false);
             }
 
-            if (chickens.TryGetValue(player, out var chicken))
+            if (chickens.TryRemove(player.Index, out var chickenIndex))
             {
+                var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)chickenIndex);
+
                 if (chicken != null && chicken.IsValid)
                     chicken.AcceptInput("Kill");
-                chickens.TryRemove(player, out _);
             }
 
             if (originalModels.TryGetValue(player.SteamID, out var model))
@@ -110,6 +116,9 @@ namespace src.player.skills
 
                 Server.NextFrame(() =>
                 {
+                    if (player == null || !player.IsValid) return;
+                    if (pawn == null || !pawn.IsValid) return;
+
                     if (string.IsNullOrEmpty(model))
                         model = player.Team == CsTeam.Terrorist ? defaultTModel : defaultCTModel;
                     
@@ -157,19 +166,27 @@ namespace src.player.skills
 
             chickenModel.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = 1;
             Utilities.SetStateChanged(chickenModel, "CBaseEntity", "m_CBodyComponent");
-            Server.NextFrame(() => chickenModel.AcceptInput("SetScale", chickenModel, chickenModel, "1"));
+            
+            Server.NextFrame(() => {
+                if (chickenModel == null || !chickenModel.IsValid) return;
+                chickenModel.AcceptInput("SetScale", chickenModel, chickenModel, "1");
+            });
 
             chickenModel.AcceptInput("SetParent", playerPawn, playerPawn, "!activator");
-            chickens.TryAdd(player, chickenModel);
+            chickens.TryAdd(player.Index, chickenModel.Index);
         }
 
         public static void OnTick()
         {
             foreach (var valuePair in chickens)
             {
-                var player = valuePair.Key;
-                var chicken = valuePair.Value;
+                var playerIndex = valuePair.Key;
+                var chickenIndex = valuePair.Value;
+
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                 if (player == null || !player.IsValid) continue;
+
+                var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)chickenIndex);
                 if (chicken == null || !chicken.IsValid) continue;
 
                 var pawn = player.PlayerPawn.Value;

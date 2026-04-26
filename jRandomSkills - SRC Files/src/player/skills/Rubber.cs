@@ -10,7 +10,7 @@ namespace src.player.skills
     public class Rubber: ISkill
     {
         private const Skills skillName = Skills.Rubber;
-        private static readonly ConcurrentDictionary<CCSPlayerPawn, float> playersToSlow = [];
+        private static readonly ConcurrentDictionary<uint, float> playersToSlow = [];
 
         public static void LoadSkill()
         {
@@ -35,25 +35,33 @@ namespace src.player.skills
 
             var rubberTime = SkillsInfo.GetValue<float>(skillName, "slownessTime");
             if (attackerInfo?.Skill == skillName)
-                playersToSlow.AddOrUpdate(victimPawn, Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
+                playersToSlow.AddOrUpdate(victim.Index, Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
         }
 
         public static void OnTick()
         {
             foreach(var item in playersToSlow)
             {
-                var pawn = item.Key;
+                var playerIndex = item.Key;
                 var time = item.Value;
+
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid) continue;
+
                 if (time >= Server.TickCount)
-                    ChangeVelocity(pawn);
+                    ChangeVelocity(player);
                 else
                     playersToSlow.TryRemove(item.Key, out _);
             }
         }
 
-        private static void ChangeVelocity(CCSPlayerPawn pawn)
+        private static void ChangeVelocity(CCSPlayerController player)
         {
+            if (player.PlayerPawn == null) return;
+
+            var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
+
             pawn.VelocityModifier = SkillsInfo.GetValue<float>(skillName, "slownessModifier");
         }
 

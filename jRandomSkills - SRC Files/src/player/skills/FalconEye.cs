@@ -11,7 +11,7 @@ namespace src.player.skills
     public class FalconEye : ISkill
     {
         private const Skills skillName = Skills.FalconEye;
-        private static readonly ConcurrentDictionary<ulong, (uint, CDynamicProp)> cameras = [];
+        private static readonly ConcurrentDictionary<ulong, (uint, uint)> cameras = [];
 
         public static void LoadSkill()
         {
@@ -20,9 +20,14 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var camera in cameras)
-                if (camera.Value.Item2 != null && camera.Value.Item2.IsValid)
-                    camera.Value.Item2.AcceptInput("Kill");
+            foreach (var cameraIndex in cameras.Values)
+            {
+                var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraIndex.Item2);
+                if (camera == null || !camera.IsValid) continue;
+
+                camera.AcceptInput("Kill");
+            }
+
             cameras.Clear();
         }
 
@@ -56,18 +61,23 @@ namespace src.player.skills
         public static void OnTick()
         {
             foreach (var player in Utilities.GetPlayers())
-                if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2.IsValid)
+                if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin ==  null) continue;
+
                     if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                     {
                         ChangeCamera(player, true);
                         continue;
                     }
+
                     Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + SkillsInfo.GetValue<float>(skillName, "distance"));
                     QAngle angle = new(90, 0, -pawn.V_angle.Y);
-                    cameraInfo.Item2.Teleport(pos, angle);
+
+                    var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
+                    if (camera == null || !camera.IsValid) continue;
+                    camera.Teleport(pos, angle);
                 }
         }
 
@@ -77,10 +87,15 @@ namespace src.player.skills
             uint newCameraRaw;
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
-            if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2.IsValid)
+
+            if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
-                newCameraRaw = cameraInfo.Item2.EntityHandle.Raw;
+
+                var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
+                if (camera == null || !camera.IsValid) return;
+
+                newCameraRaw = camera.EntityHandle.Raw;
             }
             else
             {
@@ -108,13 +123,14 @@ namespace src.player.skills
 
             Server.NextFrame(() =>
             {
+                if (camera == null || !camera.IsValid) return;
                 camera.SetModel("models/actors/ghost_speaker.vmdl");
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
                 camera.Teleport(pos, new QAngle(90, 0, 0));
                 camera.DispatchSpawn();
             });
 
-            cameras.AddOrUpdate(player.SteamID, (pawn.CameraServices!.ViewEntity.Raw, camera), (k, v) => (pawn.CameraServices!.ViewEntity.Raw, camera));
+            cameras.AddOrUpdate(player.SteamID, (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (k, v) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
             return camera.EntityHandle.Raw;
         }
 

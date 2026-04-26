@@ -1,10 +1,10 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
-using CounterStrikeSharp.API;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -13,6 +13,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.CarefulBullets;
         private static readonly ConcurrentDictionary<ulong, byte> targetPlayers = [];
         private static readonly ConcurrentDictionary<ulong, bool> lastShot = [];
+        private static readonly ConcurrentDictionary<ulong, int> hitPlayer = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -26,6 +27,7 @@ namespace src.player.skills
             {
                 targetPlayers.Clear();
                 lastShot.Clear();
+                hitPlayer.Clear();
             }
             foreach (var player in Utilities.GetPlayers())
             {
@@ -100,48 +102,70 @@ namespace src.player.skills
                 player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
+        public static void BulletImpact(EventBulletImpact @event)
+        {
+            var player = @event.Userid;
+            if (player == null ||  !player.IsValid) return;
+
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid) return;
+
+            if (!targetPlayers.ContainsKey(player.SteamID) || !player.PawnIsAlive)
+                return;
+
+            ulong steamID = player.SteamID;
+
+            Server.NextFrame(() =>
+            {
+                if (player == null || !player.IsValid) return;
+                if (playerPawn == null || !playerPawn.IsValid) return;
+
+                bool ishitPlayer = hitPlayer.TryGetValue(steamID, out int tick) && tick + 10 >= Server.TickCount;
+
+                if (!lastShot.ContainsKey(steamID))
+                {
+                    lastShot.TryAdd(steamID, ishitPlayer);
+
+                    Instance.AddTickTimer(1, () =>
+                    {
+                        if (lastShot.TryRemove(steamID, out bool didHit) && !didHit)
+                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"));
+                        lastShot.TryRemove(steamID, out _);
+                    });
+                }
+                else if (ishitPlayer)
+                    lastShot.TryUpdate(steamID, true, false);
+            });
+        }
+
         public static void OnTakeDamage(DynamicHook h)
         {
             CEntityInstance param = h.GetParam<CEntityInstance>(0);
             CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
 
-            if (param?.Entity == null || param2?.Attacker?.Value == null)
+            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
                 return;
 
             CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(param.Handle);
 
-            if (attackerPawn.DesignerName != "player")
+            if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
                 return;
 
-            if (attackerPawn == null || attackerPawn.Controller?.Value == null)
+            if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
                 return;
 
             CCSPlayerController attacker = attackerPawn.Controller.Value.As<CCSPlayerController>();
+            if (!targetPlayers.ContainsKey(attacker.SteamID)) return;
 
-            if (!targetPlayers.ContainsKey(attacker.SteamID) || !attacker.PawnIsAlive)
-                return;
-            
-            bool hitPlayer = param.DesignerName == "player";
-            
-            if (!lastShot.ContainsKey(attacker.SteamID))
-            {
-                lastShot.TryAdd(attacker.SteamID, hitPlayer);
-
-                Instance.AddTickTimer(1, () =>
-                {
-                    if (lastShot.TryRemove(attacker.SteamID, out bool didHit) && !didHit)
-                        SkillUtils.TakeHealth(attackerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"));
-                    lastShot.TryRemove(attacker.SteamID, out _);
-                });
-            }
-            else if (hitPlayer)
-                lastShot.TryUpdate(attacker.SteamID, true, false);
+            hitPlayer.AddOrUpdate(attacker.SteamID, Server.TickCount, (_, _) => Server.TickCount);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             targetPlayers.TryRemove(player.SteamID, out _);
             lastShot.TryRemove(player.SteamID, out _);
+            hitPlayer.TryRemove(player.SteamID, out _);
             SkillUtils.CloseMenu(player);
         }
 

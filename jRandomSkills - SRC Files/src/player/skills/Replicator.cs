@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
+using CounterStrikeSharp.API.Modules.Memory;
 
 namespace src.player.skills
 {
@@ -102,13 +103,13 @@ namespace src.player.skills
         private static void CreateReplica(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var replica = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
-            if (replica == null || playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null)
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null)
                 return;
 
-            float distance = 40;
-            Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
-            
+            var replica = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+            if (replica == null || !replica.IsValid)
+                return;
+
             replica.Flags = playerPawn.Flags;
             replica.Flags |= (uint)Flags_t.FL_DUCKING;
             replica.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
@@ -116,12 +117,13 @@ namespace src.player.skills
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
             replica.Entity!.Name = replica.Globalname = $"Replica_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
 
-            replica.UseAnimGraph = false;
-            string animName = "idle_for_turns_stand_pistol";
-            if (((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_DUCKING))
-                animName = "idle_for_turns_crouch_pistol";
+            replica.UseAnimGraph = true;
+            replica.AnimGraphUpdateEnabled = true;
+            bool isDucking = ((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_DUCKING);
 
-            replica.AcceptInput("SetAnimation", value: animName);
+            float distance = 40;
+            Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
+
             replica.Teleport(pos, playerPawn.AbsRotation, null);
             replica.DispatchSpawn();
         }

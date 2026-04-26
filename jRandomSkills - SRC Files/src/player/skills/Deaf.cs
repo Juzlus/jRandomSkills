@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Deaf : ISkill
     {
         private const Skills skillName = Skills.Deaf;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> deafPlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> deafPlayers = [];
 
         public static void LoadSkill()
         {
@@ -20,8 +20,13 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in deafPlayers.Keys)
+            foreach (var playerIndex in deafPlayers.Keys)
+            {
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid) continue;
                 DisableSkill(player);
+            }
+
             deafPlayers.Clear();
             foreach (var player in Utilities.GetPlayers())
                 SkillUtils.CloseMenu(player);
@@ -29,8 +34,12 @@ namespace src.player.skills
 
         public static void PlayerMakeSound(UserMessage um)
         {
-            foreach (var player in deafPlayers.Keys)
+            foreach (var playerIndex in deafPlayers.Keys)
+            {
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid) continue;
                 um.Recipients.Remove(player);
+            }
         }
 
         public static void OnTick()
@@ -44,7 +53,7 @@ namespace src.player.skills
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -70,7 +79,7 @@ namespace src.player.skills
                 return;
             }
 
-            deafPlayers.TryAdd(enemy, 0);
+            deafPlayers.TryAdd(enemy.Index, 0);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("deaf_player_info", enemy.PlayerName));
             enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("deaf_enemy_info"));
@@ -95,7 +104,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             SkillUtils.CloseMenu(player);
-            deafPlayers.TryRemove(player, out _);
+            deafPlayers.TryRemove(player.Index, out _);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#dae01f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

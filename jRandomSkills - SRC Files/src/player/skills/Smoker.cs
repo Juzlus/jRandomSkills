@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -50,12 +51,16 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
+            ulong steamID = player.SteamID;
+
             Vector pos = new(@event.X, @event.Y, @event.Z);
             float refillInterval = 15.5f;
 
             Timer? smokeTimer = null;
             smokeTimer = Instance.AddTimer(refillInterval, () =>
             {
+                var player = Utilities.GetPlayerFromSteamId(steamID);
+
                 if (player == null || !player.IsValid)
                 {
                     smokeTimer?.Kill();

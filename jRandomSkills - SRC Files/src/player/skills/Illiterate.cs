@@ -9,7 +9,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Illiterate;
         private static bool isActive = false;
-        private static int offset = jRandomSkills.Instance.Random.Next(2, 26);
+        private static int offset = jRandomSkills.Instance.Random.Next(1, 26);
 
         public static void LoadSkill()
         {
@@ -54,8 +54,12 @@ namespace src.player.skills
         public static string? GetRandomText(string? input)
         {
             if (string.IsNullOrEmpty(input)) return null;
-            if (Server.TickCount % 64 == 0)
-                offset = jRandomSkills.Instance.Random.Next(2, 26);
+
+            if (Server.TickCount % 64 == 0 || offset == 0)
+            {
+                offset = jRandomSkills.Instance.Random.Next(1, 26);
+                if (offset == 13) offset = 14;
+            }
 
             return new string([.. input.Select(c =>
             {
@@ -63,15 +67,14 @@ namespace src.player.skills
                 if (!char.IsLetter(c)) return c;
 
                 char baseChar = char.IsUpper(c) ? 'A' : 'a';
-                return (char)(baseChar + (c - baseChar + offset) % 26);
+                int shifted = (c - baseChar + offset) % 26;
+                
+                return (char)(baseChar + shifted);
             })]);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float maximumFuel = 150f, float fuelConsumption = .64f, float refuelling = .1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
         {
-            public float MaximumFuel { get; set; } = maximumFuel;
-            public float FuelConsumption { get; set; } = fuelConsumption;
-            public float Refuelling { get; set; } = refuelling;
         }
     }
 }

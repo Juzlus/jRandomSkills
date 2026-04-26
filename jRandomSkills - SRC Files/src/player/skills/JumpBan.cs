@@ -10,7 +10,7 @@ namespace src.player.skills
     public class JumpBan : ISkill
     {
         private const Skills skillName = Skills.JumpBan;
-        public static readonly ConcurrentDictionary<CCSPlayerPawn, int> bannedPlayers = [];
+        public static readonly ConcurrentDictionary<uint, int> bannedPlayers = [];
 
         public static void LoadSkill()
         {
@@ -28,19 +28,25 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            if (!bannedPlayers.TryGetValue(player.PlayerPawn.Value, out _)) return;
-            bannedPlayers.AddOrUpdate(player.PlayerPawn.Value, Server.TickCount + 10, (k, v) => Server.TickCount + 10);
+            if (!bannedPlayers.TryGetValue(player.Index, out _)) return;
+            bannedPlayers.AddOrUpdate(player.Index, Server.TickCount + 10, (k, v) => Server.TickCount + 10);
         }
 
         public static void OnTick()
         {
             foreach (var item in bannedPlayers)
             {
-                var pawn = item.Key;
+                var playerIndex = item.Key;
                 var time = item.Value;
+
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid || player.PlayerPawn == null) continue;
+
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid) continue;
+
                 if (time > Server.TickCount)
-                    if (pawn != null && pawn.IsValid)
-                        pawn.AbsVelocity.Z = -100;
+                    pawn.AbsVelocity.Z = -100;
             }
 
             if (Server.TickCount % 32 != 0) return;
@@ -52,7 +58,7 @@ namespace src.player.skills
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -78,7 +84,7 @@ namespace src.player.skills
                 return;
             }
 
-            bannedPlayers.AddOrUpdate(enemy.PlayerPawn.Value, 0, (k, v) => 0);
+            bannedPlayers.AddOrUpdate(enemy.Index, 0, (k, v) => 0);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("jumpban_player_info", enemy.PlayerName));
             enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("jumpban_enemy_info"));
@@ -103,7 +109,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            bannedPlayers.TryRemove(player.PlayerPawn.Value, out _);
+            bannedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }
 

@@ -43,7 +43,7 @@ namespace src.player.skills
 
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
                 if (spawnpoint == null) return;
-                victimPawn.Teleport(spawnpoint, victimPawn.AbsRotation, null);
+                victimPawn.Teleport(spawnpoint, null, null);
             }
         }
 

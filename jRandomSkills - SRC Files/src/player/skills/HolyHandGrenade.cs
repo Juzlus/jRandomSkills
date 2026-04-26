@@ -24,6 +24,7 @@ namespace src.player.skills
 
             Server.NextFrame(() =>
             {
+                if (@event == null || !@event.IsValid) return;
                 var hegrenade = @event.As<CHEGrenadeProjectile>();
                 if (hegrenade == null || !hegrenade.IsValid) return;
 

@@ -1,9 +1,8 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
-using CS2TraceRay.Class;
-using CS2TraceRay.Struct;
 using src.utils;
 using System.Collections.Concurrent;
 using static src.jRandomSkills;
@@ -93,7 +92,9 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            ulong steamId = player.SteamID;
+
+            if (SkillPlayerInfo.TryGetValue(steamId, out var skillInfo))
             {
                 if (skillInfo.IsFlying)
                 {
@@ -109,11 +110,18 @@ namespace src.player.skills
                     skillInfo.IsFlying = true;
                     skillInfo.Cooldown = DateTime.Now;
                     skillInfo.LastPosition = playerPawn.AbsOrigin == null ? null : new Vector(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z);
+                    
                     SetNoclip(player, true);
                     skillInfo.Timer?.Kill();
 
                     skillInfo.Timer = Instance.AddTimer(duration, () =>
                     {
+                        var player = Utilities.GetPlayerFromSteamId(steamId);
+                        if (player == null || !player.IsValid) return;
+
+                        var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == steamId);
+                        if (playerInfo == null) return;
+
                         StopFlying(player, skillInfo);
                     });
                 }
@@ -174,54 +182,39 @@ namespace src.player.skills
 
             ulong mask = playerPawn.Collision.CollisionAttribute.InteractsWith;
             ulong contents = playerPawn.Collision.CollisionGroup;
+
             bool hasGround = false;
+            Vector stuckVector = new(currentPos.X, currentPos.Y, currentPos.Z);
 
             foreach (Vector targetPos in checkOffsets)
             {
                 Vector start = new(targetPos.X, targetPos.Y, targetPos.Z + 70);
                 Vector end = new(targetPos.X, targetPos.Y, targetPos.Z - 1000);
 
-                CGameTrace groundTrace = TraceRay.TraceShape(start, end, mask, contents, player);
-                if (!groundTrace.DidHit()) continue;
+                var groundResult = RayTrace.TraceShape(player, start, end, mask, contents);
+                if (!groundResult.HasValue || !groundResult.Value.DidHit) continue;
 
-                hasGround = true;
                 Vector newPos =
-                    groundTrace.EndPos.Z > targetPos.Z
-                    ? new(groundTrace.EndPos.X, groundTrace.EndPos.Y, groundTrace.EndPos.Z)
+                    groundResult.Value.EndPos.Z > targetPos.Z
+                    ? new(groundResult.Value.EndPos.X, groundResult.Value.EndPos.Y, groundResult.Value.EndPos.Z)
                     : targetPos;
 
-                if (IsPositionSafe(newPos, player))
+                hasGround = true;
+                stuckVector = newPos;
+
+                var result = RayTrace.TraceHullShape(
+                    targetPos,
+                    targetPos,
+                    player
+                );
+
+                if (result.HasValue && !result.Value.DidHit)
                     return newPos;
             }
             
             if (hasGround)
                 skillInfo.Cooldown = DateTime.Now.AddSeconds(-SkillsInfo.GetValue<float>(skillName, "cooldown") + SkillsInfo.GetValue<float>(skillName, "cooldownWhenStuck"));
-            return hasGround ? currentPos : null;
-        }
-
-        private static bool IsPositionSafe(Vector pos, CCSPlayerController player)
-        {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return false;
-
-            float footHeight = 0;
-            float headHeight = 70;
-            float innerDist = 12;
-
-            ulong mask = playerPawn.Collision.CollisionAttribute.InteractsWith;
-            ulong contents = playerPawn.Collision.CollisionGroup;
-
-            Vector s1 = new(pos.X - innerDist, pos.Y - innerDist, pos.Z + footHeight);
-            Vector e1 = new(pos.X + innerDist, pos.Y + innerDist, pos.Z + headHeight);
-            CGameTrace t1 = TraceRay.TraceShape(s1, e1, mask, contents, player);
-            if (t1.DidHit() || t1.AllSolid) return false;
-
-            Vector s2 = new(pos.X + innerDist, pos.Y - innerDist, pos.Z + footHeight);
-            Vector e2 = new(pos.X - innerDist, pos.Y + innerDist, pos.Z + headHeight);
-            CGameTrace t2 = TraceRay.TraceShape(s2, e2, mask, contents, player);
-            if (t2.DidHit() || t2.AllSolid) return false;
-
-            return true;
+            return hasGround ? stuckVector : null;
         }
 
         public class PlayerSkillInfo

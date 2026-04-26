@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -29,7 +30,15 @@ namespace src.player.skills
                     lock (setLock)
                     {
                         player.Respawn();
-                        Instance.AddTimer(.2f, () => player.Respawn());
+                        ulong steamId = player.SteamID;
+
+                        Instance.AddTimer(.2f, () => {
+                            var player = Utilities.GetPlayerFromSteamId(steamId);
+                            if (player == null || !player.IsValid) return;
+
+                            player.Respawn();
+                        });
+
                         SkillUtils.PrintToChat(player, player.GetTranslation("phoenix_respawn"));
                     }
                 }

@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -12,7 +13,7 @@ namespace src.player.skills
     public class Jester : ISkill
     {
         private const Skills skillName = Skills.Jester;
-        private static readonly ConcurrentBag<JesterInfo> jesters = [];
+        private static readonly ConcurrentDictionary<ulong, JesterInfo> jesters = [];
 
         public static void LoadSkill()
         {
@@ -23,7 +24,7 @@ namespace src.player.skills
         {
             Server.NextWorldUpdate(() =>
             {
-                foreach (var jester in jesters.ToList())
+                foreach (var jester in jesters.Values)
                 {
                     if (jester.Timer != null)
                     {
@@ -71,7 +72,8 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            var jester = GetJesterInfo(player.SteamID);
+            ulong steamId = player.SteamID;
+            var jester = GetJesterInfo(steamId);
             if (jester == null) return;
 
             if (jester.Timer != null)
@@ -81,8 +83,7 @@ namespace src.player.skills
             }
 
             jester.Timer = Instance.AddTimer(1, () => {
-                if (player != null && player.IsValid)
-                    ChangeMode(player.SteamID, false);
+                ChangeMode(steamId, false);
             });
         }
 
@@ -91,7 +92,8 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            var jester = GetJesterInfo(player.SteamID);
+            ulong steamId = player.SteamID;
+            var jester = GetJesterInfo(steamId);
             if (jester == null) return;
 
             if (jester.Timer != null)
@@ -102,7 +104,7 @@ namespace src.player.skills
 
             jester.Timer = Instance.AddTimer(1, () => {
                 if (player != null && player.IsValid)
-                    ChangeMode(player.SteamID, false);
+                    ChangeMode(steamId, false);
             });
         }
 
@@ -133,25 +135,30 @@ namespace src.player.skills
             var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
-            jesters.Add(new JesterInfo {
-                SteamId = player.SteamID,
+            ulong steamId = player.SteamID;
+
+            jesters.TryAdd(steamId, new JesterInfo {
+                SteamId = steamId,
                 Active = false,
-                Timer = Instance.AddTimer(wait, () => ChangeMode(player.SteamID))
+                Timer = Instance.AddTimer(wait, () => ChangeMode(steamId))
             });
         }
 
         private static void ChangeMode(ulong steamId, bool? forceActive = null)
         {
-            var player = Utilities.GetPlayerFromSteamId(steamId);
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
-
-            var jester = GetJesterInfo(player.SteamID);
-            if (jester == null) return;
+            if (!jesters.TryGetValue(steamId, out var jester)) return;
 
             if (jester.Timer != null)
             {
                 jester.Timer?.Kill();
                 jester.Timer = null;
+            }
+
+            var player = Utilities.GetPlayerFromSteamId(steamId);
+            if (player == null || !player.IsValid || !player.PawnIsAlive)
+            {
+                jesters.TryRemove(steamId, out _);
+                return;
             }
 
             bool previousState = jester.Active;
@@ -167,7 +174,7 @@ namespace src.player.skills
             var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
-            jester.Timer = Instance.AddTimer(wait, () => ChangeMode(player.SteamID));
+            jester.Timer = Instance.AddTimer(wait, () => ChangeMode(steamId));
         }
 
         private static void SetPlayerColor(CCSPlayerController? player, bool forceDisable = false)
@@ -208,7 +215,12 @@ namespace src.player.skills
             playerInfo.PrintHTML = $"{player.GetTranslation("jester_mode")}: <font color='{(jester.Active ? "#00ff00" : "#ff0000")}'>{player.GetTranslation(jester.Active ? "jester_on" : "jester_off")}</font>";
         }
 
-        public static JesterInfo? GetJesterInfo(ulong steamID) => jesters.FirstOrDefault(j => j.SteamId == steamID);
+        public static JesterInfo? GetJesterInfo(ulong steamID)
+        {
+            if (jesters.TryGetValue(steamID, value: out var info))
+                return info;
+            return null;
+        }
 
         public class JesterInfo()
         {

@@ -2,15 +2,14 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
-using CS2TraceRay.Class;
-using CS2TraceRay.Enum;
-using CS2TraceRay.Struct;
+using RayTraceAPI;
 using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
@@ -39,6 +38,8 @@ namespace src.player
         private static readonly ConcurrentDictionary<ulong, ConcurrentBag<jSkill_SkillInfo>> playersSkills = [];
         public static readonly ConcurrentDictionary<ulong, jSkill_SkillInfo> staticSkills = [];
         private static readonly object setLock = new();
+
+        private static readonly MemoryFunctionVoid<CBasePlayerPawn, CBasePlayerWeapon> DropWeaponFunc = new(GameData.GetSignature("CCSPlayerController_HandleCommandDrop"));
 
         public static void Load()
         {
@@ -78,9 +79,13 @@ namespace src.player
             Instance.HookUserMessage(208, PlayerMakeSound);
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
 
+            Instance.RegisterEventHandler<EventBulletImpact>(BulletImpact);
+
             VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post);
             VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre);
             VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre);
+
+            DropWeaponFunc.Hook(WeaponDrop, HookMode.Pre);
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -426,7 +431,34 @@ namespace src.player
                 return block ? HookResult.Stop : HookResult.Continue;
             }
         }
-        
+
+        private static HookResult WeaponDrop(DynamicHook hook)
+        {
+            lock (setLock)
+            {
+                CCSPlayerController player = hook.GetParam<CCSPlayerController>(0);
+                if (player == null || !player.IsValid)
+                    return HookResult.Continue;
+
+                var activeSkills = Instance.SkillPlayer
+                    .Where(p => !p.IsDrawing)
+                    .Select(p => p.Skill.ToString())
+                    .Distinct();
+
+                bool block = false;
+                foreach (string skillName in activeSkills)
+                {
+                    bool? result = (bool?)Instance.SkillAction(skillName, "WeaponDrop", [hook, player]);
+                    if (result == true)
+                    {
+                        block = true;
+                        break;
+                    }
+                }
+                return block ? HookResult.Stop : HookResult.Continue;
+            }
+        }
+
         private static void OnTick()
         {
             lock (setLock)
@@ -487,6 +519,8 @@ namespace src.player
 
                 var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
                 if (skillPlayer == null) return HookResult.Continue;
+
+                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
 
                 var items = Instance.SkillPlayer.ToList();
                 Instance.SkillPlayer = [.. items.Where(p => p.SteamID != skillPlayer.SteamID)];
@@ -735,13 +769,13 @@ namespace src.player
                     Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
                     Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * 80;
 
-                    ulong mask = pawn.Collision.CollisionAttribute.InteractsWith | (ulong)(Contents.Solid | Contents.Hitbox | Contents.Pickup | Contents.TouchAll | Contents.CarriedObject | Contents.CarriedWeapon | Contents.Debris);
+                    ulong mask = (ulong)(InteractionLayers.MASK_WORLD_ONLY | InteractionLayers.Player | InteractionLayers.NPC);
                     ulong contents = 0;
-                    CGameTrace trace = TraceRay.TraceShape(eyePos, endPos, mask, contents, player);
+                    var result = RayTrace.TraceShape(player, eyePos, endPos, mask, contents);
 
-                    if (trace.DidHit())
+                    if (result.HasValue && result.Value.DidHit)
                     {
-                        var entity = Activator.CreateInstance(typeof(CBaseEntity), trace.HitEntity) as CBaseEntity;
+                        var entity = Activator.CreateInstance(typeof(CBaseEntity), result.Value.HitEntity) as CBaseEntity;
                         if (entity == null || !entity.IsValid) return;
 
                         string designer = entity.DesignerName;
@@ -768,12 +802,32 @@ namespace src.player
             }
         }
 
+        private static HookResult BulletImpact(EventBulletImpact @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                var activeSkills = Instance.SkillPlayer
+                    .Where(p => !p.IsDrawing)
+                    .Select(p => p.Skill.ToString())
+                    .Distinct();
+
+                foreach (string skillName in activeSkills)
+                    Instance.SkillAction(skillName, "BulletImpact", [@event]);
+                return HookResult.Continue;
+            }
+        }
+
         private static void SetSkill()
         {
             setSkillTimer = null;
             lock (setLock)
             {
-                var validPlayers = Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).ToList();
+                var validPlayers = Utilities.GetPlayers()
+                    .Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV)
+                    .Where(p => {
+                        try { return p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; }
+                        catch { return false; }
+                    }).ToList();
 
                 if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
                 {
@@ -797,7 +851,7 @@ namespace src.player
                 foreach (var player in validPlayers)
                 {
                     if (player == null) continue;
-                    var teammates = validPlayers.Where(p => p.Team == player.Team && p != player);
+                    var teammates = validPlayers.Where(p => p != null && p.IsValid && p.Team == player.Team && p != player).ToList();
                     string teammateSkills = "";
 
                     var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
@@ -875,6 +929,8 @@ namespace src.player
 
                     Instance?.AddTimer(.2f, () =>
                     {
+                        if(player == null || !player.IsValid) return;
+
                         if (randomSkill.Display)
                             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
                                 border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
@@ -901,6 +957,8 @@ namespace src.player
                     {
                         Instance?.AddTimer(.6f, () =>
                         {
+                            if (player == null || !player.IsValid) return;
+
                             foreach (var teammate in teammates)
                             {
                                 var teammateInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == teammate.SteamID);

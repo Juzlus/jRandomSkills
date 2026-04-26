@@ -10,7 +10,7 @@ namespace src.player.skills
     public class Jammer : ISkill
     {
         private const Skills skillName = Skills.Jammer;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> jammedPlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> jammedPlayers = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -22,8 +22,12 @@ namespace src.player.skills
         {
             lock (setLock)
             {
-                foreach (var player in jammedPlayers.Keys)
+                foreach (var playerIndex in jammedPlayers.Keys)
+                {
+                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    if (player == null || !player.IsValid) continue;
                     SetCrosshair(player, true);
+                }
                 jammedPlayers.Clear();
             }
             foreach (var player in Utilities.GetPlayers())
@@ -67,7 +71,7 @@ namespace src.player.skills
                 return;
             }
 
-            jammedPlayers.TryAdd(enemy, 0);
+            jammedPlayers.TryAdd(enemy.Index, 0);
             SetCrosshair(enemy, false);
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("jammer_player_info", enemy.PlayerName));
@@ -103,7 +107,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             SetCrosshair(player, true);
-            jammedPlayers.TryRemove(player, out _);
+            jammedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }
 

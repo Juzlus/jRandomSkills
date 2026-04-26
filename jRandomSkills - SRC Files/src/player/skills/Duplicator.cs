@@ -1,9 +1,10 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -120,12 +121,18 @@ namespace src.player.skills
             bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
             bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
 
+            ulong steamID = player.SteamID;
+            string enemyName = enemy.PlayerName;
+
             if ((player.Team == CsTeam.Terrorist && ctSkill) || (player.Team == CsTeam.CounterTerrorist && ttSkill))
             {
                 Instance.AddTimer(.1f, () =>
                 {
+                    var player = Utilities.GetPlayerFromSteamId(steamID);
+                    if (player == null || !player.IsValid) return;
+
                     Instance.SkillAction(skillName.ToString(), "EnableSkill", [player]);
-                    player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("thief_incorrect_skill", enemy.PlayerName));
+                    player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("thief_incorrect_skill", enemyName));
                 });
                 return;
             }
@@ -139,6 +146,9 @@ namespace src.player.skills
 
                 if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () => {
+                        var player = Utilities.GetPlayerFromSteamId(steamID);
+                        if (player == null || !player.IsValid) return;
+
                         if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == enemySkill) == null) return;
                         Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
                     });

@@ -133,6 +133,8 @@ namespace src.player.skills
 
                     Server.NextFrame(() =>
                     {
+                        if (player == null || !player.IsValid) return;
+                        if (enemy == null || !enemy.IsValid) return;
                         player.RemoveWeapons();
                         enemy.RemoveWeapons();
                         GiveWeapons(player, enemyWeapon, playerWeapon.Contains("weapon_c4"));

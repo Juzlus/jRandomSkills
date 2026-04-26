@@ -166,7 +166,10 @@ namespace src.player.skills
                 }
 
                 Instance.AddTimer(.15f, () => {
-                    if (player != null && player.IsValid && player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid)
+                    var player = Utilities.GetPlayerFromSteamId(steamID);
+                    if (player == null || !player.IsValid) return;
+
+                    if (player != null && player.IsValid && player.PlayerPawn != null && player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid)
                     {
                         var createdWeapon = player.PlayerPawn.Value?.ItemServices?.As<CCSPlayer_ItemServices>().GiveNamedItem<CEntityInstance>(weaponToGive.Replace("_script", ""));
 

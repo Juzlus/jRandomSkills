@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -24,8 +23,10 @@ namespace src.player.skills
         {
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null) return;
+            
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newChance;
+            
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
                 border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
         }
@@ -59,29 +60,20 @@ namespace src.player.skills
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a -b) < epsilon;
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void BulletImpact(EventBulletImpact @event)
         {
             if (lastTick == Server.TickCount) return;
 
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
 
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
-                return;
+            var pos = new Vector(@event.X, @event.Y, @event.Z);
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            if (attackerPawn.DesignerName != "player")
-                return;
-
-            if (attackerPawn == null || attackerPawn.Controller?.Value == null)
-                return;
-
-            CCSPlayerController attacker = attackerPawn.Controller.Value.As<CCSPlayerController>();
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker.SteamID);
+            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
             if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
-                SpawnExplosion(param2.DamagePosition);
+                SpawnExplosion(pos);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

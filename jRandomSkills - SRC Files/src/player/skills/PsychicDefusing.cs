@@ -4,14 +4,13 @@ using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 
 namespace src.player.skills
 {
     public class PsychicDefusing : ISkill
     {
         private const Skills skillName = Skills.PsychicDefusing;
-        private static readonly ConcurrentDictionary<CCSPlayerPawn, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static Vector? bombLocation = null;
         private static readonly float tickRate = 64f;
         private static readonly object setLock = new();
@@ -35,12 +34,9 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
-
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill == skillName)
-                SkillPlayerInfo.TryRemove(pawn, out _);
+                SkillPlayerInfo.TryRemove(player.Index, out _);
         }
 
         public static void BombPlanted(EventBombPlanted _)
@@ -55,15 +51,15 @@ namespace src.player.skills
             if (bombLocation == null) return;
             foreach (var skillInfo in SkillPlayerInfo)
             {
-                var pawn = skillInfo.Key;
+                var playerIndex = skillInfo.Key;
                 var info = skillInfo.Value;
 
-                var playerController = pawn.Controller.Value;
-                if (playerController == null || !pawn.Controller.IsValid) return;
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid || player.PlayerPawn == null) continue;
 
-                var player = playerController.As<CCSPlayerController>();
-                if (player == null || !player.IsValid) return;
-
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid) continue;
+                
                 if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > SkillsInfo.GetValue<float>(skillName, "maxDefusingRange"))
                 {
                     info.Defusing = false;
@@ -97,7 +93,8 @@ namespace src.player.skills
         {
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
-            SkillPlayerInfo.TryAdd(pawn, new PlayerSkillInfo
+
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
                 SteamID = player.SteamID,
                 Defusing = false,
@@ -108,9 +105,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             SkillUtils.ResetPrintHTML(player);
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
-            SkillPlayerInfo.TryRemove(pawn, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)

@@ -120,10 +120,19 @@ namespace src.player.skills
             bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
             bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
 
+            ulong enemySteamId = enemy.SteamID;
+            ulong playerSteamId = player.SteamID;
+
             if ((player.Team == CsTeam.Terrorist && ctSkill) || (player.Team == CsTeam.CounterTerrorist && ttSkill))
             {
                 Instance.AddTimer(.1f, () =>
                 {
+                    var enemy = Utilities.GetPlayerFromSteamId(enemySteamId);
+                    if (enemy == null || !enemy.IsValid) return;
+
+                    var player = Utilities.GetPlayerFromSteamId(playerSteamId);
+                    if (player == null || !player.IsValid) return;
+
                     Instance.SkillAction(skillName.ToString(), "EnableSkill", [player]);
                     player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("thief_incorrect_skill", enemy.PlayerName));
                 });
@@ -133,24 +142,42 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
             Instance.AddTimer(.1f, () =>
             {
+                var enemy = Utilities.GetPlayerFromSteamId(enemySteamId);
+                if (enemy == null || !enemy.IsValid) return;
+
+                var player = Utilities.GetPlayerFromSteamId(playerSteamId);
+                if (player == null || !player.IsValid) return;
+
                 playerInfo.Skill = enemySkill;
                 playerInfo.SpecialSkill = skillName;
+
                 SkillUtils.CloseMenu(player);
                 Instance.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+
                 player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("thief_player_info", enemy.PlayerName));
 
                 if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () => {
+                        var player = Utilities.GetPlayerFromSteamId(playerSteamId);
+                        if (player == null || !player.IsValid) return;
+
                         if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == enemySkill) == null) return;
-                        Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", new[] { player });
+                        Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
                     });
                 else
-                    Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", new[] { player });
+                    Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
             });
 
             Instance.AddTimer(.1f, () =>
             {
+                var enemyInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == enemySteamId);
+                if (enemyInfo == null) return;
+
+                var enemy = Utilities.GetPlayerFromSteamId(enemySteamId);
+                if (enemy == null || !enemy.IsValid) return;
+
                 Instance.SkillAction(enemySkill.ToString(), "DisableSkill", [enemy]);
+                
                 enemyInfo.SpecialSkill = enemySkill;
                 enemyInfo.Skill = Skills.None;
                 enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("thief_enemy_info"));

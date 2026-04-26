@@ -112,6 +112,7 @@ namespace src.player.skills
             barricades.TryAdd(box.Index, SkillsInfo.GetValue<int>(skillName, "barricadeHealth"));
             Server.NextFrame(() =>
             {
+                if (box == null || !box.IsValid) return;
                 box.SetModel(SkillsInfo.GetValue<string>(skillName, "propModel"));
                 box.Teleport(pos, angle, null);
             });

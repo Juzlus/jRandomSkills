@@ -40,7 +40,7 @@ namespace src.player.skills
                         {
                             if (skillInfo.LastRotations == null || skillInfo.LastPositions == null) continue;
                             skillInfo.LastPositions.Enqueue(new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z));
-                            skillInfo.LastRotations.Enqueue(new QAngle(pawn.EyeAngles.X, pawn.EyeAngles.Y, pawn.EyeAngles.Z));
+                            skillInfo.LastRotations.Enqueue(new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0));
                             if (skillInfo.LastRotations.Count > SkillsInfo.GetValue<int>(skillName, "secondsInBack"))
                             {
                                 skillInfo.LastPositions.TryDequeue(out _);
@@ -106,7 +106,10 @@ namespace src.player.skills
                     Vector? lastPosition = skillInfo.LastPositions.FirstOrDefault();
                     QAngle? lastRotation = skillInfo.LastRotations.FirstOrDefault();
                     if (lastPosition != null && lastRotation != null)
-                        playerPawn.Teleport(lastPosition, lastRotation, null);
+                    {
+                        playerPawn.Teleport(lastPosition, null, null);
+                        playerPawn.Look(lastRotation);
+                    }
                 }
             }
         }

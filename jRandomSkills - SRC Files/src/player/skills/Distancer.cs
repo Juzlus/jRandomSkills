@@ -9,7 +9,7 @@ namespace src.player.skills
     public class Distancer : ISkill
     {
         private const Skills skillName = Skills.Distancer;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> distancerPlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> distancerPlayers = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -26,8 +26,11 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (SkillUtils.IsFreezeTime()) return;
-            foreach (var player in distancerPlayers.Keys)
+            foreach (var playerIndex in distancerPlayers.Keys)
             {
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid) continue;
+
                 var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
                 if (playerInfo == null) continue;
 
@@ -56,12 +59,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            distancerPlayers.TryAdd(player, 0);
+            distancerPlayers.TryAdd(player.Index, 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            distancerPlayers.TryRemove(player, out _);
+            distancerPlayers.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 

@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -34,6 +35,10 @@ namespace src.player.skills
 
             var pawn = victim.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
+
+            if (damage == 0)
+                damage = Instance.Random.Next(4, 6);
+
             SkillUtils.AddHealth(pawn, damage + (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthMultiplier")), pawn.MaxHealth);
         }
 

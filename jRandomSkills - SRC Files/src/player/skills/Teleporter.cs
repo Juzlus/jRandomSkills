@@ -49,15 +49,18 @@ namespace src.player.skills
             if (attackerPawn.AbsOrigin == null || victimPawn.AbsOrigin == null || attackerPawn.AbsRotation == null || victimPawn.AbsRotation == null) return;
 
             Vector attackerPosition = new(attackerPawn.AbsOrigin.X, attackerPawn.AbsOrigin.Y, attackerPawn.AbsOrigin.Z);
-            QAngle attackerAngles = new(attackerPawn.AbsRotation.X, attackerPawn.AbsRotation.Y, attackerPawn.AbsRotation.Z);
+            QAngle attackerAngles = new(attackerPawn.V_angle.X, attackerPawn.V_angle.Y, 0);
             Vector attackerVelocity = new(attackerPawn.AbsVelocity.X, attackerPawn.AbsVelocity.Y, attackerPawn.AbsVelocity.Z);
 
             Vector victimPosition = new(victimPawn.AbsOrigin.X, victimPawn.AbsOrigin.Y, victimPawn.AbsOrigin.Z);
-            QAngle victimAngles = new(victimPawn.AbsRotation.X, victimPawn.AbsRotation.Y, victimPawn.AbsRotation.Z);
+            QAngle victimAngles = new(victimPawn.V_angle.X, victimPawn.V_angle.Y, 0);
             Vector victimVelocity = new(victimPawn.AbsVelocity.X, victimPawn.AbsVelocity.Y, victimPawn.AbsVelocity.Z);
 
-            victimPawn.Teleport(attackerPosition, attackerAngles, attackerVelocity);
-            attackerPawn.Teleport(victimPosition, victimAngles, victimVelocity);
+            victimPawn.Teleport(attackerPosition, null, attackerVelocity);
+            attackerPawn.Teleport(victimPosition, null, victimVelocity);
+
+            victimPawn.Look(attackerAngles);
+            attackerPawn.Look(victimAngles);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8A2BE2", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float chanceFrom = .5f, float chanceTo = .6f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

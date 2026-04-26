@@ -15,14 +15,19 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.364" />
-        <PackageReference Include="CS2TraceRay" Version="1.0.9" />
+        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.367" />
         <PackageReference Include="MaxMind.Db" Version="5.0.0">
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 
-    <!-- Relative path to the WASDMenuAPI source code -->
+	<ItemGroup>
+		<Reference Include="RayTraceApi">
+			<HintPath>libs/RayTraceApi.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<!-- Relative path to the WASDMenuAPI source code -->
     <ItemGroup>
         <ProjectReference Include="../WASDMenuAPI - SRC Files/WASDMenuAPI.csproj" />
     </ItemGroup>

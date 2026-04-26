@@ -11,7 +11,7 @@ namespace src.player.skills
     public class C4Camouflage : ISkill
     {
         private const Skills skillName = Skills.C4Camouflage;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> invisiblePlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
 
         public static void LoadSkill()
@@ -44,16 +44,16 @@ namespace src.player.skills
             if (playerInfo?.Skill != skillName) return;
 
             if (weapon == "c4")
-                invisiblePlayers.TryAdd(player, 0);
+                invisiblePlayers.TryAdd(player.Index, 0);
             else
-                invisiblePlayers.TryRemove(player, out _);
+                invisiblePlayers.TryRemove(player.Index, out _);
         }
 
         public static void OnTick()
         {
             foreach (var player in Utilities.GetPlayers())
                 if (!player.PawnIsAlive)
-                    invisiblePlayers.TryRemove(player, out _);
+                    invisiblePlayers.TryRemove(player.Index, out _);
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
@@ -72,10 +72,15 @@ namespace src.player.skills
                     if (targetInfo?.Skill == skillName) isObservingC4Camouflage = true;
                 }
 
-                foreach (var _player in invisiblePlayers.Keys)
-                    if (player.SteamID != _player.SteamID && !isObservingC4Camouflage)
+                foreach (var playerIndex in invisiblePlayers.Keys)
+                {
+                    var playerController = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    if (playerController == null || !playerController.IsValid || playerController.SteamID == player.SteamID)
+                        continue;
+
+                    if (!isObservingC4Camouflage)
                     {
-                        var playerPawn = _player.PlayerPawn.Value;
+                        var playerPawn = playerController.PlayerPawn.Value;
                         if (playerPawn == null || !playerPawn.IsValid) continue;
 
                         var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
@@ -89,6 +94,7 @@ namespace src.player.skills
                         if (bombEntity == null || !bombEntity.IsValid) continue;
                         info.TransmitEntities.Remove(bombEntity.Index);
                     }
+                }
             }
         }
 
@@ -105,19 +111,19 @@ namespace src.player.skills
             var activeWeapon = playerPawn.WeaponServices.ActiveWeapon.Value;
             if (activeWeapon.DesignerName != "weapon_c4") return;
 
-            invisiblePlayers.TryAdd(player, 0);
+            invisiblePlayers.TryAdd(player.Index, 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            invisiblePlayers.TryRemove(player, out _);
+            invisiblePlayers.TryRemove(player.Index, out _);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
-            if (!invisiblePlayers.ContainsKey(player)) return;
+            if (!invisiblePlayers.ContainsKey(player.Index)) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return;

@@ -3,8 +3,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using CS2TraceRay.Class;
-using CS2TraceRay.Struct;
 using src.utils;
 using System.Collections.Concurrent;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -15,7 +13,7 @@ namespace src.player.skills
     public class Iana : ISkill
     {
         private const Skills skillName = Skills.Iana;
-        private static readonly ConcurrentDictionary<CCSPlayerController, PlayerSkill> playersInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -35,7 +33,7 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null) return;
-            if (playersInfo.TryGetValue(player, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 if (playerSkill.CloneProp != null)
                     BlockWeapon(player, true);
         }
@@ -44,7 +42,7 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null) return;
-            if (playersInfo.TryGetValue(player, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 if (playerSkill.CloneProp != null)
                     BlockWeapon(player, true);
         }
@@ -54,9 +52,12 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (playersInfo.TryGetValue(player, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 if (playerSkill.CloneProp == null && playerSkill.NextUse <= Server.TickCount)
+                {
+                    UpdateWeapons(player, playerSkill);
                     CreateClone(playerSkill);
+                }
                 else if (playerSkill.CloneProp != null)
                     KillClone(playerSkill);
         }
@@ -64,9 +65,9 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player.PlayerPawn.Value == null || player.PlayerPawn.Value.CameraServices == null) return;
-            playersInfo.TryAdd(player, new PlayerSkill
+            playersInfo.TryAdd(player.Index, new PlayerSkill
             {
-                Player = player,
+                PlayerIndex = player.Index,
                 CloneProp = null,
                 NextUse = 0,
                 UseTime = 0,
@@ -75,32 +76,54 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (playersInfo.TryGetValue(player, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 KillClone(playerSkill);
-            playersInfo.TryRemove(player, out _);
+            playersInfo.TryRemove(player.Index, out _);
+        }
+
+        private static void UpdateWeapons(CCSPlayerController player, PlayerSkill playerSkill)
+        {
+            if (player == null || !player.IsValid) return;
+
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.WeaponServices == null) return;
+
+            playerSkill.Weapons.Clear();
+
+            foreach (var weapon in playerPawn.WeaponServices.MyWeapons)
+                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
+                    playerSkill.Weapons.Add(weapon.Value.AttributeManager.Item.ItemID);
         }
 
         private static void KillClone(PlayerSkill playerSkill)
         {
-            playerSkill.Player.EmitSound("SolidMetal.BulletImpact");
-            if (playerSkill.CloneProp != null && playerSkill.CloneProp.IsValid && playerSkill.CloneProp.AbsOrigin != null && playerSkill.CloneProp.AbsRotation != null)
+            var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
+            if (player == null || !player.IsValid) return;
+
+            player.EmitSound("SolidMetal.BulletImpact");
+            
+            CDynamicProp? cloneProp = null;
+            if (playerSkill.CloneProp != null)
+                cloneProp = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CloneProp);
+            
+            if (cloneProp != null && cloneProp.IsValid && cloneProp.AbsOrigin != null && cloneProp.AbsRotation != null)
             {
-                var playerPawn = playerSkill.Player.PlayerPawn.Value;
+                var playerPawn = player.PlayerPawn.Value;
                 if (playerPawn != null && playerPawn.IsValid)
                 {
-                    Vector pos = new(playerSkill.CloneProp.AbsOrigin.X, playerSkill.CloneProp.AbsOrigin.Y, playerSkill.CloneProp.AbsOrigin.Z);
-                    QAngle angle = new(playerSkill.CloneProp.AbsRotation.X, playerSkill.CloneProp.AbsRotation.Y, playerSkill.CloneProp.AbsRotation.Z);
+                    Vector pos = new(cloneProp.AbsOrigin.X, cloneProp.AbsOrigin.Y, cloneProp.AbsOrigin.Z);
                     Server.NextFrame(() =>
                     {
-                        playerPawn.Teleport(pos, angle);
+                        if (playerPawn == null || !playerPawn.IsValid) return;
+                        playerPawn.Teleport(pos);
                     });
                 }
-                playerSkill.CloneProp.AcceptInput("Kill");
+                cloneProp.AcceptInput("Kill");
                 playerSkill.CloneProp = null;
             }
 
-            SkillUtils.ApplyScreenColor(playerSkill.Player, 0, 0, 0, 0, 10, 0, 2);
-            BlockWeapon(playerSkill.Player, false);
+            SkillUtils.ApplyScreenColor(player, 0, 0, 0, 0, 10, 0, 2);
+            BlockWeapon(player, false);
             playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
             playerSkill.UseTime = 0;
         }
@@ -113,18 +136,30 @@ namespace src.player.skills
 
         private static CDynamicProp? CreateClone(PlayerSkill playerSkill)
         {
-            var player = playerSkill.Player;
-            if (player == null) return null;
+            var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
+            if (player == null || !player.IsValid) return null;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return null;
 
-            Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * 50;
-            Vector pos2 = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * (50 + 25);
-            if (!CheckPosition(player, pos2) || !((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_ONGROUND))
+            if (!((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_ONGROUND))
             {
                 playerSkill.InfoTime = Server.TickCount;
                 return null;
+            }
+
+            QAngle angle = new(0, playerPawn.EyeAngles.Y, 0);
+            Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(angle) * 50;
+            pos.Z += 2;
+
+            if (!CheckPosition(player, pos))
+            {
+                pos.Z += 10;
+                if (!CheckPosition(player, pos))
+                {
+                    playerSkill.InfoTime = Server.TickCount;
+                    return null;
+                }
             }
 
             var clone = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
@@ -137,16 +172,21 @@ namespace src.player.skills
 
             Server.NextFrame(() =>
             {
+                if (player == null || !player.IsValid) return;
+                if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return;
+
+                if (clone == null || !clone.IsValid) return;
+
                 clone.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
                 clone.Teleport(playerPawn.AbsOrigin, new QAngle(0, playerPawn.V_angle.Y, 0));
 
                 playerPawn.Teleport(pos);
                 SkillUtils.ApplyScreenColor(player, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
-                BlockWeapon(playerSkill.Player, true);
+                BlockWeapon(player, true);
 
                 playerSkill.UseTime = Server.TickCount;
                 playerSkill.NextUse = Server.TickCount + 64000;
-                playerSkill.CloneProp = clone;
+                playerSkill.CloneProp = clone.Index;
 
                 jRandomSkills.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () => 
                 {
@@ -167,7 +207,7 @@ namespace src.player.skills
                         return;
                     }
 
-                    if (!playersInfo.TryGetValue(target, out var playerSkill) || playerSkill.CloneProp == null)
+                    if (!playersInfo.TryGetValue(target.Index, out var playerSkill) || playerSkill.CloneProp == null)
                     {
                         cloneTimer?.Kill();
                         return;
@@ -183,16 +223,14 @@ namespace src.player.skills
         private unsafe static bool CheckPosition(CCSPlayerController player, Vector endPos)
         {
             var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return false;
 
-            Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 25);
-            endPos.Z += 25;
+            Vector start = new(playerPawn!.AbsOrigin!.X, playerPawn!.AbsOrigin!.Y, endPos.Z);
+            var result = RayTrace.TraceHullShape(start, endPos, player);
 
-            ulong mask = playerPawn.Collision.CollisionAttribute.InteractsWith;
-            ulong contents = playerPawn.Collision.CollisionGroup;
-            CGameTrace trace = TraceRay.TraceShape(eyePos, endPos, mask, contents, player);
-
-            return !trace.DidHit();
+            if (!result.HasValue)
+                return false;
+            
+            return !result.Value.DidHit;
         }
 
         private static float CalculateDamage(CCSPlayerController player, string weaponName, float damage, bool isHeadshot)
@@ -240,12 +278,16 @@ namespace src.player.skills
 
             float dealDamage = param2.Damage;
 
-            if (playersInfo.TryGetValue(player, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
             {
-                if (playerSkill.CloneProp != null && playerSkill.CloneProp.IsValid && playerSkill.CloneProp.AbsOrigin != null)
+                CDynamicProp? cloneProp = null;
+                if (playerSkill.CloneProp != null)
+                    cloneProp = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CloneProp);
+
+                if (cloneProp != null && cloneProp.IsValid && cloneProp.AbsOrigin != null)
                 {
                     Vector pos = param2.DamagePosition;
-                    Vector posCl = playerSkill.CloneProp.AbsOrigin;
+                    Vector posCl = cloneProp.AbsOrigin;
                     
                     bool isHead = false;
                     float viewOffset = 63.27f;
@@ -273,7 +315,7 @@ namespace src.player.skills
             var victim = @event.Userid!;
             if (!jRandomSkills.Instance.IsPlayerValid(victim)) return;
 
-            if (playersInfo.TryGetValue(victim, out var playerSkill) && playerSkill.CloneProp != null)
+            if (playersInfo.TryGetValue(victim.Index, out var playerSkill) && playerSkill.CloneProp != null)
             {
                 KillClone(playerSkill);
                 SkillUtils.RestoreHealth(victim);
@@ -299,7 +341,10 @@ namespace src.player.skills
 
         private static void UpdateHUD(PlayerSkill playerSkill)
         {
-            if (playerSkill == null || playerSkill.Player == null) return;
+            if (playerSkill == null) return;
+
+            var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
+            if (player == null || !player.IsValid) return;
 
             float cooldown = 0;
             float time1 = (playerSkill.NextUse - Server.TickCount) / 64;
@@ -309,26 +354,57 @@ namespace src.player.skills
             float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (Server.TickCount - playerSkill.UseTime) / 64;
             duration = (int)Math.Ceiling(Math.Max(time2, 0));
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == playerSkill?.Player?.SteamID);
+            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player.SteamID);
             if (playerInfo == null) return;
 
             if (playerSkill.InfoTime + (64 * 2) > Server.TickCount)
-                playerInfo.PrintHTML = $"{playerSkill?.Player.GetTranslation("shade_nospace")}";
+                playerInfo.PrintHTML = $"{player.GetTranslation("shade_nospace")}";
             else if (cooldown == 0 && duration == 0)
                 playerInfo.PrintHTML = null;
             else if (duration > 0)
-                playerInfo.PrintHTML = $"{playerSkill?.Player.GetTranslation("hud_info", $"<font color='#00FF00'>{duration}</font>")}";
+                playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#00FF00'>{duration}</font>")}";
             else if (cooldown > 0)
-                playerInfo.PrintHTML = $"{playerSkill?.Player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
+                playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
+        }
+
+        public static bool OnWeaponCanAcquire(DynamicHook hook, CCSPlayerController player, CEconItemView econItem, CCSWeaponBaseVData vdata)
+        {
+            string weaponName = vdata.Name;
+            if (string.IsNullOrEmpty(weaponName)) return false;
+
+            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (playerInfo?.Skill != skillName) return false;
+
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+                if (playerSkill.CloneProp == null || playerSkill.Weapons.Contains(econItem.ItemID))
+                    return false;
+
+            hook.SetReturn(AcquireResult.InvalidItem);
+            return true;
+        }
+
+        public static bool WeaponDrop(DynamicHook hook, CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return false;
+
+            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+                if (playerSkill.CloneProp != null)
+                {
+                    hook.SetReturn(1);
+                    return true;
+                }
+
+            return false;
         }
 
         public class PlayerSkill
         {
-            public required CCSPlayerController Player { get; set; }
-            public CDynamicProp? CloneProp { get; set; }
+            public required uint PlayerIndex { get; set; }
+            public uint? CloneProp { get; set; }
             public float NextUse { get; set; }
             public float UseTime { get; set; }
             public int InfoTime { get; set; }
+            public List<ulong> Weapons { get; set; } = [];
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d0d930", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 30, float duration = 10) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)

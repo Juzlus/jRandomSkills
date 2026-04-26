@@ -28,7 +28,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.1.b7";
+        public override string ModuleVersion => "1.2.1.b8";
 
         public override void Load(bool hotReload)
         {
@@ -213,8 +213,9 @@ namespace src
                 { "WASDMenuAPI", "./WASDMenuAPI.dll" },
                 { "MaxMind", "./MaxMind.Db.dll" },
                 { "GeoLite2", "./packages/GeoLite2-Country.mmdb" },
-                { "CS2TraceRay", "./../../shared/CS2TraceRay/CS2TraceRay.dll" },
-                { "CS2TraceRay gamedata", "./../../gamedata/CS2TraceRay.gamedata.json" },
+                { "RayTraceApi", "./../../shared/RayTraceApi/RayTraceApi.dll" },
+                { "RayTraceImpl", "./../../plugins/RayTraceImpl/RayTraceImpl.dll" },
+                { "RayTrace MetaMod", "./../../../metamod/RayTrace.vdf" },
                 { "jRandomSkills gamedata", "./../../gamedata/jRandomSkills.gamedata.json" }
             };
 
@@ -263,7 +264,7 @@ namespace src
 
         private static async Task<string?> GetLatestVersion()
         {
-            using HttpClient client = new HttpClient();
+            using HttpClient client = new();
             client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("jRandomSkills", "1.0"));
             const string URL = "https://api.github.com/repos/Juzlus/jRandomSkills/releases/latest";
 

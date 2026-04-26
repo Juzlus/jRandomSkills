@@ -129,7 +129,7 @@ namespace src.player.skills
                 if (trigger != null && trigger.IsValid)
                     Server.NextFrame(() =>
                     {
-                        if (trigger.IsValid)
+                        if (trigger != null && trigger.IsValid)
                             trigger.AcceptInput("Kill");
                     });
             }
@@ -140,7 +140,7 @@ namespace src.player.skills
                 if (glow != null && glow.IsValid)
                     Server.NextFrame(() =>
                     {
-                        if (glow.IsValid)
+                        if (glow != null && glow.IsValid)
                             glow.AcceptInput("Kill");
                     });
             }
@@ -151,7 +151,7 @@ namespace src.player.skills
                 if (relay != null && relay.IsValid)
                     Server.NextFrame(() =>
                     {
-                        if (relay.IsValid)
+                        if (relay != null && relay.IsValid)
                             relay.AcceptInput("Kill");
                     });
             }
@@ -178,7 +178,11 @@ namespace src.player.skills
                 if (weapon == null || !weapon.IsValid || (!weapon.DesignerName.Contains("knife") && !weapon.DesignerName.Contains("bayonet"))) return;
 
                 player.DropActiveWeapon();
-                Server.NextFrame(() => ThrowKnife(player, weapon) );
+                Server.NextFrame(() => {
+                    if (player == null || !player.IsValid) return;
+                    if (weapon == null || !weapon.IsValid) return;
+                    ThrowKnife(player, weapon);
+                });
             });
         }
 

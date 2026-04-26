@@ -1,10 +1,10 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.utils;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using static src.jRandomSkills;
-using System.Collections.Concurrent;
-using src.utils;
 
 namespace src.player.skills
 {
@@ -113,7 +113,7 @@ namespace src.player.skills
 
             ConcurrentBag<string> weaponList = [.. pistols.Concat(rifles).Where(w => !playerWeapons.Contains(w))];
 
-            if (weaponList.Count == 0)
+            if (weaponList.IsEmpty)
                 return;
 
             string weapon = weaponList.ToArray()[Instance.Random.Next(weaponList.Count)];
@@ -131,8 +131,12 @@ namespace src.player.skills
                 }
             }
 
+            ulong steamId = player.SteamID;
             Instance.AddTimer(.1f, () =>
             {
+                var player = Utilities.GetPlayerFromSteamId(steamId);
+                if (player == null || !player.IsValid) return;
+
                 player.GiveNamedItem(weapon);
             });
         }

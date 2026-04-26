@@ -28,6 +28,8 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
+            ulong steamID = player.SteamID;
+
             if (playerInfo.SkillUsed)
             {
                 player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
@@ -56,7 +58,10 @@ namespace src.player.skills
 
                 if (SkillsInfo.GetValue<bool>(skill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () => {
-                        if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == skill.Skill) == null) return;
+                        var player = Utilities.GetPlayerFromSteamId(steamID);
+                        if (player == null || !player.IsValid) return;
+
+                        if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == steamID && p.Skill == skill.Skill) == null) return;
                         Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
                     });
                 else

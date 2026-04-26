@@ -1,9 +1,10 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -49,6 +50,10 @@ namespace src.player.skills
         {
             SkillPlayerInfo.TryRemove(player.SteamID, out _);
             SkillUtils.ResetPrintHTML(player);
+
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn != null && playerPawn.IsValid)
+                playerPawn.TakesDamage = true;
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
@@ -77,7 +82,9 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            ulong steamID = player.SteamID;
+
+            if (SkillPlayerInfo.TryGetValue(steamID, out var skillInfo))
             {
                 if (!player.IsValid || !player.PawnIsAlive || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
                 if (skillInfo.CanUse)
@@ -89,8 +96,11 @@ namespace src.player.skills
                     player.PlayerPawn.Value.TakesDamage = false;
 
                     Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () => {
-                        if (player.IsValid && player.PawnIsAlive)
+
+                        var player = Utilities.GetPlayerFromSteamId(steamID);
+                        if (player != null && player.IsValid && player.PawnIsAlive)
                         {
+                            if (player.PlayerPawn == null || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
                             player.PlayerPawn.Value.TakesDamage = true;
                             player.PrintToChat($" {ChatColors.Red} {player.GetTranslation("godmode_off")}");
                         }

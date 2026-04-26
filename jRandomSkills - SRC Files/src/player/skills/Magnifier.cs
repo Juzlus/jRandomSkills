@@ -10,7 +10,7 @@ namespace src.player.skills
     public class Magnifier : ISkill
     {
         private const Skills skillName = Skills.Magnifier;
-        private static readonly ConcurrentDictionary<CCSPlayerController, uint> playersFOV = [];
+        private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
 
         public static void LoadSkill()
         {
@@ -19,8 +19,13 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in playersFOV.Keys)
+            foreach (var playerIndex in playersFOV.Keys)
+            {
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || player.IsValid) continue;
                 DisableSkill(player);
+            }
+                
             playersFOV.Clear();
             foreach (var player in Utilities.GetPlayers())
                 SkillUtils.CloseMenu(player);
@@ -70,8 +75,8 @@ namespace src.player.skills
                 return;
             }
 
-            if (!playersFOV.ContainsKey(enemy))
-                playersFOV.TryAdd(enemy, enemy.DesiredFOV);
+            if (!playersFOV.ContainsKey(enemy.Index))
+                playersFOV.TryAdd(enemy.Index, enemy.DesiredFOV);
             enemy.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
             Utilities.SetStateChanged(enemy, "CBasePlayerController", "m_iDesiredFOV");
 
@@ -98,12 +103,12 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (playersFOV.TryGetValue(player, out uint fov))
+            if (playersFOV.TryGetValue(player.Index, out uint fov))
             {
                 player.DesiredFOV = fov;
                 Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
             }
-            playersFOV.TryRemove(player, out _);
+            playersFOV.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }
 

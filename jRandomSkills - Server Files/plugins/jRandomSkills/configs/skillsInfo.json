@@ -262,7 +262,7 @@
     "RequiredPermission": ""
   },
   {
-    "ZombieHealth": 250,
+    "ZombieHealth": 500,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -321,17 +321,6 @@
     "Color": "#3cded3",
     "Active": true,
     "Name": "ReactiveArmor",
-    "RequiredPermission": ""
-  },
-  {
-    "Cooldown": 30.0,
-    "Duration": 10.0,
-    "NeedsTeammates": false,
-    "DisableOnFreezeTime": true,
-    "OnlyTeam": 0,
-    "Color": "#d0d930",
-    "Active": false,
-    "Name": "RCMelon",
     "RequiredPermission": ""
   },
   {
@@ -706,6 +695,7 @@
     "RequiredPermission": ""
   },
   {
+    "ParticleName": "particles/ui/hud/ui_map_def_utility_trail.vpcf",
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -747,9 +737,6 @@
     "RequiredPermission": ""
   },
   {
-    "MaximumFuel": 150.0,
-    "FuelConsumption": 0.64,
-    "Refuelling": 0.1,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "OnlyTeam": 0,
@@ -1307,7 +1294,6 @@
   {
     "Cooldown": 20.0,
     "Duration": 0.3,
-    "Offset": 0.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "OnlyTeam": 0,

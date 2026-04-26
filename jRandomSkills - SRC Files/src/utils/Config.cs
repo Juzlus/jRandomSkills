@@ -88,7 +88,7 @@ namespace src.utils
             public bool DisplayAlwaysDescription { get; set; }
             public bool DisableSpectateHUD { get; set; }
             public bool FlashingHtmlHudFix { get; set; }
-            public bool CS2TraceRayDebug { get; set; }
+            public bool TraceRayBeam { get; set; }
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
@@ -112,7 +112,7 @@ namespace src.utils
                 SkillDescriptionDuration = 7;
                 DisplayAlwaysDescription = false;
                 FlashingHtmlHudFix = true;
-                CS2TraceRayDebug = false;
+                TraceRayBeam = false;
                 DisableSpectateHUD = false;
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
@@ -180,6 +180,7 @@ namespace src.utils
                     SetStaticSkillCommand = new NormalCommand("ustawstatycznyskill, ustaw_statyczny_skill, setstaticskill, set_static_skill", "@jRandomSkills/admin"),
                     ChangeLanguageCommand = new NormalCommand("lang, language, changelang, change_lang, jezyk, język", ""),
                     ReloadCommand = new NormalCommand("reload, refresh", "@jRandomSkills/admin"),
+                    NextCommand = new NormalCommand("next_skill", "@jRandomSkills/admin"),
                 };
 
                 VotingCommands = new VotingCommands
@@ -259,6 +260,7 @@ namespace src.utils
             public required NormalCommand SetStaticSkillCommand { get; set; }
             public required NormalCommand ChangeLanguageCommand { get; set; }
             public required NormalCommand ReloadCommand { get; set; }
+            public required NormalCommand NextCommand { get; set; }
         }
 
         public class VotingCommand(bool enableVoting, string alias, string permissions, float timeToVote, float percentagesToSuccess, float timeToNextVoting, float timeToNextSameVoting, int minimumPlayersToStartVoting) : NormalCommand(alias, permissions)
