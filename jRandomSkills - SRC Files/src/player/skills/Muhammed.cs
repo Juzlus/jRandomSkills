@@ -124,7 +124,7 @@ namespace src.player.skills
             return player != null && player.IsValid && player.PlayerPawn?.Value != null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;

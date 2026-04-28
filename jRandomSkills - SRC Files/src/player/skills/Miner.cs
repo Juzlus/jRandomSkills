@@ -105,7 +105,7 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#adf542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float detonationRange = 130) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#adf542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float detonationRange = 130) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float DetonationRange { get; set; } = detonationRange;
         }

@@ -5,6 +5,7 @@ using static src.jRandomSkills;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 using System.Collections.Concurrent;
 using src.utils;
+using static src.utils.RarityManager;
 
 namespace src.player.skills
 {
@@ -134,7 +135,7 @@ namespace src.player.skills
                 noSpace.AddOrUpdate(attacker.Index, Server.TickCount + (64 * 2), (_, _) => Server.TickCount + (64 * 2));
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#4d4d4d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float teleportDistance = 100f, float chanceFrom = .3f, float chanceTo = .45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#4d4d4d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float teleportDistance = 100f, float chanceFrom = .3f, float chanceTo = .45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float TeleportDistance { get; set; } = teleportDistance;
             public float ChanceFrom { get; set; } = chanceFrom;

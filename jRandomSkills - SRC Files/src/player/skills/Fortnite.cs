@@ -135,9 +135,15 @@ namespace src.player.skills
 
             if (barricades.TryGetValue(box.Index, out int health))
             {
-                health -= (int)param2.Damage;
-                barricades.AddOrUpdate(box.Index, health, (k, v) => health);
-                if (health <= 0) box.AcceptInput("Kill");
+                int newHealth = health - (int)param2.Damage;
+                
+                if (newHealth <= 0)
+                {
+                    barricades.TryRemove(box.Index, out _);
+                    box.AcceptInput("Kill");
+                }
+                else
+                    barricades.AddOrUpdate(box.Index, newHealth, (k, v) => newHealth);
             }
             else box.AcceptInput("Kill");
         }
@@ -149,7 +155,7 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1b04cc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 2f, int barricadeHealth = 115, string propModel = "models/props/de_aztec/hr_aztec/aztec_scaffolding/aztec_scaffold_wall_support_128.vmdl") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1b04cc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 5, Rarity rarity = Rarity.Common, float cooldown = 2f, int barricadeHealth = 115, string propModel = "models/props/de_aztec/hr_aztec/aztec_scaffolding/aztec_scaffold_wall_support_128.vmdl") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
             public int BarricadeHealth { get; set; } = barricadeHealth;

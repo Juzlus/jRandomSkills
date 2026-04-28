@@ -16,11 +16,11 @@ namespace src.player.skills
     public class Cypher : ISkill
     {
         private const Skills skillName = Skills.Cypher;
-        private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = new();
         private static readonly object setLock = new();
 
         private const string cameraPropModel = "models/props/de_train/hr_train_s2/train_electronics/train_electronics_security_camera_01.vmdl";
-        private const string cameraViewModel = "models/actors/ghost_speaker.vmdl";
+        private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
 
         public static void LoadSkill()
         {
@@ -73,22 +73,21 @@ namespace src.player.skills
 
         private static void KillCamera(PlayerSkill playerSkill)
         {
-            if (playerSkill.CameraView != null && playerSkill.CameraView != 0)
+            if (playerSkill == null) return;
+
+            if (playerSkill.CameraView.HasValue && playerSkill.CameraView.Value != 0)
             {
-                var cameraView = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CameraView);
-                if (cameraView != null && cameraView.IsValid)
-                    cameraView.AcceptInput("Kill");
+                SkillUtils.SafeKillEntity<CDynamicProp>(playerSkill.CameraView);
                 playerSkill.CameraView = null;
             }
 
-            if (playerSkill.CameraProp != null && playerSkill.CameraProp != 0)
+            if (playerSkill.CameraProp.HasValue && playerSkill.CameraProp.Value != 0)
             {
                 var cameraProp = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CameraProp);
                 if (cameraProp != null && cameraProp.IsValid)
-                {
                     cameraProp.EmitSound("SolidMetal.BulletImpact");
-                    cameraProp.AcceptInput("Kill");
-                }
+
+                SkillUtils.SafeKillEntity<CDynamicProp>(playerSkill.CameraProp);
                 playerSkill.CameraProp = null;
             }
 
@@ -230,7 +229,6 @@ namespace src.player.skills
             camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             camera.Entity!.Name = camera.Globalname = $"CypherCamera_{Server.TickCount}_{player.SteamID}";
 
-            if (camera == null || !camera.IsValid) return null;
             camera.SetModel(cameraPropModel);
             camera.Teleport(cameraVector, new QAngle(0, playerPawn.V_angle.Y + 180, 0));
             camera.DispatchSpawn();
@@ -253,7 +251,7 @@ namespace src.player.skills
             {
                 if (camera == null || !camera.IsValid) return;
                 camera.SetModel(cameraViewModel);
-                camera.Render = Color.FromArgb(0, 255, 255, 255);
+                camera.Render = Color.FromArgb(1, 255, 255, 255);
 
                 camera.Teleport(finalPos, cameraProp.AbsRotation);
                 camera.DispatchSpawn();
@@ -383,7 +381,7 @@ namespace src.player.skills
             public required QAngle LastAngle { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
         }

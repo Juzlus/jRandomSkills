@@ -69,7 +69,7 @@ namespace src.player.skills
             SkillUtils.RestoreHealth(victim);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float torseReflectionChance = .95f, float legReflectionChance = .80f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float torseReflectionChance = .95f, float legReflectionChance = .80f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float TorseReflectionChance { get; set; } = torseReflectionChance;
             public float LegReflectionChance { get; set; } = legReflectionChance;

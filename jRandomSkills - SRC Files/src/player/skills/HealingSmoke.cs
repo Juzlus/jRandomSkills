@@ -109,7 +109,7 @@ namespace src.player.skills
             Utilities.SetStateChanged(player, "CBaseEntity", "m_iHealth");
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public int SmokeHeal { get; set; } = smokeHeal;
             public float SmokeRadius { get; set; } = smokeRadius;

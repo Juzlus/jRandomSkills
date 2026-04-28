@@ -1066,3 +1066,44 @@ This plugin uses content from the following projects:
 ## 📝 Contact
 
 If you have a question, please write to juzlus.biznes@gmail.com or [jRandomSkills Discord](https://discord.gg/9H8EZYBpPF).
+
+
+---
+
+## 📝 Contact
+
+<div align="center">
+    <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+    <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+    <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+    <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+    <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+        <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+    <a href="https://github.com/Juzlus" title="Juzlus">
+        <img src="https://github.com/Juzlus.png" style="border-radius: 50%" alt="użytkownik1" width="75" height="75">
+    </a>
+</div>
+
+---
+
+## 📝 Contact
+
+<div align="center">
+
+<a href="https://github.com/juzlus" title="🇯🅤🇿🅛🇺🅢">
+    <img src="https://cdn.discordapp.com/avatars/284780352042434570/a_85f6ed36bc17c2650e62e16c00d67bc8.gif" alt="🇯🅤🇿🅛🇺🅢" width="75" height="75" style="border-radius:50%">
+</a>
+
+</div>

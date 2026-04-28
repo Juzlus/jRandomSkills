@@ -57,6 +57,7 @@ namespace src.player.skills
                 {
                     UpdateWeapons(player, playerSkill);
                     CreateClone(playerSkill);
+                    SkillUtils.SetPlayerCollisions(player, false);
                 }
                 else if (playerSkill.CloneProp != null)
                     KillClone(playerSkill);
@@ -123,6 +124,7 @@ namespace src.player.skills
             }
 
             SkillUtils.ApplyScreenColor(player, 0, 0, 0, 0, 10, 0, 2);
+            SkillUtils.SetPlayerCollisions(player, true);
             BlockWeapon(player, false);
             playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
             playerSkill.UseTime = 0;
@@ -407,7 +409,7 @@ namespace src.player.skills
             public List<ulong> Weapons { get; set; } = [];
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d0d930", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float cooldown = 30, float duration = 10) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d0d930", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30, float duration = 10) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
             public float Duration { get; set; } = duration;

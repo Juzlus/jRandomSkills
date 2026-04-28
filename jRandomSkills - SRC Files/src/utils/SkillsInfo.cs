@@ -127,7 +127,7 @@ namespace src.utils
 			}
         }
 
-        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "")
+        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common)
         {
             public bool NeedsTeammates { get; set; } = needsTeammates;
             public bool DisableOnFreezeTime { get; set; } = disableOnFreezeTime;
@@ -136,6 +136,9 @@ namespace src.utils
             public bool Active { get; set; } = active;
             public string Name { get; set; } = skill.ToString();
             public string RequiredPermission { get; set; } = requiredPermission;
+            public int MaxPerServer { get; set; } = maxPerServer;
+            public string Rarity { get; set; } = rarity.ToString();
         }
+
     }
 }

@@ -17,17 +17,21 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            Server.ExecuteCommand("weapon_accuracy_nospread 0");
+            var players = Utilities.GetPlayers();
+            foreach (var player in players)
+                DisableSkill(player);
         }
 
-        public static void EnableSkill(CCSPlayerController _)
+        public static void EnableSkill(CCSPlayerController player)
         {
-            Server.ExecuteCommand("weapon_accuracy_nospread 1");
+            if (player == null || !player.IsValid) return;
+            player.ReplicateConVar("weapon_accuracy_nospread", "1");
         }
 
-        public static void DisableSkill(CCSPlayerController _)
+        public static void DisableSkill(CCSPlayerController player)
         {
-            Server.ExecuteCommand("weapon_accuracy_nospread 0");
+            if (player == null || !player.IsValid) return;
+            player.ReplicateConVar("weapon_accuracy_nospread", "0");
         }
 
         public static void OnTick()
@@ -40,7 +44,7 @@ namespace src.player.skills
                 if (playerInfo?.Skill == skillName)
                 {
                     var pawn = player.PlayerPawn.Value;
-                    if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) continue;
+                    if (pawn == null || !pawn.IsValid) continue;
 
                     if (pawn.AimPunchServices != null)
                     {
@@ -49,13 +53,16 @@ namespace src.player.skills
                         pawn.AimPunchServices.UnpredictableBaseTick = 0;
                     }
 
-                    pawn.CameraServices.CsViewPunchAngleTick = 0;
-                    pawn.CameraServices.CsViewPunchAngleTickRatio = 0f;
+                    if (pawn.CameraServices != null)
+                    {
+                        pawn.CameraServices.CsViewPunchAngleTick = 0;
+                        pawn.CameraServices.CsViewPunchAngleTickRatio = 0f;
+                    }
                 }
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8a42f5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8a42f5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
         }
     }

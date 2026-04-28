@@ -146,7 +146,7 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#384728", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float strength = 150, float maxVelocity = 2000, float detonationRange = 130) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#384728", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float strength = 150, float maxVelocity = 2000, float detonationRange = 130) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float Strength { get; set; } = strength;
             public float MaxVelocity { get; set; } = maxVelocity;

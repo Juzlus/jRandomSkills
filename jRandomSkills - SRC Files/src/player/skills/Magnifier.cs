@@ -22,7 +22,7 @@ namespace src.player.skills
             foreach (var playerIndex in playersFOV.Keys)
             {
                 var player = Utilities.GetPlayerFromIndex((int)playerIndex);
-                if (player == null || player.IsValid) continue;
+                if (player == null || !player.IsValid) continue;
                 DisableSkill(player);
             }
                 
@@ -112,7 +112,7 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9ba882", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", uint customFOV = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9ba882", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, uint customFOV = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public uint CustomFOV { get; set; } = customFOV;
         }

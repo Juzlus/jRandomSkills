@@ -1,10 +1,8 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Drawing;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -18,10 +16,13 @@ namespace src.player.skills
         private static readonly object setLock = new();
 
         private const string weapon_awp = "weapon_awp";
-        private static readonly string[] rifles = [ "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
-        "weapon_mp5sd", "weapon_famas", "weapon_galilar", "weapon_m4a1", "weapon_m4a1_silencer", "weapon_ak47",
-        "weapon_aug", "weapon_sg553", "weapon_ssg08", "weapon_awp", "weapon_scar20", "weapon_g3sg1",
-        "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249", "weapon_negev" ];
+        private static readonly string[] rifles =
+        [
+            "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
+            "weapon_mp5sd", "weapon_famas", "weapon_galilar", "weapon_m4a1", "weapon_m4a1_silencer", "weapon_ak47",
+            "weapon_aug", "weapon_sg553", "weapon_ssg08", "weapon_awp", "weapon_scar20", "weapon_g3sg1",
+            "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249", "weapon_negev"
+        ];
 
         public static void LoadSkill()
         {
@@ -33,6 +34,10 @@ namespace src.player.skills
 
             lock (setLock)
             {
+                var allIndexes = playerAWPIndexes.Values.SelectMany(l => l).ToArray();
+                foreach (var idx in allIndexes)
+                    SkillUtils.SafeKillEntity<CBasePlayerWeapon>(idx);
+
                 savedWeapons.Clear();
                 playerAWPIndexes.Clear();
                 isProcessing.Clear();
@@ -74,15 +79,7 @@ namespace src.player.skills
 
             if (playerAWPIndexes.TryGetValue(player.SteamID, out var AWPs))
                 foreach (var index in AWPs.ToList())
-                {
-                    var pawn = player.PlayerPawn.Value;
-                    if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) continue;
-
-                    var weapon = pawn.WeaponServices.MyWeapons.FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && AWPs.Contains(w.Value.Index));
-                    if (weapon == null) continue;
-
-                    weapon.Value?.AddEntityIOEvent("Kill", weapon.Value, delay: 0.1f);
-                }
+                    SkillUtils.SafeKillEntity<CBasePlayerWeapon>(index);
 
             if (savedWeapons.TryGetValue(player.SteamID, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))    
                 Server.NextFrame(() =>
@@ -152,7 +149,7 @@ namespace src.player.skills
                         weaponToGive = weapon_awp + "_script";
                     }
 
-                    activeRifle.AddEntityIOEvent("Kill", activeRifle, delay: 0.1f);
+                    SkillUtils.SafeKillEntity<CBasePlayerWeapon>(activeRifle.Index);
                 }
                 else
                 {
@@ -237,7 +234,7 @@ namespace src.player.skills
             return null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0873a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0873a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
         }
     }

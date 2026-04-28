@@ -25,8 +25,9 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var knifeInfo in knivesInfo.Values)
+            foreach (var knifeInfo in knivesInfo.Values.ToArray())
                 DisableKnifeSkill(knifeInfo);
+            
             knivesInfo.Clear();
         }
 
@@ -53,7 +54,12 @@ namespace src.player.skills
             if (soundPos == null) return;
 
             (var knife, var knifeInfo) = GetClosetKnife(soundPos);
-            if (knife == null || knife.AbsRotation == null || knifeInfo == null || knifeInfo.InitialLook == null) return;
+            
+            if (knife == null || !knife.IsValid || knife.AbsRotation == null)
+                return;
+            
+            if (knifeInfo == null || knifeInfo.InitialLook == null)
+                return;
         
             knifeInfo.IsDropped = false;
             QAngle rotation = new(knifeInfo.InitialLook?.X, knifeInfo.InitialLook?.Y, knife.AbsRotation.Z);
@@ -66,7 +72,8 @@ namespace src.player.skills
             );
 
             var world = Utilities.GetEntityFromIndex<CBaseEntity>(0);
-            knife.AcceptInput("SetParent", world, world, "!activator");
+            if (world != null && world.IsValid)
+                knife.AcceptInput("SetParent", world, world, "!activator");
             
             if (knifeInfo.Timer != null)
                 knifeInfo.Timer?.Kill();
@@ -120,41 +127,22 @@ namespace src.player.skills
         public static void DisableKnifeSkill(KnifeInfo knifeInfo)
         {
             if (knifeInfo.Timer != null)
+            {
                 knifeInfo.Timer?.Kill();
-            knifeInfo.Timer = null;
-
-            if (knifeInfo.TriggerIndex != null)
-            {
-                var trigger = Utilities.GetEntityFromIndex<CTriggerMultiple>((int)knifeInfo.TriggerIndex);
-                if (trigger != null && trigger.IsValid)
-                    Server.NextFrame(() =>
-                    {
-                        if (trigger != null && trigger.IsValid)
-                            trigger.AcceptInput("Kill");
-                    });
+                knifeInfo.Timer = null;
             }
 
-            if (knifeInfo.GlowIndex != null)
-            {
-                var glow = Utilities.GetEntityFromIndex<CTriggerMultiple>((int)knifeInfo.GlowIndex);
-                if (glow != null && glow.IsValid)
-                    Server.NextFrame(() =>
-                    {
-                        if (glow != null && glow.IsValid)
-                            glow.AcceptInput("Kill");
-                    });
-            }
+            var trigger = knifeInfo.TriggerIndex;
+            var glow = knifeInfo.GlowIndex;
+            var relay = knifeInfo.RelayIndex;
 
-            if (knifeInfo.RelayIndex != null)
-            {
-                var relay = Utilities.GetEntityFromIndex<CTriggerMultiple>((int)knifeInfo.RelayIndex);
-                if (relay != null && relay.IsValid)
-                    Server.NextFrame(() =>
-                    {
-                        if (relay != null && relay.IsValid)
-                            relay.AcceptInput("Kill");
-                    });
-            }
+            knifeInfo.GlowIndex = null;
+            knifeInfo.TriggerIndex = null;
+            knifeInfo.RelayIndex = null;
+
+            SkillUtils.SafeKillEntity<CTriggerMultiple>(trigger);
+            SkillUtils.SafeKillEntity<CBaseEntity>(glow);
+            SkillUtils.SafeKillEntity<CBaseEntity>(relay);
         }
 
         public static void UseSkill(CCSPlayerController player)
@@ -171,7 +159,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) return;
 
-                var pawn = player.PlayerPawn.Value;
+                var pawn = player.PlayerPawn?.Value;
                 if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return;
 
                 var weapon = pawn.WeaponServices.ActiveWeapon.Value;
@@ -191,7 +179,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
             if (knife == null || !knife.IsValid || knife.AbsOrigin == null) return;
 
-            var pawn = player.PlayerPawn.Value;
+            var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
             float force = 2000f;
@@ -293,10 +281,15 @@ namespace src.player.skills
                 var thrower = Utilities.GetPlayerFromIndex((int)knifeInfo.PlayerIndex);
                 if (thrower == null || !thrower.IsValid) return;
 
-                if (thrower != null && thrower.Pawn.Value != null && victimPawn.Index == thrower.Pawn.Index) return;
+                var throwerPawn = thrower.Pawn?.Value;
+                if (throwerPawn == null || !throwerPawn.IsValid)
+                    return;
+
+                if (victimPawn.Index == throwerPawn.Index)
+                    return;
 
                 bool friendlyFire = SkillsInfo.GetValue<bool>(skillName, "friendlyFire");
-                if (!friendlyFire && thrower?.TeamNum == victimPawn.TeamNum) return;
+                if (!friendlyFire && thrower.TeamNum == victimPawn.TeamNum) return;
 
                 if (CheckHasKnife(thrower!)) return;
 
@@ -306,9 +299,11 @@ namespace src.player.skills
 
         private static bool CheckHasKnife(CCSPlayerController player)
         {
-            var pawn = player.PlayerPawn.Value;
+            var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return false;
-            return pawn.WeaponServices.MyWeapons.Any(w => w.IsValid && w != null && w.Value != null && w.Value.IsValid && (w.Value.DesignerName.Contains("knife") || w.Value.DesignerName.Contains("bayonet")));
+            return pawn.WeaponServices.MyWeapons.Any(w =>
+                w != null && w.IsValid && w.Value != null && w.Value.IsValid &&
+                (w.Value.DesignerName.Contains("knife") || w.Value.DesignerName.Contains("bayonet")));
         }
 
         private static (CBaseEntity?, KnifeInfo?) GetClosetKnife(Vector pos)
@@ -317,7 +312,7 @@ namespace src.player.skills
             KnifeInfo? minKnifeInfo = null;
             CBaseEntity? closet = null;
 
-            foreach (var knifeInfo in knivesInfo.Values)
+            foreach (var knifeInfo in knivesInfo.Values.ToArray())
             {
                 if (!knifeInfo.IsDropped) continue;
 
@@ -338,18 +333,52 @@ namespace src.player.skills
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            var snapshot = knivesInfo.ToArray();
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
-                var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
 
-                foreach ((uint playerIndex, KnifeInfo knifeInfo) in knivesInfo)
+                var playerPawn = player.Pawn?.Value;
+                if (playerPawn == null)
+                    continue;
+
+                var observerServices = playerPawn.ObserverServices;
+                if (observerServices == null)
+                    continue;
+
+                var observerTarget = observerServices.ObserverTarget;
+                if (observerTarget == null || !observerTarget.IsValid)
+                    continue;
+
+                var target = observerTarget.Value;
+                if (target == null || !target.IsValid)
+                    continue;
+
+                var observedPlayer = Utilities.GetPlayers()
+                    .FirstOrDefault(p => 
+                        p.CheckPlayer() &&
+                        
+                        p.Pawn != null && p.Pawn.IsValid &&
+                        p.Pawn.Value != null && p.Pawn.Value.IsValid &&
+
+                        p.Pawn.Value.Handle == target.Handle);
+
+                foreach ((uint playerIndex, KnifeInfo knifeInfo) in snapshot)
                 {
-                    if (playerIndex == player.Index || (observedPlayer != null && observedPlayer.IsValid && playerIndex == observedPlayer.Index)) continue;
+                    if (playerIndex == player.Index ||
+                        (observedPlayer != null && observedPlayer.IsValid &&
+                            playerIndex == observedPlayer.Index)) continue;
+
                     if (knifeInfo.GlowIndex == null) continue;
 
                     var glowEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)knifeInfo.GlowIndex);
-                    if (glowEntity == null || !glowEntity.IsValid) continue;
+                    if (glowEntity == null || !glowEntity.IsValid)
+                    {
+                        knifeInfo.GlowIndex = null;
+                        continue;
+                    }
+
                     info.TransmitEntities.Remove(glowEntity.Index);
                 }
             }
@@ -368,7 +397,7 @@ namespace src.player.skills
             public Timer? Timer { get; set; } = null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8f108f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", bool friendlyFire = false, int damage = 9999) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8f108f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common, bool friendlyFire = false, int damage = 9999) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public bool FriendlyFire { get; set; } = friendlyFire;
             public int Damage { get; set; } = damage;

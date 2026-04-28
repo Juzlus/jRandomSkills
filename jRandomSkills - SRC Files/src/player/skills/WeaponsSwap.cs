@@ -13,7 +13,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
-        private static readonly string[] weapons = [ "weapon_deagle", "weapon_revolver", "weapon_glock", "weapon_usp_silencer",
+        private static readonly HashSet<string> weapons = [ "weapon_deagle", "weapon_revolver", "weapon_glock", "weapon_usp_silencer",
         "weapon_cz75a", "weapon_fiveseven", "weapon_p250", "weapon_tec9", "weapon_elite", "weapon_hkp2000",
         "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
         "weapon_mp5sd", "weapon_famas", "weapon_galilar", "weapon_m4a4", "weapon_m4a1_silencer", "weapon_ak47",
@@ -52,15 +52,17 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            var players = Utilities.GetPlayers().ToArray();
+            foreach (var player in players)
             {
                 var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-                if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
-                        if (skillInfo.LastClick.AddSeconds(4) >= DateTime.Now)
-                            UpdateHUD(player, skillInfo, true);
-                        else
-                            UpdateHUD(player, skillInfo, false);
+                if (playerInfo?.Skill != skillName) continue;
+
+                if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                {
+                    bool recentClick = skillInfo.LastClick.AddSeconds(4) >= DateTime.Now;
+                    UpdateHUD(player, skillInfo, recentClick);
+                }
             }
         }
 
@@ -115,7 +117,7 @@ namespace src.player.skills
                     string[]? playerWeapon = GetWeapons(player);
                     string[]? enemyWeapon = GetWeapons(enemy);
 
-                    if (playerWeapon == null || playerWeapon.FirstOrDefault(w => weapons.Contains(w)) == null)
+                    if (playerWeapon == null || !playerWeapon.Any(w => weapons.Contains(w)))
                     {
                         skillInfo.FindedEnemy = true;
                         skillInfo.HaveWeapon = false;
@@ -148,15 +150,16 @@ namespace src.player.skills
 
         private static string[]? GetWeapons(CCSPlayerController player)
         {
-            ConcurrentBag<string> playerWeapons = [];
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return null;
             if (pawn.WeaponServices == null) return null;
 
+            var list = new List<string>();
             foreach (var weapon in pawn.WeaponServices.MyWeapons)
-                if (weapon.Value != null && weapon.Value.IsValid)
-                    playerWeapons.Add(SkillUtils.GetDesignerName(weapon.Value));
-            return playerWeapons.Count == 0 ? null : [.. playerWeapons];
+                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
+                    list.Add(SkillUtils.GetDesignerName(weapon.Value));
+
+            return list.Count == 0 ? null : [.. list];
         }
 
         private static void GiveWeapons(CCSPlayerController player, string[]? weapons, bool addC4)
@@ -183,7 +186,7 @@ namespace src.player.skills
 
             foreach (var item in pawn.WeaponServices.MyWeapons)
                 if (item != null && item.IsValid && item.Value != null && item.Value.IsValid && item.Value.DesignerName == "weapon_c4")
-                    item.Value.AcceptInput("Kill");
+                    SkillUtils.SafeKillEntity<CBasePlayerWeapon>((uint)item.Value.Index);
         }
 
         public class PlayerSkillInfo
@@ -196,7 +199,7 @@ namespace src.player.skills
             public bool HaveWeapon { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c7e03a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float cooldown = 30f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c7e03a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
         }

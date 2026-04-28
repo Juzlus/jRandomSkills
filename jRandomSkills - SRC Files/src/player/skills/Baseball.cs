@@ -64,17 +64,23 @@ namespace src.player.skills
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
 
-            if (decoys.ContainsKey((uint)@event.Entityid))
+            uint key = (uint)@event.Entityid;
+            if (decoys.ContainsKey(key))
             {
                 var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>(@event.Entityid);
                 if (decoy != null && decoy.IsValid)
                     decoy.AcceptInput("Kill");
+                decoys.TryRemove(key, out _);
             }
         }
 
         public static void OnTick()
         {
-            foreach (var decoyIndex in decoys.Keys)
+            if (Server.TickCount % 8 != 0) return;
+
+            var keys = decoys.Keys.ToArray();
+
+            foreach (var decoyIndex in keys)
             {
                 var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>((int)decoyIndex);
 
@@ -85,7 +91,6 @@ namespace src.player.skills
                 }
 
                 decoy.Bounces = 0;
-                if (Server.TickCount % 8 != 0) continue;
                 
                 var vel = decoy.AbsVelocity;
                 float speed = vel.Length();
@@ -108,7 +113,7 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float speedMultipier = 2f, float maxSpeed = 900f, int damageDeal = 9999) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float speedMultipier = 2f, float maxSpeed = 900f, int damageDeal = 9999) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float SpeedMultipier { get; set; } = speedMultipier;
             public float MaxSpeed { get; set; } = maxSpeed;

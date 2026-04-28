@@ -24,6 +24,7 @@ public interface ISkill
     public static void PlayerHurt(EventPlayerHurt _) { }
     public static void PlayerDeath(EventPlayerDeath _) { }
     public static void PlayerJump(EventPlayerJump _) { }
+    public static void SwitchTeam(EventSwitchTeam _, GameEventInfo __) { }
 
     public static void WeaponFire(EventWeaponFire _) { }
     public static void WeaponEquip(EventItemEquip _) { }

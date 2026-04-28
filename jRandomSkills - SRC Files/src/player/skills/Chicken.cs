@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Chicken : ISkill
     {
         private const Skills skillName = Skills.Chicken;
-        private static readonly string[] disabledWeapons =
+        private static readonly HashSet<string> disabledWeapons =
         [
             "weapon_ak47", "weapon_m4a4", "weapon_m4a1", "weapon_m4a1_silencer",
             "weapon_famas", "weapon_galilar", "weapon_aug", "weapon_sg553", 
@@ -22,9 +22,6 @@ namespace src.player.skills
             "weapon_negev"
         ];
         private static readonly ConcurrentDictionary<uint, uint> chickens = [];
-        private static readonly string defaultCTModel = "agents/models/ctm_sas/ctm_sas.vmdl";
-        private static readonly string defaultTModel = "agents/models/tm_phoenix/tm_phoenix.vmdl";
-        private static readonly ConcurrentDictionary<ulong, string> originalModels = [];
 
         public static void LoadSkill()
         {
@@ -36,23 +33,21 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
                 SetWeaponAttack(player, false);
 
-            foreach (var valuePair in chickens)
-            {
-                var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)valuePair.Value);
-                if (chicken != null && chicken.IsValid)
-                    chicken.AcceptInput("Kill");
-            }
-                
+            var chickenIndices = chickens.Values.ToArray();
+            foreach (var idx in chickenIndices)
+                SkillUtils.SafeKillEntity<CBaseModelEntity>(idx);
+
             chickens.Clear();
-            originalModels.Clear();
         }
 
         public static void WeaponPickup(EventItemPickup @event)
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
+
             var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
             if (playerInfo?.Skill != skillName) return;
+
             SetWeaponAttack(player, true);
         }
 
@@ -73,9 +68,6 @@ namespace src.player.skills
                 playerPawn.ShadowStrength = 0f;
                 Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
 
-                if (playerPawn.CBodyComponent != null && playerPawn.CBodyComponent.SceneNode != null)
-                    originalModels.TryAdd(player.SteamID, playerPawn.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.ModelName);
-
                 SetWeaponAttack(player, true);
                 CreateChicken(player);
             }
@@ -85,6 +77,7 @@ namespace src.player.skills
         {
             SkillUtils.ResetPrintHTML(player);
             var playerPawn = player.PlayerPawn?.Value;
+
             if (playerPawn != null)
             {
                 playerPawn.VelocityModifier = 1f;
@@ -102,32 +95,7 @@ namespace src.player.skills
             }
 
             if (chickens.TryRemove(player.Index, out var chickenIndex))
-            {
-                var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)chickenIndex);
-
-                if (chicken != null && chicken.IsValid)
-                    chicken.AcceptInput("Kill");
-            }
-
-            if (originalModels.TryGetValue(player.SteamID, out var model))
-            {
-                var pawn = player.PlayerPawn?.Value;
-                if (pawn == null) return;
-
-                Server.NextFrame(() =>
-                {
-                    if (player == null || !player.IsValid) return;
-                    if (pawn == null || !pawn.IsValid) return;
-
-                    if (string.IsNullOrEmpty(model))
-                        model = player.Team == CsTeam.Terrorist ? defaultTModel : defaultCTModel;
-                    
-                    pawn.SetModel(model);
-                    var originalRender = pawn.Render;
-                    pawn.Render = Color.FromArgb(255, originalRender.R, originalRender.G, originalRender.B);
-                    originalModels.TryRemove(player.SteamID, out _);
-                });
-            }
+                SkillUtils.SafeKillEntity<CBaseModelEntity>(chickenIndex);
         }
 
         private static void SetWeaponAttack(CCSPlayerController player, bool disableWeapon)
@@ -178,7 +146,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var valuePair in chickens)
+            var pairs = chickens.ToArray();
+            foreach (var valuePair in pairs)
             {
                 var playerIndex = valuePair.Key;
                 var chickenIndex = valuePair.Value;
@@ -216,7 +185,7 @@ namespace src.player.skills
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("disabled_weapon")}</font>";
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FF8B42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FF8B42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
         }
     }

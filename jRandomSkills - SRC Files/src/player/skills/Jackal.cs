@@ -1,9 +1,9 @@
-﻿using CounterStrikeSharp.API;
+﻿using System.Collections.Concurrent;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using System.Collections.Concurrent;
 using static src.jRandomSkills;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -12,9 +12,9 @@ namespace src.player.skills
     public class Jackal : ISkill
     {
         private const Skills skillName = Skills.Jackal;
-        private static readonly ConcurrentDictionary<ulong, byte> playersInAction = [];
-        private static readonly ConcurrentDictionary<uint, uint?> playersStep = [];
-        private static readonly ConcurrentDictionary<ulong, Timer?> activeTimers = [];
+        private static readonly ConcurrentDictionary<ulong, byte> playersInAction = new();
+        private static readonly ConcurrentDictionary<uint, uint?> playersStep = new();
+        private static readonly ConcurrentDictionary<ulong, Timer?> activeTimers = new();
 
         public static void LoadSkill()
         {
@@ -24,22 +24,22 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var particleIndex in playersStep.Values)
-            {
-                if (particleIndex == null) continue;
-                var particle = Utilities.GetEntityFromIndex<CParticleSystem>((int)particleIndex);
+            var particleIds = playersStep.Values.Where(v => v.HasValue).Select(v => v!.Value).ToArray();
+            foreach (var pid in particleIds)
+                SkillUtils.SafeKillEntity<CParticleSystem>(pid);
 
-                if (particle != null && particle.IsValid)
-                    particle.AcceptInput("Kill");
-            }
-                
+            var timers = activeTimers.Values.ToArray();
+            foreach (var t in timers)
+                t?.Kill();
+
             playersStep.Clear();
             playersInAction.Clear();
+            activeTimers.Clear();
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
-            foreach( var (info, player) in infoList)
+            foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
                 var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
@@ -56,11 +56,10 @@ namespace src.player.skills
 
                 bool hasSkill = playerInfo?.Skill == skillName || isObservingJackal;
 
-                foreach (var param in playersStep)
+                foreach (var kv in playersStep.ToArray())
                 {
-                    var enemyIndex = param.Key;
-                    var particleIndex = param.Value;
-
+                    var enemyIndex = kv.Key;
+                    var particleIndex = kv.Value;
                     if (particleIndex == null) continue;
 
                     var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
@@ -100,17 +99,21 @@ namespace src.player.skills
             particle.AcceptInput("Start");
 
             uint particleId = particle.Index;
-
             playersStep.AddOrUpdate(player.Index, particle.Index, (k, v) => particle.Index);
 
-            activeTimers[player.SteamID] = Instance.AddTimer(2.5f, () => {
-                var particle = Utilities.GetEntityFromIndex<CParticleSystem>((int)particleId);
-                if (particle != null && particle.IsValid)
-                    particle.AcceptInput("Kill");
+            var timer = Instance.AddTimer(2.5f, () =>
+            {
+                SkillUtils.SafeKillEntity<CParticleSystem>(particleId);
 
-                var player = Utilities.GetPlayerFromSteamId(steamID);
-                if (player != null && player.IsValid && playersStep.ContainsKey(player.Index))
-                    CreatePlayerTrail(player);
+                var pl = Utilities.GetPlayerFromSteamId(steamID);
+                if (pl != null && pl.IsValid && playersStep.ContainsKey(pl.Index))
+                    CreatePlayerTrail(pl);
+            });
+
+            activeTimers.AddOrUpdate(player.SteamID, timer, (_, prev) =>
+            {
+                prev?.Kill();
+                return timer;
             });
         }
 
@@ -118,10 +121,19 @@ namespace src.player.skills
         {
             Event.EnableTransmit();
             playersInAction.TryAdd(player.SteamID, 0);
-            foreach (var _player in Utilities.GetPlayers().Where(p => p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+
+            var opponents = Utilities.GetPlayers()
+                .Where(p => p.Team != player.Team
+                            && p.IsValid
+                            && !p.IsBot
+                            && !p.IsHLTV
+                            && p.PawnIsAlive
+                            && (p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+                .ToArray();
+
+            foreach (var _player in opponents)
             {
-                if (!playersStep.ContainsKey(_player.Index))
-                    playersStep.TryAdd(_player.Index, null);
+                playersStep.TryAdd(_player.Index, null);
                 CreatePlayerTrail(_player);
             }
         }
@@ -132,16 +144,17 @@ namespace src.player.skills
 
             if (playersStep.TryRemove(player.Index, out var particleIndex) && particleIndex != null)
             {
-                var particle = Utilities.GetEntityFromIndex<CParticleSystem>((int)particleIndex);
-                if (particle != null && particle.IsValid)
-                    particle.AcceptInput("Kill");
+                SkillUtils.SafeKillEntity<CParticleSystem>(particleIndex);
             }
+
+            if (activeTimers.TryRemove(player.SteamID, out var t))
+                t?.Kill();
 
             if (playersInAction.IsEmpty)
                 NewRound();
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common, string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public string ParticleName { get; set; } = particleName;
         }

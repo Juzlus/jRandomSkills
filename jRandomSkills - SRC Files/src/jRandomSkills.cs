@@ -22,13 +22,13 @@ namespace src
         public ConcurrentBag<jSkill_PlayerInfo> SkillPlayer { get; set; } = [];
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
-        private ConcurrentBag<string> ManifestResources { get; set; } = ["models/actors/ghost_speaker.vmdl"];
+        private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
         public IWasdMenuManager? MenuManager;
 
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.1.b8";
+        public override string ModuleVersion => "1.2.1.b9";
 
         public override void Load(bool hotReload)
         {
@@ -79,8 +79,21 @@ namespace src
 
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
         {
+            if (string.IsNullOrEmpty(skill))
+                return null;
+
             string className = $"src.player.skills.{skill}";
-            Type? type = Type.GetType(className);
+
+            Type? type = Type.GetType(className)
+                ?? Assembly.GetExecutingAssembly().GetType(className)
+                ?? AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(a =>
+                    {
+                        try { return a.GetTypes(); }
+                        catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t!= null)!; }
+                        catch { return []; }
+                    })
+                    .FirstOrDefault(t => t != null && string.Equals(t.FullName, className, StringComparison.Ordinal));
 
             if (type != null && typeof(ISkill).IsAssignableFrom(type))
             {
@@ -89,6 +102,7 @@ namespace src
             }
             else
                 Server.PrintToConsole($"Could not find or load {className}");
+
             return null;
         }
 

@@ -73,7 +73,7 @@ namespace src.player.skills
             LB[player.Slot] = buttons;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FFA500", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int extraJumpsMin = 1, int extraJumpsMax = 4) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FFA500", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int extraJumpsMin = 1, int extraJumpsMax = 4) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public int ExtraJumpsMin { get; set; } = extraJumpsMin;
             public int ExtraJumpsMax { get; set; } = extraJumpsMax;

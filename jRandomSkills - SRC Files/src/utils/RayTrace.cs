@@ -30,7 +30,7 @@ namespace src.utils
                 mask = playerPawn.Collision.CollisionAttribute.InteractsWith | (ulong)InteractionLayers.Hitboxes;
                 mask &= ~(ulong)InteractionLayers.PlayerClip;
             }
-            contents ??= playerPawn.Collision.CollisionGroup;
+            contents ??= 0; // playerPawn.Collision.CollisionGroup;
 
             bool drawBeam = Config.LoadedConfig.TraceRayBeam;
 
@@ -42,8 +42,12 @@ namespace src.utils
             };
 
             rayTrace.TraceEndShape(startPos, endPos, playerPawn, options, out TraceResult result);
+            var customResult = new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
 
-            return new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
+            if (drawBeam)
+                Server.PrintToChatAll($"start: {startPos}, end: {result.EndPos}, didHit: {result.DidHit}, hit: {(customResult.HitEntity(out var entity) && !string.IsNullOrEmpty(entity?.DesignerName) ? entity.DesignerName : "None")}, mask: {(InteractionLayers)mask}, contents: {(InteractionLayers)contents}");
+
+            return customResult;
         }
 
         public static CustomTraceResult? EyeTrace(CCSPlayerController player)
@@ -75,7 +79,7 @@ namespace src.utils
                 return null;
 
             mask ??= playerPawn.Collision.CollisionAttribute.InteractsWith;
-            contents ??= playerPawn.Collision.CollisionGroup;
+            contents ??= 0; // playerPawn.Collision.CollisionGroup;
 
             bool drawBeam = Config.LoadedConfig.TraceRayBeam;
 

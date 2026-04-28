@@ -124,7 +124,7 @@ namespace src.player.skills
             Server.NextFrame(() =>
             {
                 if (camera == null || !camera.IsValid) return;
-                camera.SetModel("models/actors/ghost_speaker.vmdl");
+                camera.SetModel("models/sprays/spray_plane.vmdl");
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
                 camera.Teleport(pos, new QAngle(90, 0, 0));
                 camera.DispatchSpawn();
@@ -153,7 +153,7 @@ namespace src.player.skills
                 }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d1f542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float distance = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d1f542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float Distance { get; set; } = distance;
         }

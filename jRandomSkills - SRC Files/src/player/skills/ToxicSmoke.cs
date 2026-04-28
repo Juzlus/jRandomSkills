@@ -110,7 +110,7 @@ namespace src.player.skills
                 player.CommitSuicide(false, true);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public int SmokeDamage { get; set; } = smokeDamage;
             public float SmokeRadius { get; set; } = smokeRadius;

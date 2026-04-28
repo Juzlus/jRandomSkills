@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.menu;
 using src.player;
@@ -604,7 +605,7 @@ namespace src.command
                 else
                     nextIndex = int.Parse(arg);
             }
-            
+
             var skill = skillsList[nextIndex];
             player.PrintToChat(nextIndex.ToString());
 

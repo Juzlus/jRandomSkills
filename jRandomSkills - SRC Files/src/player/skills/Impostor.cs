@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Impostor : ISkill
     {
         private const Skills skillName = Skills.Impostor;
-        private static readonly string defaultCTModel = "agents//models/ctm_sas/ctm_sas.vmdl";
+        private static readonly string defaultCTModel = "agents/models/ctm_sas/ctm_sas.vmdl";
         private static readonly string defaultTModel = "agents/models/tm_phoenix/tm_phoenix.vmdl";
         private static readonly ConcurrentDictionary<ulong, string> originalModels = [];
 
@@ -71,7 +71,7 @@ namespace src.player.skills
             });
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#99140B", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#99140B", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
         }
     }

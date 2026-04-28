@@ -23,6 +23,7 @@ namespace src.utils
         private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile> SmokeGrenadeProjectile_CreateFunc = new(GameData.GetSignature("SmokeGrenadeProjectile_CreateFunc"));
         private static readonly MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint> TerminateRoundFunc = new(GameData.GetSignature("CCSGameRules_TerminateRound"));
         private static readonly MemoryFunctionVoid<CBasePlayerPawn, QAngle> SnapViewAngles = new(GameData.GetSignature("SnapViewAngles"));
+        // private static readonly int collisionRulesChangedOffset = GameData.GetOffset("CBaseEntity_CollisionRulesChanged");
 
         public static void PrintToChat(CCSPlayerController player, string? msg, string border = "tb", string? title = null)
         {
@@ -101,6 +102,36 @@ namespace src.utils
             return $"{minutes:D2}:{seconds:D2}";
         }
 
+        public static void SafeKillEntity<T>(uint? index) where T : CBaseEntity
+        {
+            if (index == null) return;
+
+            var ent = Utilities.GetEntityFromIndex<T>((int)index);
+            if (ent == null || !ent.IsValid) return;
+
+            ent.AddEntityIOEvent("Kill", ent, delay: 0.1f);
+        }
+
+        public static bool IsValid<T>(this CHandle<T>? handle) where T : NativeEntity
+        {
+            return handle != null && handle.IsValid && handle.Value != null;
+        }
+
+        public static bool IsValid(this CBaseEntity? ent)
+        {
+            return ent != null && ent.IsValid;
+        }
+
+        public static bool CheckPlayer(this CCSPlayerController? player)
+        {
+            return player != null
+                && player.IsValid
+                && player.PlayerPawn?.Value?.IsValid() == true
+                && player.PawnIsAlive
+                && (player?.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist);
+        }
+
+
         public static Vector GetForwardVector(QAngle angles)
         {
             float pitch = -angles.X * (float)(Math.PI / 180);
@@ -137,6 +168,35 @@ namespace src.utils
 
             return beam;
         }
+
+        public static void SetPlayerCollisions(CCSPlayerController? player, bool enable)
+        {
+            return;
+
+            if (player == null || !player.IsValid) return;
+
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || !player.PawnIsAlive || pawn.CBodyComponent == null) return;
+
+            var collision = pawn.Collision;
+            if (collision == null) return;
+
+            var collisionGroup = (byte)(enable ? CollisionGroup.COLLISION_GROUP_PLAYER : CollisionGroup.COLLISION_GROUP_DEBRIS);
+
+            collision.CollisionGroup = collisionGroup;
+            collision.CollisionAttribute.CollisionGroup = collisionGroup;
+            Utilities.SetStateChanged(pawn, "CCollisionProperty", "m_collisionAttribute");
+
+           // CollisionRulesChanged(pawn);
+        }
+
+        //public static void CollisionRulesChanged(CBaseEntity? entity)
+        //{
+        //    if (entity == null || !entity.IsValid || collisionRulesChangedOffset <= 0) return;
+
+        //    var collisionRulesChanged = new VirtualFunctionVoid<nint>(entity.Handle, collisionRulesChangedOffset);
+        //    collisionRulesChanged.Invoke(entity.Handle);
+        //}
 
         public static void ApplyScreenColor(CCSPlayerController? player, int r, int g, int b, int a, int duration, int holdTime, int flags = 1)
         {

@@ -158,7 +158,7 @@ namespace src.player.skills
             public PlayerButtons LastButtons { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42bbfc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float jumpVelocity = 150f, float pushVelocity = 600f, bool anyDirection = true, float cooldown = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42bbfc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 150f, float pushVelocity = 600f, bool anyDirection = true, float cooldown = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float JumpVelocity { get; set; } = jumpVelocity;
             public float PushVelocity { get; set; } = pushVelocity;
