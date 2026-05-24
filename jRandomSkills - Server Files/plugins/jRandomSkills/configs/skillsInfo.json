@@ -971,20 +971,6 @@
     "Rarity": "Common"
   },
   {
-    "Amount": 3,
-    "Heal": 2,
-    "TickCooldown": 16,
-    "NeedsTeammates": false,
-    "DisableOnFreezeTime": false,
-    "OnlyTeam": 0,
-    "Color": "#b5ab8f",
-    "Active": true,
-    "Name": "HealingChicken",
-    "RequiredPermission": "",
-    "MaxPerServer": -1,
-    "Rarity": "Common"
-  },
-  {
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1180,22 +1166,6 @@
     "Rarity": "Common"
   },
   {
-    "Cooldown": 16.0,
-    "Amplitude": 15.0,
-    "Frequency": 500.0,
-    "Duration": 8.0,
-    "Radius": 50.0,
-    "NeedsTeammates": false,
-    "DisableOnFreezeTime": false,
-    "OnlyTeam": 0,
-    "Color": "#42f59b",
-    "Active": false,
-    "Name": "Earthquake",
-    "RequiredPermission": "",
-    "MaxPerServer": -1,
-    "Rarity": "Common"
-  },
-  {
     "MinScale": 0.6,
     "MaxScale": 0.95,
     "NeedsTeammates": false,
@@ -1305,7 +1275,7 @@
     "Name": "Darkness",
     "RequiredPermission": "",
     "MaxPerServer": -1,
-    "Rarity": "Uncommon"
+    "Rarity": "Rare"
   },
   {
     "Cooldown": 30.0,
@@ -1405,7 +1375,7 @@
   },
   {
     "TorseReflectionChance": 0.95,
-    "LegReflectionChance": 0.8,
+    "LegReflectionChance": 0.7,
     "VelocityModifier": 0.85,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
@@ -1563,6 +1533,6 @@
     "Name": "Aimbot",
     "RequiredPermission": "",
     "MaxPerServer": -1,
-    "Rarity": "Epic"
+    "Rarity": "Common"
   }
 ]
