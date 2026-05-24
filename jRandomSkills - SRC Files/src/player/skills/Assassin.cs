@@ -1,7 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -18,29 +17,34 @@ namespace src.player.skills
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var damage = @event.DmgHealth;
-            var victim = @event.Userid;
-            var attacker = @event.Attacker;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var weapon = @event.Weapon;
-            HitGroup_t hitgroup = (HitGroup_t)@event.Hitgroup;
 
-            if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
-            if (nades.Contains(weapon)) return;
+            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return;
+            if (string.IsNullOrEmpty(weapon) || nades.Contains(weapon)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            if (IsBehind(attacker!, victim!))
-                SkillUtils.TakeHealth(victim!.PlayerPawn.Value, (int)(damage * (SkillsInfo.GetValue<float>(skillName, "damageMultiplier") - 1f)));
+            if (IsBehind(attacker, victim))
+            {
+                var victimPawn = victim.PlayerPawn.Value;
+                if (victimPawn != null && victimPawn.IsValid)
+                    SkillUtils.TakeHealth(victimPawn, (int)(damage * (SkillsInfo.GetValue<float>(skillName, "damageMultiplier") - 1)));
+            }
         }
 
         private static bool IsBehind(CCSPlayerController attacker, CCSPlayerController victim)
         {
             var attackerPawn = attacker.PlayerPawn.Value;
             var victimPawn = victim.PlayerPawn.Value;
+
             if (attackerPawn == null || !attackerPawn.IsValid || victimPawn == null || !victimPawn.IsValid) return false;
             if (victimPawn.AbsRotation == null || attackerPawn.AbsRotation == null) return false;
+
             var angles = GetAngleRange(victimPawn.AbsRotation.Y);
-            return IsBeetween(angles.Item1, angles.Item2, attackerPawn.AbsRotation.Y);
+            return IsBetween(angles.Item1, angles.Item2, attackerPawn.AbsRotation.Y);
         }
 
         private static (float, float) GetAngleRange(float angle)
@@ -55,7 +59,7 @@ namespace src.player.skills
             return (min, max);
         }
 
-        private static bool IsBeetween(float a, float b, float target)
+        private static bool IsBetween(float a, float b, float target)
         {
             if (a <= b)
                 return (target >= a && target <= b);

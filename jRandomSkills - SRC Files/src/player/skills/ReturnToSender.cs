@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
@@ -24,12 +24,12 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
-            var victim = @event.Userid;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             int damage = @event.DmgHealth;
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
-            var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (attackerInfo == null || attackerInfo.Skill != skillName) return;
 
             if (playersToSender.ContainsKey(victim!.Handle))

@@ -1,16 +1,15 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
     public class Dash : ISkill
     {
         private const Skills skillName = Skills.Dash;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -26,37 +25,22 @@ namespace src.player.skills
             }
         }
 
-        public static void OnTick()
-        {
-            foreach (var player in Utilities.GetPlayers())
-            {
-                if (!Instance.IsPlayerValid(player)) return;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-                if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
-                    {
-                        UpdateHUD(player, skillInfo);
-                        HandleDash(player, skillInfo);
-                    }
-            }
-        }
-
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                Username = player.PlayerName,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
-                LastFlags = 0,
                 Jumps = 0,
-                LastButtons = 0
+                WasOnGround = true,
+                JumpReleasedTicks = 10
             });
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -72,7 +56,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -81,31 +65,49 @@ namespace src.player.skills
                 playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
         }
 
+        public static void OnTick()
+        {
+            foreach (var player in Utilities.GetPlayers())
+            {
+                if (player == null || !player.IsValid) return;
+
+                var eventPlayer = PlayerManager.GetPlayerEvent(player);
+                var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer!.Index);
+
+                if (playerInfo?.Skill == skillName)
+                    if (SkillPlayerInfo.TryGetValue(eventPlayer!.Index, out var skillInfo))
+                    {
+                        UpdateHUD(player, skillInfo);
+                        HandleDash(player, skillInfo);
+                    }
+            }
+        }
+
         private static void HandleDash(CCSPlayerController player, PlayerSkillInfo skillInfo)
         {
-            var playerPawn = player.PlayerPawn.Value;
+            var eventPlayer = PlayerManager.GetPlayerEvent(player);
+            var eventPlayerPawn = eventPlayer?.PlayerPawn?.Value;
+            if (eventPlayerPawn == null || !eventPlayerPawn.IsValid) return;
+
+            var playerPawn = player.PlayerPawn?.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
 
-            var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
 
             bool jumpPressed = (buttons & PlayerButtons.Jump) != 0
                 || (playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (playerPawn == null || playerInfo == null) return;
+            bool isOnGround =
+                eventPlayerPawn.GroundEntity != null
+                && eventPlayerPawn.GroundEntity.IsValid;
 
-            bool wasOnGround = (skillInfo.LastFlags & PlayerFlags.FL_ONGROUND) != 0;
-            bool isOnGround = (flags & PlayerFlags.FL_ONGROUND) != 0;
-
-            if (wasOnGround && !isOnGround && jumpPressed)
+            if (skillInfo.WasOnGround && !isOnGround && jumpPressed)
                 skillInfo.Jumps = 0;
             else if (isOnGround)
                 skillInfo.Jumps = 0;
             else if (!isOnGround && jumpPressed && skillInfo.Jumps < 1)
             {
-                bool lastJumpPressed = (skillInfo.LastButtons & PlayerButtons.Jump) != 0;
-                if (!lastJumpPressed && skillInfo.CanUse)
+                if (skillInfo.JumpReleasedTicks >= 3 && skillInfo.CanUse)
                 {
                     skillInfo.Jumps++;
                     skillInfo.CanUse = false;
@@ -133,29 +135,33 @@ namespace src.player.skills
                         moveY = 1;
 
                     float moveAngle = MathF.Atan2(moveX, moveY) * (180f / MathF.PI);
-                    QAngle dashAngles = new(0, playerPawn.EyeAngles.Y + moveAngle, 0);
+                    QAngle dashAngles = new(0, eventPlayerPawn.EyeAngles.Y + moveAngle, 0);
 
                     Vector newVelocity = SkillUtils.GetForwardVector(dashAngles) * SkillsInfo.GetValue<float>(skillName, "pushVelocity");
-                    newVelocity.Z = playerPawn.AbsVelocity.Z + SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+                    newVelocity.Z = eventPlayerPawn.AbsVelocity.Z + SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
 
-                    playerPawn.AbsVelocity.X = newVelocity.X;
-                    playerPawn.AbsVelocity.Y = newVelocity.Y;
-                    playerPawn.AbsVelocity.Z = newVelocity.Z;
+                    eventPlayerPawn.AbsVelocity.X = newVelocity.X;
+                    eventPlayerPawn.AbsVelocity.Y = newVelocity.Y;
+                    eventPlayerPawn.AbsVelocity.Z = newVelocity.Z;
                 }
             }
 
-            skillInfo.LastFlags = flags;
-            skillInfo.LastButtons = buttons;
+            skillInfo.WasOnGround = isOnGround;
+
+            if (!jumpPressed)
+                skillInfo.JumpReleasedTicks++;
+            else
+                skillInfo.JumpReleasedTicks = 0;
         }
 
         public class PlayerSkillInfo
         {
-            public ulong SteamID { get; set; }
+            public string? Username { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
-            public PlayerFlags LastFlags { get; set; }
             public int Jumps { get; set; }
-            public PlayerButtons LastButtons { get; set; }
+            public bool WasOnGround { get; set; }
+            public int JumpReleasedTicks { get; set; }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42bbfc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 150f, float pushVelocity = 600f, bool anyDirection = true, float cooldown = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

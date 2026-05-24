@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -39,7 +39,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.Controller == null || !pawn.Controller.IsValid || pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return;
             var player = pawn.Controller.Value.As<CCSPlayerController>();
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
             if (playerInfo?.Skill != skillName || Instance.GameRules == null) return;
 
             var roundTime = SkillsInfo.GetValue<int>(skillName, "changeRoundTime");
@@ -49,6 +49,7 @@ namespace src.player.skills
                 Localization.PrintTranslationToChatAll($" {ChatColors.Orange}{{0}}", ["watchmaker_tt"], [roundTime]);
             else
                 Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], [roundTime]);
+
             player.EmitSound(SkillsInfo.GetValue<string>(skillName, "SoundEvent"));
 
             var proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();

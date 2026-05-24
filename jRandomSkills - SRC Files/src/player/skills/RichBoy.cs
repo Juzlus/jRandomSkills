@@ -17,7 +17,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             int moneyBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minMoney"), SkillsInfo.GetValue<int>(skillName, "maxMoney"));
 
@@ -32,7 +32,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             var moneyServices = player.InGameMoneyServices;

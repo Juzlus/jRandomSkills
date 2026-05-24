@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -14,7 +14,7 @@ namespace src.player.skills
 
         private static bool hooked = false;
         private const int actionCode = 503;
-        private static readonly ConcurrentDictionary<ulong, byte> playersInAction = [];
+        private static readonly ConcurrentDictionary<uint, byte> playersInAction = [];
         private static readonly MemoryFunctionVoid<IntPtr, short> Shoot_Secondary = new(GameData.GetSignature("Shoot_Secondary"));
 
         public static void LoadSkill()
@@ -34,12 +34,12 @@ namespace src.player.skills
             if (hooked) return;
             hooked = true;
             Shoot_Secondary.Hook(ShootSecondary, HookMode.Pre);
-            playersInAction.TryAdd(player.SteamID, 0);
+            playersInAction.TryAdd(player.Index, 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            playersInAction.TryRemove(player.SteamID, out _);
+            playersInAction.TryRemove(player.Index, out _);
             if (playersInAction.IsEmpty)
             {
                 Shoot_Secondary.Unhook(ShootSecondary, HookMode.Pre);
@@ -61,19 +61,22 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return HookResult.Continue;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var eventPlayer = PlayerManager.GetPlayerEvent(player);
+            if (eventPlayer == null || !eventPlayer.IsValid) return HookResult.Continue;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer.Index);
             if (playerInfo == null || playerInfo.Skill != skillName) return HookResult.Continue;
 
-            KnifeHit(player, true);
+            KnifeHit(eventPlayer, true);
             return HookResult.Continue;
         }
 
         public static void WeaponFire(EventWeaponFire @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             var pawn = player!.PlayerPawn.Value;
@@ -97,10 +100,10 @@ namespace src.player.skills
 
             if (!result.Value.HitPlayer(out CCSPlayerController? target) || target == null)
                 return;
-            
+
             if (target.Handle == player.Handle || result.Value.Distance() <= 70)
                 return;
-                
+
             if (target.PlayerPawn.Value == null || !target.PlayerPawn.Value.IsValid)
                 return;
 

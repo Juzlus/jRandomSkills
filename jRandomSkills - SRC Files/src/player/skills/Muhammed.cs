@@ -27,7 +27,7 @@ namespace src.player.skills
 
         public static void PlayerDeath(EventPlayerDeath @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!IsDeadPlayerValid(player)) return;
 
             CsTeam lastTeam = player!.Team;
@@ -40,7 +40,7 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null ||  !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
                     SpawnExplosion(player!);
             });
@@ -56,9 +56,9 @@ namespace src.player.skills
 
             SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), player.TeamNum);
            
-            foreach (var _p in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist && !p.IsBot))
+            foreach (var _p in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}{player.PlayerName}: {ChatColors.Lime}{_p.GetTranslation("muhammed_explosion")}",
-                    border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                    border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
 
             var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
             var randomFile = fileNames[new Random().Next(fileNames.Length)];

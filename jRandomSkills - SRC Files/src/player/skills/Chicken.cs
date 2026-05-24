@@ -42,10 +42,10 @@ namespace src.player.skills
 
         public static void WeaponPickup(EventItemPickup @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             SetWeaponAttack(player, true);
@@ -120,7 +120,7 @@ namespace src.player.skills
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
-            var chickenModel = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
+            var chickenModel = EntityManager.CreateTrackedDynamicProp(player.Index);
             if (chickenModel == null)
                 return;
             
@@ -172,7 +172,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn.WeaponServices == null || pawn.WeaponServices.ActiveWeapon == null || !pawn.WeaponServices.ActiveWeapon.IsValid || pawn.WeaponServices.ActiveWeapon.Value == null || !pawn.WeaponServices.ActiveWeapon.Value.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             var weapon = pawn.WeaponServices.ActiveWeapon.Value;

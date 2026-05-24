@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -31,7 +31,7 @@ namespace src.player.skills
                 var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) continue;
 
                 var playerPawn = player.PlayerPawn.Value;

@@ -1,6 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -13,7 +12,7 @@ namespace src.player.skills
     public class Jester : ISkill
     {
         private const Skills skillName = Skills.Jester;
-        private static readonly ConcurrentDictionary<ulong, JesterInfo> jesters = [];
+        private static readonly ConcurrentDictionary<uint, JesterInfo> jesters = [];
 
         public static void LoadSkill()
         {
@@ -32,13 +31,13 @@ namespace src.player.skills
                         jester.Timer = null;
                     }
 
-                    var player = Utilities.GetPlayerFromSteamId(jester.SteamId);
+                    var player = Utilities.GetPlayerFromIndex((int)jester.PlayerIndex);
                     if (player != null && player.IsValid)
                     {
                         SkillUtils.ResetPrintHTML(player);
 
                         var pawn = player.PlayerPawn.Value;
-                        if (pawn == null || !pawn.IsValid || !player.PawnIsAlive) return;
+                        if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
                         var color = Color.FromArgb(255, 255, 255, 255);
                         pawn.Render = color;
@@ -51,7 +50,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var jester = GetJesterInfo(player.SteamID);
+            var jester = GetJesterInfo(player.Index);
             if (jester == null) return;
 
             Server.NextWorldUpdate(() =>
@@ -69,11 +68,11 @@ namespace src.player.skills
 
         public static void BombBegindefuse(EventBombBegindefuse @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            ulong steamId = player.SteamID;
-            var jester = GetJesterInfo(steamId);
+            uint playerIndex = player.Index;
+            var jester = GetJesterInfo(playerIndex);
             if (jester == null) return;
 
             if (jester.Timer != null)
@@ -83,17 +82,17 @@ namespace src.player.skills
             }
 
             jester.Timer = Instance.AddTimer(1, () => {
-                ChangeMode(steamId, false);
-            });
+                ChangeMode(playerIndex, false);
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public static void BombBeginplant(EventBombBeginplant @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            ulong steamId = player.SteamID;
-            var jester = GetJesterInfo(steamId);
+            uint playerIndex = player.Index;
+            var jester = GetJesterInfo(playerIndex);
             if (jester == null) return;
 
             if (jester.Timer != null)
@@ -104,18 +103,17 @@ namespace src.player.skills
 
             jester.Timer = Instance.AddTimer(1, () => {
                 if (player != null && player.IsValid)
-                    ChangeMode(steamId, false);
-            });
+                    ChangeMode(playerIndex, false);
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
-            var victim = @event.Userid;
-            int hitgroup = @event.Hitgroup;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(victim)) return;
-            var jesterVictim = GetJesterInfo(victim!.SteamID);
+            var jesterVictim = GetJesterInfo(victim!.Index);
 
             if (!Instance.IsPlayerValid(attacker))
             {
@@ -124,7 +122,7 @@ namespace src.player.skills
                 return;
             }
 
-            var jesterAttacker = GetJesterInfo(attacker!.SteamID);
+            var jesterAttacker = GetJesterInfo(attacker!.Index);
             if ((jesterVictim != null && jesterVictim.Active) || (jesterAttacker != null && jesterAttacker.Active))
                 SkillUtils.RestoreHealth(victim);
         }
@@ -135,18 +133,18 @@ namespace src.player.skills
             var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
-            ulong steamId = player.SteamID;
+            uint playerIndex = player.Index;
 
-            jesters.TryAdd(steamId, new JesterInfo {
-                SteamId = steamId,
+            jesters.TryAdd(playerIndex, new JesterInfo {
+                PlayerIndex = playerIndex,
                 Active = false,
-                Timer = Instance.AddTimer(wait, () => ChangeMode(steamId))
+                Timer = Instance.AddTimer(wait, () => ChangeMode(playerIndex), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE)
             });
         }
 
-        private static void ChangeMode(ulong steamId, bool? forceActive = null)
+        private static void ChangeMode(uint playerIndex, bool? forceActive = null)
         {
-            if (!jesters.TryGetValue(steamId, out var jester)) return;
+            if (!jesters.TryGetValue(playerIndex, out var jester)) return;
 
             if (jester.Timer != null)
             {
@@ -154,10 +152,10 @@ namespace src.player.skills
                 jester.Timer = null;
             }
 
-            var player = Utilities.GetPlayerFromSteamId(steamId);
-            if (player == null || !player.IsValid || !player.PawnIsAlive)
+            var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
             {
-                jesters.TryRemove(steamId, out _);
+                jesters.TryRemove(playerIndex, out _);
                 return;
             }
 
@@ -167,14 +165,17 @@ namespace src.player.skills
             if (jester.Active != previousState)
             {
                 SetPlayerColor(player);
-                player.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
+             
+                var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+                if (playerEvent != null && playerEvent.IsValid)
+                    playerEvent.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
             }
 
             var minTime = SkillsInfo.GetValue<float>(skillName, "minTime");
             var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
-            jester.Timer = Instance.AddTimer(wait, () => ChangeMode(steamId));
+            jester.Timer = Instance.AddTimer(wait, () => ChangeMode(playerIndex), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private static void SetPlayerColor(CCSPlayerController? player, bool forceDisable = false)
@@ -184,7 +185,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            var jester = GetJesterInfo(player.SteamID);
+            var jester = GetJesterInfo(player.Index);
             if (jester == null) return;
 
             var color = jester.Active && !forceDisable ? Color.FromArgb(255, 128, 0, 128) : Color.FromArgb(255, 255, 255, 255);
@@ -195,36 +196,39 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (SkillUtils.IsFreezeTime()) return;
-            foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot && p.PawnIsAlive))
+            foreach (var player in Utilities.GetPlayers())
             {
-                if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+                var playeEvent = PlayerManager.GetPlayerEvent(player);
+                if (playeEvent == null || !playeEvent.IsValid || playeEvent.PlayerPawn.Value == null || !playeEvent.PlayerPawn.Value.IsValid) continue;
+
+                var playerInfo = PlayerManager.GetPlayerByIndex(playeEvent.Index);
+
                 if (playerInfo?.Skill == skillName)
-                    UpdateHUD(player);
+                    UpdateHUD(playeEvent);
             }
         }
 
         private static void UpdateHUD(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            var jester = GetJesterInfo(player.SteamID);
+            var jester = GetJesterInfo(player.Index);
             if (jester == null) return;
 
             playerInfo.PrintHTML = $"{player.GetTranslation("jester_mode")}: <font color='{(jester.Active ? "#00ff00" : "#ff0000")}'>{player.GetTranslation(jester.Active ? "jester_on" : "jester_off")}</font>";
         }
 
-        public static JesterInfo? GetJesterInfo(ulong steamID)
+        public static JesterInfo? GetJesterInfo(uint playerIndex)
         {
-            if (jesters.TryGetValue(steamID, value: out var info))
+            if (jesters.TryGetValue(playerIndex, value: out var info))
                 return info;
             return null;
         }
 
         public class JesterInfo()
         {
-            public required ulong SteamId {  get; set; }
+            public required uint PlayerIndex { get; set; }
             public bool Active { get; set; } = false;
             public Timer? Timer { get; set; } = null;
         }

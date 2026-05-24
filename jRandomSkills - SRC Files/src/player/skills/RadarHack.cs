@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -19,13 +19,12 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                if (!Instance.IsPlayerValid(player)) continue;
+                var playerEvent = PlayerManager.GetPlayerEvent(player);
+                if (!Instance.IsPlayerValid(playerEvent)) continue;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
                 if (playerInfo?.Skill == skillName)
-                {
                     SetEnemiesVisibleOnRadar(player);
-                }
             }
         }
         
@@ -34,19 +33,22 @@ namespace src.player.skills
             if (player == null || !player.IsValid || player.PlayerPawn?.Value == null) return;
             int playerIndex = (int)player.Index - 1;
 
-            foreach (var enemy in Utilities.GetPlayers().FindAll(p => p.Team != player.Team && p.PawnIsAlive))
+            foreach (var enemy in Utilities.GetPlayers().FindAll(p => p.Team != player.Team))
             {
-                var enemyPawn = enemy.PlayerPawn.Value;
+                var enemyEvent = PlayerManager.GetPlayerEvent(enemy);
+                if (enemyEvent == null || !enemyEvent.IsValid) continue;
+
+                var enemyPawn = enemyEvent.PlayerPawn.Value;
                 if (enemyPawn == null) continue;
+
                 enemyPawn.EntitySpottedState.SpottedByMask[0] |= (1u << (int)(playerIndex % 32));
-
             }
-
+            
             var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-            if (bombEntities.Any())
+            if (bombEntities.Count != 0)
             {
                 var bomb = bombEntities.FirstOrDefault();
-                if (bomb != null)
+                if (bomb != null && bomb.IsValid)
                     bomb.EntitySpottedState.SpottedByMask[0] |= (1u << (int)(playerIndex % 32));
             }
         }

@@ -3,7 +3,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -11,7 +10,8 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Anomaly;
         private static readonly float tickRate = 64;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -29,18 +29,24 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                if (player == null || !player.IsValid) continue;
+
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                {
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                     {
                         UpdateHUD(player, skillInfo);
-                        if (Server.TickCount % tickRate != 0) return;
+                        if (Server.TickCount % tickRate != 0) continue;
+
                         var pawn = player.PlayerPawn.Value;
                         if (pawn != null && pawn.IsValid && pawn.AbsOrigin != null)
                         {
                             if (skillInfo.LastRotations == null || skillInfo.LastPositions == null) continue;
+
                             skillInfo.LastPositions.Enqueue(new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z));
                             skillInfo.LastRotations.Enqueue(new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0));
+
                             if (skillInfo.LastRotations.Count > SkillsInfo.GetValue<int>(skillName, "secondsInBack"))
                             {
                                 skillInfo.LastPositions.TryDequeue(out _);
@@ -48,40 +54,42 @@ namespace src.player.skills
                             }
                         }
                     }
+                }
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            if (player == null || !player.IsValid) return;
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                PlayerIndex = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
-                LastPositions = [],
-                LastRotations = [], 
+                LastPositions = new ConcurrentQueue<Vector>(),
+                LastRotations = new ConcurrentQueue<QAngle>()
             });
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            if (player == null || !player.IsValid) return;
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
         {
+            if (player == null || !player.IsValid || skillInfo == null) return;
+
             float cooldown = 0;
-            if (skillInfo != null)
-            {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
-                cooldown = Math.Max(time, 0);
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            cooldown = Math.Max(time, 0);
 
-                if (cooldown == 0 && skillInfo?.CanUse == false)
-                    skillInfo.CanUse = true;
-            }
+            if (cooldown == 0 && !skillInfo.CanUse)
+                skillInfo.CanUse = true;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -92,19 +100,27 @@ namespace src.player.skills
 
         public static void UseSkill(CCSPlayerController player)
         {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn?.CBodyComponent == null) return;
+            if (player == null || !player.IsValid) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo?.Skill != skillName) return;
+
+            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
             {
-                if (!player.IsValid || !player.PawnIsAlive) return;
-                if (skillInfo.CanUse)
+                if (!skillInfo.CanUse) return;
+
+                skillInfo.Cooldown = DateTime.Now;
+                skillInfo.CanUse = false;
+
+                var playerPawn = player.PlayerPawn.Value;
+                if (playerPawn != null && playerPawn.IsValid)
                 {
-                    skillInfo.CanUse = false;
-                    skillInfo.Cooldown = DateTime.Now;
-                    if (skillInfo.LastRotations == null || skillInfo.LastRotations.IsEmpty || skillInfo.LastPositions == null || skillInfo.LastPositions.IsEmpty) return;
+                    if (skillInfo.LastPositions == null || skillInfo.LastPositions.IsEmpty) return;
+                    if (skillInfo.LastRotations == null || skillInfo.LastRotations.IsEmpty) return;
+
                     Vector? lastPosition = skillInfo.LastPositions.FirstOrDefault();
                     QAngle? lastRotation = skillInfo.LastRotations.FirstOrDefault();
+
                     if (lastPosition != null && lastRotation != null)
                     {
                         playerPawn.Teleport(lastPosition, null, null);
@@ -116,7 +132,7 @@ namespace src.player.skills
 
         public class PlayerSkillInfo
         {
-            public ulong SteamID { get; set; }
+            public uint PlayerIndex { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
             public ConcurrentQueue<Vector>? LastPositions { get; set; }

@@ -1,7 +1,7 @@
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -16,15 +16,28 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
             var victim = @event.Userid;
+            if (victim == null || !victim.IsValid) return;
 
-            if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
-            var victimInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
-            if (victimInfo?.Skill == skillName && victim!.PawnIsAlive && attacker!.PawnIsAlive)
+            var attacker = @event.Attacker;
+            if (attacker == null || !attacker.IsValid) return;
+
+            var attackerEvent = PlayerManager.GetPlayerEvent(attacker);
+            var victimEvent = PlayerManager.GetPlayerEvent(victim);
+
+            if (attackerEvent == null || !attackerEvent.IsValid) return;
+            if (victimEvent == null || !victimEvent.IsValid ) return;
+
+            var attackerPawn = attackerEvent.PlayerPawn.Value;
+            if (attackerPawn == null || !attackerPawn.IsValid || attackerPawn.Health == 0) return;
+
+            if (attackerEvent.Index == victimEvent.Index) return;
+
+            var victimInfo = PlayerManager.GetPlayerByIndex(victimEvent!.Index);
+            if (victimInfo?.Skill == skillName)
             {
-                SkillUtils.TakeHealth(attacker.PlayerPawn.Value, (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale")));
-                attacker.EmitSound("Player.DamageBody.Onlooker");
+                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale")));
+                attackerEvent.EmitSound("Player.DamageBody.Onlooker");
             }
         }
 

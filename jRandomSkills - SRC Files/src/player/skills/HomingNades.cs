@@ -1,10 +1,9 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -41,13 +40,13 @@ namespace src.player.skills
 
                 Vector currentPos = new(nade.AbsOrigin.X, nade.AbsOrigin.Y, nade.AbsOrigin.Z);
                 double distanceMoved = SkillUtils.GetDistance(currentPos, oldPos);
-                Vector calculatedVelocity = CalculateVelocity(nade, nade.TeamNum);
+                Vector? calculatedVelocity = CalculateVelocity(nade, nade.TeamNum);
 
-                bool isZero = calculatedVelocity.IsZero();
+                bool isZero = calculatedVelocity?.IsZero() == true;
 
-                if (distanceMoved < 4 || isZero)
+                if (distanceMoved < 4 || calculatedVelocity == null || isZero)
                 {
-                    nade.DetonateTime = isZero ? 0 : nade.CreateTime + 3;
+                    nade.DetonateTime = isZero ? 0f : nade.CreateTime + 1.5f;
                     Utilities.SetStateChanged(nade, "CBaseGrenade", "m_flDetonateTime");
    
                     nades.TryRemove(index, out _);
@@ -67,9 +66,9 @@ namespace src.player.skills
             }
         }
 
-        private static Vector CalculateVelocity(CBaseCSGrenadeProjectile nade, int team)
+        private static Vector? CalculateVelocity(CBaseCSGrenadeProjectile nade, int team)
         {
-            if (nade.AbsOrigin == null) return Vector.Zero;
+            if (nade.AbsOrigin == null) return null;
 
             Vector? closetEnemyPos = null;
             double minDistance = int.MaxValue;
@@ -95,7 +94,7 @@ namespace src.player.skills
             }
 
             if (closetEnemyPos == null)
-                return Vector.Zero;
+                return null;
 
             Vector direction = closetEnemyPos - nadePos;
             float length = direction.Length();
@@ -127,7 +126,7 @@ namespace src.player.skills
             if (pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return;
             var player = pawn.Controller.Value.As<CCSPlayerController>();
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             Vector pos = new(grenade.AbsOrigin?.X, grenade.AbsOrigin?.Y, grenade.AbsOrigin?.Z);
@@ -136,7 +135,7 @@ namespace src.player.skills
             Server.NextWorldUpdate(() =>
             {
                 if (grenade == null || !grenade.IsValid) return;
-                grenade.DetonateTime += 100f;
+                grenade.DetonateTime += 30f;
                 Utilities.SetStateChanged(grenade, "CBaseGrenade", "m_flDetonateTime");
             });
         }

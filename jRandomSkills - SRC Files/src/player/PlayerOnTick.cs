@@ -3,7 +3,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using System.Linq;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
 
@@ -16,49 +15,62 @@ namespace src.player
             Instance.RegisterListener<OnTick>(() =>
             {
                 UpdateGameRules();
-                var players = Utilities.GetPlayers().ToArray();
-                foreach (var player in players)
+
+                foreach (var player in Utilities.GetPlayers())
+                {
                     if (player != null && player.IsValid)
                         UpdatePlayerHud(player);
+                }
             });
 
             Instance.RegisterListener<OnMapStart>(OnMapStart);
+            Instance.RegisterListener<OnMapEnd>(OnMapEnd);
         }
 
         private static void OnMapStart(string mapName)
         {
             Instance.GameRules = null;
             Event.OnMapChange();
+            BotManager.Initialize();
+        }
+
+        private static void OnMapEnd()
+        {
+            BotManager.Stop();
         }
 
         private static void InitializeGameRules()
         {
             if (Instance.GameRules != null) return;
             var gameRulesProxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
+
             if (gameRulesProxy != null)
-                Instance.GameRules = gameRulesProxy?.GameRules;
+                Instance.GameRules = gameRulesProxy.GameRules;
         }
 
         private static void UpdateGameRules()
         {
-            if (Instance?.GameRules == null || Instance?.GameRules?.Handle == IntPtr.Zero)
+            if (Instance?.GameRules == null || Instance.GameRules.Handle == IntPtr.Zero)
                 InitializeGameRules();
-            else if (Instance != null && Config.LoadedConfig.FlashingHtmlHudFix && !Instance.GameRules.WarmupPeriod)
-                Instance.GameRules.GameRestart = Instance.GameRules?.RestartRoundTime < Server.CurrentTime;
+            else if (Instance != null && Config.LoadedConfig.EnableFlashingHtmlHudFix && !Instance.GameRules.WarmupPeriod)
+                Instance.GameRules.GameRestart = Instance.GameRules.RestartRoundTime < Server.CurrentTime;
         }
 
         private static void UpdatePlayerHud(CCSPlayerController player)
         {
-            if (player == null || !player.IsValid) return;
+            if (player == null || !player.IsValid || player.IsBot) return;
+
+            var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
 
             var now = DateTime.Now;
-            var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
+
             if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now) return;
 
             string infoLine = string.Empty;
             string skillLine = string.Empty;
             string remainingLine = string.Empty;
+
             bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now;
             bool isDescription = true;
 
@@ -72,10 +84,12 @@ namespace src.player
             else if (skillPlayer.IsDrawing && player.PawnIsAlive)
             {
                 int skillCount = skills.Count;
+
                 if (skillCount > 0)
                 {
                     var skillsArray = skills.ToArray();
                     var randomSkill = skillsArray[Instance.Random.Next(skillCount)];
+
                     infoLine = player.GetTranslation("drawing_skill");
                     skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
                 }
@@ -85,61 +99,70 @@ namespace src.player
                 if (player.PawnIsAlive)
                 {
                     var skillInfo = skills.FirstOrDefault(s => s.Skill == skillPlayer.Skill);
+
                     if (skillInfo != null)
                     {
                         infoLine = player.GetTranslation("your_skill");
                         skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
+
                         if (skillInfo.Skill != Skills.None)
                         {
                             remainingLine = string.IsNullOrEmpty(skillPlayer.PrintHTML)
                                 ? (showDescriptionHUD ? player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance) : "")
                                 : skillPlayer.PrintHTML;
+
                             isDescription = string.IsNullOrEmpty(skillPlayer.PrintHTML);
                         }
                     }
                 }
                 else
                 {
-                    if ((player.Team is CsTeam.Spectator or CsTeam.None && Config.LoadedConfig.DisableSpectateHUD) || AdminManager.PlayerHasPermissions(player, Config.LoadedConfig.DisableHUDOnDeathPermission))
+                    if ((player.Team is CsTeam.Spectator or CsTeam.None && Config.LoadedConfig.DisableSpectateHUD)
+                        || AdminManager.PlayerHasPermissions(player, Config.LoadedConfig.DisableHUDOnDeathPermission))
                         return;
 
                     var pawn = player.Pawn.Value;
-                    if (pawn == null || pawn.ObserverServices == null) return;
+                    if (pawn?.ObserverServices == null) return;
 
                     var observerTarget = pawn.ObserverServices.ObserverTarget?.Value;
                     if (observerTarget == null || !observerTarget.IsValid) return;
 
-                    var players = Utilities.GetPlayers();
-                    var targetHandle = observerTarget.Handle;
-                    var observedPlayer = players.FirstOrDefault(p => p?.IsValid == true && p?.Pawn?.Value?.Handle == targetHandle); 
+                    var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p =>
+                        p != null && p.IsValid && p.Pawn?.Value?.Handle == observerTarget.Handle);
+
                     if (observedPlayer == null) return;
 
-                    var observeredPlayerSkill = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer.SteamID);
-                    if (observeredPlayerSkill == null) return;
+                    var observedEvent = PlayerManager.GetPlayerEvent(observedPlayer);
+                    if (observedEvent == null || !observedEvent.IsValid) return;
 
-                    var observeredPlayerSkillInfo = skills.FirstOrDefault(s => s.Skill == observeredPlayerSkill.Skill);
-                    var observeredPlayerSpecialSkillInfo = observeredPlayerSkill.SpecialSkill != Skills.None ? skills.FirstOrDefault(s => s.Skill == observeredPlayerSkill.SpecialSkill) : null;
+                    var observedSkill = PlayerManager.GetPlayerByIndex(observedEvent.Index);
+                    if (observedSkill == null) return;
 
-                    string primaryName = player.GetSkillName(observeredPlayerSkill.Skill, observeredPlayerSkill.SkillChance);
-                    string primaryColor = observeredPlayerSkillInfo?.Color ?? SkillsInfo.GetValue<string>(Skills.None, "color");
+                    var observedSkillInfo = skills.FirstOrDefault(s => s.Skill == observedSkill.Skill);
+                    var observedSpecialInfo = observedSkill.SpecialSkill != Skills.None
+                        ? skills.FirstOrDefault(s => s.Skill == observedSkill.SpecialSkill)
+                        : null;
 
-                    string pName = System.Net.WebUtility.HtmlEncode(observeredPlayerSkill.PlayerName);
+                    string primaryName = player.GetSkillName(observedSkill.Skill, observedSkill.SkillChance);
+                    string primaryColor = observedSkillInfo?.Color ?? SkillsInfo.GetValue<string>(Skills.None, "color");
+                    string pName = System.Net.WebUtility.HtmlEncode(observedSkill.PlayerName);
+
                     if (pName.Length > 18)
                         pName = $"{pName[..17]}...";
 
                     var observerSkill = player.GetTranslation("observer_skill");
                     infoLine = string.IsNullOrEmpty(observerSkill) ? pName : $"{observerSkill} {pName}";
 
-                    if (observeredPlayerSkill.SpecialSkill == Skills.None || observeredPlayerSpecialSkillInfo == null)
+                    if (observedSkill.SpecialSkill == Skills.None || observedSpecialInfo == null)
                         skillLine = $"<font color='{primaryColor}'>{primaryName}</font>";
                     else
                     {
-                        string specialName = player.GetSkillName(observeredPlayerSpecialSkillInfo.Skill);
-                        skillLine = $"<font color='{observeredPlayerSpecialSkillInfo.Color}'>{specialName}({primaryName})</font>";
+                        string specialName = player.GetSkillName(observedSpecialInfo.Skill);
+                        skillLine = $"<font color='{observedSpecialInfo.Color}'>{specialName}({primaryName})</font>";
                     }
 
                     if (showDescriptionHUD)
-                        remainingLine = player.GetSkillDescription(observeredPlayerSkill.Skill, observeredPlayerSkill.SkillChance);
+                        remainingLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
                 }
             }
 

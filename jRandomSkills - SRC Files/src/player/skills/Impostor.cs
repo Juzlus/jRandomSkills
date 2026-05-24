@@ -13,7 +13,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.Impostor;
         private static readonly string defaultCTModel = "agents/models/ctm_sas/ctm_sas.vmdl";
         private static readonly string defaultTModel = "agents/models/tm_phoenix/tm_phoenix.vmdl";
-        private static readonly ConcurrentDictionary<ulong, string> originalModels = [];
+        private static readonly ConcurrentDictionary<uint, string> originalModels = [];
 
         public static void LoadSkill()
         {
@@ -29,16 +29,16 @@ namespace src.player.skills
         {
             string model = GetEnemyModel(player);
             if (player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid && player.PlayerPawn.Value.CBodyComponent != null && player.PlayerPawn.Value.CBodyComponent.SceneNode != null)
-                originalModels.TryAdd(player.SteamID, player.PlayerPawn.Value.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.ModelName);
+                originalModels.TryAdd(player.Index, player.PlayerPawn.Value.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.ModelName);
             SetPlayerModel(player, model);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var model = originalModels.TryGetValue(player.SteamID, out var originalModel) && !string.IsNullOrEmpty(originalModel) ? originalModel :
+            var model = originalModels.TryGetValue(player.Index, out var originalModel) && !string.IsNullOrEmpty(originalModel) ? originalModel :
                 player.Team == CsTeam.Terrorist ? defaultTModel : defaultCTModel;
             SetPlayerModel(player, model);
-            originalModels.TryRemove(player.SteamID, out _);
+            originalModels.TryRemove(player.Index, out _);
         }
 
         private static string GetEnemyModel(CCSPlayerController player)

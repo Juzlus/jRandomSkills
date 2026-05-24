@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -13,7 +13,7 @@ namespace src.player.skills
     public class Noclip : ISkill
     {
         private const Skills skillName = Skills.Noclip;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -31,18 +31,18 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 CanUse = true,
                 IsFlying = false,
                 Cooldown = DateTime.MinValue,
@@ -52,7 +52,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -72,7 +72,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -92,9 +92,9 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            ulong steamId = player.SteamID;
+            uint playerIndex = player.Index;
 
-            if (SkillPlayerInfo.TryGetValue(steamId, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
             {
                 if (skillInfo.IsFlying)
                 {
@@ -116,14 +116,14 @@ namespace src.player.skills
 
                     skillInfo.Timer = Instance.AddTimer(duration, () =>
                     {
-                        var player = Utilities.GetPlayerFromSteamId(steamId);
+                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (player == null || !player.IsValid) return;
 
-                        var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == steamId);
+                        var playerInfo = PlayerManager.GetPlayerByIndex(playerIndex);
                         if (playerInfo == null) return;
 
                         StopFlying(player, skillInfo);
-                    });
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid || !player.PawnIsAlive) return;
+            if (playerPawn == null || !playerPawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             playerPawn.MoveType = noclip ? MoveType_t.MOVETYPE_NOCLIP : MoveType_t.MOVETYPE_WALK;
             Schema.SetSchemaValue(playerPawn.Handle, "CBaseEntity", "m_nActualMoveType", (int)playerPawn.MoveType);
@@ -148,7 +148,7 @@ namespace src.player.skills
             if (!skillInfo.IsFlying) return;
             skillInfo.IsFlying = false;
 
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
             SetNoclip(player, false);
 
             var playerPawn = player.PlayerPawn.Value;

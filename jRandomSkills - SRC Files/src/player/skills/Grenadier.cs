@@ -24,11 +24,11 @@ namespace src.player.skills
 
         public static void GrenadeThrown(EventGrenadeThrown @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             var weapon = @event.Weapon;
             if (weapon != "hegrenade" || !Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
                 player!.GiveNamedItem($"weapon_{weapon}");
         }

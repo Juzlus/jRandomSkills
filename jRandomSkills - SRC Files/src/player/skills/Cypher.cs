@@ -1,5 +1,6 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -178,15 +179,18 @@ namespace src.player.skills
                     if (cameraView == null || !cameraView.IsValid) return;
 
                     pawn!.CameraServices!.ViewEntity.Raw = cameraView.EntityHandle.Raw;
-                    SkillUtils.ApplyScreenColor(player, 0, 0, 255, 20, 100, 1020);
 
-                    ulong playerSteamID = player.SteamID;
+                    var eventTarget = PlayerManager.GetPlayerFromEvent(player);
+                    if (eventTarget != null && eventTarget.IsValid)
+                        SkillUtils.ApplyScreenColor(eventTarget, 0, 0, 255, 20, 100, 1020);
+
+                    uint playerIndex = player.Index;
 
                     Timer? cameraTimer = null;
                     cameraTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                     {
-                        var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.SteamID == playerSteamID);
-                        if (target == null || !target.IsValid || !target.PawnIsAlive)
+                        var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.Index == playerIndex);
+                        if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                         {
                             cameraTimer?.Kill();
                             return;
@@ -198,7 +202,14 @@ namespace src.player.skills
                             return;
                         }
 
-                        SkillUtils.ApplyScreenColor(target, 0, 0, 255, 20, 100, 1020);
+                        var eventTarget = PlayerManager.GetPlayerFromEvent(player);
+                        if (eventTarget == null || !eventTarget.IsValid)
+                        {
+                            cameraTimer?.Kill();
+                            return;
+                        }
+
+                        SkillUtils.ApplyScreenColor(eventTarget, 0, 0, 255, 20, 100, 1020);
                     }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
                 }
                 else
@@ -222,12 +233,12 @@ namespace src.player.skills
             if (!CheckCameraPosition(finalPos, player))
                 return null;
 
-            var camera = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+            var camera = EntityManager.CreateTrackedPropOverride(player.Index);
             if (camera == null || !camera.IsValid) return null;
 
             camera.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            camera.Entity!.Name = camera.Globalname = $"CypherCamera_{Server.TickCount}_{player.SteamID}";
+            camera.Entity!.Name = camera.Globalname = $"CypherCamera_{Server.TickCount}_{player.Index}";
 
             camera.SetModel(cameraPropModel);
             camera.Teleport(cameraVector, new QAngle(0, playerPawn.V_angle.Y + 180, 0));
@@ -244,17 +255,27 @@ namespace src.player.skills
             Vector diffVector = SkillUtils.GetForwardVector(cameraProp.AbsRotation) * 25;
             Vector finalPos = cameraProp.AbsOrigin + diffVector;
 
-            var camera = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
+            uint ownerIndex = EntityManager.SystemOwnerIndex;
+            if (!string.IsNullOrEmpty(cameraProp.Globalname))
+            {
+                var parts = cameraProp.Globalname.Split('_');
+                if (parts.Length >= 3 && uint.TryParse(parts[^1], out var idx))
+                    ownerIndex = idx;
+            }
+
+            var camera = EntityManager.CreateTrackedDynamicProp(ownerIndex);
             if (camera == null || !camera.IsValid) return null;
 
             Server.NextFrame(() =>
             {
                 if (camera == null || !camera.IsValid) return;
+                camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
                 camera.SetModel(cameraViewModel);
                 camera.Render = Color.FromArgb(1, 255, 255, 255);
 
                 camera.Teleport(finalPos, cameraProp.AbsRotation);
                 camera.DispatchSpawn();
+                EntityManager.RegisterExisting(camera, ownerIndex, "prop_dynamic");
             });
 
             return camera;
@@ -272,10 +293,10 @@ namespace src.player.skills
             if (!param.Entity.Name.StartsWith("CypherCamera_")) return;
 
             var nameParams = param.Entity.Name.Split('_')[2];
-            _ = ulong.TryParse(nameParams, out ulong steamID);
-            if (steamID == 0) return;
+            _ = uint.TryParse(nameParams, out uint userIndex);
+            if (userIndex == 0) return;
 
-            var player = Utilities.GetPlayerFromSteamId(steamID);
+            var player = Utilities.GetPlayerFromIndex((int)userIndex);
             if (player == null) return;
 
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))
@@ -355,7 +376,7 @@ namespace src.player.skills
             var player = Utilities.GetPlayerFromIndex((int)playerSkill.Player);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             float ticksLeft = playerSkill.NextCamera - Server.TickCount;

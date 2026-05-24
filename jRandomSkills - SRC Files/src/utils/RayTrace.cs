@@ -17,8 +17,15 @@ namespace src.utils
 
         public static CustomTraceResult? TraceShape(CCSPlayerController player, Vector startPos, Vector endPos, ulong? mask = null, ulong? contents = null)
         {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null)
+            if (player == null || !player.IsValid) return null;
+
+            var playerPawn = player.PlayerPawn?.Value;
+            if (playerPawn == null ||
+                !playerPawn.IsValid ||
+                playerPawn.Handle == IntPtr.Zero ||
+                playerPawn.Collision == null ||
+                playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE ||
+                playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
             var rayTrace = RayTraceInterface.Get();
@@ -27,10 +34,22 @@ namespace src.utils
 
             if (mask == null)
             {
-                mask = playerPawn.Collision.CollisionAttribute.InteractsWith | (ulong)InteractionLayers.Hitboxes;
-                mask &= ~(ulong)InteractionLayers.PlayerClip;
+                try
+                {
+                    if (playerPawn.Collision?.CollisionAttribute != null)
+                    {
+                        mask = playerPawn.Collision.CollisionAttribute.InteractsWith | (ulong)InteractionLayers.Hitboxes;
+                        mask &= ~(ulong)InteractionLayers.PlayerClip;
+                    }
+                    else
+                        mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Hitboxes);
+                }
+                catch
+                {
+                    mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Hitboxes);
+                }
             }
-            contents ??= 0; // playerPawn.Collision.CollisionGroup;
+            contents ??= 0;
 
             bool drawBeam = Config.LoadedConfig.TraceRayBeam;
 
@@ -41,28 +60,39 @@ namespace src.utils
                 DrawBeam = drawBeam == true ? 1 : 0,
             };
 
-            rayTrace.TraceEndShape(startPos, endPos, playerPawn, options, out TraceResult result);
-            var customResult = new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
+            Vector mins = new(-0.5f, -0.5f, -0.5f);
+            Vector maxs = new(0.5f, 0.5f, 0.5f);
 
-            if (drawBeam)
-                Server.PrintToChatAll($"start: {startPos}, end: {result.EndPos}, didHit: {result.DidHit}, hit: {(customResult.HitEntity(out var entity) && !string.IsNullOrEmpty(entity?.DesignerName) ? entity.DesignerName : "None")}, mask: {(InteractionLayers)mask}, contents: {(InteractionLayers)contents}");
+            TraceResult result = default;
 
-            return customResult;
+            try
+            {
+                rayTrace.TraceHullShape(startPos, endPos, mins, maxs, playerPawn, options, out result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[jRandomSkills] A memory error was caught during RayTrace: {ex.Message}");
+                return null;
+            }
+
+            return new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
         }
 
         public static CustomTraceResult? EyeTrace(CCSPlayerController player)
         {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null)
+            if (player == null || !player.IsValid) return null;
+
+            var playerPawn = player.PlayerPawn?.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null)
                 return null;
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
             if (playerInfo == null) return null;
 
             float maxDistance = SkillsInfo.GetValue<float>(playerInfo.Skill, "maxDistance");
             if (maxDistance == 0) maxDistance = 4096f;
 
-            Vector startPos = new(playerPawn.AbsOrigin!.X, playerPawn.AbsOrigin!.Y, playerPawn.AbsOrigin!.Z + playerPawn.ViewOffset.Z);
+            Vector startPos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + playerPawn.ViewOffset.Z);
             Vector endPos = startPos + SkillUtils.GetForwardVector(playerPawn.EyeAngles) * maxDistance;
 
             return TraceShape(player, startPos, endPos);
@@ -70,38 +100,57 @@ namespace src.utils
 
         public static CustomTraceResult? TraceHullShape(Vector startPos, Vector endPos, CCSPlayerController player, Vector? mins = null, Vector? maxs = null, ulong? mask = null, ulong? contents = null, QAngle? angle = null)
         {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null)
+            if (player == null || !player.IsValid) return null;
+
+            var playerPawn = player.PlayerPawn?.Value;
+            if (playerPawn == null ||
+                !playerPawn.IsValid ||
+                playerPawn.Handle == IntPtr.Zero ||
+                playerPawn.Collision == null ||
+                playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE ||
+                playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
             var rayTrace = RayTraceInterface.Get();
             if (rayTrace == null)
                 return null;
 
-            mask ??= playerPawn.Collision.CollisionAttribute.InteractsWith;
-            contents ??= 0; // playerPawn.Collision.CollisionGroup;
+            Vector safeMins = mins ?? playerPawn.Collision.Mins;
+            Vector safeMaxs = maxs ?? playerPawn.Collision.Maxs;
+
+            ulong safeMask = mask ?? playerPawn.Collision.CollisionAttribute.InteractsWith;
+            ulong safeContents = contents ?? 0;
 
             bool drawBeam = Config.LoadedConfig.TraceRayBeam;
 
+            TraceResult result = default;
             TraceOptions options = new()
             {
-                InteractsWith = (ulong)mask,
-                InteractsExclude = (ulong)contents,
+                InteractsWith = safeMask,
+                InteractsExclude = safeContents,
                 DrawBeam = drawBeam == true ? 1 : 0,
             };
 
-            mins ??= playerPawn.Collision.Mins;
-            maxs ??= playerPawn.Collision.Maxs;
+            CEntityInstance? entityToIgnore = (playerPawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+                                      ? playerPawn
+                                      : null;
 
-            rayTrace.TraceHullShape(startPos, endPos, mins, maxs, playerPawn, options, out TraceResult result);
+            try
+            {
+                rayTrace.TraceHullShape(startPos, endPos, safeMins, safeMaxs, entityToIgnore, options, out result);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
             if (drawBeam)
             {
                 angle ??= new(0, playerPawn.EyeAngles.Y, 0);
-                DrawBoxEdges(startPos, endPos, angle, mins, maxs, Color.Green);
+                DrawBoxEdges(startPos, endPos, angle, safeMins, safeMaxs, Color.Green);
             }
 
-            return new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
+            return new CustomTraceResult(result, startPos, safeMask, safeContents, drawBeam);
         }
 
         private static void DrawBoxEdges(Vector start, Vector end, QAngle angles, Vector mins, Vector maxs, Color color)
@@ -112,7 +161,7 @@ namespace src.utils
 
             Vector visualStart = start - (forward * halfLength);
             Vector visualEnd = end + (forward * halfLength);
-            
+
             Vector GetVertex(Vector center, float rx, float ux)
             {
                 return center + (right * rx) + (up * ux);

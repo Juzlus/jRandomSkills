@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -18,11 +18,11 @@ namespace src.player.skills
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var damage = @event.DmgHealth;
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             var weapon = @event.Weapon;
 
             if (!Instance.IsPlayerValid(player)) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (weapon == "hegrenade" || weapon == "inferno" || weapon == "decoy" || weapon == "flashbang" || weapon == "smokegrenade" || weapon == "molotov")

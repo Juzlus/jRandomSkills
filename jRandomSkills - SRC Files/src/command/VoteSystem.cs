@@ -22,7 +22,7 @@ namespace src.command
                 vote.SetActive(false);
                 vote.TimeToNextSameVoting = vote.TimeToNextVoting;
                 Localization.PrintTranslationToChatAll($" {ChatColors.Red}{{0}}", ["vote_timeout"], [commandName]);
-            });
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private static VoteData? CreateVote(VoteType voteType, string? args = null)
@@ -49,7 +49,7 @@ namespace src.command
             {
                 if (!votes.ContainsKey(vote)) return;
                 votes.TryRemove(vote, out _);
-            });
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
             return vote;
         }

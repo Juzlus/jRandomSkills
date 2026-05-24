@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
@@ -28,15 +28,15 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
             {
                 if (!SkillUtils.HasMenu(player)) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == enemy.SteamID);
+                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
                     if (enemyInfo == null) continue;
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
@@ -50,15 +50,16 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
-            if (!player.IsValid || !player.PawnIsAlive) return;
+            if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             string enemyId = commands[0];
-            var enemy = Utilities.GetPlayers().FirstOrDefault(p => p.Team != player.Team && p.Index.ToString() == enemyId);
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
@@ -71,13 +72,13 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == enemy.SteamID);
+                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
                     if (enemyInfo == null) continue;
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
@@ -91,7 +92,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.SpecialSkill = Skills.None;
             SkillUtils.CloseMenu(player);
@@ -99,8 +100,8 @@ namespace src.player.skills
 
         private static void DeacitvateSkill(CCSPlayerController player, CCSPlayerController enemy)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            var enemyInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == enemy.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
 
             if (playerInfo != null)
             {

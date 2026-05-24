@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -20,7 +20,7 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
             {
                 if (!Instance.IsPlayerValid(player)) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo?.Skill == skillName)
                 {

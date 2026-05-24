@@ -105,11 +105,7 @@ namespace src.utils
         public static void SafeKillEntity<T>(uint? index) where T : CBaseEntity
         {
             if (index == null) return;
-
-            var ent = Utilities.GetEntityFromIndex<T>((int)index);
-            if (ent == null || !ent.IsValid) return;
-
-            ent.AddEntityIOEvent("Kill", ent, delay: 0.1f);
+            EntityManager.DestroyEntity(index.Value);
         }
 
         public static bool IsValid<T>(this CHandle<T>? handle) where T : NativeEntity
@@ -150,23 +146,9 @@ namespace src.utils
             SnapViewAngles.Invoke(pawn, angle);
         }
 
-        public static CBeam? CreateLine(Vector start, Vector end, Color color)
+        public static CBeam? CreateLine(Vector start, Vector end, Color color, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
         {
-            CBeam beam = Utilities.CreateEntityByName<CBeam>("beam")!;
-            if (beam == null) return null;
-
-            beam.Render = color;
-            beam.Width = 2.0f;
-            beam.EndWidth = 2.0f;
-            beam.Teleport(start);
-
-            beam.EndPos.X = end.X;
-            beam.EndPos.Y = end.Y;
-            beam.EndPos.Z = end.Z;
-
-            beam.DispatchSpawn();
-
-            return beam;
+            return EntityManager.CreateTrackedBeam(ownerPlayerIndex, start, end, color);
         }
 
         public static void SetPlayerCollisions(CCSPlayerController? player, bool enable)
@@ -176,7 +158,7 @@ namespace src.utils
             if (player == null || !player.IsValid) return;
 
             var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid || !player.PawnIsAlive || pawn.CBodyComponent == null) return;
+            if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.CBodyComponent == null) return;
 
             var collision = pawn.Collision;
             if (collision == null) return;
@@ -264,21 +246,19 @@ namespace src.utils
             SmokeGrenadeProjectile_CreateFunc.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
         }
 
-        public static void TakeHealth(CCSPlayerPawn? pawn, int damage)
+        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                return;
+                return false;
 
             var player = pawn.Controller.Value;
             if (player != null && player.IsValid && player.SteamID != 0)
             {
-                ulong steamId = player.SteamID;
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                if (playerInfo == null) return false;
 
-                var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == steamId);
-                if (playerInfo == null) return;
-
-                var jester = Jester.GetJesterInfo(steamId);
-                if (jester?.Active == true) return;
+                var jester = Jester.GetJesterInfo(player.Index);
+                if (jester?.Active == true) return false;
             }
 
             int newHealth = (int)(pawn.Health - damage);
@@ -286,58 +266,40 @@ namespace src.utils
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
 
             if (pawn.Health <= 0)
+            {
                 Server.NextFrame(() =>
                 {
                     if (pawn == null || !pawn.IsValid) return;
                     pawn?.CommitSuicide(false, true);
                 });
+                return false;
+            }
+
+            return true;
         }
 
         public static void ResetPrintHTML(CCSPlayerController? player)
         {
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            if (player == null || !player.IsValid) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.PrintHTML = null;
         }
 
-        public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos)
+        public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
         {
-            if (pos == null) return null;
-
-            var trigger = Utilities.CreateEntityByName<CTriggerMultiple>("trigger_multiple");
-            if (trigger == null || trigger.AbsOrigin == null) return null;
-
-            trigger.Collision.SolidType = SolidType_t.SOLID_CAPSULE;
-            trigger.Collision.SolidFlags = 0;
-            trigger.Spawnflags = 1;
-            trigger.Globalname = $"{name}_{trigger.Index}";
-            trigger.Collision.SolidFlags = 1;
-
-            trigger.AbsOrigin.X = pos.X;
-            trigger.AbsOrigin.Y = pos.Y;
-            trigger.AbsOrigin.Z = pos.Z;
-
-            trigger.Collision.CapsuleRadius = radius;
-            trigger.Collision.BoundingRadius = radius;
-
-            trigger.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_TRIGGER;
-            trigger.Collision.EnablePhysics = 1;
-            trigger.Collision.TriggerBloat = 0;
-
-            trigger.Collision.SurroundType = SurroundingBoundsType_t.USE_OBB_COLLISION_BOUNDS;
-            trigger.Collision.CollisionAttribute.CollisionFunctionMask = 39;
-            trigger.Collision.CollisionAttribute.CollisionGroup = 2;
-
-            trigger.DispatchSpawn();
-            return trigger;
+            return EntityManager.CreateTrackedTrigger(ownerPlayerIndex, name, radius, pos);
         }
 
-        public static void AddHealth(CCSPlayerPawn? pawn, int extraHealth, int? maxHealth = null)
+        public static bool AddHealth(CCSPlayerPawn? pawn, int extraHealth, int? maxHealth = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                return;
+                return false;
 
             maxHealth ??= pawn.MaxHealth;
+
+            if (pawn.Health == maxHealth)
+                return false;
 
             int newHealth = (int)(pawn.Health + extraHealth);
             pawn.Health = Math.Min(newHealth, (int)maxHealth);
@@ -345,6 +307,8 @@ namespace src.utils
 
             pawn.MaxHealth = (int)maxHealth;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+
+            return true;
         }
 
         public static void RestoreHealth(CCSPlayerController? player)
@@ -356,8 +320,26 @@ namespace src.utils
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return;
 
-            pawn.Health = (int)player.PawnHealth;
+            var p = PlayerManager.GetPlayerFromEvent(player);
+            if (p == null || !p.IsValid)
+                return;
+
+            pawn.Health = (int)p.PawnHealth;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+        }
+
+        public static void SetPlayerInvisibility(CCSPlayerController player, float percentInvisibility)
+        {
+            if (player == null || !player.IsValid || player.PlayerPawn == null)
+                return;
+
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn != null)
+            {
+                var color = Color.FromArgb(Math.Max(255 - (int)(255 * percentInvisibility), 0), 255, 255, 255);
+                playerPawn.Render = color;
+                Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
+            }
         }
 
         public static string GetDesignerName(CBasePlayerWeapon? weapon)
@@ -406,7 +388,7 @@ namespace src.utils
             var manager = GetMenuManager();
             if (manager == null) return;
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
@@ -428,8 +410,28 @@ namespace src.utils
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null || !playerInfo.DisplayHUD) return;
+
+            if (player.IsBot)
+            {
+                var pool = new List<string>();
+
+                foreach (var enemy in enemies)
+                    if (!string.IsNullOrEmpty(enemy.Item2))
+                        pool.Add(enemy.Item2);
+
+                if (lastElement != null && !string.IsNullOrEmpty(lastElement.Value.Item2))
+                    pool.Add(lastElement.Value.Item2);
+
+                if (pool.Count > 0)
+                {
+                    string randomTarget = pool[Random.Shared.Next(pool.Count)];
+                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, new[] { randomTarget }]);
+                }
+
+                return;
+            }
 
             var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == playerInfo.Skill);
             if (skillData == null) return;
@@ -453,8 +455,6 @@ namespace src.utils
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
                 ? ""
                 : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
-
-
 
             var hudContent = infoLine + skillLine + remainingLine;
 

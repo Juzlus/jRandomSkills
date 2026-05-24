@@ -1,10 +1,9 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -25,10 +24,10 @@ namespace src.player.skills
 
         public static void DecoyStarted(EventDecoyStarted @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             decoys.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
@@ -36,10 +35,10 @@ namespace src.player.skills
 
         public static void DecoyDetonate(EventDecoyDetonate @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             foreach (var decoy in decoys.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
@@ -49,11 +48,16 @@ namespace src.player.skills
         public static void OnTick()
         {
             foreach (Vector decoyPos in decoys.Keys)
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 {
+                    var eventPlayer = PlayerManager.GetPlayerEvent(player);
+                    if (eventPlayer == null || !eventPlayer.IsValid) continue;
+
                     var decoyRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
-                    var pawn = player.PlayerPawn.Value;
+
+                    var pawn = eventPlayer.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+
                     double distance = SkillUtils.GetDistance(decoyPos, pawn.AbsOrigin);
                     if (distance <= decoyRadius)
                     {

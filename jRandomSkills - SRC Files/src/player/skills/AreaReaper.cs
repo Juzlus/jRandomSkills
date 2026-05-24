@@ -2,7 +2,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using static src.jRandomSkills;
+using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
@@ -11,6 +11,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.AreaReaper;
         private static readonly string[] bombsiteA = ["A", "a"];
         private static readonly string[] bombsiteB = ["B", "b"];
+        private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
         public static void LoadSkill()
         {
@@ -20,12 +21,19 @@ namespace src.player.skills
         public static void NewRound()
         {
             foreach (var player in Utilities.GetPlayers())
-                SkillUtils.CloseMenu(player);
+            {
+                if (player != null && player.IsValid)
+                    SkillUtils.CloseMenu(player);
+            }
+
+            playersToTarget.Clear();
         }
 
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid || commands == null || commands.Length == 0) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (playerInfo.SkillUsed)
@@ -35,66 +43,74 @@ namespace src.player.skills
             }
 
             int site = bombsiteA.Contains(commands[0]) ? 0 : bombsiteB.Contains(commands[0]) ? 1 : -1;
-            if (site == -1) {
+            if (site == -1)
+            {
                 player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_incorrect_site")}");
                 return;
             }
-            
+
             var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToArray();
             if (bombTargets.Length == 2)
             {
-                bombTargets[site].BombPlantedHere = true;
-                Utilities.SetStateChanged(bombTargets[site], "CBombTarget", "m_bBombPlantedHere");
+                var targetSite = bombTargets[site];
+                if (targetSite != null && targetSite.IsValid)
+                {
+                    targetSite.BombPlantedHere = true;
+                    Utilities.SetStateChanged(targetSite, "CBombTarget", "m_bBombPlantedHere");
+                    playerInfo.SkillUsed = true;
 
-                playerInfo.SkillUsed = true;
-                player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("areareaper_site_disabled", (site == 0 ? 'A' : 'B'))}");
+                    playersToTarget[player.Index] = targetSite.Index;
+                }
             }
-            else
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_no_site")}");
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
             if (playerInfo == null) return;
+
             playerInfo.SkillUsed = false;
             SkillUtils.CreateMenu(player, [(player.GetTranslation("bombsite_a"), "a")], (player.GetTranslation("bombsite_b"), "b", true));
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillUtils.CloseMenu(player);
             Server.NextWorldUpdate(() =>
             {
-                if (Instance.SkillPlayer.FirstOrDefault(p => p.Skill == skillName) != null) return;
+                if (PlayerManager.GetPlayerCountBySkill(skillName) != 0) return;
                 EnableBombsite();
             });
+
+            SkillUtils.CloseMenu(player);
         }
 
-        private static void EnableBombsite()
+        private static void EnableBombsite(uint? bombsiteIndex = null)
         {
             var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target");
             foreach (var bombTarget in bombTargets)
-            {
-                bombTarget.BombPlantedHere = false;
-                Utilities.SetStateChanged(bombTarget, "CBombTarget", "m_bBombPlantedHere");
-            }
+                if (bombTarget != null && bombTarget.IsValid)
+                {
+                    bombTarget.BombPlantedHere = false;
+                    Utilities.SetStateChanged(bombTarget, "CBombTarget", "m_bBombPlantedHere");
+                }
         }
 
         public static void OnTick()
         {
-            var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target");
-            foreach (var player in Utilities.GetPlayers().Where(p => p.Team == CsTeam.Terrorist))
-            {
-                if (!Instance.IsPlayerValid(player)) continue;
+            if (Server.TickCount % 16 != 0) return;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            foreach (var player in Utilities.GetPlayers())
+            {
+                if (player == null || !player.IsValid || player.Team != CsTeam.Terrorist) continue;
+
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid) continue;
+                if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) continue;
 
-                if (pawn.WeaponServices == null) continue;
                 var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
                 if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_c4") continue;
 

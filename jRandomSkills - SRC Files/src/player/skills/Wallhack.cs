@@ -1,18 +1,17 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
     public class Wallhack : ISkill
     {
         private const Skills skillName = Skills.Wallhack;
-        private static readonly ConcurrentDictionary<ulong, byte> playersInAction = new();
+        private static readonly ConcurrentDictionary<uint, byte> playersInAction = new();
         private static ConcurrentDictionary<uint, (uint RelayIndex, uint GlowIndex, CsTeam Team)> glows = new();
 
         public static void LoadSkill()
@@ -24,29 +23,39 @@ namespace src.player.skills
         {
             foreach (var (info, player) in infoList)
             {
-                if (player == null) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                if (player == null || !player.IsValid) continue;
 
+                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
                 var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
-                var observerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer?.SteamID);
+                var observerInfo = observedPlayer != null ? PlayerManager.GetPlayerByIndex(observedPlayer.Index) : null;
 
                 foreach (var kvp in glows)
                 {
                     var enemyIndex = kvp.Key;
                     var glowInfo = kvp.Value;
+                    var enemy = Utilities.GetPlayers().FirstOrDefault(e => e != null && e.IsValid && e.Index == enemyIndex);
 
-                    var enemy = Utilities.GetPlayers().FirstOrDefault(e => e.IsValid && e.Index == enemyIndex);
+                    bool hasSkill = playerInfo?.Skill == skillName;
+                    bool observerHasSkill = observerInfo != null && observerInfo?.Skill == skillName;
+                    bool differentTeam = glowInfo.Team != player.Team;
 
-                    if (enemy != null && enemy.PawnIsAlive)
-                        if (glowInfo.Team != player.Team && (playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName)))
+                    if (enemy != null && enemy.IsValid)
+                    {
+                        var enemyPawn = enemy.PlayerPawn?.Value;
+                        bool pawnValid = enemyPawn != null && enemyPawn.IsValid;
+                        bool alive = pawnValid && enemyPawn!.Health > 0;
+                        bool notInvisible = pawnValid && enemyPawn!.Render.A != 102 && enemyPawn!.Render.A != 128;
+
+                        bool shouldShow = alive && notInvisible && differentTeam && (hasSkill || observerHasSkill);
+
+                        if (shouldShow)
                             continue;
+                    }
 
                     var glowEntity1 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.RelayIndex);
                     if (glowEntity1 == null || !glowEntity1.IsValid) continue;
-
                     var glowEntity2 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.GlowIndex);
                     if (glowEntity2 == null || !glowEntity2.IsValid) continue;
-
                     info.TransmitEntities.Remove(glowEntity1.Index);
                     info.TransmitEntities.Remove(glowEntity2.Index);
                 }
@@ -71,24 +80,31 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             Event.EnableTransmit();
-            playersInAction.TryAdd(player.SteamID, 0);
+            playersInAction.TryAdd(player.Index, 0);
             if (glows.IsEmpty)
                 SetGlowEffectForAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            playersInAction.TryRemove(player.SteamID, out _);
+            playersInAction.TryRemove(player.Index, out _);
             if (playersInAction.IsEmpty)
                 NewRound();
         }
 
         private static void SetGlowEffectForAll()
         {
-            var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && (p.Team == CsTeam.Terrorist || p.Team == CsTeam.CounterTerrorist)).ToList();
+            var enemies = Utilities.GetPlayers().Where(p => 
+                p != null &&
+                p.IsValid &&
+                p.PlayerPawn?.Value != null &&
+                p.PlayerPawn.Value.IsValid &&
+                p.PlayerPawn.Value.Health > 0 &&
+            (p.Team == CsTeam.Terrorist || p.Team == CsTeam.CounterTerrorist)).ToList();
+            
             foreach (var enemy in enemies)
             {
-                var enemyInfo = Instance.SkillPlayer.FirstOrDefault(e => e.SteamID == enemy.SteamID);
+                var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
                 if (enemyInfo?.Skill == Skills.Ghost)
                     continue;
 
@@ -99,8 +115,8 @@ namespace src.player.skills
                 var modelName = skeleton?.ModelState?.ModelName;
                 if (string.IsNullOrEmpty(modelName)) continue;
 
-                var modelGlow = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
-                var modelRelay = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
+                var modelGlow = EntityManager.CreateTrackedDynamicProp(enemy.Index);
+                var modelRelay = EntityManager.CreateTrackedDynamicProp(enemy.Index);
 
                 if (modelGlow == null || !modelGlow.IsValid || modelRelay == null || !modelRelay.IsValid)
                     continue;

@@ -1,13 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
-using static src.jRandomSkills;
-using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
@@ -15,7 +12,6 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.ReZombie;
         private static readonly ConcurrentDictionary<uint, byte> zombies = [];
-        private static readonly ConcurrentDictionary<ulong, Timer> timers = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -50,10 +46,13 @@ namespace src.player.skills
 
         public static void WeaponEquip(EventItemEquip @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
-            if (!zombies.ContainsKey(player.Index) || weapon == "c4") return;
+
+            if (!zombies.ContainsKey(player.Index) || weapon == "c4" || weapon.Contains("knife") || weapon.Contains("bayonet"))
+                return;
+
             player.ExecuteClientCommand("slot3");
         }
 
@@ -69,106 +68,33 @@ namespace src.player.skills
             zombies.Clear();
         }
 
-        public static void PlayerDeath(EventPlayerDeath @event)
+        public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var player = @event.Userid;
-            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || zombies.ContainsKey(player.Index)) return;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (victim == null || !victim.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (playerInfo?.Skill != skillName) return;
+            var pawn = victim.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid) return;
 
-            var pawn = player.PlayerPawn.Value;
-            if (pawn.AbsOrigin == null) return;
+            if (zombies.ContainsKey(victim.Index)) return;
 
-            Vector deadPosition = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z);
-            QAngle angle = new(pawn.V_angle.X, pawn.V_angle.Y, 0);
+            var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+            if (playerInfo?.Skill != skillName || pawn.Health > 0) return;
 
-            ulong steamID = player.SteamID;
-            int team = player.TeamNum;
-            if (team != 2 && team != 3) return;
+            lock (setLock)
+            {
+                var zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
+                bool isBlock = victim.TeamChanged;
 
-            player.Respawn();
+                zombies.TryAdd(victim.Index, 0);
 
-            Server.NextFrame(() => {
-                lock (setLock)
-                {
-                    var player = Utilities.GetPlayerFromSteamId(steamID);
-                    if (player == null || !player.IsValid || !player.PlayerPawn.IsValid) return;
+                if (isBlock) return;
 
-                    var pawn = player.PlayerPawn.Value;
-                    if (pawn == null || !pawn.IsValid) return;
+                SetPlayerColor(pawn, false);
+                SkillUtils.AddHealth(pawn, zombieHealth - pawn.Health, zombieHealth);
 
-                    var zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
-
-                    bool isBlock = team != player.TeamNum || player.TeamChanged;
-
-                    player.Respawn();
-                    zombies.TryAdd(player.Index, 0);
-
-                    if (isBlock)
-                    {
-                        pawn.Flags |= (uint)Flags_t.FL_FROZEN;
-                        pawn.Teleport(new Vector(0, 0, -1000), new QAngle(90, 0, 0));
-
-                        bool isFreezeTime = Instance.GameRules != null && Instance.GameRules.FreezePeriod == true;
-
-                        if (!isFreezeTime)
-                        {
-                            Server.NextFrame(() =>
-                            {
-                                if (pawn == null || !pawn.IsValid) return;
-                                pawn.CommitSuicide(false, true);
-                            });
-                            return;
-                        }
-
-                        ulong steamId = player.SteamID;
-
-                        if (!timers.ContainsKey(player.SteamID))
-                        {
-                            var timer = Instance.AddTimer(1f, () =>
-                            {
-                                if (player == null || !player.IsValid || pawn == null || !pawn.IsValid)
-                                {
-                                    if (timers.TryRemove(steamId, out var t))
-                                        t.Kill();
-                                    return;
-                                }
-
-                                bool isFreezeTime = Instance.GameRules != null && Instance.GameRules.FreezePeriod == true;
-
-                                if (!isFreezeTime)
-                                {
-                                    if (timers.TryRemove(steamId, out var t))
-                                        t.Kill();
-
-                                    pawn.CommitSuicide(false, true);
-                                    return;
-                                }
-
-                            }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
-
-                            timers.TryAdd(player.SteamID, timer);
-                        }
-
-                        return;
-                    }
-
-                    SetPlayerColor(pawn, false);
-                    SkillUtils.AddHealth(pawn, zombieHealth - 100, zombieHealth);
-                    
-                    pawn.Teleport(deadPosition);
-                    pawn.Look(angle);
-                    player.ExecuteClientCommand("slot3");
-                    
-                    Instance.AddTimer(1, () => {
-                        var player = Utilities.GetPlayerFromSteamId(steamID);
-                        if (player == null || !player.IsValid || !player.PlayerPawn.IsValid) return;
-
-                        player.ExecuteClientCommand("slot3");
-                    });
-                }
-            });
+                victim.ExecuteClientCommand("slot3");
+            }
         }
 
         public static bool OnWeaponCanAcquire(DynamicHook hook, CCSPlayerController player, CEconItemView econItem, CCSWeaponBaseVData vdata)
@@ -182,7 +108,7 @@ namespace src.player.skills
             if (weaponName.Contains("knife") || weaponName.Contains("bayonet"))
                 return false;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return false;
 
             hook.SetReturn(AcquireResult.InvalidItem);

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -11,8 +11,9 @@ namespace src.player.skills
     public class Fortnite : ISkill
     {
         private const Skills skillName = Skills.Fortnite;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
-        private static readonly ConcurrentDictionary<ulong, int> barricades = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, int> barricades = [];
+        public static bool skillInThisRound = false;
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -23,6 +24,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
+            skillInThisRound = false;
             lock (setLock)
             {
                 SkillPlayerInfo.Clear();
@@ -34,18 +36,19 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            skillInThisRound = true;
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -53,7 +56,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -69,7 +72,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -83,9 +86,10 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
             {
-                if (!player.IsValid || !player.PawnIsAlive) return;
+                if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+
                 if (skillInfo.CanUse)
                 {
                     skillInfo.CanUse = false;
@@ -98,7 +102,7 @@ namespace src.player.skills
         private static void CreateBox(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var box = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+            var box = EntityManager.CreateTrackedPropOverride(player.Index);
             if (box == null || playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return;
 
             float distance = 50;
@@ -140,12 +144,12 @@ namespace src.player.skills
                 if (newHealth <= 0)
                 {
                     barricades.TryRemove(box.Index, out _);
-                    box.AcceptInput("Kill");
+                    EntityManager.DestroyEntity(box.Index);
                 }
                 else
                     barricades.AddOrUpdate(box.Index, newHealth, (k, v) => newHealth);
             }
-            else box.AcceptInput("Kill");
+            else EntityManager.DestroyEntity(box.Index);
         }
 
         public class PlayerSkillInfo

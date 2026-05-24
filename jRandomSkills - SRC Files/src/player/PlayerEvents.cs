@@ -2,12 +2,14 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
 using RayTraceAPI;
 using src.player.skills;
 using src.utils;
@@ -34,8 +36,8 @@ namespace src.player
         public static readonly SkillsInfo.DefaultSkillInfo[] counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
         private static readonly SkillsInfo.DefaultSkillInfo[] allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
 
-        private static readonly ConcurrentDictionary<ulong, ConcurrentBag<jSkill_SkillInfo>> playersSkills = [];
-        public static readonly ConcurrentDictionary<ulong, jSkill_SkillInfo> staticSkills = [];
+        private static readonly ConcurrentDictionary<uint, ConcurrentBag<jSkill_SkillInfo>> playersSkills = [];
+        public static readonly ConcurrentDictionary<uint, jSkill_SkillInfo> staticSkills = [];
         private static readonly object setLock = new();
 
         private static readonly MemoryFunctionVoid<CBasePlayerPawn, CBasePlayerWeapon> DropWeaponFunc = new(GameData.GetSignature("CCSPlayerController_HandleCommandDrop"));
@@ -74,6 +76,7 @@ namespace src.player
             Instance.RegisterListener<OnPlayerButtonsChanged>(CheckUseSkill);
             Instance.RegisterListener<OnEntitySpawned>(EntitySpawned);
             Instance.RegisterListener<OnTick>(OnTick);
+            Instance.RegisterListener<OnClientPutInServer>(OnPlayerConnectedBot);
 
             Instance.HookUserMessage(208, PlayerMakeSound);
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
@@ -96,7 +99,7 @@ namespace src.player
             const int attempts = 6;
             for (int attempt = 0; attempt < attempts; attempt++)
             {
-                var rolled = RarityManager.RollRarity();
+                var (roll, rolled) = RarityManager.RollRarity();
 
                 var filtered = candidates.Where(s =>
                 {
@@ -117,7 +120,7 @@ namespace src.player
                 }).ToList();
 
                 if (filtered.Count > 0)
-                    return filtered[Instance.Random.Next(filtered.Count)];
+                    return filtered[Random.Shared.Next(filtered.Count)];
             }
 
             var fallback = candidates.Where(s =>
@@ -131,9 +134,9 @@ namespace src.player
             }).ToList();
 
             if (fallback.Count > 0)
-                return fallback[Instance.Random.Next(fallback.Count)];
+                return fallback[Random.Shared.Next(fallback.Count)];
 
-            return candidates[Instance.Random.Next(candidates.Count)];
+            return candidates[Random.Shared.Next(candidates.Count)];
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -402,6 +405,10 @@ namespace src.player
 
                 foreach (string skillName in activeSkills)
                     Instance.SkillAction(skillName, "OnTakeDamage", [h]);
+                
+                if (Fortnite.skillInThisRound == true && !activeSkills.Any(s => s == "Fortnite"))
+                    Instance.SkillAction("Fortnite", "OnTakeDamage", [h]);
+
                 return HookResult.Continue;
             }
         }
@@ -526,17 +533,21 @@ namespace src.player
             }
         }
 
-        private static HookResult PlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+        private static void OnPlayerConnectedBot(int playerSlot)
         {
             lock (setLock)
             {
-                var player = @event.Userid;
-                if (player == null || !player.IsValid) return HookResult.Continue;
+                var player = Utilities.GetPlayerFromSlot(playerSlot);
+                if (player == null || !player.IsValid) return;
 
-                Instance.SkillPlayer.Add(new jSkill_PlayerInfo
+                if (player.IsBot && !Config.LoadedConfig.EnableBotSkills)
+                    return;
+
+                var playerInfo = new jSkill_PlayerInfo
                 {
-                    SteamID = player.SteamID,
+                    IsBot = player.IsBot,
                     PlayerName = player.PlayerName,
+                    PlayerIndex = player.Index,
                     Skill = Skills.None,
                     SpecialSkill = Skills.None,
                     IsDrawing = false,
@@ -544,7 +555,18 @@ namespace src.player
                     PrintHTML = null,
                     DisplayHUD = true,
                     SkillUsed = false,
-                });
+                };
+                Instance.SkillPlayer.Add(playerInfo);
+                PlayerManager.Register(playerInfo);
+            }
+        }
+
+        private static HookResult PlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                var player = PlayerManager.GetPlayerEvent(@event.Userid);
+                if (player == null || !player.IsValid) return HookResult.Continue;
 
                 string welcomeMsg = player.GetTranslation("welcome_message", "welcome");
                 foreach (string line in welcomeMsg.Split("\n"))
@@ -562,16 +584,18 @@ namespace src.player
         {
             lock (setLock)
             {
-                var player = @event.Userid;
+                var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
-                var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return HookResult.Continue;
 
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
 
                 var items = Instance.SkillPlayer.ToList();
-                Instance.SkillPlayer = [.. items.Where(p => p.SteamID != skillPlayer.SteamID)];
+                Instance.SkillPlayer = [.. items.Where(p => p.PlayerIndex != player.Index)];
+                PlayerManager.UnregisterPlayer(player.Index);
+                EntityManager.DestroyPlayerEntities(player.Index);
 
                 return HookResult.Continue;
             }
@@ -586,16 +610,10 @@ namespace src.player
 
             string commandName = text.StartsWith('!') || text.StartsWith('/') ? text[1..] : text;
             
-            foreach (var cmd in Instance.CommandDefinitions)
-                Server.PrintToChatAll("1. " + cmd.Name);
-
-            foreach (var cmd in Instance.CommandListeners.Keys)
-                Server.PrintToChatAll("2. " + cmd?.Target?.ToString());
-
             var player = Utilities.GetPlayerFromUserid(userID);
             if (player == null || !player.IsValid) return HookResult.Continue;
 
-            var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
             if (skillPlayer == null) return HookResult.Continue;
 
             var temp = skillPlayer.SkillHudExpired;
@@ -605,7 +623,7 @@ namespace src.player
             {
                 if (skillPlayer.SkillHudExpired == DateTime.MinValue)
                     skillPlayer.SkillHudExpired = temp;
-            });
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
             return HookResult.Continue;
         }
@@ -614,10 +632,10 @@ namespace src.player
         {
             lock (setLock)
             {
-                var player = @event.Userid;
+                var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
-                var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return HookResult.Continue;
 
                 if (setSkillTimer != null)
@@ -642,11 +660,11 @@ namespace src.player
             {
                 bool isWarmup = Instance.GameRules != null && Instance.GameRules.WarmupPeriod == true;
                 isTransmitRegistered = false;
-                Instance.AddTimer(.1f, () => DisableAll());
+                Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+                foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 {
-                    var skillPlayer = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                    var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (skillPlayer == null) continue;
                     skillPlayer.IsDrawing = !isWarmup;
                     skillPlayer.PrintHTML = null;
@@ -659,7 +677,7 @@ namespace src.player
                 setSkillTimer?.Kill();
 
                 float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
-                setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill);
+                setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 return HookResult.Continue;
             }
         }
@@ -668,9 +686,14 @@ namespace src.player
         {
             lock (setLock)
             {
-                foreach (var player in Utilities.GetPlayers().Where(p => p != null && !p.IsBot && p.IsValid))
+                Fortnite.skillInThisRound = false;
+                EntityManager.DestroyAllTracked();
+
+                foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid))
                 {
-                    var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                    if (player == null || !player.IsValid) continue;
+
+                    var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (playerInfo == null) continue;
 
                     Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
@@ -681,8 +704,26 @@ namespace src.player
                     playerInfo.PrintHTML = null;
                     playerInfo.SkillChance = 1;
                     playerInfo.SkillUsed = false;
+
+                    RestorePlayer(player);
                 }
             }
+        }
+
+        public static void RestorePlayer(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            pawn.HideHUD = (uint)(pawn.HideHUD & ~(1 << 8));
+            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
+
+            player.ReplicateConVar("sv_disable_radar", "0");
+
+            player.DesiredFOV = 0;
+            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
         }
 
         public static void OnMapChange()
@@ -693,19 +734,21 @@ namespace src.player
                 Instance.AddTimer(.1f, () => {
                     DisableAll();
                     ConVar.Find("sv_legacy_jump")?.SetValue("1");
-                });
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
                 playersSkills.Clear();
                 staticSkills.Clear();
                 ctSkill = noneSkill;
                 tSkill = noneSkill;
                 allSkill = noneSkill;
+                PlayerManager.Clear();
             }
         }
 
         private static HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
             Illiterate.Disable();
+
             lock (setLock)
             {
                 foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
@@ -717,7 +760,7 @@ namespace src.player
                         string skillsText = "";
                         foreach (var _player in _players)
                         {
-                            var _playerSkill = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == _player.SteamID);
+                            var _playerSkill = PlayerManager.GetPlayerByIndex(_player.Index);
                             if (_playerSkill != null)
                             {
                                 var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == _playerSkill.Skill);
@@ -735,13 +778,13 @@ namespace src.player
                                     SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
                             SkillUtils.PrintToChat(player, string.Empty, border: "b");
                         }
-                    });
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
 
                 if (Config.LoadedConfig.DisableSkillsOnRoundEnd)
                 {
                     isTransmitRegistered = false;
-                    Instance.AddTimer(1f, () => DisableAll());
+                    Instance.AddTimer(1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     Instance.RemoveListener<CheckTransmit>(CheckTransmit);
                 }
                 return HookResult.Continue;
@@ -760,18 +803,18 @@ namespace src.player
                 foreach (string skillName in activeSkills)
                     Instance.SkillAction(skillName, "PlayerDeath", [@event]);
 
-                var victim = @event.Userid;
-                var attacker = @event.Attacker;
+                var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+                var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (victim == null || attacker == null) return HookResult.Continue;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
                 Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
 
                 if (victim == attacker) return HookResult.Continue;
                 if (Config.LoadedConfig.KillerSkillChatInfo)
                 {
-                    var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker.SteamID);
+                    var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
                     if (attackerInfo != null)
                     {
                         var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == attackerInfo.Skill);
@@ -790,7 +833,7 @@ namespace src.player
 
         private static void CheckUseSkill(CCSPlayerController player, PlayerButtons pressed, PlayerButtons released)
         {
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             lock (setLock)
             {
@@ -802,7 +845,7 @@ namespace src.player
 
                 if ((pressed & skillButton) == 0) return;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return;
 
                 if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
@@ -872,14 +915,16 @@ namespace src.player
             setSkillTimer = null;
             lock (setLock)
             {
-                if (Instance?.GameRules != null && Instance.GameRules.WarmupPeriod == true)
+                if (Instance == null) return;
+
+                if (Instance.GameRules != null && Instance.GameRules.WarmupPeriod == true)
                 {
                     setSkillTimer?.Kill();
                     return;
                 }
 
                 var validPlayers = Utilities.GetPlayers()
-                    .Where(p => p != null && p.IsValid && !p.IsBot && !p.IsHLTV)
+                    .Where(p => p != null && p.IsValid && !p.IsHLTV)
                     .Where(p => {
                         try { return p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; }
                         catch { return false; }
@@ -918,7 +963,7 @@ namespace src.player
                     var teammates = validPlayers.Where(p => p != null && p.IsValid && p.Team == player.Team && p != player).ToList();
                     string teammateSkills = "";
 
-                    var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                    var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (skillPlayer == null) continue;
 
                     skillPlayer.IsDrawing = false;
@@ -935,7 +980,8 @@ namespace src.player
                     {
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                         skillList.RemoveAll(s => s?.Skill == Skills.None);
-                        skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+                        if (!player.IsBot)
+                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
 
                         if (gameMode != Config.GameModes.FullRandom)
                             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
@@ -951,7 +997,7 @@ namespace src.player
                         else
                             skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
 
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.SteamID, out ConcurrentBag<jSkill_SkillInfo>? skills))
+                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
                         {
                             skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
                             if (skillList.Count == 0) skills.Clear();
@@ -961,10 +1007,10 @@ namespace src.player
 
                         if (gameMode == Config.GameModes.NoRepeat)
                         {
-                            if (playersSkills.TryGetValue(player.SteamID, out ConcurrentBag<jSkill_SkillInfo>? value))
+                            if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? value))
                                 value.Add(randomSkill);
                             else
-                                playersSkills.TryAdd(player.SteamID, [randomSkill]);
+                                playersSkills.TryAdd(player.Index, [randomSkill]);
                         }
                     }
                     else if (gameMode == Config.GameModes.TeamSkills)
@@ -984,7 +1030,7 @@ namespace src.player
                     skillPlayer.Skill = randomSkill.Skill;
                     skillPlayer.SpecialSkill = Skills.None;
 
-                    if (randomSkill != null && randomSkill.Skill != Skills.None)
+                    if (randomSkill.Skill != Skills.None)
                     {
                         if (assignmentCounts.TryGetValue(randomSkill.Skill, out var cnt)) assignmentCounts[randomSkill.Skill] = cnt + 1;
                         else assignmentCounts[randomSkill.Skill] = 1;
@@ -999,17 +1045,19 @@ namespace src.player
 
                         if (randomSkill.Display)
                             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
-                                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                                border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
 
                         if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
-                                if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == randomSkill.Skill) == null) return;
+                                if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
                                 Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
-                            });
+                            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
+                        {
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
-                    });
+                        }
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
 
@@ -1027,7 +1075,7 @@ namespace src.player
 
                             foreach (var teammate in teammates)
                             {
-                                var teammateInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == teammate.SteamID);
+                                var teammateInfo = PlayerManager.GetPlayerByIndex(teammate.Index);
                                 if (teammateInfo != null && teammateInfo?.Skill != null)
                                 {
                                     var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == teammateInfo.Skill);
@@ -1043,7 +1091,7 @@ namespace src.player
                                         SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
                                 SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("teammate_skills"), border: "b");
                             }
-                        });
+                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     }
                 }
             }
@@ -1053,7 +1101,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var validPlayers = Utilities.GetPlayers().Where(p => p.IsValid && !p.IsBot && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).ToList();
+                var validPlayers = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).ToList();
 
                 if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
                 {
@@ -1067,7 +1115,7 @@ namespace src.player
                 }
 
                 if (player == null) return;
-                var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return;
 
                 skillPlayer.IsDrawing = false;
@@ -1081,13 +1129,14 @@ namespace src.player
                 if (Instance?.GameRules != null && Instance?.GameRules.WarmupPeriod == false)
                 {
                     Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
-                    if (staticSkills.TryGetValue(player.SteamID, out var staticSkill))
+                    if (staticSkills.TryGetValue(player.Index, out var staticSkill))
                         randomSkill = staticSkill;
                     else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                     {
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                         skillList.RemoveAll(s => s?.Skill == Skills.None);
-                        skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+                        if (!player.IsBot)
+                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
 
                         if (gameMode != Config.GameModes.FullRandom)
                             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
@@ -1103,7 +1152,7 @@ namespace src.player
                         else
                             skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
 
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.SteamID, out ConcurrentBag<jSkill_SkillInfo>? skills))
+                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
                         {
                             skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
                             if (skillList.Count == 0) skills.Clear();
@@ -1133,12 +1182,12 @@ namespace src.player
                     }
                 }
 
-                if (randomSkill.Display && Config.LoadedConfig.YourSkillChatInfo)
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
-                        border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
-
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
+
+                if (randomSkill.Display && Config.LoadedConfig.YourSkillChatInfo)
+                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
+                        border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
 
                 if (randomSkill.Skill == Skills.Illiterate)
                     Illiterate.Enable();
@@ -1148,12 +1197,12 @@ namespace src.player
                     if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                         Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                         {
-                            if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID && p.Skill == randomSkill.Skill) == null) return;
+                            if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
-                        });
+                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     else
                         Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
-                });
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
                 skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);

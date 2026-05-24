@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
 using src.utils;
 using System.Collections.Concurrent;
 using static src.jRandomSkills;
@@ -10,7 +11,7 @@ namespace src.player.skills
     public class ChillOut : ISkill
     {
         private const Skills skillName = Skills.ChillOut;
-        private static readonly ConcurrentDictionary<ulong, float> plantingPlayers = [];
+        private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
 
         public static void LoadSkill()
         {
@@ -25,25 +26,27 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            plantingPlayers.TryRemove(player.SteamID, out _);
+            plantingPlayers.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
         public static void BombAbortplant(EventBombAbortplant @event)
         {
-            var user = @event.Userid;
-            if (user == null || !user.IsValid || !user.PawnIsAlive) return;
-            plantingPlayers.TryRemove(user.SteamID, out _);
+            var user = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (!Instance.IsPlayerValid(user)) return;
+
+            plantingPlayers.TryRemove(user.Index, out _);
             SkillUtils.ResetPrintHTML(user);
         }
 
         public static void BombBeginplant(EventBombBeginplant @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            plantingPlayers.TryAdd(player!.SteamID, Server.CurrentTime);
 
-            var anyChillOut = Instance.SkillPlayer.FirstOrDefault(p => p.Skill == skillName);
+            plantingPlayers.TryAdd(player!.Index, Server.CurrentTime);
+
+            var anyChillOut = PlayerManager.GetAllPlayers().FirstOrDefault(p => p.Skill == skillName);
             if (anyChillOut != null)
             {
                 var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
@@ -58,9 +61,10 @@ namespace src.player.skills
 
         public static void BombPlanted(EventBombPlanted @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            plantingPlayers.TryRemove(player!.SteamID, out _);
+
+            plantingPlayers.TryRemove(player!.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -71,9 +75,9 @@ namespace src.player.skills
 
             foreach (var player in Utilities.GetPlayers().Where(p => p.Team == CsTeam.Terrorist))
             {
-                if (!Instance.IsPlayerValid(player)) continue;
+                if (player == null || !player.IsValid) continue;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
                 if (playerInfo == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
@@ -83,7 +87,7 @@ namespace src.player.skills
                 var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
                 if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_c4") continue;
 
-                if (plantingPlayers.TryGetValue(player.SteamID, out float plantTime))
+                if (plantingPlayers.TryGetValue(player.Index, out float plantTime))
                 {
                     float remaining = plantTime + extraTime - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";

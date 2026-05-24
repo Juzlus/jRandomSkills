@@ -1,10 +1,9 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -25,10 +24,10 @@ namespace src.player.skills
 
         public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
@@ -36,10 +35,10 @@ namespace src.player.skills
 
         public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))    
@@ -60,7 +59,7 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             Server.NextFrame(() =>
@@ -82,31 +81,23 @@ namespace src.player.skills
             int smokeHeal = SkillsInfo.GetValue<int>(skillName, "smokeHeal");
 
             foreach (Vector smokePos in smokes.Keys)
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive))
+                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
                 {
-                    var pawn = player.PlayerPawn.Value;
+                    var eventPlayer = PlayerManager.GetPlayerEvent(player);
+                    if (eventPlayer == null || !eventPlayer.IsValid) continue;
+
+                    var pawn = eventPlayer.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
 
                     if (SkillUtils.GetDistance(smokePos, pawn.AbsOrigin) <= smokeRadius)
-                        AddHealth(pawn, smokeHeal);
+                        if (SkillUtils.AddHealth(pawn, smokeHeal))
+                            player.EmitSound("Healthshot.Success");
                 }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
-        }
-
-        private static void AddHealth(CCSPlayerPawn player, int health)
-        {
-            if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                return;
-
-            if (player.Health != player.MaxHealth)
-                player.EmitSound("Healthshot.Success");
-
-            player.Health = Math.Min(player.Health + health, player.MaxHealth);
-            Utilities.SetStateChanged(player, "CBaseEntity", "m_iHealth");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -40,7 +40,7 @@ namespace src.player.skills
             plantedC4 = null;
             var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
             if (plantedBomb != null && plantedBomb.IsValid)
-                plantedBomb.AcceptInput("Kill");
+                plantedBomb.AddEntityIOEvent("Kill", plantedBomb, delay: 0.1f);
             SkillUtils.TerminateRound(CsTeam.CounterTerrorist);
         }
 
@@ -48,12 +48,12 @@ namespace src.player.skills
         {
             if (lastTick == Server.TickCount) return;
 
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid || plantedC4 == null) return;
 
             var pos = new Vector(@event.X, @event.Y, @event.Z);
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
             if (SkillUtils.Distance(plantedC4, pos) >= 8)

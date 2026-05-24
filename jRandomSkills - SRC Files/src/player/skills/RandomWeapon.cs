@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -10,7 +10,7 @@ namespace src.player.skills
     public class RandomWeapon : ISkill
     {
         private const Skills skillName = Skills.RandomWeapon;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = new();
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = new();
         private static readonly object setLock = new();
 
         private static readonly HashSet<string> pistols = new(StringComparer.Ordinal)
@@ -43,17 +43,17 @@ namespace src.player.skills
             var players = Utilities.GetPlayers().ToArray();
             foreach (var player in players)
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-                if (playerInfo?.Skill == skillName && SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                if (playerInfo?.Skill == skillName && SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                     UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -61,7 +61,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -77,7 +77,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             playerInfo.PrintHTML = cooldown == 0
@@ -90,8 +90,8 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn?.CBodyComponent == null) return;
 
-            if (!SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo)) return;
-            if (!player.IsValid || !player.PawnIsAlive) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;
+            if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             if (!skillInfo.CanUse)
             {
@@ -146,13 +146,13 @@ namespace src.player.skills
                 }
             }
 
-            ulong steamId = player.SteamID;
+            uint playerIndex = player.Index;
             Instance.AddTimer(.1f, () =>
             {
-                var pl = Utilities.GetPlayerFromSteamId(steamId);
+                var pl = Utilities.GetPlayerFromIndex((int)playerIndex);
                 if (pl == null || !pl.IsValid) return;
                 pl.GiveNamedItem(newWeapon);
-            });
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public class PlayerSkillInfo

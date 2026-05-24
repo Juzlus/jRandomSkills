@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Planter : ISkill
     {
         private const Skills skillName = Skills.Planter;
-        private static readonly ConcurrentDictionary<ulong, float> plantingPlayers = [];
+        private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
 
         public static void LoadSkill()
         {
@@ -20,26 +20,26 @@ namespace src.player.skills
 
         public static void BombBeginplant(EventBombBeginplant @event)
         {
-            var user = @event.Userid;
+            var user = PlayerManager.GetPlayerEvent(@event.Userid);
             if (user == null || !user.IsValid || !user.PawnIsAlive) return;
-            plantingPlayers.TryAdd(user.SteamID, Server.CurrentTime);
+            plantingPlayers.TryAdd(user.Index, Server.CurrentTime);
         }
 
         public static void BombAbortplant(EventBombAbortplant @event)
         {
-            var user = @event.Userid;
+            var user = PlayerManager.GetPlayerEvent(@event.Userid);
             if (user == null || !user.IsValid || !user.PawnIsAlive) return;
-            plantingPlayers.TryRemove(user.SteamID, out _);
+            plantingPlayers.TryRemove(user.Index, out _);
             SkillUtils.ResetPrintHTML(user);
         }
 
         public static void BombPlanted(EventBombPlanted @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            plantingPlayers.TryRemove(player!.SteamID, out _);
+            plantingPlayers.TryRemove(player!.Index, out _);
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
             playerInfo.PrintHTML = null;
 
@@ -64,7 +64,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            plantingPlayers.TryRemove(player.SteamID, out _);
+            plantingPlayers.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
 
             var pawn = player.PlayerPawn.Value;
@@ -80,7 +80,7 @@ namespace src.player.skills
             {
                 if (!Instance.IsPlayerValid(player)) continue;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var pawn = player.PlayerPawn.Value;
@@ -93,7 +93,7 @@ namespace src.player.skills
                 pawn.InBombZone = true;
                 Schema.SetSchemaValue<bool>(pawn.Handle, "CCSPlayerPawn", "m_bInBombZone", true);
 
-                if (plantingPlayers.TryGetValue(player.SteamID, out float plantTime))
+                if (plantingPlayers.TryGetValue(player.Index, out float plantTime))
                 {
                     float remaining = plantTime + 3f - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";

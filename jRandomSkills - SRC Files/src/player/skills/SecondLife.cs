@@ -25,11 +25,11 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var victim = @event.Userid;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             int damage = @event.DmgHealth;
 
             if (!Instance.IsPlayerValid(victim)) return;
-            var victimInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
+            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             var victimPawn = victim!.PlayerPawn.Value;
@@ -66,9 +66,6 @@ namespace src.player.skills
 
             pawn.Health = health;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
-
-            pawn.ArmorValue = 0;
-            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int startHealth = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

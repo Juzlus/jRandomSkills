@@ -10,6 +10,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.Illiterate;
         private static bool isActive = false;
         private static int offset = 5;
+        private static int lastChange = 0;
         private static readonly object offsetLock = new();
 
         public static void LoadSkill()
@@ -28,7 +29,7 @@ namespace src.player.skills
             }
         }
 
-        public static void EnableSkill(CCSPlayerController player)
+        public static void EnableSkill(CCSPlayerController _)
         {
             isActive = true;
         }
@@ -48,24 +49,28 @@ namespace src.player.skills
             if (!isActive || player == null || !player.IsValid) return false;
             if (player.Team == CsTeam.Spectator) return false;
 
-            var playersWithSkill = jRandomSkills.Instance.SkillPlayer.Where(p => p.Skill == skillName).Select(p => p.SteamID).ToHashSet();
+            var playersWithSkill = jRandomSkills.Instance.SkillPlayer.Where(p => p.Skill == skillName).Select(p => p.PlayerIndex).ToHashSet();
             if (playersWithSkill.Count == 0) return false;
 
             return Utilities.GetPlayers().Any(
                 p => p != null &&
                      p.IsValid &&
                      p.Pawn?.Value != null &&
-                     p.PawnIsAlive &&
+                     p.PlayerPawn?.Value != null &&
+                     p.PlayerPawn.Value.Health > 0 &&
                      p.Team != player.Team &&
-                     playersWithSkill.Contains(p.SteamID));
+                     playersWithSkill.Contains(p.Index));
         }
 
         public static string? GetRandomText(string? input)
         {
             if (string.IsNullOrEmpty(input)) return null;
 
-            if (Server.TickCount % 64 == 0 || offset == 0)
+            if (Server.TickCount - lastChange > 64 || offset == 0)
+            {
                 EnsureOffset();
+                lastChange = Server.TickCount;
+            }
 
             var chars = input.Select(c =>
             {
@@ -84,7 +89,6 @@ namespace src.player.skills
         {
             lock (offsetLock)
             {
-                if (offset != 0) return;
                 try
                 {
                     offset = jRandomSkills.Instance?.Random?.Next(1, 26) ?? new Random().Next(1, 26);

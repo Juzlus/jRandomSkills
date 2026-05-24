@@ -17,12 +17,12 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var victim = @event.Userid;
-            var attacker = @event.Attacker;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var damage = @event.DmgHealth;
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
 
-            var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (attackerInfo?.Skill != skillName) return;
 
             int moneyToSteal = damage * SkillsInfo.GetValue<int>(skillName, "moneyMultiplier");

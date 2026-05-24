@@ -1,9 +1,9 @@
-﻿using System.Collections.Concurrent;
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
+using System.Collections.Concurrent;
 using static src.jRandomSkills;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -12,9 +12,9 @@ namespace src.player.skills
     public class Jackal : ISkill
     {
         private const Skills skillName = Skills.Jackal;
-        private static readonly ConcurrentDictionary<ulong, byte> playersInAction = new();
-        private static readonly ConcurrentDictionary<uint, uint?> playersStep = new();
-        private static readonly ConcurrentDictionary<ulong, Timer?> activeTimers = new();
+        private static Timer? mainSkillTimer = null;
+        private static readonly ConcurrentDictionary<uint, uint?> activeTrails = [];
+        private static readonly ConcurrentDictionary<uint, byte> playersInAction = [];
 
         public static void LoadSkill()
         {
@@ -24,134 +24,141 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            var particleIds = playersStep.Values.Where(v => v.HasValue).Select(v => v!.Value).ToArray();
-            foreach (var pid in particleIds)
-                SkillUtils.SafeKillEntity<CParticleSystem>(pid);
+            if (mainSkillTimer != null)
+            {
+                mainSkillTimer.Kill();
+                mainSkillTimer = null;
+            }
 
-            var timers = activeTimers.Values.ToArray();
-            foreach (var t in timers)
-                t?.Kill();
+            foreach (var index in activeTrails.Keys)
+                EntityManager.DestroyPlayerEntities(index);
 
-            playersStep.Clear();
+            activeTrails.Clear();
             playersInAction.Clear();
-            activeTimers.Clear();
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            var snapshot = activeTrails.ToArray();
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
 
-                var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
-                bool isObservingJackal = false;
+                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+                bool isJackalOwner = playerInfo?.Skill == skillName;
 
-                if (targetHandle != nint.Zero)
+                if (!isJackalOwner)
                 {
-                    var target = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
-                    var targetInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == target?.SteamID);
-                    if (targetInfo?.Skill == skillName) isObservingJackal = true;
+                    var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
+                    if (targetHandle != nint.Zero)
+                    {
+                        var observed = Utilities.GetPlayers()
+                            .FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
+                        if (observed != null && observed.IsValid)
+                        {
+                            var observedInfo = PlayerManager.GetPlayerByIndex(observed.Index);
+                            if (observedInfo?.Skill == skillName)
+                                isJackalOwner = true;
+                        }
+                    }
                 }
 
-                bool hasSkill = playerInfo?.Skill == skillName || isObservingJackal;
-
-                foreach (var kv in playersStep.ToArray())
+                foreach (var (trackedPlayerIndex, relayIndex) in snapshot)
                 {
-                    var enemyIndex = kv.Key;
-                    var particleIndex = kv.Value;
-                    if (particleIndex == null) continue;
+                    if (relayIndex == null) continue;
 
-                    var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
-                    if (enemy == null || !enemy.IsValid) continue;
+                    var trailOwner = Utilities.GetPlayerFromIndex((int)trackedPlayerIndex);
+                    if (trailOwner == null || !trailOwner.IsValid) continue;
 
-                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)particleIndex);
-                    if (entity == null || !entity.IsValid) continue;
+                    var relayEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)relayIndex);
+                    if (relayEntity == null || !relayEntity.IsValid) continue;
 
-                    if (!hasSkill || enemy.Team == player.Team)
-                        info.TransmitEntities.Remove(entity.Index);
+                    if (player.Team == trailOwner.Team || !isJackalOwner)
+                        info.TransmitEntities.Remove(relayEntity.Index);
                 }
             }
         }
 
         public static void CreatePlayerTrail(CCSPlayerController? player)
         {
-            if (player == null) return;
+            if (player == null || !player.IsValid) return;
+
             var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null
+                || playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || playerPawn.Health <= 0) return; ;
 
-            ulong steamID = player.SteamID;
-            if (activeTimers.TryRemove(steamID, out var oldTimer))
-                oldTimer?.Kill();
+            var relay = EntityManager.CreateTrackedPhysicsProp(player.Index);
+            if (relay == null || !relay.IsValid) return;
 
-            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!playersStep.ContainsKey(player.Index)) return;
+            CBaseEntity target = playerPawn;
+            var entities = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
 
-            CParticleSystem particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system")!;
-            if (particle == null) return;
-
-            particle.EffectName = SkillsInfo.GetValue<string>(skillName, "particleName");
-            particle.StartActive = true;
-
-            particle.Teleport(playerPawn.AbsOrigin);
-            particle.DispatchSpawn();
-
-            particle.AcceptInput("SetParent", playerPawn, particle, "!activator");
-            particle.AcceptInput("Start");
-
-            uint particleId = particle.Index;
-            playersStep.AddOrUpdate(player.Index, particle.Index, (k, v) => particle.Index);
-
-            var timer = Instance.AddTimer(2.5f, () =>
+            if (entities.Count > 0)
             {
-                SkillUtils.SafeKillEntity<CParticleSystem>(particleId);
+                var entity = Utilities.GetEntityFromIndex<CDynamicProp>((int)entities[0]);
+                if (entity != null && entity.IsValid)
+                    target = entity;
+            }
 
-                var pl = Utilities.GetPlayerFromSteamId(steamID);
-                if (pl != null && pl.IsValid && playersStep.ContainsKey(pl.Index))
-                    CreatePlayerTrail(pl);
-            });
+            relay.AcceptInput("SetParent", target, relay, "!activator");
 
-            activeTimers.AddOrUpdate(player.SteamID, timer, (_, prev) =>
+            var particle = EntityManager.CreateTrackedParticleSystem(
+                player.Index,
+                SkillsInfo.GetValue<string>(skillName, "particleName"));
+
+            if (particle != null && particle.IsValid && target.AbsOrigin != null)
             {
-                prev?.Kill();
-                return timer;
-            });
+                Vector pos = new(target.AbsOrigin.X, target.AbsOrigin.Y, target.AbsOrigin.Z);
+                if (entities.Count > 0) pos.Z -= 30;
+
+                particle.Teleport(pos);
+                particle.AcceptInput("SetParent", relay, particle, "!activator");
+                particle.AcceptInput("Start");
+            }
+
+            activeTrails[player.Index] = relay.Index;
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
+            if (player == null || !player.IsValid) return;
+
             Event.EnableTransmit();
-            playersInAction.TryAdd(player.SteamID, 0);
+            playersInAction.TryAdd(player.Index, 0);
 
             var opponents = Utilities.GetPlayers()
-                .Where(p => p.Team != player.Team
-                            && p.IsValid
-                            && !p.IsBot
-                            && !p.IsHLTV
-                            && p.PawnIsAlive
-                            && (p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+                .Where(p => p != null
+                    && p.IsValid
+                    && p.Team != player.Team
+                    && p.PawnIsAlive
+                    && (p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 .ToArray();
 
-            foreach (var _player in opponents)
-            {
-                playersStep.TryAdd(_player.Index, null);
-                CreatePlayerTrail(_player);
-            }
+            mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
+                    CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        private static void UpdateAllTrails()
+        {
+            foreach (var player in Utilities.GetPlayers())
+                CreatePlayerTrail(player);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            playersInAction.TryRemove(player.SteamID, out _);
+            if (player == null || !player.IsValid) return;
+            uint playerIndex = player.Index;
 
-            if (playersStep.TryRemove(player.Index, out var particleIndex) && particleIndex != null)
+            playersInAction.TryRemove(playerIndex, out _);
+            EntityManager.DestroyPlayerEntities(playerIndex);
+            activeTrails.TryRemove(playerIndex, out _);
+
+            if (playersInAction.IsEmpty && mainSkillTimer != null)
             {
-                SkillUtils.SafeKillEntity<CParticleSystem>(particleIndex);
+                mainSkillTimer.Kill();
+                mainSkillTimer = null;
             }
-
-            if (activeTimers.TryRemove(player.SteamID, out var t))
-                t?.Kill();
-
-            if (playersInAction.IsEmpty)
-                NewRound();
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common, string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

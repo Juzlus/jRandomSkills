@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Flash : ISkill
     {
         private const Skills skillName = Skills.Flash;
-        public static readonly ConcurrentDictionary<ulong, int> jumpedPlayers = [];
+        public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
 
         public static void LoadSkill()
         {
@@ -34,7 +34,7 @@ namespace src.player.skills
             var player = Utilities.GetPlayers().FirstOrDefault(p => p.Pawn?.Value != null && p.Pawn.Value.IsValid && p.Pawn.Value.Index == userIndex);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (player!.Buttons.HasFlag(PlayerButtons.Speed) || player.Buttons.HasFlag(PlayerButtons.Duck))
@@ -43,26 +43,26 @@ namespace src.player.skills
 
         public static void PlayerJump(EventPlayerJump @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            if (!jumpedPlayers.TryGetValue(player.SteamID, out _)) return;
-            jumpedPlayers.AddOrUpdate(player.SteamID, Server.TickCount + 20, (k, v) => Server.TickCount + 20);
+            if (!jumpedPlayers.TryGetValue(player.Index, out _)) return;
+            jumpedPlayers.AddOrUpdate(player.Index, Server.TickCount + 20, (k, v) => Server.TickCount + 20);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerPawn == null || playerInfo == null) return;
 
             float newSpeed = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             newSpeed = (float)Math.Round(newSpeed, 2);
             playerInfo.SkillChance = newSpeed;
 
-            jumpedPlayers.TryAdd(player.SteamID, 0);
+            jumpedPlayers.TryAdd(player.Index, 0);
             playerPawn.VelocityModifier = newSpeed;
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newSpeed)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -70,7 +70,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null) return;
             playerPawn.VelocityModifier = 1;
-            jumpedPlayers.TryRemove(player.SteamID, out _);
+            jumpedPlayers.TryRemove(player.Index, out _);
         }
 
         public static void OnTick()
@@ -79,7 +79,7 @@ namespace src.player.skills
             {
                 if (!Instance.IsPlayerValid(player)) continue;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var playerPawn = player.PlayerPawn?.Value;
@@ -90,7 +90,7 @@ namespace src.player.skills
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newVelocity;
 
-                if (jumpedPlayers.TryGetValue(player.SteamID, out var time) && time > Server.TickCount)
+                if (jumpedPlayers.TryGetValue(player.Index, out var time) && time > Server.TickCount)
                     continue;
 
                 if (!((PlayerFlags)player.Flags).HasFlag(PlayerFlags.FL_ONGROUND))

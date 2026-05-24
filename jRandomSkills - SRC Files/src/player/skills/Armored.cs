@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -18,14 +18,17 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             float newScale = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newScale;
             newScale = (float)Math.Round(newScale, 2);
+
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newScale)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                border: !Utilities.GetPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         public static void OnTakeDamage(DynamicHook h)
@@ -33,22 +36,18 @@ namespace src.player.skills
             CEntityInstance param = h.GetParam<CEntityInstance>(0);
             CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
 
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
-                return;
+            if (param == null || !param.IsValid || param2 == null) return;
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            var victimPawn = param.As<CCSPlayerPawn>();
+            if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
-            if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
-                return;
+            var victimController = victimPawn.Controller.Value;
+            if (victimController == null || !victimController.IsValid) return;
 
-            if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
-                return;
+            var victim = victimController.As<CCSPlayerController>();
+            if (victim == null || !victim.IsValid) return;
 
-            CCSPlayerController attacker = attackerPawn.Controller.Value.As<CCSPlayerController>();
-            CCSPlayerController victim = victimPawn.Controller.Value.As<CCSPlayerController>();
-
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)!.Index);
             if (playerInfo == null) return;
 
             if (playerInfo.Skill == skillName && victim.PawnIsAlive)

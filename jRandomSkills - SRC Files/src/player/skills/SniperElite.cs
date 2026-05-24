@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -10,9 +10,9 @@ namespace src.player.skills
     public class SniperElite : ISkill
     {
         private const Skills skillName = Skills.SniperElite;
-        private static readonly ConcurrentDictionary<ulong, List<uint>> playerAWPIndexes = [];
-        private static readonly ConcurrentDictionary<ulong, string> savedWeapons = [];
-        private static readonly ConcurrentDictionary<ulong, byte> isProcessing = [];
+        private static readonly ConcurrentDictionary<uint, List<uint>> playerAWPIndexes = [];
+        private static readonly ConcurrentDictionary<uint, string> savedWeapons = [];
+        private static readonly ConcurrentDictionary<uint, byte> isProcessing = [];
         private static readonly object setLock = new();
 
         private const string weapon_awp = "weapon_awp";
@@ -46,45 +46,45 @@ namespace src.player.skills
 
         public static void PlayerDeath(EventPlayerDeath @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
                 DisableSkill(player);
         }
 
         public static void WeaponEquip(EventItemEquip @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
             {
                 if (rifles.Contains(@event.Item) && @event.Item != weapon_awp)
-                    savedWeapons.AddOrUpdate(player.SteamID, string.Empty, (_, _) => string.Empty);
+                    savedWeapons.AddOrUpdate(player.Index, string.Empty, (_, _) => string.Empty);
                 DeleteDroppedAWP(player);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            savedWeapons.TryAdd(player.SteamID, string.Empty);
+            savedWeapons.TryAdd(player.Index, string.Empty);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             player.ExecuteClientCommand("slot3");
 
-            if (playerAWPIndexes.TryGetValue(player.SteamID, out var AWPs))
+            if (playerAWPIndexes.TryGetValue(player.Index, out var AWPs))
                 foreach (var index in AWPs.ToList())
                     SkillUtils.SafeKillEntity<CBasePlayerWeapon>(index);
 
-            if (savedWeapons.TryGetValue(player.SteamID, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))    
+            if (savedWeapons.TryGetValue(player.Index, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))    
                 Server.NextFrame(() =>
                 {
-                    if (player == null || !player.IsValid || !player.PawnIsAlive) return;
+                    if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid) return;
@@ -100,24 +100,24 @@ namespace src.player.skills
                     player.ExecuteClientCommand("lastinv");
             });
 
-            savedWeapons.TryRemove(player.SteamID, out _);
-            playerAWPIndexes.TryRemove(player.SteamID, out _);
-            isProcessing.TryRemove(player.SteamID, out _);
+            savedWeapons.TryRemove(player.Index, out _);
+            playerAWPIndexes.TryRemove(player.Index, out _);
+            isProcessing.TryRemove(player.Index, out _);
         }
 
         public static void UseSkill(CCSPlayerController player)
         {
-            if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || isProcessing.ContainsKey(player.SteamID)) return;
-            if (savedWeapons.ContainsKey(player.SteamID))
+            if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || isProcessing.ContainsKey(player.Index)) return;
+            if (savedWeapons.ContainsKey(player.Index))
                 RemoveAndGiveWeapon(player);
         }
 
         private static void RemoveAndGiveWeapon(CCSPlayerController player)
         {
-            ulong steamID = player.SteamID;
+            uint playerIndex = player.Index;
             try
             {
-                if (!isProcessing.TryAdd(steamID, 0)) return;
+                if (!isProcessing.TryAdd(playerIndex, 0)) return;
 
                 CBasePlayerWeapon? activeRifle = GetActiveRifle(player);
                 string weaponToGive = weapon_awp;
@@ -128,24 +128,24 @@ namespace src.player.skills
                     bool isScriptAWP = false;
 
                     lock (setLock)
-                        isScriptAWP = playerAWPIndexes.TryGetValue(steamID, out var indexes) && indexes.Contains(activeRifle.Index);
+                        isScriptAWP = playerAWPIndexes.TryGetValue(playerIndex, out var indexes) && indexes.Contains(activeRifle.Index);
 
                     if (isScriptAWP)
                     {
-                        if (savedWeapons.TryGetValue(steamID, out var savedWeapon) && !string.IsNullOrEmpty(savedWeapon))
+                        if (savedWeapons.TryGetValue(playerIndex, out var savedWeapon) && !string.IsNullOrEmpty(savedWeapon))
                         {
                             weaponToGive = savedWeapon;
-                            savedWeapons.AddOrUpdate(steamID, string.Empty, (_, _) => string.Empty);
+                            savedWeapons.AddOrUpdate(playerIndex, string.Empty, (_, _) => string.Empty);
                         }
                         else
                         {
-                            isProcessing.TryRemove(steamID, out _);
+                            isProcessing.TryRemove(playerIndex, out _);
                             return;
                         }
                     }
                     else
                     {
-                        savedWeapons.AddOrUpdate(steamID, currentWeaponName, (_, _) => currentWeaponName);
+                        savedWeapons.AddOrUpdate(playerIndex, currentWeaponName, (_, _) => currentWeaponName);
                         weaponToGive = weapon_awp + "_script";
                     }
 
@@ -153,17 +153,17 @@ namespace src.player.skills
                 }
                 else
                 {
-                    if (savedWeapons.TryGetValue(steamID, out string? savedWeapon) && !string.IsNullOrEmpty(savedWeapon))
+                    if (savedWeapons.TryGetValue(playerIndex, out string? savedWeapon) && !string.IsNullOrEmpty(savedWeapon))
                     {
                         weaponToGive = savedWeapon;
-                        savedWeapons.AddOrUpdate(steamID, string.Empty, (_, _) => string.Empty);
+                        savedWeapons.AddOrUpdate(playerIndex, string.Empty, (_, _) => string.Empty);
                     }
                     else
                         weaponToGive = weapon_awp + "_script";
                 }
 
                 Instance.AddTimer(.15f, () => {
-                    var player = Utilities.GetPlayerFromSteamId(steamID);
+                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                     if (player == null || !player.IsValid) return;
 
                     if (player != null && player.IsValid && player.PlayerPawn != null && player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid)
@@ -178,21 +178,21 @@ namespace src.player.skills
 
                             lock (setLock)
                             {
-                                if (!playerAWPIndexes.ContainsKey(steamID))
-                                    playerAWPIndexes.TryAdd(steamID, []);
+                                if (!playerAWPIndexes.ContainsKey(playerIndex))
+                                    playerAWPIndexes.TryAdd(playerIndex, []);
                                 
-                                if (playerAWPIndexes.TryGetValue(steamID, out var list))
+                                if (playerAWPIndexes.TryGetValue(playerIndex, out var list))
                                     list.Add(createdWeapon.Index);
                             }
                         }
                     }
 
                     DeleteDroppedAWP(player);
-                    isProcessing.TryRemove(steamID, out _);
+                    isProcessing.TryRemove(playerIndex, out _);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
             catch {
-                isProcessing.TryRemove(steamID, out _);
+                isProcessing.TryRemove(playerIndex, out _);
             }
         }
 
@@ -210,7 +210,7 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (playerAWPIndexes.TryGetValue(player.SteamID, out var AWPs))
+                if (playerAWPIndexes.TryGetValue(player.Index, out var AWPs))
                     foreach (var index in AWPs.ToList())
                         if (!myWeaponsIndexes.Contains(index))
                         {

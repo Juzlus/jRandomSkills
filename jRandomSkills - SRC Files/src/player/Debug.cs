@@ -19,7 +19,7 @@ namespace src.player
             sessionId = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
             Instance.RegisterEventHandler<EventPlayerConnectFull>((@event, info) =>
             {
-                var player = @event.Userid;
+                var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
                 WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} joined the game.");
                 return HookResult.Continue;
@@ -27,7 +27,7 @@ namespace src.player
 
             Instance.RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
             {
-                var player = @event.Userid;
+                var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
                 WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} disconnected.");
                 return HookResult.Continue;
@@ -59,8 +59,8 @@ namespace src.player
 
             Instance.RegisterEventHandler<EventPlayerDeath>((@event, info) =>
             {
-                var victim = @event.Userid;
-                var attacker = @event.Attacker;
+                var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+                var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (victim != null)
                 {
                     if (attacker != null)
@@ -90,7 +90,7 @@ namespace src.player
 
             Instance.RegisterEventHandler<EventPlayerShoot>((@event, info) =>
             {
-                var player = @event.Userid;
+                var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
                 WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} fired a shot.");
                 return HookResult.Continue;
@@ -116,10 +116,10 @@ namespace src.player
             if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
                 return HookResult.Continue;
 
-            CCSPlayerController attacker = attackerPawn.Controller.Value.As<CCSPlayerController>();
-            CCSPlayerController victim = victimPawn.Controller.Value.As<CCSPlayerController>();
+            CCSPlayerController attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>())!;
+            CCSPlayerController victim = PlayerManager.GetPlayerEvent(victimPawn.Controller.Value.As<CCSPlayerController>())!;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo == null) return HookResult.Continue;
 
             WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}.");
@@ -131,11 +131,33 @@ namespace src.player
             if (Config.LoadedConfig.DebugMode != true)
                 return;
 
+            // GetAllEntityIndexes();
+
             string filename = $"debug_{sessionId}.txt";
             string path = Path.Combine(debugFolder, filename);
 
             Directory.CreateDirectory(debugFolder);
             File.AppendAllText(path, $"[{DateTime.Now:dd.MM.yyyy HH:mm:ss}] {message}{Environment.NewLine}", System.Text.Encoding.UTF8);
+        }
+
+        private static void GetAllEntityIndexes()
+        {
+            if (Instance.GameRules == null) return;
+
+            var entities = Utilities.GetAllEntities();
+
+            foreach (var entity in entities)
+                if (entity != null && entity.IsValid && !string.IsNullOrEmpty(entity.DesignerName))
+                {
+                    string text = $"Entity: {entity.DesignerName}, ID: {entity.Index}";
+                    Console.WriteLine(text);
+
+                    string filename = $"debug_{sessionId}.txt";
+                    string path = Path.Combine(debugFolder, filename);
+
+                    Directory.CreateDirectory(debugFolder);
+                    File.AppendAllText(path, text, System.Text.Encoding.UTF8);
+                }
         }
     }
 }

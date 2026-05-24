@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -18,13 +18,14 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var victim = @event.Userid;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             int damage = @event.DmgHealth;
             string weapon = @event.Weapon;
 
             if (weapon != "inferno" || !Instance.IsPlayerValid(victim)) return;
-            var victimInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
-            if (victimInfo == null || victimInfo.Skill != skillName) return ;
+            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
+
+            if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             var pawn = victim!.PlayerPawn.Value;
             SkillUtils.AddHealth(pawn, (int)(damage * SkillsInfo.GetValue<float>(skillName, "regenerationMultiplier")));

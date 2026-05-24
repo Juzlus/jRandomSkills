@@ -1,9 +1,8 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
@@ -11,6 +10,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Magnifier;
         private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
+        private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
         public static void LoadSkill()
         {
@@ -27,15 +27,10 @@ namespace src.player.skills
             }
                 
             playersFOV.Clear();
+            playersToTarget.Clear();
+
             foreach (var player in Utilities.GetPlayers())
                 SkillUtils.CloseMenu(player);
-        }
-
-        public static void PlayerDeath(EventPlayerDeath @event)
-        {
-            var player = @event.Userid;
-            if (player == null) return;
-            DisableSkill(player);
         }
 
         public static void OnTick()
@@ -44,10 +39,10 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
             {
                 if (!SkillUtils.HasMenu(player)) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -56,18 +51,19 @@ namespace src.player.skills
 
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}" );
                 return;
             }
 
             string enemyId = commands[0];
-            var enemy = Utilities.GetPlayers().FirstOrDefault(p => p.Team != player.Team && p.Index.ToString() == enemyId);
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
@@ -75,23 +71,24 @@ namespace src.player.skills
                 return;
             }
 
-            if (!playersFOV.ContainsKey(enemy.Index))
-                playersFOV.TryAdd(enemy.Index, enemy.DesiredFOV);
+            playersFOV.AddOrUpdate(enemy.Index, enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
+            playersToTarget[player.Index] = enemy.Index;
+
             enemy.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
             Utilities.SetStateChanged(enemy, "CBasePlayerController", "m_iDesiredFOV");
-
             playerInfo.SkillUsed = true;
+
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("magnifier_player_info", enemy.PlayerName));
             enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("magnifier_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
-            var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = Utilities.GetPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
@@ -103,13 +100,31 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (playersFOV.TryGetValue(player.Index, out uint fov))
+            if (player == null || !player.IsValid) return;
+
+            if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
             {
-                player.DesiredFOV = fov;
-                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+                var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                if (target != null && target.IsValid)
+                    if (playersFOV.TryGetValue(targetIndex, out uint fov))
+                    {
+                        target.DesiredFOV = fov;
+                        Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
+                    }
+                playersFOV.TryRemove(targetIndex, out _);
             }
-            playersFOV.TryRemove(player.Index, out _);
-            SkillUtils.CloseMenu(player);
+
+            SkillUtils.ResetPrintHTML(player);
+        }
+
+        public static void PlayerDeath(EventPlayerDeath @event)
+        {
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
+            player.DesiredFOV = 0;
+            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            SkillUtils.ResetPrintHTML(player);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9ba882", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, uint customFOV = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

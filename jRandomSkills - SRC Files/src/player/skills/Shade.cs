@@ -26,13 +26,13 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
-            var victim = @event.Userid;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return;
 
-            var victimInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
-            var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
+            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
             if (attackerInfo?.Skill == skillName)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
@@ -41,14 +41,14 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newChance;
             
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -73,7 +73,7 @@ namespace src.player.skills
 
         private static void UpdateHUD(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("shade_nospace")}</font>";
         }

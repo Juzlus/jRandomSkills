@@ -28,7 +28,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.1.b9";
+        public override string ModuleVersion => "1.2.2.b1";
 
         public override void Load(bool hotReload)
         {
@@ -43,6 +43,7 @@ namespace src
             Command.Load();
             WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
             LoadAllSkills();
+            PlayerManager.SyncWithPlugin(Instance);
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
 
@@ -217,7 +218,7 @@ namespace src
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", HtmlHudFix: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine(Config.LoadedConfig.FlashingHtmlHudFix);
+            Console.WriteLine(Config.LoadedConfig.EnableFlashingHtmlHudFix);
 
             // Dependences
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
@@ -295,12 +296,21 @@ namespace src
                 return null;
             }
         }
+
+        /// <summary>
+        /// Gets a player info by index. O(n) lookup - consider caching if called frequently.
+        /// </summary>
+        internal jSkill_PlayerInfo? GetPlayerInfoByIndex(uint playerIndex)
+        {
+            return SkillPlayer.FirstOrDefault(p => p.PlayerIndex == playerIndex);
+        }
     }
 
     public class jSkill_PlayerInfo
     {
-        public required ulong SteamID { get; set; }
+        public required bool IsBot { get; set; }
         public required string PlayerName { get; set; }
+        public required uint PlayerIndex { get; set; }
         public Skills Skill { get; set; }
         public Skills SpecialSkill { get; set; }
         public float? SkillChance { get; set; }

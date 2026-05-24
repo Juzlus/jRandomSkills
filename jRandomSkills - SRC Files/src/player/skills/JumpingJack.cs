@@ -1,8 +1,6 @@
-﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -19,9 +17,14 @@ namespace src.player.skills
         {
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+
+            var playerEvent = PlayerManager.GetPlayerEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent.Index);
             if (playerInfo?.Skill != skillName) return;
-            SkillUtils.AddHealth(player.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+
+            SkillUtils.AddHealth(playerEvent.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a86eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

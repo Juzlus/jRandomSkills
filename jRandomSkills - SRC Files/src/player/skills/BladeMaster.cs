@@ -18,58 +18,71 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            var modifier = SkillsInfo.GetValue<float>(skillName, "velocityModifier");
+
             foreach (var player in Utilities.GetPlayers())
             {
-                if (!Instance.IsPlayerValid(player)) continue;
+                if (player == null || !player.IsValid) continue;
 
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || !playerPawn.IsValid || playerPawn.VelocityModifier == 0) continue;
 
                 var weaponServices = playerPawn.WeaponServices;
-                if (weaponServices == null) return;
-                if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife" && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
-                    return;
+                if (weaponServices == null) continue;
 
-                playerPawn.VelocityModifier = SkillsInfo.GetValue<float>(skillName, "velocityModifier");
+                if (weaponServices.ActiveWeapon == null
+                    || !weaponServices.ActiveWeapon.IsValid
+                    || weaponServices.ActiveWeapon.Value == null
+                    || !weaponServices.ActiveWeapon.Value.IsValid
+                    || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife"
+                        && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
+                    continue;
+
+                playerPawn.VelocityModifier = modifier;
             }
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var victim = @event.Userid;
-            int damage = @event.DmgHealth;
-            HitGroup_t hitGroup = (HitGroup_t)@event.Hitgroup;
-            string weapon = @event.Weapon;
+            var damage = @event.DmgHealth;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            var weapon = @event.Weapon;
+            int hitgroup = @event.Hitgroup;
 
-            if (noReflectionWeapon.Contains(weapon) || !Instance.IsPlayerValid(victim)) return;
-            var victimInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return;
 
-            int chance = Instance.Random.Next(0, 101);
-            if (hitGroup == HitGroup_t.HITGROUP_LEFTLEG || hitGroup == HitGroup_t.HITGROUP_RIGHTLEG)
-            {
-                if (chance > SkillsInfo.GetValue<float>(skillName, "legReflectionChance") * 100)
-                    return;
-            }
-            else
-                if (chance > SkillsInfo.GetValue<float>(skillName, "torseReflectionChance") * 100)
-                    return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+            if (playerInfo?.Skill != skillName) return;
 
-            var pawn = victim!.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
+            if (string.IsNullOrEmpty(weapon) || noReflectionWeapon.Contains(weapon)) return;
 
-            var weaponServices = pawn.WeaponServices;
+            float chance = (hitgroup == (int)HitGroup_t.HITGROUP_LEFTLEG || hitgroup == (int)HitGroup_t.HITGROUP_RIGHTLEG)
+                ? SkillsInfo.GetValue<float>(skillName, "legReflectionChance")
+                : SkillsInfo.GetValue<float>(skillName, "torseReflectionChance");
+
+            var victimPawn = victim.PlayerPawn?.Value;
+            if (victimPawn == null || !victimPawn.IsValid || Instance.Random.NextDouble() > chance)
+                return;
+
+            var weaponServices = victimPawn.WeaponServices;
             if (weaponServices == null) return;
-            if (weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid || weaponServices.ActiveWeapon.Value == null || !weaponServices.ActiveWeapon.Value.IsValid || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife" && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
+
+            if (weaponServices.ActiveWeapon == null
+                || !weaponServices.ActiveWeapon.IsValid
+                || weaponServices.ActiveWeapon.Value == null
+                || !weaponServices.ActiveWeapon.Value.IsValid
+                || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife"
+                    && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
                 return;
 
             SkillUtils.RestoreHealth(victim);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float torseReflectionChance = .95f, float legReflectionChance = .80f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float torseReflectionChance = .95f, float legReflectionChance = .70f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float TorseReflectionChance { get; set; } = torseReflectionChance;
             public float LegReflectionChance { get; set; } = legReflectionChance;

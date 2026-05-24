@@ -40,7 +40,7 @@ namespace src.player.skills
                 foreach (var playerIndex in players.Keys)
                 {
                     var player = Utilities.GetPlayerFromIndex((int)playerIndex);
-                    if (player == null || !player.IsValid || !player.PawnIsAlive || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid)
+                    if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid)
                     {
                         players.TryRemove(playerIndex, out _);
                         continue;

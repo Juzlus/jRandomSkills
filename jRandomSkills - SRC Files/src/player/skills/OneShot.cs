@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -32,13 +32,12 @@ namespace src.player.skills
             if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
                 return;
 
-            CCSPlayerController attacker = attackerPawn.Controller.Value.As<CCSPlayerController>();
-            CCSPlayerController victim = victimPawn.Controller.Value.As<CCSPlayerController>();
+            CCSPlayerController attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>())!;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(attacker)!.Index);
             if (playerInfo == null) return;
 
-            if (playerInfo.Skill == skillName && attacker.PawnIsAlive)
+            if (playerInfo.Skill == skillName)
                 param2.Damage = 1000f;
         }
 

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -22,10 +22,10 @@ namespace src.player.skills
 
         public static void WeaponFire(EventWeaponFire @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
             if (playerInfo?.Skill == skillName)
             {
@@ -43,7 +43,7 @@ namespace src.player.skills
                         taser.LastAttackTick = 0;
                         taser.FireTime = 0;
                     }
-                });
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
 
         }

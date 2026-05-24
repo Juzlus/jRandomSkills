@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -10,7 +10,8 @@ namespace src.player.skills
     public class WildThrow : ISkill
     {
         private const Skills skillName = Skills.WildThrow;
-        private readonly static ConcurrentDictionary<ulong, byte> infectedPlayers = [];
+        private readonly static ConcurrentDictionary<uint, byte> infectedPlayers = [];
+        private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -21,25 +22,22 @@ namespace src.player.skills
         public static void NewRound()
         {
             lock (setLock)
-                infectedPlayers.Clear();
-            foreach (var player in Utilities.GetPlayers())
-                DisableSkill(player);
-        }
+            {
+                foreach (var player in Utilities.GetPlayers())
+                    DisableSkill(player);
 
-        public static void PlayerDeath(EventPlayerDeath @event)
-        {
-            var player = @event.Userid;
-            if (player == null) return;
-            DisableSkill(player);
+                infectedPlayers.Clear();
+                playersToTarget.Clear();
+            }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
-            var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
@@ -51,7 +49,18 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            infectedPlayers.TryRemove(player.SteamID, out _);
+            if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+                infectedPlayers.TryRemove(targetIndex, out _);
+
+            SkillUtils.CloseMenu(player);
+        }
+
+        public static void PlayerDeath(EventPlayerDeath @event)
+        {
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
+            infectedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }
 
@@ -61,10 +70,24 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
             {
                 if (!SkillUtils.HasMenu(player)) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = Utilities.GetPlayers().Where(p =>
+                    p != null &&
+                    p.IsValid)
+                .Select(p => PlayerManager.GetPlayerEvent(p))
+                .Where(p => 
+                    p != null &&
+                    p.IsValid &&
+                    p.Team != player.Team &&
+                    p.PlayerPawn?.Value != null &&
+                    p.PlayerPawn.Value.IsValid &&
+                    p.PlayerPawn.Value.Health > 0 &&
+                    !p.IsHLTV &&
+                    p.Team != CsTeam.Spectator
+                    && p.Team != CsTeam.None
+                ).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -73,8 +96,8 @@ namespace src.player.skills
 
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (playerInfo.SkillUsed)
@@ -84,7 +107,8 @@ namespace src.player.skills
             }
 
             string enemyId = commands[0];
-            var enemy = Utilities.GetPlayers().FirstOrDefault(p => p.Team != player.Team && p.Index.ToString() == enemyId);
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
@@ -92,7 +116,8 @@ namespace src.player.skills
                 return;
             }
 
-            infectedPlayers.TryAdd(enemy.SteamID, 0);
+            infectedPlayers.TryAdd(enemy.Index, 0);
+            playersToTarget[player.Index] = enemy.Index;
 
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("wildthrow_player_info", enemy.PlayerName));
@@ -112,7 +137,7 @@ namespace src.player.skills
             if (pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return;
             var player = pawn.Controller.Value.As<CCSPlayerController>();
 
-            if (!infectedPlayers.ContainsKey(player.SteamID)) return;
+            if (!infectedPlayers.ContainsKey(player.Index)) return;
 
             Server.NextFrame(() => {
                 if (grenade == null || !grenade.IsValid) return;

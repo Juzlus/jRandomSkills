@@ -17,11 +17,11 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
-            var victim = @event.Userid;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
             if (playerInfo?.Skill == skillName && victim!.PawnIsAlive)
                 HealAttacker(attacker!, @event.DmgHealth);

@@ -3,14 +3,13 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
     public class BunnyHop : ISkill
     {
         private const Skills skillName = Skills.BunnyHop;
-        private static readonly ConcurrentDictionary<ulong, int> playersLastJump = [];
+        private static readonly ConcurrentDictionary<uint, int> playersLastJump = [];
 
         public static void LoadSkill()
         {
@@ -21,7 +20,9 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                if (player == null || !player.IsValid) continue;
+
+                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
                 if (playerInfo?.Skill == skillName)
                     GiveBunnyHop(player);
             }
@@ -29,26 +30,31 @@ namespace src.player.skills
 
         private static void GiveBunnyHop(CCSPlayerController player)
         {
+            var eventPlayer = PlayerManager.GetPlayerEvent(player);
+            var eventPlayerPawn = eventPlayer?.PlayerPawn?.Value;
+            if (eventPlayerPawn == null || !eventPlayerPawn.IsValid) return;
+
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
+
             if (JumpBan.bannedPlayers.ContainsKey(player.Index)) return;
 
-            var flags = (PlayerFlags)playerPawn.Flags;
+            var flags = (PlayerFlags)eventPlayerPawn.Flags;
             var buttons = player.Buttons;
 
             if ((playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0)
-                playersLastJump.AddOrUpdate(player.SteamID, Server.TickCount, (_, _) => Server.TickCount);
+                playersLastJump.AddOrUpdate(eventPlayer!.Index, Server.TickCount, (_, _) => Server.TickCount);
 
             bool jumpPressed = buttons.HasFlag(PlayerButtons.Jump)
-                || (playersLastJump.TryGetValue(player.SteamID, out int tick) && tick + 20 >= Server.TickCount);
+                || (playersLastJump.TryGetValue(eventPlayer!.Index, out int tick) && tick + 20 >= Server.TickCount);
 
-            if (jumpPressed && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !playerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
+            if (jumpPressed && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !eventPlayerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
             {
-                playerPawn.AbsVelocity.Z = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+                eventPlayerPawn.AbsVelocity.Z = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
                 var maxSpeed = SkillsInfo.GetValue<float>(skillName, "maxSpeed");
 
-                var vX = playerPawn.AbsVelocity.X;
-                var vY = playerPawn.AbsVelocity.Y;
+                var vX = eventPlayerPawn.AbsVelocity.X;
+                var vY = eventPlayerPawn.AbsVelocity.Y;
                 var speed2D = Math.Sqrt(vX * vX + vY * vY);
                 var scale = 1d;
 
@@ -60,8 +66,8 @@ namespace src.player.skills
                 else if (speed2D > maxSpeed)
                     scale = maxSpeed / speed2D;
 
-                playerPawn.AbsVelocity.X = (float)(vX * scale);
-                playerPawn.AbsVelocity.Y = (float)(vY * scale);
+                eventPlayerPawn.AbsVelocity.X = (float)(vX * scale);
+                eventPlayerPawn.AbsVelocity.Y = (float)(vY * scale);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
@@ -24,11 +24,11 @@ namespace src.player.skills
 
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            ulong steamID = player.SteamID;
+            uint playerIndex = player.Index;
 
             if (playerInfo.SkillUsed)
             {
@@ -58,15 +58,16 @@ namespace src.player.skills
 
                 if (SkillsInfo.GetValue<bool>(skill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () => {
-                        var player = Utilities.GetPlayerFromSteamId(steamID);
+                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (player == null || !player.IsValid) return;
 
-                        if (Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == steamID && p.Skill == skill.Skill) == null) return;
+                        var pi = PlayerManager.GetPlayerByIndex(playerIndex);
+                        if (pi == null || pi.Skill != skill.Skill) return;
                         Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
-                    });
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
                     Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
-            });
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private static bool TakeMoney(CCSPlayerController player)
@@ -86,7 +87,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -107,13 +108,13 @@ namespace src.player.skills
 
         private static List<jSkill_SkillInfo> GetSkills(CCSPlayerController player)
         {
-            var skillPlayer = Instance?.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
             if (skillPlayer == null) return [Event.noneSkill];
 
             List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None);
 
-            if (Utilities.GetPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
+            if (Utilities.GetPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
             {
                 SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).ToArray();
                 skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));

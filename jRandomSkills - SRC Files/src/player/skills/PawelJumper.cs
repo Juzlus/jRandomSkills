@@ -21,17 +21,19 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                if (!Instance.IsPlayerValid(player)) return;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                if (player == null || !player.IsValid) return;
+                var playerEvent = PlayerManager.GetPlayerEvent(player);
+                var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
+
                 if (playerInfo?.Skill == skillName)
-                    GiveAdditionalJump(player);
+                    GiveAdditionalJump(player, playerEvent);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerPawn == null || playerInfo == null) return;
 
             var skillConfig = SkillsInfo.LoadedConfig.FirstOrDefault(s => s.Name == skillName.ToString());
@@ -40,15 +42,18 @@ namespace src.player.skills
             float extraJumps = (float)Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "extraJumpsMin"), SkillsInfo.GetValue<int>(skillName, "extraJumpsMax") + 1);
             playerInfo.SkillChance = extraJumps;
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, extraJumps)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
-        private static void GiveAdditionalJump(CCSPlayerController player)
+        private static void GiveAdditionalJump(CCSPlayerController player, CCSPlayerController playerEvent)
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
 
-            var flags = (PlayerFlags)playerPawn.Flags;
+            var playerEventPawn = playerEvent.PlayerPawn.Value;
+            if (playerEventPawn == null || !playerEventPawn.IsValid) return;
+
+            var flags = (PlayerFlags)playerEventPawn.Flags;
             var buttons = player.Buttons;
 
             bool isJumpDown = (playerPawn.MovementServices?.Buttons?.ButtonStates[0] & (ulong)PlayerButtons.Jump) != 0 || (buttons & PlayerButtons.Jump) != 0;
@@ -57,8 +62,8 @@ namespace src.player.skills
             bool jumpPressed = (isJumpDown && !wasJumpDown)
                 || (playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
-            if (playerPawn == null || playerInfo == null) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
+            if (playerInfo == null) return;
 
             bool isOnGround = (flags & PlayerFlags.FL_ONGROUND) != 0;
 
@@ -67,7 +72,7 @@ namespace src.player.skills
             else if (jumpPressed && J[player.Slot] < playerInfo.SkillChance + 1)
             {
                 J[player.Slot]++;
-                playerPawn.AbsVelocity.Z = 300;
+                playerEventPawn.AbsVelocity.Z = 300;
             }
 
             LB[player.Slot] = buttons;

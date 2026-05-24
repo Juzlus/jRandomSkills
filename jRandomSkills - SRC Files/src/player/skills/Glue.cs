@@ -1,7 +1,6 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -29,7 +28,7 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
             if (playerInfo?.Skill != skillName) return;
             grenade.Bounces = 555;
         }

@@ -23,29 +23,40 @@ namespace src.player.skills
         public static void NewRound()
         {
             foreach (var player in Utilities.GetPlayers())
-                DisableSkill(player);
+            {
+                if (player != null && player.IsValid)
+                    DisableSkill(player);
+            }
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid) return;
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            player.PlayerPawn.Value.ActualGravityScale = 1;
+            pawn.ActualGravityScale = 1.0f;
         }
 
         private static void ApplyGravityModifier(CCSPlayerController player)
         {
-            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid) return;
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             float gravityModifier = (float)Math.Round(Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "chanceFrom")) + SkillsInfo.GetValue<float>(skillName, "chanceFrom"), 1);
             playerInfo.SkillChance = gravityModifier;
+
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, gravityModifier)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
-            player.PlayerPawn.Value.ActualGravityScale = gravityModifier;
+                border: !Utilities.GetPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
+
+            pawn.ActualGravityScale = gravityModifier;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7E10AD", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = .1f, float chanceTo = .7f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

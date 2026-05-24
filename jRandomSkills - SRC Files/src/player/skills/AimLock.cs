@@ -1,7 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
 
@@ -10,7 +9,7 @@ namespace src.player.skills
     public class AimLock : ISkill
     {
         private const Skills skillName = Skills.AimLock;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -28,23 +27,28 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                if (player == null || !player.IsValid) continue;
+
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                {
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                     {
                         UpdateHUD(player, skillInfo);
 
                         if (skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "duration")) > DateTime.Now)
-                            LookAtEnemey(player);
+                            LookAtEnemy(player);
                     }
+                }
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            if (player == null || !player.IsValid) return;
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                PlayerIndex = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -52,23 +56,22 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            if (player == null || !player.IsValid) return;
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
         {
-            float cooldown = 0;
-            if (skillInfo != null)
-            {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
-                cooldown = Math.Max(time, 0);
+            if (player == null || !player.IsValid || skillInfo == null) return;
 
-                if (cooldown == 0 && skillInfo?.CanUse == false)
-                    skillInfo.CanUse = true;
-            }
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float cooldown = Math.Max(time, 0);
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            if (cooldown == 0 && !skillInfo.CanUse)
+                skillInfo.CanUse = true;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -79,61 +82,50 @@ namespace src.player.skills
 
         public static void UseSkill(CCSPlayerController player)
         {
-            var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn?.CBodyComponent == null) return;
+            if (player == null || !player.IsValid) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo?.Skill != skillName) return;
+
+            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
             {
-                if (!player.IsValid || !player.PawnIsAlive) return;
-                if (skillInfo.CanUse)
-                {
-                    skillInfo.CanUse = false;
-                    skillInfo.Cooldown = DateTime.Now;
-                    LookAtEnemey(player);
-                }
+                if (!skillInfo.CanUse) return;
+
+                skillInfo.Cooldown = DateTime.Now;
+                skillInfo.CanUse = false;
             }
         }
 
-        private static void LookAtEnemey(CCSPlayerController player)
+        private static void LookAtEnemy(CCSPlayerController player)
         {
+            if (player == null || !player.IsValid) return;
+
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            CCSPlayerController? closetEnemy = null;
-            double minDist = double.MaxValue;
+            var myEyePos = new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
 
-            foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team))
-            {
-                var enemyPawn = enemy.PlayerPawn.Value;
-                if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null) continue;
+            var enemy = Utilities.GetPlayers()
+                .Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team && p.PlayerPawn.Value != null && p.PlayerPawn.Value.AbsOrigin != null)
+                .OrderBy(p => (p.PlayerPawn.Value!.AbsOrigin! - pawn.AbsOrigin).LengthSqr())
+                .FirstOrDefault();
 
-                double dist = SkillUtils.GetDistance(enemyPawn.AbsOrigin, pawn.AbsOrigin);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    closetEnemy = enemy;
-                }
-            }
+            if (enemy == null) return;
 
-            if (closetEnemy != null)
-            {
-                var enemyPawn = closetEnemy.PlayerPawn.Value;
-                if (enemyPawn == null || enemyPawn.AbsOrigin == null) return;
+            var enemyPawn = enemy.PlayerPawn.Value;
+            if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null || enemyPawn.ViewOffset == null) return;
 
-                Vector myEyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
+            Vector diff = SkillUtils.GetForwardVector(enemyPawn.AbsRotation!) * 5;
+            Vector enemyHead = new(
+                enemyPawn.AbsOrigin.X + diff.X,
+                enemyPawn.AbsOrigin.Y + diff.Y,
+                enemyPawn.AbsOrigin.Z + enemyPawn.ViewOffset.Z + 2
+            );
 
-                Vector diff = SkillUtils.GetForwardVector(enemyPawn.AbsRotation!) * 5;
-                Vector enemyHead = new(
-                    enemyPawn.AbsOrigin.X + diff.X,
-                    enemyPawn.AbsOrigin.Y + diff.Y,
-                    enemyPawn.AbsOrigin.Z + enemyPawn.ViewOffset.Z + 2
-                );
+            Vector direction = enemyHead - myEyePos;
+            QAngle angle = VectorToAngle(direction);
 
-                Vector direction = enemyHead - myEyePos;
-                QAngle angle = VectorToAngle(direction);
-
-                pawn.Look(angle);
-            }
+            pawn.Look(angle);
         }
 
         private static QAngle VectorToAngle(Vector direction)
@@ -146,7 +138,7 @@ namespace src.player.skills
 
         public class PlayerSkillInfo
         {
-            public ulong SteamID { get; set; }
+            public uint PlayerIndex { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
         }

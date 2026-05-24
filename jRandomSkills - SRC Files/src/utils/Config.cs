@@ -80,6 +80,8 @@ namespace src.utils
             public bool KillerSkillChatInfo { get; set; }
             public bool TeamMateSkillChatInfo { get; set; }
             public bool SummaryAfterTheRound { get; set; }
+            public bool EnableBotSkills { get; set; }
+            public bool EnableBotKickDebug { get; set; }
             public bool DebugMode { get; set; }
             public string? AlternativeSkillButton { get; set; }
             public float SkillTimeBeforeStart { get; set; }
@@ -87,7 +89,7 @@ namespace src.utils
             public float SkillDescriptionDuration { get; set; }
             public bool DisplayAlwaysDescription { get; set; }
             public bool DisableSpectateHUD { get; set; }
-            public bool FlashingHtmlHudFix { get; set; }
+            public bool EnableFlashingHtmlHudFix { get; set; }
             public bool TraceRayBeam { get; set; }
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
@@ -105,13 +107,15 @@ namespace src.utils
                 KillerSkillChatInfo = true;
                 TeamMateSkillChatInfo = true;
                 SummaryAfterTheRound = true;
+                EnableBotSkills = true;
+                EnableBotKickDebug = false;
                 DebugMode = false;
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;
                 SkillDescriptionDuration = 7;
                 DisplayAlwaysDescription = false;
-                FlashingHtmlHudFix = true;
+                EnableFlashingHtmlHudFix = false;
                 TraceRayBeam = false;
                 DisableSpectateHUD = false;
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";

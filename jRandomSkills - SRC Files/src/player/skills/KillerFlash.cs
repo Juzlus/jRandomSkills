@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -18,12 +18,12 @@ namespace src.player.skills
 
         public static void PlayerBlind(EventPlayerBlind @event)
         {
-            var player = @event.Userid;
-            var attacker = @event.Attacker;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (!Instance.IsPlayerValid(player) || !Instance.IsPlayerValid(attacker)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
-            var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player!.Team == attacker!.Team) return;
 

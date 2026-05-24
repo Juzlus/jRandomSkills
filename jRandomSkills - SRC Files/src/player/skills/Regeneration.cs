@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -19,7 +19,7 @@ namespace src.player.skills
             if (Server.TickCount % (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")) != 0) return;
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var pawn = player.PlayerPawn.Value;

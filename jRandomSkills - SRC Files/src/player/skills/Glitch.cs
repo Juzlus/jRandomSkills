@@ -1,16 +1,17 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
     public class Glitch : ISkill
     {
         private const Skills skillName = Skills.Glitch;
-        private static readonly ConcurrentDictionary<CCSPlayerController, byte> glitchedPlayers = [];
+        private static readonly ConcurrentDictionary<uint, byte> glitchedPlayers = [];
+        private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -21,30 +22,28 @@ namespace src.player.skills
         public static void NewRound()
         {
             lock (setLock)
-                glitchedPlayers.Clear();
-            foreach (var player in Utilities.GetPlayers())
             {
-                DisableSkill(player);
-                SkillUtils.CloseMenu(player);
+                foreach (var player in Utilities.GetPlayers())
+                {
+                    DisableSkill(player);
+                    SkillUtils.CloseMenu(player);
+                }
+
+                glitchedPlayers.Clear();
+                playersToTarget.Clear();
             }
         }
 
-        public static void PlayerDeath(EventPlayerDeath @event)
-        {
-            var player = @event.Userid;
-            if (player == null) return;
-            DisableSkill(player);
-        }
         public static void OnTick()
         {
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in Utilities.GetPlayers())
             {
                 if (!SkillUtils.HasMenu(player)) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -53,8 +52,8 @@ namespace src.player.skills
 
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
-            if (player == null || !player.IsValid || !player.PawnIsAlive) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (playerInfo.SkillUsed)
@@ -64,7 +63,8 @@ namespace src.player.skills
             }
 
             string enemyId = commands[0];
-            var enemy = Utilities.GetPlayers().FirstOrDefault(p => p.Team != player.Team && p.Index.ToString() == enemyId);
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
@@ -72,20 +72,23 @@ namespace src.player.skills
                 return;
             }
 
-            glitchedPlayers.TryAdd(enemy, 0);
+            glitchedPlayers.TryAdd(enemy.Index, 0);
+            playersToTarget[player.Index] = enemy.Index;
+
             enemy.ReplicateConVar("sv_disable_radar", "1");
             playerInfo.SkillUsed = true;
+
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("glitch_player_info", enemy.PlayerName));
             enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("glitch_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
-            var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && !p.IsBot && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
@@ -97,8 +100,24 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            {
+                var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                if (target != null && target.IsValid)
+                    target.ReplicateConVar("sv_disable_radar", "0");
+                glitchedPlayers.TryRemove(targetIndex, out _);
+            }
+
+            SkillUtils.CloseMenu(player);
+        }
+
+        public static void PlayerDeath(EventPlayerDeath @event)
+        {
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
             player.ReplicateConVar("sv_disable_radar", "0");
-            glitchedPlayers.TryRemove(player, out _);
+            glitchedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }
 

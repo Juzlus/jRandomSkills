@@ -1,10 +1,10 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -20,14 +20,14 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var victim = @event.Userid;
-            var attacker = @event.Attacker;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var weapon = @event.Weapon;
 
             if (weapon != "decoy") return;
             if (!Instance.IsPlayerValid(victim) || !Instance.IsPlayerValid(attacker)) return;
 
-            var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var attackerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(attacker)!.Index);
             if (attackerInfo?.Skill != skillName) return;
 
             SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"));
@@ -41,27 +41,27 @@ namespace src.player.skills
 
             var decoy = entity.As<CDecoyProjectile>();
             if (decoy == null || !decoy.IsValid || decoy.OwnerEntity == null || decoy.OwnerEntity.Value == null || !decoy.OwnerEntity.Value.IsValid) return;
-
+            
             var pawn = decoy.OwnerEntity.Value.As<CCSPlayerPawn>();
             if (pawn == null || !pawn.IsValid || pawn.Controller == null || pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return;
-
+            
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return;
-
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
             if (playerInfo?.Skill != skillName) return;
             decoys.TryAdd(decoy.Index, 0);
-
+            
             decoy.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
             decoy.Collision.CollisionGroup = pawn.Collision.CollisionGroup;
         }
 
         public static void DecoyStarted(EventDecoyStarted @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
             
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             uint key = (uint)@event.Entityid;
@@ -69,7 +69,7 @@ namespace src.player.skills
             {
                 var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>(@event.Entityid);
                 if (decoy != null && decoy.IsValid)
-                    decoy.AcceptInput("Kill");
+                    decoy.AddEntityIOEvent("Kill", decoy, delay: 0.1f);
                 decoys.TryRemove(key, out _);
             }
         }

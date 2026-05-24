@@ -16,10 +16,10 @@ namespace src.player.skills
 
         public static void WeaponFire(EventWeaponFire @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
                 ApplyInfiniteAmmo(player!);
 
@@ -27,10 +27,10 @@ namespace src.player.skills
 
         public static void GrenadeThrown(EventGrenadeThrown @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
                 player!.GiveNamedItem($"weapon_{@event.Weapon}");
 
@@ -38,10 +38,10 @@ namespace src.player.skills
 
         public static void WeaponReload(EventWeaponReload @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
                 ApplyInfiniteAmmo(player!);
         }

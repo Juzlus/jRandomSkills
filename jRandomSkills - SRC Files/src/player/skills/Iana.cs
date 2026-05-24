@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
@@ -25,14 +25,16 @@ namespace src.player.skills
         {
             foreach (var playerSkill in playersInfo.Values)
                 KillClone(playerSkill);
+            
             lock (setLock)
                 playersInfo.Clear();
         }
 
         public static void WeaponPickup(EventItemPickup @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null) return;
+
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 if (playerSkill.CloneProp != null)
                     BlockWeapon(player, true);
@@ -40,8 +42,9 @@ namespace src.player.skills
 
         public static void WeaponEquip(EventItemEquip @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null) return;
+
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 if (playerSkill.CloneProp != null)
                     BlockWeapon(player, true);
@@ -77,9 +80,11 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            if (player == null) return;
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))
                 KillClone(playerSkill);
             playersInfo.TryRemove(player.Index, out _);
+            EntityManager.DestroyPlayerEntities(player.Index);
         }
 
         private static void UpdateWeapons(CCSPlayerController player, PlayerSkill playerSkill)
@@ -119,12 +124,16 @@ namespace src.player.skills
                         playerPawn.Teleport(pos);
                     });
                 }
-                cloneProp.AcceptInput("Kill");
+                EntityManager.DestroyEntity(cloneProp.Index);
                 playerSkill.CloneProp = null;
             }
 
-            SkillUtils.ApplyScreenColor(player, 0, 0, 0, 0, 10, 0, 2);
+            var eventTarget = PlayerManager.GetPlayerFromEvent(player);
+            if (eventTarget != null && eventTarget.IsValid)
+                SkillUtils.ApplyScreenColor(eventTarget, 0, 0, 0, 0, 10, 0, 2);
+
             SkillUtils.SetPlayerCollisions(player, true);
+
             BlockWeapon(player, false);
             playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
             playerSkill.UseTime = 0;
@@ -164,12 +173,12 @@ namespace src.player.skills
                 }
             }
 
-            var clone = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
+            var clone = EntityManager.CreateTrackedDynamicProp(player.Index);
             if (clone == null || !clone.IsValid) return null;
 
             clone.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             clone.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(clone.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            clone.Entity!.Name = clone.Globalname = $"IanaClone_{Server.TickCount}_{player.SteamID}";
+            clone.Entity!.Name = clone.Globalname = $"IanaClone_{Server.TickCount}_{player.Index}";
             clone.DispatchSpawn();
 
             Server.NextFrame(() =>
@@ -183,7 +192,11 @@ namespace src.player.skills
                 clone.Teleport(playerPawn.AbsOrigin, new QAngle(0, playerPawn.V_angle.Y, 0));
 
                 playerPawn.Teleport(pos);
-                SkillUtils.ApplyScreenColor(player, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
+
+                var eventTarget = PlayerManager.GetPlayerFromEvent(player);
+                if (eventTarget != null && eventTarget.IsValid)
+                    SkillUtils.ApplyScreenColor(eventTarget, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
+
                 BlockWeapon(player, true);
 
                 playerSkill.UseTime = Server.TickCount;
@@ -194,16 +207,15 @@ namespace src.player.skills
                 {
                     if (playerSkill.CloneProp != null)
                         KillClone(playerSkill);
-                });
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                ulong? playerSteamID = player?.SteamID;
-                if (playerSteamID == null) return;
+                uint playerIndex = player.Index;
 
                 Timer? cloneTimer = null;
                 cloneTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                 {
-                    var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.SteamID == playerSteamID);
-                    if (target == null || !target.IsValid || !target.PawnIsAlive)
+                    var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                     {
                         cloneTimer?.Kill();
                         return;
@@ -215,7 +227,14 @@ namespace src.player.skills
                         return;
                     }
 
-                    SkillUtils.ApplyScreenColor(target, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
+                    var eventTarget = PlayerManager.GetPlayerFromEvent(player);
+                    if (eventTarget == null || !eventTarget.IsValid)
+                    {
+                        cloneTimer?.Kill();
+                        return;
+                    }
+
+                    SkillUtils.ApplyScreenColor(eventTarget, r: 255, g: 255, b: 0, a: 20, duration: 100, holdTime: 1020);
                 }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
             });
 
@@ -247,14 +266,18 @@ namespace src.player.skills
 
             float penetration = vdata.ArmorRatio * .5f;
 
+            var eventPlayer = PlayerManager.GetPlayerFromEvent(player);
+            if (eventPlayer == null || !eventPlayer.IsValid)
+                return calculatedDamage;
+
             if (isHeadshot)
             {
                 calculatedDamage *= vdata.HeadshotMultiplier;
-                if (player.PawnHasHelmet)
+                if (eventPlayer.PawnHasHelmet)
                     calculatedDamage *= penetration;
             }
             else
-                if (player.PawnArmor > 0)
+                if (eventPlayer.PawnArmor > 0)
                     calculatedDamage *= penetration;
 
             return calculatedDamage;
@@ -272,11 +295,11 @@ namespace src.player.skills
             if (!param.Entity.Name.StartsWith("IanaClone_")) return;
 
             var nameParams = param.Entity.Name.Split('_')[2];
-            _ = ulong.TryParse(nameParams, out ulong steamID);
-            if (steamID == 0) return;
+            _ = uint.TryParse(nameParams, out uint userIndex);
+            if (userIndex == 0) return;
 
-            var player = Utilities.GetPlayerFromSteamId(steamID);
-            if (player == null) return;
+            var player = Utilities.GetPlayerFromIndex((int)userIndex);
+            if (player == null || !player.IsValid) return;
 
             float dealDamage = param2.Damage;
 
@@ -314,8 +337,8 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var victim = @event.Userid!;
-            if (!jRandomSkills.Instance.IsPlayerValid(victim)) return;
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (victim == null || !victim.IsValid) return;
 
             if (playersInfo.TryGetValue(victim.Index, out var playerSkill) && playerSkill.CloneProp != null)
             {
@@ -356,7 +379,7 @@ namespace src.player.skills
             float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (Server.TickCount - playerSkill.UseTime) / 64;
             duration = (int)Math.Ceiling(Math.Max(time2, 0));
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (playerSkill.InfoTime + (64 * 2) > Server.TickCount)
@@ -374,7 +397,7 @@ namespace src.player.skills
             string weaponName = vdata.Name;
             if (string.IsNullOrEmpty(weaponName)) return false;
 
-            var playerInfo = jRandomSkills.Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return false;
 
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))

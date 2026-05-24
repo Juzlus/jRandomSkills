@@ -27,7 +27,10 @@ namespace src.player.skills
 
             foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PawnIsAlive))
             {
-                var pawn = player.PlayerPawn.Value;
+                var playerEvent = PlayerManager.GetPlayerEvent(player);
+                if (playerEvent == null || !playerEvent.IsValid) continue;
+
+                var pawn = playerEvent.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) continue;
 
                 bool hasC4 = pawn.WeaponServices.MyWeapons.Any(w => w.Value?.DesignerName == "weapon_c4");
@@ -40,7 +43,7 @@ namespace src.player.skills
 
         public static void WeaponPickup(EventItemPickup @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
             var weapon = @event.Item;
@@ -66,7 +69,7 @@ namespace src.player.skills
 
         public static void PlayerDeath(EventPlayerDeath @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
             players.TryRemove(player.Index, out _);
         }

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -25,13 +25,13 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            player.ReplicateConVar("weapon_accuracy_nospread", "1");
+            Server.ExecuteCommand("weapon_accuracy_nospread 1");
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            player.ReplicateConVar("weapon_accuracy_nospread", "0");
+            Server.ExecuteCommand("weapon_accuracy_nospread 0");
         }
 
         public static void OnTick()
@@ -39,7 +39,7 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
             {
                 if (!Instance.IsPlayerValid(player)) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo?.Skill == skillName)
                 {

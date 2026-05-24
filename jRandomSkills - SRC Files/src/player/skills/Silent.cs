@@ -1,9 +1,8 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
-using static src.utils.RarityManager;
 
 namespace src.player.skills
 {
@@ -26,9 +25,9 @@ namespace src.player.skills
                 return;
 
             var player = Utilities.GetPlayers().FirstOrDefault(p => p.Pawn?.Value != null && p.Pawn.Value.IsValid && p.Pawn.Value.Index == userIndex);
-            if (!Instance.IsPlayerValid(player)) return;
+            if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             um.Recipients.Clear();

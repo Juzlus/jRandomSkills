@@ -166,7 +166,7 @@ namespace src.utils
 
         private static string GetLangCode(CCSPlayerController? player)
         {
-            if (player == null || !player.IsValid) return defaultLangCode;
+            if (player == null || !player.IsValid || player.IsBot) return defaultLangCode;
 
             string? fileLangCode = GetLangCodeFromFile(player.SteamID);
             if (!string.IsNullOrEmpty(fileLangCode))

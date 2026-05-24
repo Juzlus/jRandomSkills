@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -17,13 +17,13 @@ namespace src.player.skills
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
-            var victim = @event.Userid;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             int damage = @event.DmgHealth;
             var hitgroup = (HitGroup_t)@event.Hitgroup;
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return;
-            var victimInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == victim?.SteamID);
+            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             HitGroup_t[] disabledHitbox = [HitGroup_t.HITGROUP_LEFTARM, HitGroup_t.HITGROUP_RIGHTARM, HitGroup_t.HITGROUP_LEFTLEG, HitGroup_t.HITGROUP_RIGHTLEG];

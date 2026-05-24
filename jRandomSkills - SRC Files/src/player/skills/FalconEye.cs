@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Drawing;
@@ -11,7 +11,7 @@ namespace src.player.skills
     public class FalconEye : ISkill
     {
         private const Skills skillName = Skills.FalconEye;
-        private static readonly ConcurrentDictionary<ulong, (uint, uint)> cameras = [];
+        private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
 
         public static void LoadSkill()
         {
@@ -21,28 +21,23 @@ namespace src.player.skills
         public static void NewRound()
         {
             foreach (var cameraIndex in cameras.Values)
-            {
-                var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraIndex.Item2);
-                if (camera == null || !camera.IsValid) continue;
-
-                camera.AcceptInput("Kill");
-            }
+                EntityManager.DestroyEntity(cameraIndex.Item2);
 
             cameras.Clear();
         }
 
         public static void WeaponPickup(EventItemPickup @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return ;
 
             var pawn = player!.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
-            if (cameras.TryGetValue(player!.SteamID, out var cameraInfo) && cameraInfo.Item1 == pawn.CameraServices.ViewEntity.Raw)
+            if (cameras.TryGetValue(player!.Index, out var cameraInfo) && cameraInfo.Item1 == pawn.CameraServices.ViewEntity.Raw)
                 BlockWeapon(player, true);
         }
 
@@ -55,13 +50,15 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            if (player == null) return;
             ChangeCamera(player, true);
+            EntityManager.DestroyPlayerEntities(player.Index);
         }
 
         public static void OnTick()
         {
             foreach (var player in Utilities.GetPlayers())
-                if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != 0)
+                if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin ==  null) continue;
@@ -88,7 +85,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
-            if (cameras.TryGetValue(player.SteamID, out var cameraInfo) && cameraInfo.Item2 != 0)
+            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
 
@@ -114,7 +111,7 @@ namespace src.player.skills
 
         private static uint CreateCamera(CCSPlayerController player)
         {
-            var camera = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
+            var camera = EntityManager.CreateTrackedDynamicProp(player.Index);
             if (camera == null || !camera.IsValid) return 0;
 
             var pawn = player.PlayerPawn.Value;
@@ -124,13 +121,14 @@ namespace src.player.skills
             Server.NextFrame(() =>
             {
                 if (camera == null || !camera.IsValid) return;
+                camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
                 camera.SetModel("models/sprays/spray_plane.vmdl");
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
                 camera.Teleport(pos, new QAngle(90, 0, 0));
                 camera.DispatchSpawn();
             });
 
-            cameras.AddOrUpdate(player.SteamID, (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (k, v) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
+            cameras.AddOrUpdate(player.Index, (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (k, v) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
             return camera.EntityHandle.Raw;
         }
 

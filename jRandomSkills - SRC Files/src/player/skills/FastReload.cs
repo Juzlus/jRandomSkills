@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -20,9 +20,9 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
-            if (!player.IsValid || !player.PawnIsAlive) return;
+            if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             InstaReload(playerPawn);
         }

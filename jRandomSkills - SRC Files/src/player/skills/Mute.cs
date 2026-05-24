@@ -1,4 +1,4 @@
-﻿/*using CounterStrikeSharp.API;
+/*using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 
 using static jRandomSkills.jRandomSkills;
@@ -26,7 +26,7 @@ namespace src.player.skills
                 var pawn = grenade.OwnerEntity.Value.As<CCSPlayerPawn>();
                 var player = pawn.Controller.Value.As<CCSPlayerController>();
 
-                var playerInfo = Instance.skillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) return;
 
                 Server.NextFrame(() => {
@@ -55,8 +55,8 @@ namespace src.player.skills
                     Instance.AddTimer(5f, () =>
                     {
                         if (@event != null && @event.IsValid)
-                            @event.AcceptInput("Kill");
-                    });
+                            @event.AddEntityIOEvent("Kill", ent, delay: 0.1f);
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 });
             });
         }

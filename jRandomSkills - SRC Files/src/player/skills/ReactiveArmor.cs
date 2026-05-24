@@ -1,7 +1,6 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
 
@@ -10,7 +9,7 @@ namespace src.player.skills
     public class ReactiveArmor : ISkill
     {
         private const Skills skillName = Skills.ReactiveArmor;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -28,34 +27,38 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
         {
-            var attacker = @event.Attacker;
             var victim = @event.Userid;
-            int damage = @event.DmgHealth;
+            if (victim == null || !victim.IsValid) return;
 
-            if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return;
-            if (SkillPlayerInfo.TryGetValue(victim!.SteamID, out var skillInfo))
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            var victimEvent = PlayerManager.GetPlayerEvent(victim);
+
+            if (attacker == null || !attacker.IsValid) return;
+            if (victimEvent == null || !victimEvent.IsValid || !victim.PawnIsAlive) return;
+
+            if (SkillPlayerInfo.TryGetValue(victimEvent!.Index, out var skillInfo))
             {
-                if (!victim.IsValid || !victim.PawnIsAlive || !skillInfo.CanUse) return;
+                if (!skillInfo.CanUse) return;
                 skillInfo.CanUse = false;
                 skillInfo.Cooldown = DateTime.Now;
-                SkillUtils.RestoreHealth(victim);
+                SkillUtils.RestoreHealth(victimEvent);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -63,7 +66,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -79,7 +82,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)

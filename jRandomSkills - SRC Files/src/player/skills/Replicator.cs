@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -12,7 +12,7 @@ namespace src.player.skills
     public class Replicator : ISkill
     {
         private const Skills skillName = Skills.Replicator;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -32,25 +32,25 @@ namespace src.player.skills
             var entities = Utilities.FindAllEntitiesByDesignerName<CDynamicProp>("prop_dynamic_override");
             foreach (var entity in entities)
                 if (entity != null && entity.IsValid && entity.Entity != null && !string.IsNullOrEmpty(entity.Entity.Name) && (entity.Entity.Name?.StartsWith("Replica_") ?? false))
-                    entity.AcceptInput("Kill");
+                    EntityManager.DestroyEntity(entity.Index);
         }
 
         public static void OnTick()
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -58,7 +58,9 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            if (player == null) return;
+            SkillPlayerInfo.TryRemove(player.Index, out _);
+            EntityManager.DestroyPlayerEntities(player.Index);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -74,7 +76,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -88,9 +90,9 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
             {
-                if (!player.IsValid || !player.PawnIsAlive) return;
+                if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
                 if (skillInfo.CanUse)
                 {
                     skillInfo.CanUse = false;
@@ -106,7 +108,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null)
                 return;
 
-            var replica = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+            var replica = EntityManager.CreateTrackedPropOverride(player.Index);
             if (replica == null || !replica.IsValid)
                 return;
 
@@ -142,7 +144,7 @@ namespace src.player.skills
             var replica = param.As<CPhysicsPropMultiplayer>();
             if (replica == null || !replica.IsValid) return;
             replica.EmitSound("GlassBottle.BulletImpact", volume: 1f);
-            replica.AcceptInput("Kill");
+            EntityManager.DestroyEntity(replica.Index);
 
             CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
             if (attackerPawn.DesignerName != "player")

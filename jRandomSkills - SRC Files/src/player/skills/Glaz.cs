@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
@@ -41,10 +41,10 @@ namespace src.player.skills
             foreach (var (info, player) in infoList)
             {
                 if (player == null) continue;
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
 
                 var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
-                var observerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == observedPlayer?.SteamID);
+                var observerInfo = observedPlayer != null ? PlayerManager.GetPlayerByIndex(observedPlayer.Index) : null;
 
                 if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName) continue;
                 foreach (var entityIndex in smokes.Keys)

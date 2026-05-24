@@ -31,10 +31,10 @@ namespace src.player.skills
 
         public static void PlayerDeath(EventPlayerDeath @event)
         {
-            var attacker = @event.Attacker;
+            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (!Instance.IsPlayerValid(attacker)) return;
 
-            var attackerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker?.SteamID);
+            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (attackerInfo?.Skill != skillName) return;
 
             var pawn = attacker!.PlayerPawn.Value;

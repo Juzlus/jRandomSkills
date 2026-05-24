@@ -6,17 +6,20 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="tools\**" />
+        <None Remove="tools\**" />
         <None Remove="src\command\Command.cs~RF4f34d1e7.TMP" />
         <None Remove="src\player\PlayerOnTick.cs~RF38b6229.TMP" />
         <None Remove="src\player\skills\RespWroga.cs~RF528d210.TMP" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.367" />
-        <PackageReference Include="MaxMind.Db" Version="5.0.0">
+        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.368" />
+        <PackageReference Include="MaxMind.Db" Version="5.1.0">
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
@@ -29,7 +32,7 @@
 
 	<!-- Relative path to the WASDMenuAPI source code -->
     <ItemGroup>
-        <ProjectReference Include="../WASDMenuAPI - SRC Files/WASDMenuAPI.csproj" />
+        <ProjectReference Include="..\WASDMenuAPI - SRC Files\WASDMenuAPI.csproj" />
     </ItemGroup>
 
     <ItemGroup>

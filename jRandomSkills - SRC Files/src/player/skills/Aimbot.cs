@@ -2,9 +2,9 @@
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Runtime.InteropServices;
-using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
+using CounterStrikeSharp.API;
 
 namespace src.player.skills
 {
@@ -23,61 +23,35 @@ namespace src.player.skills
             CEntityInstance param = h.GetParam<CEntityInstance>(0);
             CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
 
-            if (param == null || !param.IsValid || param.Entity == null)
-                return;
+            if (param == null || !param.IsValid || param2 == null || param2.Handle == nint.Zero) return;
+            if (param2.Attacker == null || !param2.Attacker.IsValid || param2.Attacker.Value == null) return;
 
-            if (param2 == null || param2.Handle == nint.Zero || param2.Attacker == null || !param2.Attacker.IsValid)
-                return;
+            var attackerEnt = param2.Attacker.Value;
+            if (attackerEnt == null || !attackerEnt.IsValid) return;
 
-            var attackerHandle = param2.Attacker;
-            if (attackerHandle.Value == null || !attackerHandle.IsValid)
-                return;
+            var attackerPawn = attackerEnt.As<CCSPlayerPawn>();
+            if (attackerPawn == null || !attackerPawn.IsValid) return;
 
-            var attackerEnt = attackerHandle.Value;
-            var victimEnt = param;
+            var attackerController = attackerPawn.Controller.Value;
+            if (attackerController == null || !attackerController.IsValid) return;
 
-            if (attackerEnt == null || victimEnt == null || !victimEnt.IsValid || !attackerEnt.IsValid)
-                return;
+            var attacker = PlayerManager.GetPlayerEvent(attackerController.As<CCSPlayerController>())!;
 
-            CCSPlayerPawn attackerPawn = new(attackerEnt.Handle);
-            CCSPlayerPawn victimPawn = new(victimEnt.Handle);
-
-            if (attackerPawn == null || !attackerPawn.IsValid || victimPawn == null || !victimPawn.IsValid)
-                return;
-
-            if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
-                return;
-
-            var attackerController = attackerPawn.Controller?.Value;
-            var victimController = victimPawn.Controller?.Value;
-
-            if (!attackerController.IsValid() || !victimController.IsValid())
-                return;
-
-            CCSPlayerController attacker = attackerController!.As<CCSPlayerController>();
-            CCSPlayerController victim = victimController!.As<CCSPlayerController>();
-
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo == null) return;
 
-            if (!attacker.CheckPlayer())
-                return;
-
             int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
-            if (offset <= 0)
-                return;
+            if (offset <= 0) return;
 
             nint hitGroupPointer = Marshal.ReadIntPtr(param2.Handle, offset);
-            if (hitGroupPointer == nint.Zero)
-                return;
+            if (hitGroupPointer == nint.Zero) return;
 
             nint hitGroupOffset = Marshal.ReadIntPtr(hitGroupPointer, 16);
-            if (hitGroupOffset == nint.Zero)
-                return;
+            if (hitGroupOffset == nint.Zero) return;
 
             if (playerInfo.Skill == skillName)
             {
-                hitGroups[hitGroupOffset] = Marshal.ReadInt32(hitGroupOffset, 56);
+                hitGroups.TryAdd(hitGroupOffset, Marshal.ReadInt32(hitGroupOffset, 56));
                 Marshal.WriteInt32(hitGroupOffset, 56, (int)HitGroup_t.HITGROUP_HEAD);
             }
             else if (hitGroups.TryGetValue(hitGroupOffset, out var hitGroup))
@@ -87,10 +61,13 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController _)
         {
             foreach (var hit in hitGroups)
-                Marshal.WriteInt32(hit.Key, 56, hit.Value);
+            {
+                if (hit.Key != nint.Zero)
+                    Marshal.WriteInt32(hit.Key, 56, hit.Value);
+            }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Epic) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
         }
     }

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -18,13 +18,15 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
+
             float newScale = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newScale;
+
             newScale = (float)Math.Round(newScale, 2);
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newScale)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && !p.IsBot && p != player) ? "tb" : "t");
+                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         public static void OnTakeDamage(DynamicHook h)
@@ -44,13 +46,12 @@ namespace src.player.skills
             if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
                 return;
 
-            CCSPlayerController attacker = attackerPawn.Controller.Value.As<CCSPlayerController>();
-            CCSPlayerController victim = victimPawn.Controller.Value.As<CCSPlayerController>();
+            CCSPlayerController attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>())!;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == attacker.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo == null) return;
 
-            if (playerInfo.Skill == skillName && attacker.PawnIsAlive)
+            if (playerInfo.Skill == skillName)
             {
                 float? skillChance = playerInfo.SkillChance;
                 param2.Damage *= skillChance ?? 1f;

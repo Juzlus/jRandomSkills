@@ -1,6 +1,5 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -11,7 +10,7 @@ namespace src.player.skills
     public class GodMode : ISkill
     {
         private const Skills skillName = Skills.GodMode;
-        private static readonly ConcurrentDictionary<ulong, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -27,9 +26,9 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.SteamID, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -39,16 +38,16 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.SteamID, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.SteamID, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
 
             var playerPawn = player.PlayerPawn.Value;
@@ -68,7 +67,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -82,29 +81,29 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            ulong steamID = player.SteamID;
+            uint playerIndex = player.Index;
 
-            if (SkillPlayerInfo.TryGetValue(steamID, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
             {
-                if (!player.IsValid || !player.PawnIsAlive || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
+                if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
                 if (skillInfo.CanUse)
                 {
                     skillInfo.CanUse = false;
                     skillInfo.Cooldown = DateTime.Now;
 
-                    player.PrintToChat($" {ChatColors.Green} {player.GetTranslation("godmode_on")}");
+                    PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Green} {player.GetTranslation("godmode_on")}");
                     player.PlayerPawn.Value.TakesDamage = false;
 
                     Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () => {
-
-                        var player = Utilities.GetPlayerFromSteamId(steamID);
-                        if (player != null && player.IsValid && player.PawnIsAlive)
+                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        if (player != null && player.IsValid)
                         {
                             if (player.PlayerPawn == null || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
+
                             player.PlayerPawn.Value.TakesDamage = true;
-                            player.PrintToChat($" {ChatColors.Red} {player.GetTranslation("godmode_off")}");
+                            PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Red} {player.GetTranslation("godmode_off")}");
                         }
-                    });
+                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
             }
         }

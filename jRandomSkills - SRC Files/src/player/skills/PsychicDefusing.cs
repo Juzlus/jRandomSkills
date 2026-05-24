@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
@@ -31,10 +31,10 @@ namespace src.player.skills
 
         public static void PlayerDeath(EventPlayerDeath @event)
         {
-            var player = @event.Userid;
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
                 SkillPlayerInfo.TryRemove(player.Index, out _);
         }
@@ -78,7 +78,7 @@ namespace src.player.skills
                     var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
                     if (plantedBomb != null)
                     {
-                        plantedBomb.AcceptInput("Kill");
+                        plantedBomb.AddEntityIOEvent("Kill", plantedBomb, delay: 0.1f);
                         SkillUtils.TerminateRound(CsTeam.CounterTerrorist);
                     }
                     SkillUtils.ResetPrintHTML(player);
@@ -96,7 +96,7 @@ namespace src.player.skills
 
             SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-                SteamID = player.SteamID,
+                SteamID = player.Index,
                 Defusing = false,
                 DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime"),
             });
@@ -113,7 +113,7 @@ namespace src.player.skills
             if (!skillInfo.Defusing) return;
             int cooldown = (int)Math.Ceiling(skillInfo.DefusingTime);
 
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             if (cooldown == 0)

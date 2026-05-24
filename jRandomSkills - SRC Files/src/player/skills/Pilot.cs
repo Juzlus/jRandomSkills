@@ -10,7 +10,7 @@ namespace src.player.skills
     public class Pilot : ISkill
     {
         private const Skills skillName = Skills.Pilot;
-        private static readonly ConcurrentDictionary<ulong, Pilot_PlayerInfo> PlayerPilotInfo = [];
+        private static readonly ConcurrentDictionary<uint, Pilot_PlayerInfo> PlayerPilotInfo = [];
 
         public static void LoadSkill()
         {
@@ -26,7 +26,7 @@ namespace src.player.skills
         {
             foreach (var player in Utilities.GetPlayers())
             {
-                var playerInfo = Instance.SkillPlayer.FirstOrDefault(p => p.SteamID == player.SteamID);
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
                     HandlePilot(player);
             }
@@ -34,12 +34,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            PlayerPilotInfo.TryAdd(player.SteamID, new Pilot_PlayerInfo { SteamID = player.SteamID });
+            PlayerPilotInfo.TryAdd(player.Index, new Pilot_PlayerInfo { SteamID = player.Index });
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            PlayerPilotInfo.TryRemove(player.SteamID, out _);
+            PlayerPilotInfo.TryRemove(player.Index, out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -48,7 +48,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
 
-            if (!PlayerPilotInfo.TryGetValue(player.SteamID, out var pilotInfo)) return;
+            if (!PlayerPilotInfo.TryGetValue(player.Index, out var pilotInfo)) return;
 
             var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
@@ -107,7 +107,7 @@ namespace src.player.skills
         private static void UpdateHUD(CCSPlayerController player, Pilot_PlayerInfo pilotInfo)
         {
             if (pilotInfo == null) return;
-            var playerInfo = Instance.SkillPlayer.FirstOrDefault(s => s.SteamID == player?.SteamID);
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
             var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
