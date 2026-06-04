@@ -40,8 +40,6 @@ namespace src.player
         public static readonly ConcurrentDictionary<uint, jSkill_SkillInfo> staticSkills = [];
         private static readonly object setLock = new();
 
-        private static readonly MemoryFunctionVoid<CBasePlayerPawn, CBasePlayerWeapon> DropWeaponFunc = new(GameData.GetSignature("CCSPlayerController_HandleCommandDrop"));
-
         public static void Load()
         {
             Instance.RegisterEventHandler<EventPlayerConnectFull>(PlayerConnectFull);
@@ -87,7 +85,9 @@ namespace src.player
             VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre);
             VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre);
 
-            DropWeaponFunc.Hook(WeaponDrop, HookMode.Pre);
+            // Disabled after CS2 updates started crashing Linux servers on player join.
+            // The hooked native signature is only used to block weapon drops for Iana clones.
+            // Keeping the plugin alive is safer than installing a stale global hook at load time.
         }
 
         private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
