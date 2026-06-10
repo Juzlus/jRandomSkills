@@ -14,7 +14,7 @@ DISCORD_USER_IDS = _env_list("DISCORD_USER_IDS")
 EXTRA_USERS_GITHUB = _env_list("EXTRA_USERS_GITHUB")
 
 CONTRIBUTORS_URL = "https://github.com/Juzlus/jRandomSkills/graphs/contributors"
-AVATARS_DIR = "./avatars"
+AVATARS_DIR = "./.github/avatars"
 AVATARS_RAW_URL = "https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars"
 
 MARKER_GITHUB = "[CONTRIBUTORS]"
@@ -213,7 +213,7 @@ def main():
     print("Fetching Discord users...")
     discord_elements = get_discord_users(DISCORD_USER_IDS)
 
-    files = [("README.md", False), ("README-PL.md", True)]
+    files = [("readme.md", False), ("readme-pl.md", True)]
 
     for filename, is_pl in files:
         process_file(filename, github_elements, discord_elements, is_pl)
