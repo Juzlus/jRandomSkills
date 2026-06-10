@@ -34,8 +34,8 @@ jRandomSkills to plugin do CounterStrike 2, który wprowadza chaos i frajdę do 
 - **Chiński uproszczony** [GrokAI / ChatGPT]
 
 ## 🖼️ Prezentacja Pluginu
-![Preview](./preview.gif)
-![Preview2](./preview2.gif)
+![Preview](./.github/preview.gif)
+![Preview2](./.github/preview2.gif)
 
 ## 🌐 Serwer Testowy
 Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
