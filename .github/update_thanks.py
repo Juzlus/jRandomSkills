@@ -150,8 +150,8 @@ def get_discord_users(user_ids):
 
 
 def process_file(filename, github_elements, discord_elements, is_pl):
-    input_path = f"./{filename}"
-    output_path = f"../{filename}"
+    input_path = f"./.github/{filename}"
+    output_path = f"./{filename}"
 
     if not os.path.exists(input_path):
         print(f"Error: File {input_path} does not exist")
@@ -204,6 +204,9 @@ def process_file(filename, github_elements, discord_elements, is_pl):
 
 
 def main():
+    print(f"DISCORD_USER_IDS loaded: {len(DISCORD_USER_IDS)} user(s)")
+    print(f"EXTRA_USERS_GITHUB loaded: {len(EXTRA_USERS_GITHUB)} user(s)")
+
     print("Fetching GitHub contributors...")
     github_elements = get_github_contributors(REPOSITORY, EXTRA_USERS_GITHUB)
 
