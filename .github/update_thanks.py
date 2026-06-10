@@ -112,13 +112,19 @@ def get_github_contributors(repo, extra_logins):
 
 def get_discord_users(user_ids):
     cells = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
     for uid in user_ids:
         try:
             response = requests.get(
-                f"https://pfpfinder.com/api/discord/user/{uid}", timeout=10
+                f"https://pfpfinder.com/api/discord/user/{uid}", 
+                headers=headers, 
+                timeout=10
             )
             if response.status_code != 200:
-                print(f"Discord API: Status {response.status_code} for {uid}")
+                print(f"Discord API: Status {response.status_code}")
                 continue
 
             data = response.json()
@@ -127,8 +133,8 @@ def get_discord_users(user_ids):
             if global_name:
                 name = global_name
             else:
-                print(f"Warning: {uid} has no global_name, falling back to username '{username}' (can be used for invites)")
-                name = username or f"User {uid}"
+                print(f"Warning: {uid} has no global_name, falling back to username '{username}'")
+                name = username
 
             source_url = (data.get("avatar") or "").replace(".gif", ".png")
             if not source_url:
@@ -144,7 +150,7 @@ def get_discord_users(user_ids):
             cells.append(make_cell(avatar_url=avatar_url, name=name))
 
         except Exception as e:
-            print(f"Discord API Error for {uid}: {e}")
+            print(f"Discord API Error: {e}")
 
     return build_table(cells) if cells else ""
 
