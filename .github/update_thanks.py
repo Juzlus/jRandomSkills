@@ -184,9 +184,9 @@ def get_discord_users(user_ids):
     return build_table(cells) if cells else ""
 
 
-def process_file(filename, github_elements, discord_elements, is_pl):
-    input_path = f"./.github/{filename}"
-    output_path = f"./{filename}"
+def process_file(filename_input, filename_output, github_elements, discord_elements, is_pl):
+    input_path = f"./.github/{filename_input}"
+    output_path = f"./{filename_output}"
 
     if not os.path.exists(input_path):
         print(f"Error: File {input_path} does not exist")
@@ -248,10 +248,10 @@ def main():
     print("Fetching Discord users...")
     discord_elements = get_discord_users(DISCORD_USER_IDS)
 
-    files = [("readme.md", False), ("readme-pl.md", True)]
+    files = [("en.md", "README.md", False), ("pl.md", "README-PL.md", True)]
 
-    for filename, is_pl in files:
-        process_file(filename, github_elements, discord_elements, is_pl)
+    for filename_input, filename_output, is_pl in files:
+        process_file(filename_input, filename_output, github_elements, discord_elements, is_pl)
 
 
 if __name__ == "__main__":
