@@ -16,10 +16,10 @@
 jRandomSkills to plugin do CounterStrike 2, który wprowadza chaos i frajdę do rozgrywki! W każdej rundzie losowo otrzymujesz jedną z unikalnych supermocy - od niewidzialności, przez wybuchowe strzały, po manipulację kamerą. Zaskocz przeciwników, przejmij kontrolę nad meczem i odkryj dziesiątki kreatywnych umiejętności, które zmieniają dynamikę gry!
 
 #### Wybierz język:
-<a href="./readme-pl.md">
+<a href="./README-PL.md">
 <img width="50px" src="https://upload.wikimedia.org/wikipedia/en/thumb/1/12/Flag_of_Poland.svg/1920px-Flag_of_Poland.svg.png">
 </a>
-<a href="./readme.md">
+<a href="./README.md">
 <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/1920px-Flag_of_the_United_Kingdom_%281-2%29.svg.png">
 </a>
 
