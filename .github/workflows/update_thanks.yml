@@ -36,6 +36,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md README-pl.md .github/avatars/
+          git add README.md README-PL.md .github/avatars/
           git diff --cached --quiet || git commit -m "chore: update contributors and thanks"
           git push
