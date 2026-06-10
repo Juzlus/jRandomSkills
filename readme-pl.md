@@ -360,15 +360,7 @@ Plugin korzysta z zawartości następujących projektów:
 
 </div>
 ㅤ
-<div align="center">
-
-<table>
-  <tr><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_7ee4547c02f2.png" width="75" height="75" style="border-radius:50%" alt="Ryuu Jin"/><br/><sub><b>Ryuu Jin</b></sub></td><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_f7017ab921b5.png" width="75" height="75" style="border-radius:50%" alt="cj☭"/><br/><sub><b>cj☭</b></sub></td><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_20f902436962.png" width="75" height="75" style="border-radius:50%" alt="k4chen"/><br/><sub><b>k4chen</b></sub></td><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_a3b321b84dc6.png" width="75" height="75" style="border-radius:50%" alt="luno"/><br/><sub><b>luno</b></sub></td></tr>
-</table>
-
-<sub>Jeśli jesteś na tej liście i chcesz usunąć swój profil, skontaktuj się ze mną.</sub>
-
-</div>
+[THANKS]
 
 ## 📋 Lista Zmian
 
