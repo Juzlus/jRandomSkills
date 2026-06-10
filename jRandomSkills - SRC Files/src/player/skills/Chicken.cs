@@ -2,7 +2,6 @@ using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
 
@@ -19,7 +18,7 @@ namespace src.player.skills
             "weapon_ump45", "weapon_p90", "weapon_mp5sd", "weapon_ssg08",
             "weapon_awp", "weapon_scar20", "weapon_g3sg1", "weapon_nova",
             "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
-            "weapon_negev"
+            "weapon_negev", "weapon_sg556"
         ];
         private static readonly ConcurrentDictionary<uint, uint> chickens = [];
 
@@ -82,8 +81,11 @@ namespace src.player.skills
             {
                 playerPawn.VelocityModifier = 1f;
 
-                playerPawn.Health = Math.Min(playerPawn.Health + 50, 100);
-                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                if (playerPawn.Health > 0)
+                {
+                    playerPawn.Health = Math.Min(playerPawn.Health + 50, 100);
+                    Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                }
 
                 SkillUtils.ChangePlayerScale(player, 1);
 

@@ -275,9 +275,9 @@
   "bankrupt_player_info": "'{0}' isimli oyuncu iflas etti.",
   "bankrupt_select_info": "İflas edecek oyuncuyu seç:",
 
-  "muhammed": "Canlı Bomba",
-  "muhammed_desc": "Öldüğünde patlayarak etraftaki oyuncuları öldürürsün",
-  "muhammed_explosion": "BOOM!!!",
+  "deathbomb": "Canlı Bomba",
+  "deathbomb_desc": "Öldüğünde patlayarak etraftaki oyuncuları öldürürsün",
+  "deathbomb_explosion": "BOOM!!!",
 
   "ninja": "Ninja",
   "ninja_desc": "Görünmezliğini sabit durmak %33, eğilmek %33 ve bıçak tutmak %33 artırır",

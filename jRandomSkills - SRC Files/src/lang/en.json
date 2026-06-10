@@ -275,9 +275,9 @@
   "bankrupt_player_info": "Player '{0}' has gone bankrupt.",
   "bankrupt_select_info": "Pick a player to go bankrupt:",
 
-  "muhammed": "Muhammed",
-  "muhammed_desc": "You explode upon death, killing nearby players",
-  "muhammed_explosion": "ALLAHU AKBAR!!!",
+  "deathbomb": "Death Bomb",
+  "deathbomb_desc": "You explode upon death, killing nearby players",
+  "deathbomb_explosion": "Kaboom!",
 
   "ninja": "Ninja",
   "ninja_desc": "Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%",

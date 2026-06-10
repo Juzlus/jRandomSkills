@@ -88,13 +88,17 @@ namespace src.player.skills
 
                         var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
                         if (entity == null || !entity.IsValid) continue;
-                        info.TransmitEntities.Remove(entity.Index);
+
+                        if (info.TransmitEntities.Contains(entity.Index))
+                            info.TransmitEntities.Remove(entity.Index);
 
                         var bombIndex = GetBombIndex(playerController);
                         if (bombIndex == null) continue;
                         var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
                         if (bombEntity == null || !bombEntity.IsValid) continue;
-                        info.TransmitEntities.Remove(bombEntity.Index);
+
+                        if (info.TransmitEntities.Contains(bombEntity.Index))
+                            info.TransmitEntities.Remove(bombEntity.Index);
                     }
                 }
             }
@@ -135,6 +139,8 @@ namespace src.player.skills
 
             if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
         
         public static void DisableSkill(CCSPlayerController player)
@@ -142,6 +148,8 @@ namespace src.player.skills
             SkillUtils.SetPlayerInvisibility(player, 0);
             invisiblePlayers.TryRemove(player.Index, out _);
             EntityManager.DestroyPlayerEntities(player.Index);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)

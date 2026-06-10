@@ -131,6 +131,7 @@ namespace src.utils
                         new LanguageInfo("PT-BR, PT, BR, AO, CV, GW, MZ, ST, TL", "pt-br"),
                         new LanguageInfo("FR, MC, HT", "fr"),
                         new LanguageInfo("DE, AT, CH, LI, LU, BE", "de"),
+                        new LanguageInfo("RU, KZ, BY, KG, TJ, UZ, TM, AM, AZ, GE, MD", "ru"),
                         new LanguageInfo("TR", "tr"),
                         new LanguageInfo("CZ", "cs"),
                         new LanguageInfo("PL", "pl"),

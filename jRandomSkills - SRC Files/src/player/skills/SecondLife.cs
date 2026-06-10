@@ -10,7 +10,7 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
-        private static readonly ConcurrentDictionary<nint, byte> secondLifePlayers = [];
+        private static readonly ConcurrentDictionary<nint, int> secondLifePlayers = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -26,24 +26,24 @@ namespace src.player.skills
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            int damage = @event.DmgHealth;
 
             if (!Instance.IsPlayerValid(victim)) return;
             var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             var victimPawn = victim!.PlayerPawn.Value;
-            if (victimPawn!.Health > 0 || secondLifePlayers.ContainsKey(victim.Handle))
+            if (victimPawn!.Health > 0 || (secondLifePlayers.TryGetValue(victim.Handle, out int tick) && tick + 4 < Server.TickCount))
                 return;
 
             lock (setLock)
             {
-                secondLifePlayers.TryAdd(victim.Handle, 0);
                 SetHealth(victim, SkillsInfo.GetValue<int>(skillName, "startHealth"));
 
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
                 if (spawnpoint == null) return;
+
                 victimPawn.Teleport(spawnpoint, null, null);
+                secondLifePlayers.TryAdd(victim.Handle, Server.TickCount);
             }
         }
 

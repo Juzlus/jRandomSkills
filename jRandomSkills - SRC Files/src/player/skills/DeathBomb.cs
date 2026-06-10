@@ -4,14 +4,13 @@ using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
-    public class Muhammed : ISkill
+    public class DeathBomb : ISkill
     {
-        private const Skills skillName = Skills.Muhammed;
+        private const Skills skillName = Skills.DeathBomb;
         private static readonly QAngle angle = new(10, -5, 9);
         private static readonly ConcurrentDictionary<int, byte> nades = [];
 
@@ -57,7 +56,7 @@ namespace src.player.skills
             SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), player.TeamNum);
            
             foreach (var _p in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
-                SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}{player.PlayerName}: {ChatColors.Lime}{_p.GetTranslation("muhammed_explosion")}",
+                SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}\u202A{player.PlayerName}\u202C: {ChatColors.Lime}{_p.GetTranslation("deathbomb_explosion")}",
                     border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
 
             var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
@@ -88,7 +87,7 @@ namespace src.player.skills
                 heProjectile.DetonateTime = 0;
 
                 if (nades.TryRemove(lastTick, out byte teamNum))
-                    heProjectile.Globalname = $"muhammed_team_{teamNum}_{heProjectile.Index}";
+                    heProjectile.Globalname = $"deathbomb_team_{teamNum}_{heProjectile.Index}";
             });
         }
 
@@ -103,7 +102,7 @@ namespace src.player.skills
             if (nade == null || !nade.IsValid) return;
 
             if (nade.DesignerName != "hegrenade_projectile") return;
-            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("muhammed_team_")) return;
+            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("deathbomb_team_")) return;
 
             if (!int.TryParse(nade.Globalname.Split('_')[2], out int nadeTeam)) return;
 

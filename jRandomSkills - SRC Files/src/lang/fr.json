@@ -275,9 +275,9 @@
   "bankrupt_player_info": "Le joueur « {0} » est en faillite.",
   "bankrupt_select_info": "Mettre un joueur en faillite :",
 
-  "muhammed": "Bombe",
-  "muhammed_desc": "Vous explosez à votre mort, tuant les joueurs proches",
-  "muhammed_explosion": "ALLAHU AKBAR!!!",
+  "deathbomb": "Bombe",
+  "deathbomb_desc": "Vous explosez à votre mort, tuant les joueurs proches",
+  "deathbomb_explosion": "Kaboom!",
 
   "ninja": "Ninja",
   "ninja_desc": "Rester immobile augmente votre invisibilité de 33%, s’accroupir de 33%, et tenir un couteau de 33%",

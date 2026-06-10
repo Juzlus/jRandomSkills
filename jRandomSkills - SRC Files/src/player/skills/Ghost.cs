@@ -13,17 +13,8 @@ namespace src.player.skills
     public class Ghost : ISkill
     {
         private const Skills skillName = Skills.Ghost;
-        private static readonly string[] disabledWeapons =
-        [
-            "weapon_deagle", "weapon_revolver", "weapon_glock", "weapon_usp_silencer",
-            "weapon_cz75a", "weapon_fiveseven", "weapon_p250", "weapon_tec9",
-            "weapon_elite", "weapon_hkp2000", "weapon_ak47", "weapon_m4a1",
-            "weapon_m4a4", "weapon_m4a1_silencer", "weapon_famas", "weapon_galilar",
-            "weapon_aug", "weapon_sg553", "weapon_mp9", "weapon_mac10",
-            "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
-            "weapon_mp5sd", "weapon_ssg08", "weapon_awp", "weapon_scar20",
-            "weapon_g3sg1", "weapon_nova", "weapon_xm1014", "weapon_mag7",
-            "weapon_sawedoff", "weapon_m249", "weapon_negev"
+        private static readonly string[] allowedWeapons = [
+            "weapon_molotov", "weapon_incgrenade", "weapon_flashbang", "weapon_smokegrenade", "weapon_decoy", "weapon_hegrenade", "weapon_knife", "weapon_bayonet"
         ];
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
@@ -96,7 +87,8 @@ namespace src.player.skills
                         var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
                         if (entity == null || !entity.IsValid) continue;
 
-                        info.TransmitEntities.Remove(entity.Index);
+                        if (info.TransmitEntities.Contains(entity.Index))
+                            info.TransmitEntities.Remove(entity.Index);
 
                         var bombIndex = GetBombIndex(playerController);
                         if (bombIndex == null) continue;
@@ -104,7 +96,8 @@ namespace src.player.skills
                         var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
                         if (bombEntity == null || !bombEntity.IsValid) continue;
 
-                        info.TransmitEntities.Remove(bombEntity.Index);
+                        if (info.TransmitEntities.Contains(bombEntity.Index))
+                            info.TransmitEntities.Remove(bombEntity.Index);
                     }
                 }
             }
@@ -113,12 +106,15 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             Event.EnableTransmit();
+
             SetWeaponAttack(player, true);
             SkillUtils.SetPlayerInvisibility(player, .5f);
             invisiblePlayers.TryAdd(player.Index, 0);
 
             if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)
@@ -154,6 +150,8 @@ namespace src.player.skills
 
             invisiblePlayers.TryRemove(player.Index, out _);
             EntityManager.DestroyPlayerEntities(player.Index);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void OnTick()
@@ -210,8 +208,10 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return;
 
             foreach (var weapon in pawn.WeaponServices.MyWeapons)
-                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
-                    if (disabledWeapons.Contains(weapon.Value.DesignerName))
+                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid && !string.IsNullOrEmpty(weapon.Value.DesignerName))
+                {
+                    string weaponName = weapon.Value.DesignerName;
+                    if (!allowedWeapons.Contains(weaponName))
                     {
                         weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
                         weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
@@ -219,6 +219,7 @@ namespace src.player.skills
                         Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                         Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                     }
+                }
         }
 
         private static void UpdateHUD(CCSPlayerController player)
@@ -231,7 +232,7 @@ namespace src.player.skills
             if (playerInfo == null) return;
 
             var weapon = pawn.WeaponServices.ActiveWeapon.Value;
-            if (weapon == null || !weapon.IsValid || !disabledWeapons.Contains(weapon.DesignerName))
+            if (weapon == null || !weapon.IsValid || allowedWeapons.Contains(weapon.DesignerName))
             {
                 playerInfo.PrintHTML = null;
                 return;

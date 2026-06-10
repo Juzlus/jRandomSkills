@@ -15,6 +15,7 @@ namespace src.player
             Instance.RegisterListener<OnTick>(() =>
             {
                 UpdateGameRules();
+                if (Server.TickCount % 2 != 0) return;
 
                 foreach (var player in Utilities.GetPlayers())
                 {

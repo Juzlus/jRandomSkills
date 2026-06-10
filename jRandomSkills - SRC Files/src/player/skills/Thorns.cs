@@ -1,4 +1,3 @@
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -36,14 +35,18 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayerByIndex(victimEvent!.Index);
             if (victimInfo?.Skill == skillName)
             {
-                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale")));
+                int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));
+                damage = Math.Min(damage, SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));
+
+                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage);
                 attackerEvent.EmitSound("Player.DamageBody.Onlooker");
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#962631", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthTakenScale = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#962631", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthTakenScale = .3f, int maxTakenDamagePerShot = 37) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float HealthTakenScale { get; set; } = healthTakenScale;
+            public int MaxTakenDamagePerShot { get; set; } = maxTakenDamagePerShot;
         }
     }
 }

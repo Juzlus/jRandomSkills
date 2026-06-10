@@ -41,7 +41,7 @@ namespace src.player.skills
                 foreach (var e in enemies)
                 {
                     int money = e.InGameMoneyServices?.Account ?? 0;
-                    menuItems.Add(($"{e.PlayerName} : {money}$", e.Index.ToString()));
+                    menuItems.Add(($"\u202A{e.PlayerName}\u202C : {money}$", e.Index.ToString()));
                 }
 
                 if (!menuItems.IsEmpty)
@@ -61,7 +61,7 @@ namespace src.player.skills
             var enemies = Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"{e.PlayerName} : {(e.InGameMoneyServices?.Account ?? 0)}$", e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {(e.InGameMoneyServices?.Account ?? 0)}$", e.Index.ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else

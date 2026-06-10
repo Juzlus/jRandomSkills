@@ -162,32 +162,67 @@ public class WasdMenuPlayer
                 color = parts[0].StartsWith("#") && parts[0].Length == 7 ? parts[0] : string.Empty;
                 text = parts.Length > 1 ? parts[1] : "";
             }
-            
+
+            string cleanText = text.Replace("\u200B", "")
+                                   .Replace("\u200C", "")
+                                   .Replace("\u202A", "")
+                                   .Replace("\u202C", "");
+
+            int sepIndex = cleanText.IndexOf(" : ");
+            string namePart = sepIndex != -1 ? cleanText.Substring(0, sepIndex) : cleanText;
+            string statsPart = sepIndex != -1 ? cleanText.Substring(sepIndex) : "";
+
+            int start = 0;
+            int length = cleanText.Length;
+
             if (option == CurrentChoice)
             {
-                if (text.Length > maxLength)
+                if (cleanText.Length > maxLength)
                 {
-                    int remaining = text.Length - scrollIndex;
+                    int remaining = cleanText.Length - scrollIndex;
                     if (remaining <= maxLength)
                     {
-                        text = SafeSubstring(text, scrollIndex, remaining);
-                        if (Server.TickCount % 32 == 0)
-                            scrollIndex = 0;
+                        start = scrollIndex;
+                        length = remaining;
+                        if (Server.TickCount % 32 == 0) scrollIndex = 0;
                     }
                     else
                     {
-                        text = SafeSubstring(text, scrollIndex, maxLength);
-                        if (Server.TickCount % 32 == 0)
-                            scrollIndex += scrollJump;
+                        start = scrollIndex;
+                        length = maxLength;
+                        if (Server.TickCount % 32 == 0) scrollIndex += scrollJump;
                     }
                 }
                 else
-                    text = SafeSubstring(text, 0, maxLength);
-
-                builder.AppendLine(string.Format(itemHoverText, text));
+                {
+                    start = 0;
+                    length = Math.Min(cleanText.Length, maxLength);
+                }
             }
             else
-                builder.AppendLine(string.Format(itemText, $"<font {(string.IsNullOrEmpty(color) ? "" : $"color='{color}'")}'>{SafeSubstring(text, 0, maxLength)}</font>"));
+            {
+                start = 0;
+                length = Math.Min(cleanText.Length, maxLength);
+            }
+
+            int nameLength = namePart.Length;
+
+            int nameSliceStart = Math.Max(start, 0);
+            int nameSliceEnd = Math.Min(start + length, nameLength);
+            int nameSliceLength = Math.Max(0, nameSliceEnd - nameSliceStart);
+            string visibleName = nameSliceLength > 0 ? cleanText.Substring(nameSliceStart, nameSliceLength) : "";
+
+            int statsSliceStart = Math.Max(start, nameLength);
+            int statsSliceEnd = Math.Min(start + length, cleanText.Length);
+            int statsSliceLength = Math.Max(0, statsSliceEnd - statsSliceStart);
+
+            string visibleStats = statsSliceLength > 0 ? cleanText.Substring(statsSliceStart, statsSliceLength) : "";
+            string finalOptionText = (visibleName.Length > 0 ? $"\u202A{visibleName}\u202C" : "") + visibleStats;
+
+            if (option == CurrentChoice)
+                builder.AppendLine(string.Format(itemHoverText, finalOptionText));
+            else
+                builder.AppendLine(string.Format(itemText, $"<font {(string.IsNullOrEmpty(color) ? "" : $"color='{color}'")}'>{finalOptionText}</font>"));
 
             option = option.Next;
             shown++;

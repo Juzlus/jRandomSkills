@@ -12,7 +12,8 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Wallhack;
         private static readonly ConcurrentDictionary<uint, byte> playersInAction = new();
-        private static ConcurrentDictionary<uint, (uint RelayIndex, uint GlowIndex, CsTeam Team)> glows = new();
+        private static readonly ConcurrentDictionary<uint, (uint RelayIndex, uint GlowIndex, CsTeam Team)> glows = new();
+        private static readonly ConcurrentDictionary<uint, DateTime> temporaryBlockList = new();
 
         public static void LoadSkill()
         {
@@ -21,6 +22,12 @@ namespace src.player.skills
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            foreach (var kvp in temporaryBlockList)
+            {
+                if (DateTime.Now > kvp.Value)
+                    temporaryBlockList.TryRemove(kvp.Key, out _);
+            }
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
@@ -54,11 +61,20 @@ namespace src.player.skills
 
                     var glowEntity1 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.RelayIndex);
                     if (glowEntity1 == null || !glowEntity1.IsValid) continue;
+
                     var glowEntity2 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.GlowIndex);
                     if (glowEntity2 == null || !glowEntity2.IsValid) continue;
-                    info.TransmitEntities.Remove(glowEntity1.Index);
-                    info.TransmitEntities.Remove(glowEntity2.Index);
+
+                    if (info.TransmitEntities.Contains(glowEntity1.Index))
+                        info.TransmitEntities.Remove(glowEntity1.Index);
+
+                    if (info.TransmitEntities.Contains(glowEntity2.Index))
+                        info.TransmitEntities.Remove(glowEntity2.Index);
                 }
+
+                foreach (var kvp in temporaryBlockList)
+                    if (info.TransmitEntities.Contains(kvp.Key))
+                        info.TransmitEntities.Remove(kvp.Key);
             }
         }
 
@@ -71,6 +87,9 @@ namespace src.player.skills
 
                 SkillUtils.SafeKillEntity<CDynamicProp>(relayIndex);
                 SkillUtils.SafeKillEntity<CDynamicProp>(glowIndex);
+
+                temporaryBlockList.TryAdd(relayIndex, DateTime.Now.AddSeconds(2));
+                temporaryBlockList.TryAdd(glowIndex, DateTime.Now.AddSeconds(2));
             }
 
             glows.Clear();
@@ -81,15 +100,21 @@ namespace src.player.skills
         {
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Index, 0);
+
             if (glows.IsEmpty)
                 SetGlowEffectForAll();
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             playersInAction.TryRemove(player.Index, out _);
+
             if (playersInAction.IsEmpty)
                 NewRound();
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void SetGlowEffectForAll()

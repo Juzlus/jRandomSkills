@@ -38,3 +38,4 @@ project.fragment.lock.json
 # Other common ignores
 node_modules/
 dist/
+.env
