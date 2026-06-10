@@ -111,46 +111,75 @@ def get_github_contributors(repo, extra_logins):
 
 
 def get_discord_users(user_ids):
-    cells = []
+    token = os.getenv("DISCORD_BOT_TOKEN")
+
+    if not token:
+        print("DISCORD_BOT_TOKEN not found")
+        return ""
+
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "Authorization": f"Bot {token}"
     }
-    
+
+    cells = []
+
     for uid in user_ids:
         try:
             response = requests.get(
-                f"https://pfpfinder.com/api/discord/user/{uid}", 
-                headers=headers, 
+                f"https://discord.com/api/v10/users/{uid}",
+                headers=headers,
                 timeout=10
             )
+
             if response.status_code != 200:
                 print(f"Discord API: Status {response.status_code}")
+                print(response.text)
                 continue
 
             data = response.json()
-            global_name = data.get("global_name")
-            username = data.get("username")
-            if global_name:
-                name = global_name
-            else:
-                print(f"Warning: {uid} has no global_name, falling back to username '{username}'")
-                name = username
 
-            source_url = (data.get("avatar") or "").replace(".gif", ".png")
-            if not source_url:
-                default_index = (int(uid) >> 22) % 6
-                source_url = f"https://cdn.discordapp.com/embed/avatars/{default_index}.png"
+            name = (
+                data.get("global_name")
+                or data.get("username")
+            )
+
+            avatar_hash = data.get("avatar")
+
+            if avatar_hash:
+                source_url = (
+                    f"https://cdn.discordapp.com/avatars/"
+                    f"{uid}/{avatar_hash}.png?size=128"
+                )
+            else:
+                discriminator = data.get("discriminator", "0")
+
+                if discriminator == "0":
+                    default_index = (int(uid) >> 22) % 6
+                else:
+                    default_index = int(discriminator) % 5
+
+                source_url = (
+                    f"https://cdn.discordapp.com/embed/avatars/"
+                    f"{default_index}.png"
+                )
 
             uid_hash = hashlib.sha1(uid.encode()).hexdigest()[:12]
             filename = f"discord_{uid_hash}.png"
+
             avatar_url = save_avatar(source_url, filename)
+
             if not avatar_url:
                 continue
 
-            cells.append(make_cell(avatar_url=avatar_url, name=name))
+            cells.append(
+                make_cell(
+                    avatar_url=avatar_url,
+                    name=name
+                )
+            )
 
         except Exception as e:
-            print(f"Discord API Error: {e}")
+            print(f"Discord API Error for: {e}")
 
     return build_table(cells) if cells else ""
 

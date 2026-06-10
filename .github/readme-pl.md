@@ -35,7 +35,7 @@ jRandomSkills to plugin do CounterStrike 2, który wprowadza chaos i frajdę do 
 
 ## 🖼️ Prezentacja Pluginu
 ![Preview](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview.gif?raw=true)
-![Preview2](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview2.gif?raw=true
+![Preview2](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview2.gif?raw=true)
 
 ## 🌐 Serwer Testowy
 Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:

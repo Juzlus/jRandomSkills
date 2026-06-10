@@ -35,7 +35,7 @@ jRandomSkills is a plugin for CounterStrike 2 that brings chaos and fun to gamep
 
 ## 🖼️ Preview
 ![Preview](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview.gif?raw=true)
-![Preview2](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview2.gif?raw=true
+![Preview2](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview2.gif?raw=true)
 
 ## 🌐 Test Server
 Join the 3v3 test server and try out the jRandomSkills plugin:
@@ -362,7 +362,15 @@ This plugin uses content from the following projects:
 
 </div>
 ㅤ
-[THANKS]
+<div align="center">
+
+<table>
+  <tr><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_7ee4547c02f2.png" width="75" height="75" style="border-radius:50%" alt="Ryuu Jin"/><br/><sub><b>Ryuu Jin</b></sub></td><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_f7017ab921b5.png" width="75" height="75" style="border-radius:50%" alt="cj☭"/><br/><sub><b>cj☭</b></sub></td><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_20f902436962.png" width="75" height="75" style="border-radius:50%" alt="k4chen"/><br/><sub><b>k4chen</b></sub></td><td align="center"><img src="https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars/discord_a3b321b84dc6.png" width="75" height="75" style="border-radius:50%" alt="luno"/><br/><sub><b>luno</b></sub></td></tr>
+</table>
+
+<sub>If you are on this list and want your profile removed, please contact me.</sub>
+
+</div>
 
 ## 📋 Changelog
 

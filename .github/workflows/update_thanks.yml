@@ -29,6 +29,7 @@ jobs:
         env:
           DISCORD_USER_IDS: ${{ secrets.DISCORD_USER_IDS }}
           EXTRA_USERS_GITHUB: ${{ secrets.EXTRA_USERS_GITHUB }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: python .github/update_thanks.py
 
       - name: Commit changes
