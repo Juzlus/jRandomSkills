@@ -3,6 +3,7 @@ name: Update Contributors & Thanks
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
 
 jobs:
   update:
