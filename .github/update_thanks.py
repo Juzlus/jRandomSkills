@@ -14,7 +14,7 @@ DISCORD_USER_IDS = _env_list("DISCORD_USER_IDS")
 EXTRA_USERS_GITHUB = _env_list("EXTRA_USERS_GITHUB")
 
 CONTRIBUTORS_URL = "https://github.com/Juzlus/jRandomSkills/graphs/contributors"
-AVATARS_DIR = "./avatars"
+AVATARS_DIR = "./.github/avatars"
 AVATARS_RAW_URL = "https://raw.githubusercontent.com/Juzlus/jRandomSkills/main/.github/avatars"
 
 MARKER_GITHUB = "[CONTRIBUTORS]"
@@ -111,47 +111,82 @@ def get_github_contributors(repo, extra_logins):
 
 
 def get_discord_users(user_ids):
+    token = os.getenv("DISCORD_BOT_TOKEN")
+
+    if not token:
+        print("DISCORD_BOT_TOKEN not found")
+        return ""
+
+    headers = {
+        "Authorization": f"Bot {token}"
+    }
+
     cells = []
+
     for uid in user_ids:
         try:
             response = requests.get(
-                f"https://pfpfinder.com/api/discord/user/{uid}", timeout=10
+                f"https://discord.com/api/v10/users/{uid}",
+                headers=headers,
+                timeout=10
             )
+
             if response.status_code != 200:
-                print(f"Discord API: Status {response.status_code} for {uid}")
+                print(f"Discord API: Status {response.status_code}")
+                print(response.text)
                 continue
 
             data = response.json()
-            global_name = data.get("global_name")
-            username = data.get("username")
-            if global_name:
-                name = global_name
-            else:
-                print(f"Warning: {uid} has no global_name, falling back to username '{username}' (can be used for invites)")
-                name = username or f"User {uid}"
 
-            source_url = (data.get("avatar") or "").replace(".gif", ".png")
-            if not source_url:
-                default_index = (int(uid) >> 22) % 6
-                source_url = f"https://cdn.discordapp.com/embed/avatars/{default_index}.png"
+            name = (
+                data.get("global_name")
+                or data.get("username")
+            )
+
+            avatar_hash = data.get("avatar")
+
+            if avatar_hash:
+                source_url = (
+                    f"https://cdn.discordapp.com/avatars/"
+                    f"{uid}/{avatar_hash}.png?size=128"
+                )
+            else:
+                discriminator = data.get("discriminator", "0")
+
+                if discriminator == "0":
+                    default_index = (int(uid) >> 22) % 6
+                else:
+                    default_index = int(discriminator) % 5
+
+                source_url = (
+                    f"https://cdn.discordapp.com/embed/avatars/"
+                    f"{default_index}.png"
+                )
 
             uid_hash = hashlib.sha1(uid.encode()).hexdigest()[:12]
             filename = f"discord_{uid_hash}.png"
+
             avatar_url = save_avatar(source_url, filename)
+
             if not avatar_url:
                 continue
 
-            cells.append(make_cell(avatar_url=avatar_url, name=name))
+            cells.append(
+                make_cell(
+                    avatar_url=avatar_url,
+                    name=name
+                )
+            )
 
         except Exception as e:
-            print(f"Discord API Error for {uid}: {e}")
+            print(f"Discord API Error for: {e}")
 
     return build_table(cells) if cells else ""
 
 
-def process_file(filename, github_elements, discord_elements, is_pl):
-    input_path = f"./{filename}"
-    output_path = f"../{filename}"
+def process_file(filename_input, filename_output, github_elements, discord_elements, is_pl):
+    input_path = f"./.github/{filename_input}"
+    output_path = f"./{filename_output}"
 
     if not os.path.exists(input_path):
         print(f"Error: File {input_path} does not exist")
@@ -204,16 +239,19 @@ def process_file(filename, github_elements, discord_elements, is_pl):
 
 
 def main():
+    print(f"DISCORD_USER_IDS loaded: {len(DISCORD_USER_IDS)} user(s)")
+    print(f"EXTRA_USERS_GITHUB loaded: {len(EXTRA_USERS_GITHUB)} user(s)")
+
     print("Fetching GitHub contributors...")
     github_elements = get_github_contributors(REPOSITORY, EXTRA_USERS_GITHUB)
 
     print("Fetching Discord users...")
     discord_elements = get_discord_users(DISCORD_USER_IDS)
 
-    files = [("README.md", False), ("README-PL.md", True)]
+    files = [("en.md", "README.md", False), ("pl.md", "README-PL.md", True)]
 
-    for filename, is_pl in files:
-        process_file(filename, github_elements, discord_elements, is_pl)
+    for filename_input, filename_output, is_pl in files:
+        process_file(filename_input, filename_output, github_elements, discord_elements, is_pl)
 
 
 if __name__ == "__main__":

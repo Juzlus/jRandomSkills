@@ -3,10 +3,11 @@ name: Update Contributors & Thanks
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
 
 jobs:
   update:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     runs-on: ubuntu-latest
 
     permissions:
@@ -26,8 +27,9 @@ jobs:
 
       - name: Run update script
         env:
-          DISCORD_USER_IDS: ${{ vars.DISCORD_USER_IDS }}
-          EXTRA_USERS_GITHUB: ${{ vars.EXTRA_USERS_GITHUB }}
+          DISCORD_USER_IDS: ${{ secrets.DISCORD_USER_IDS }}
+          EXTRA_USERS_GITHUB: ${{ secrets.EXTRA_USERS_GITHUB }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: python .github/update_thanks.py
 
       - name: Commit changes
