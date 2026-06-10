@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.UserMessages;
@@ -122,12 +123,15 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController _)
         {
             Event.EnableTransmit();
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (knivesInfo.TryRemove(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null)
                 DisableKnifeSkill(knifeInfo);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableKnifeSkill(KnifeInfo knifeInfo)
@@ -388,7 +392,8 @@ namespace src.player.skills
                     bool isObservingOwner = observedPlayerIndex.HasValue && observedPlayerIndex.Value == knifeOwnerIndex;
 
                     if (!isOwner && !isObservingOwner)
-                        info.TransmitEntities.Remove(glowEntity.Index);
+                        if (info.TransmitEntities.Contains(glowEntity.Index))
+                            info.TransmitEntities.Remove(glowEntity.Index);
                 }
             }
         }

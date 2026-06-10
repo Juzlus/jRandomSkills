@@ -58,6 +58,7 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
                 if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
+                    if (player == null || !player.IsValid) return;
 
                     var enemy = Utilities.GetPlayerFromIndex((int)cameraInfo.Item3);
                     if (enemy == null || !enemy.IsValid || enemy.PlayerPawn == null)
@@ -73,16 +74,18 @@ namespace src.player.skills
                         return;
                     }
 
-                    if (enemyPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE
-                        || (player.PlayerPawn.Value != null && player.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE))
+                    if (enemyPawn.Health <= 0 || (player.PlayerPawn?.Value != null && player.PlayerPawn.Value.Health <= 0))
                         ChangeCamera(player, true);
                 }
         }
 
         private static void ChangeCamera(CCSPlayerController player, bool forceToDefault = false)
         {
+            if (player == null || !player.IsValid) return;
+
             uint orginalCameraRaw;
             uint newCameraRaw = 0;
+         
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
@@ -165,9 +168,9 @@ namespace src.player.skills
             });
 
             if (cameras.TryGetValue(player.Index, out var cameraInfo))
-                cameras.AddOrUpdate(player.Index, (cameraInfo.Item1, camera.Index, player.Index), (k, v) => (cameraInfo.Item1, camera.Index, player.Index));
+                cameras.AddOrUpdate(player.Index, (cameraInfo.Item1, camera.Index, enemy.Index), (k, v) => (cameraInfo.Item1, camera.Index, enemy.Index));
             else
-                cameras.AddOrUpdate(player.Index, (pawn.CameraServices.ViewEntity.Raw, camera.Index, player.Index), (k, v) => (pawn.CameraServices.ViewEntity.Raw, camera.Index, player.Index));
+                cameras.AddOrUpdate(player.Index, (pawn.CameraServices.ViewEntity.Raw, camera.Index, enemy.Index), (k, v) => (pawn.CameraServices.ViewEntity.Raw, camera.Index, enemy.Index));
             return camera.EntityHandle.Raw;
         }
 

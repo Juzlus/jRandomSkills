@@ -27,11 +27,22 @@
       "linux": "55 48 89 E5 41 57 49 89 FF 48 89 F7 41 56 41 55 41 54 53 48 81 EC"
     }
   },
-  "CCSPlayerController_HandleCommandDrop": {
-    "signatures": {
-      "library": "server",
-      "windows": "48 89 5C 24 ? 57 48 83 EC ? 48 8B FA E8 ? ? ? ? 48 8B D8",
-      "linux": "55 48 89 E5 41 54 49 89 F4 53 E8 ? ? ? ? 48 85 C0 74 ? 48 89 C3"
+  "CServerSideClient_m_nDeltaTick": {
+    "offsets": {
+      "windows": 348,
+      "linux": 348
+    }
+  },
+  "INetworkGameServer_Slots": {
+    "offsets": {
+      "windows": 592,
+      "linux": 592
+    }
+  },
+  "INetworkServerService_GetIGameServer": {
+    "offsets": {
+      "windows": 23,
+      "linux": 24
     }
   }
 }

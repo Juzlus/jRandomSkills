@@ -275,9 +275,9 @@
   "moneyswap_player_info": "你与玩家 '{0}' 交换了金钱。",
   "moneyswap_select_info": "选择你想与之交换金钱的玩家：",
 
-  "muhammed": "穆罕默德",
-  "muhammed_desc": "你死亡时会爆炸，杀死附近的玩家",
-  "muhammed_explosion": "真主至大！！！",
+  "deathbomb": "死亡炸弹",
+  "deathbomb_desc": "你死亡时会爆炸，杀死附近的玩家",
+  "deathbomb_explosion": "砰！",
 
   "ninja": "忍者",
   "ninja_desc": "站立不动增加33%隐形，蹲下增加33%，持刀增加33%",

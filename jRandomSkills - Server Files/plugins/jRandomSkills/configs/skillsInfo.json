@@ -22,6 +22,7 @@
     "Rarity": "Common"
   },
   {
+    "GrenadeLimit": 2,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -72,6 +73,7 @@
     "SmokeDamage": 2,
     "SmokeRadius": 180.0,
     "TickCooldown": 17,
+    "GrenadeLimit": 1,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -97,6 +99,7 @@
   },
   {
     "HealthTakenScale": 0.3,
+    "MaxTakenDamagePerShot": 37,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -205,6 +208,7 @@
     "Rarity": "Common"
   },
   {
+    "GrenadeLimit": 1,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -436,6 +440,7 @@
   },
   {
     "RegenerationMultiplier": 1.5,
+    "GrenadeLimit": 2,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -646,20 +651,6 @@
     "Rarity": "Common"
   },
   {
-    "ExplosionRadius": 500.0,
-    "ExplosionDamage": 999,
-    "DmgReductionForTeamates": 0.5,
-    "NeedsTeammates": false,
-    "DisableOnFreezeTime": false,
-    "OnlyTeam": 0,
-    "Color": "#F5CB42",
-    "Active": true,
-    "Name": "Muhammed",
-    "RequiredPermission": "",
-    "MaxPerServer": -1,
-    "Rarity": "Common"
-  },
-  {
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -672,6 +663,7 @@
   },
   {
     "DetonationRange": 130.0,
+    "GrenadeLimit": 3,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -723,6 +715,7 @@
   {
     "TriggerRadius": 180.0,
     "Strenght": 30.0,
+    "GrenadeLimit": 3,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -773,6 +766,7 @@
   {
     "FlashDuration": 1.0,
     "FriendlyFire": true,
+    "GrenadeLimit": 1,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -921,6 +915,7 @@
     "Strength": 150.0,
     "MaxVelocity": 2000.0,
     "DetonationRange": 130.0,
+    "GrenadeLimit": 2,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -934,6 +929,7 @@
   {
     "DamageMultiplier": 2.0,
     "DamageRadiusMultiplier": 2.0,
+    "GrenadeLimit": 1,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -960,6 +956,7 @@
     "SmokeHeal": 1,
     "SmokeRadius": 180.0,
     "TickCooldown": 16,
+    "GrenadeLimit": 1,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1017,6 +1014,7 @@
     "Rarity": "Common"
   },
   {
+    "GrenadeLimit": 2,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1053,6 +1051,7 @@
   {
     "TriggerRadius": 180.0,
     "SlownessMultiplier": 5,
+    "GrenadeLimit": 3,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1064,7 +1063,7 @@
     "Rarity": "Common"
   },
   {
-    "HealthMultiplier": 1.5,
+    "HealthDamageMultiplier": 0.3,
     "NeedsTeammates": true,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1221,6 +1220,20 @@
     "Color": "#FF4500",
     "Active": true,
     "Name": "Disarmament",
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "Rarity": "Common"
+  },
+  {
+    "ExplosionRadius": 500.0,
+    "ExplosionDamage": 999,
+    "DmgReductionForTeamates": 0.5,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#F5CB42",
+    "Active": true,
+    "Name": "DeathBomb",
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1404,6 +1417,7 @@
     "SpeedMultipier": 2.0,
     "MaxSpeed": 900.0,
     "DamageDeal": 9999.0,
+    "GrenadeLimit": 3,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1488,6 +1502,7 @@
   },
   {
     "FlashDuration": 7.0,
+    "GrenadeLimit": 2,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,

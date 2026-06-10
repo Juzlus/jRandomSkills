@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -75,7 +76,8 @@ namespace src.player.skills
                     if (relayEntity == null || !relayEntity.IsValid) continue;
 
                     if (player.Team == trailOwner.Team || !isJackalOwner)
-                        info.TransmitEntities.Remove(relayEntity.Index);
+                        if (info.TransmitEntities.Contains(relayEntity.Index))
+                            info.TransmitEntities.Remove(relayEntity.Index);
                 }
             }
         }
@@ -137,6 +139,8 @@ namespace src.player.skills
 
             mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
                     CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void UpdateAllTrails()
@@ -159,6 +163,8 @@ namespace src.player.skills
                 mainSkillTimer.Kill();
                 mainSkillTimer = null;
             }
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common, string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

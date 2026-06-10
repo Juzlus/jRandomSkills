@@ -11,6 +11,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.HealingSmoke;
         private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
+        private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
@@ -95,16 +96,72 @@ namespace src.player.skills
                 }
         }
 
-        public static void EnableSkill(CCSPlayerController player)
+        public static void GrenadeThrown(EventGrenadeThrown @event)
         {
-            SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Weapon;
+            if (weapon != "smokegrenade") return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo?.Skill != skillName) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            {
+                playersWithSkill[player.Index] = grenadesLeft - 1;
+                player!.GiveNamedItem($"weapon_{weapon}");
+                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft - 1);
+            }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public static void WeaponEquip(EventItemEquip @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var weapon = @event.Item;
+            if (player == null || !player.IsValid) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
+        }
+
+        public static void WeaponPickup(EventItemPickup @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Item;
+            if (string.IsNullOrEmpty(weapon) || weapon != "smokegrenade") return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
+        }
+
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            playersWithSkill.TryAdd(player.Index, grenadeLimit);
+
+            SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            playersWithSkill.TryRemove(player.Index, out _);
+            SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
+        }
+
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public int SmokeHeal { get; set; } = smokeHeal;
             public float SmokeRadius { get; set; } = smokeRadius;
             public int TickCooldown { get; set; } = tickCooldown;
+            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

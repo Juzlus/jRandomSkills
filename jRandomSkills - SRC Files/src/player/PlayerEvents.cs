@@ -2,14 +2,12 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
-using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
-using Microsoft.Extensions.Logging;
 using RayTraceAPI;
 using src.player.skills;
 using src.utils;
@@ -465,6 +463,9 @@ namespace src.player
                 CCSPlayerController player = pawn.Controller.Value.As<CCSPlayerController>();
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
+                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+                if (playerInfo == null) return HookResult.Continue;
+
                 CCSWeaponBaseVData vdata = VirtualFunctions.GetCSWeaponDataFromKeyFunc.Invoke(-1, econItem.ItemDefinitionIndex.ToString());
                 if (vdata == null) return HookResult.Continue;
 
@@ -483,7 +484,8 @@ namespace src.player
                         break;
                     }
                 }
-                return block ? HookResult.Stop : HookResult.Continue;
+
+                return block ? HookResult.Handled : HookResult.Continue;
             }
         }
 
@@ -510,7 +512,7 @@ namespace src.player
                         break;
                     }
                 }
-                return block ? HookResult.Stop : HookResult.Continue;
+                return block ? HookResult.Handled : HookResult.Continue;
             }
         }
 
@@ -570,7 +572,7 @@ namespace src.player
 
                 string welcomeMsg = player.GetTranslation("welcome_message", "welcome");
                 foreach (string line in welcomeMsg.Split("\n"))
-                    player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}{player.PlayerName}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
+                    player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}\u202A{player.PlayerName}\u202C{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{SERVER_NAME}", $" {ChatColors.Red}{ConVar.Find("hostname")?.StringValue ?? "Default Server"}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{VERSION}", $" {ChatColors.Red}v{Instance.ModuleVersion}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{SKILLS_COUNT}", $" {ChatColors.Red}{SkillData.Skills.Count - 1}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
@@ -731,16 +733,22 @@ namespace src.player
             lock (setLock)
             {
                 isTransmitRegistered = false;
+
                 Instance.AddTimer(.1f, () => {
                     DisableAll();
                     ConVar.Find("sv_legacy_jump")?.SetValue("1");
+
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
+                
                 playersSkills.Clear();
                 staticSkills.Clear();
+                
                 ctSkill = noneSkill;
                 tSkill = noneSkill;
                 allSkill = noneSkill;
+                
                 PlayerManager.Clear();
             }
         }
@@ -766,7 +774,7 @@ namespace src.player
                                 var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == _playerSkill.Skill);
                                 var specialSkillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == _playerSkill.SpecialSkill);
                                 if (skillInfo == null) continue;
-                                skillsText += $" {ChatColors.DarkRed}{_player.PlayerName}{ChatColors.Lime}: {(_playerSkill.SpecialSkill == Skills.None || specialSkillInfo == null ? player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance) : $"{player.GetSkillName(specialSkillInfo.Skill)} -> {player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance)}")}\n";
+                                skillsText += $" {ChatColors.DarkRed}\u202A{_player.PlayerName}\u202C{ChatColors.Lime}: {(_playerSkill.SpecialSkill == Skills.None || specialSkillInfo == null ? player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance) : $"{player.GetSkillName(specialSkillInfo.Skill)} -> {player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance)}")}\n";
                             }
                         }
 
@@ -824,7 +832,7 @@ namespace src.player
 
                         SkillUtils.PrintToChat(victim, 
                             $"{ChatColors.DarkRed}{(attackerInfo.SpecialSkill == Skills.None ? victim.GetSkillName(skillData.Skill) : $"{victim.GetSkillName(specialSkillData.Skill)} -> {victim.GetSkillName(skillData.Skill)}")}{ChatColors.Lime} - {skillDesc}",
-                            title: $"{victim.GetTranslation("enemy_skill")} {ChatColors.DarkRed}{attacker.PlayerName}{ChatColors.Lime}");
+                            title: $"{victim.GetTranslation("enemy_skill")} {ChatColors.DarkRed}\u202A{attacker.PlayerName}\u202C{ChatColors.Lime}");
                     }
                 }
                 return HookResult.Continue;
@@ -1064,9 +1072,9 @@ namespace src.player
                     float hudExpired = Config.LoadedConfig.SkillHudDuration;
                     skillPlayer.SkillHudExpired = hudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(hudExpired);
 
-                    float descriptionHudExpired = Config.LoadedConfig.SkillHudDuration;
+                    float descriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration;
                     skillPlayer.SkillDescriptionHudExpired = descriptionHudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(descriptionHudExpired);
-
+           
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
                     {
                         Instance?.AddTimer(.6f, () =>
@@ -1079,7 +1087,7 @@ namespace src.player
                                 if (teammateInfo != null && teammateInfo?.Skill != null)
                                 {
                                     var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == teammateInfo.Skill);
-                                    teammateSkills += $" {ChatColors.DarkRed}{teammate.PlayerName}{ChatColors.Lime}: {(skillInfo == null ? player.GetSkillName(Skills.None) : player.GetSkillName(skillInfo.Skill, teammateInfo.SkillChance))}\n";
+                                    teammateSkills += $" {ChatColors.DarkRed}\u202A{teammate.PlayerName}\u202C{ChatColors.Lime}: {(skillInfo == null ? player.GetSkillName(Skills.None) : player.GetSkillName(skillInfo.Skill, teammateInfo.SkillChance))}\n";
                                 }
                             }
 

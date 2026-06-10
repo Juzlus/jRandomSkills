@@ -275,9 +275,9 @@
   "moneyswap_player_info": "Wymieniłeś swoje pieniądze z graczem '{0}'.",
   "moneyswap_select_info": "Zamień się kasą z graczem:",
 
-  "muhammed": "Muhammed",
-  "muhammed_desc": "Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu",
-  "muhammed_explosion": "ALLAHU AKBAR!!!",
+  "deathbomb": "Ludzka bomba",
+  "deathbomb_desc": "Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu",
+  "deathbomb_explosion": "Kaboom!",
 
   "ninja": "Ninja",
   "ninja_desc": "Stojąc nieruchomo zwiększasz swoją niewidzialność o 33%, kucając o 33%, a trzymając nóż o 33%",

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.368" />
+        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.369" />
         <PackageReference Include="MaxMind.Db" Version="5.1.0">
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -53,7 +53,7 @@
     <PropertyGroup>
         <SourceLangDir>$(MSBuildProjectDirectory)\src\lang</SourceLangDir>
         <ServerLangDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills\languages</ServerLangDir>
-        <SourceDLL>$(MSBuildProjectDirectory)\bin\Debug\net8.0</SourceDLL>
+        <SourceDLL>$(MSBuildProjectDirectory)\bin\Debug\net10.0</SourceDLL>
         <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills</ServerDLL>
         <SourceGamedataDir>$(MSBuildProjectDirectory)\src\gamedata</SourceGamedataDir>
 		<ServerGamedataDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\gamedata</ServerGamedataDir>

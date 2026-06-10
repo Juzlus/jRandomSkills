@@ -58,7 +58,8 @@ namespace src.player.skills
                 NextCamera = 0,
                 NoSpace = 0,
                 PlayerCameraRaw = player.PlayerPawn.Value.CameraServices.ViewEntity.Raw,
-                LastAngle = QAngle.Zero
+                LastPlayerAngle = QAngle.Zero,
+                LastCameraAngle = QAngle.Zero
             });
         }
 
@@ -160,16 +161,20 @@ namespace src.player.skills
                     if (playerInfo.CameraActive && playerInfo.CameraProp != null)
                     {
                         if (pawn.AbsRotation != null)
-                            playerInfo.LastAngle = new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0);
+                            playerInfo.LastPlayerAngle = new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0);
 
                         var cameraProp = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerInfo.CameraProp);
-                        if (cameraProp == null || !cameraProp.IsValid) return;
+                        if (cameraProp == null || !cameraProp.IsValid || cameraProp.AbsRotation == null) return;
 
-                        pawn.Teleport(null, cameraProp.AbsRotation);
+                        if (playerInfo.LastCameraAngle == QAngle.Zero)
+                            playerInfo.LastCameraAngle = new QAngle(cameraProp.AbsRotation.X, cameraProp.AbsRotation.Y, 0);
+
+                        pawn.Look(playerInfo.LastCameraAngle);
                     }
                     else if (!forceToDefault)
                     {
-                        pawn.Look(playerInfo.LastAngle);
+                        playerInfo.LastCameraAngle = new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0);
+                        pawn.Look(playerInfo.LastPlayerAngle);
                     }
                 }
 
@@ -399,7 +404,8 @@ namespace src.player.skills
             public bool CameraActive { get; set; }
             public float NextCamera { get; set; }
             public float NoSpace { get; set; }
-            public required QAngle LastAngle { get; set; }
+            public required QAngle LastPlayerAngle { get; set; }
+            public required QAngle LastCameraAngle { get; set; }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

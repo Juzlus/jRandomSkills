@@ -39,6 +39,10 @@
         "FileName": "de"
       },
       {
+        "IsoCodes": "RU, KZ, BY, KG, TJ, UZ, TM, AM, AZ, GE, MD",
+        "FileName": "ru"
+      },
+      {
         "IsoCodes": "TR",
         "FileName": "tr"
       },

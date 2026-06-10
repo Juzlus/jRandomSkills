@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using static src.jRandomSkills;
 
 namespace src.player.skills
 {
@@ -12,6 +11,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Baseball;
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
+        private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
@@ -24,8 +24,17 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var weapon = @event.Weapon;
 
-            if (weapon != "decoy") return;
-            if (!Instance.IsPlayerValid(victim) || !Instance.IsPlayerValid(attacker)) return;
+            if (weapon != "decoy")
+                return;
+
+            if (victim == null || !victim.IsValid || victim.PlayerPawn?.Value == null || !victim.PlayerPawn.Value.IsValid || victim.PlayerPawn.Value.Health <= 0)
+                return;
+
+            if (attacker == null || !attacker.IsValid || attacker.PlayerPawn?.Value == null || !attacker.PlayerPawn.Value.IsValid || attacker.PlayerPawn.Value.Health <= 0)
+                return;
+
+            if (victim.Index == attacker.Index || victim.Team == attacker.Team)
+                return;
 
             var attackerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(attacker)!.Index);
             if (attackerInfo?.Skill != skillName) return;
@@ -108,16 +117,72 @@ namespace src.player.skills
             }
         }
 
-        public static void EnableSkill(CCSPlayerController player)
+        public static void GrenadeThrown(EventGrenadeThrown @event)
         {
-            SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Weapon;
+            if (weapon != "decoy") return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo?.Skill != skillName) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            {
+                playersWithSkill[player.Index] = grenadesLeft - 1;
+                player!.GiveNamedItem($"weapon_{weapon}");
+                SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft - 1);
+            }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float speedMultipier = 2f, float maxSpeed = 900f, int damageDeal = 9999) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public static void WeaponEquip(EventItemEquip @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var weapon = @event.Item;
+            if (player == null || !player.IsValid) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
+        }
+
+        public static void WeaponPickup(EventItemPickup @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Item;
+            if (string.IsNullOrEmpty(weapon) || weapon != "decoy") return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
+        }
+
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            playersWithSkill.TryAdd(player.Index, grenadeLimit);
+
+            SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
+            SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadeLimit);
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            playersWithSkill.TryRemove(player.Index, out _);
+            SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
+        }
+
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float speedMultipier = 2f, float maxSpeed = 900f, int damageDeal = 9999, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
             public float SpeedMultipier { get; set; } = speedMultipier;
             public float MaxSpeed { get; set; } = maxSpeed;
             public float DamageDeal { get; set; } = damageDeal;
+            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

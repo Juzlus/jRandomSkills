@@ -15,7 +15,7 @@ namespace src.player.skills
 
         private static readonly HashSet<string> weapons = [ "weapon_deagle", "weapon_revolver", "weapon_glock", "weapon_usp_silencer",
         "weapon_cz75a", "weapon_fiveseven", "weapon_p250", "weapon_tec9", "weapon_elite", "weapon_hkp2000",
-        "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
+        "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90", "weapon_sg556",
         "weapon_mp5sd", "weapon_famas", "weapon_galilar", "weapon_m4a4", "weapon_m4a1_silencer", "weapon_ak47",
         "weapon_aug", "weapon_sg553", "weapon_ssg08", "weapon_awp", "weapon_scar20", "weapon_g3sg1",
         "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249", "weapon_negev" ];
@@ -114,10 +114,10 @@ namespace src.player.skills
                         return;
                     }
 
-                    string[]? playerWeapon = GetWeapons(player);
-                    string[]? enemyWeapon = GetWeapons(enemy);
+                    (WeaponInfo[]? playerWeapon, bool playerC4) = GetWeapons(player);
+                    (WeaponInfo[]? enemyWeapon, bool enemyC4) = GetWeapons(enemy);
 
-                    if (playerWeapon == null || !playerWeapon.Any(w => weapons.Contains(w)))
+                    if (playerWeapon == null || !playerWeapon.Any(w => weapons.Contains(w.Name)))
                     {
                         skillInfo.FindedEnemy = true;
                         skillInfo.HaveWeapon = false;
@@ -139,8 +139,8 @@ namespace src.player.skills
                         if (enemy == null || !enemy.IsValid) return;
                         player.RemoveWeapons();
                         enemy.RemoveWeapons();
-                        GiveWeapons(player, enemyWeapon, playerWeapon.Contains("weapon_c4"));
-                        GiveWeapons(enemy, playerWeapon, (enemyWeapon != null && enemyWeapon.Contains("weapon_c4")));
+                        GiveWeapons(player, enemyWeapon, playerC4);
+                        GiveWeapons(enemy, playerWeapon, (enemyWeapon != null && enemyC4));
                     });
                 }
                 else
@@ -148,28 +148,76 @@ namespace src.player.skills
             }
         }
 
-        private static string[]? GetWeapons(CCSPlayerController player)
+        private static (WeaponInfo[]?, bool) GetWeapons(CCSPlayerController player)
         {
+            bool haveC4 = false;
+
             var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return null;
-            if (pawn.WeaponServices == null) return null;
+            if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return (null, haveC4);
+            
+            if (pawn.WeaponServices == null) return (null, haveC4);
 
-            var list = new List<string>();
+            var list = new List<WeaponInfo>();
             foreach (var weapon in pawn.WeaponServices.MyWeapons)
-                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
-                    list.Add(SkillUtils.GetDesignerName(weapon.Value));
+                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid && !string.IsNullOrEmpty(weapon.Value.DesignerName))
+                {
+                    if (weapon.Value.DesignerName == "weapon_c4")
+                        haveC4 = true;
+                    else
+                    {
+                        list.Add(
+                            new WeaponInfo
+                            {
+                                Name = SkillUtils.GetDesignerName(weapon.Value),
+                                Clip1 = weapon.Value.Clip1,
+                                Clip2 = weapon.Value.Clip2,
+                                Reserve = weapon.Value.ReserveAmmo.Length >= 1 ? weapon.Value.ReserveAmmo[0] : 0,
+                            });
+                    }
+                }
 
-            return list.Count == 0 ? null : [.. list];
+            return (list.Count == 0 ? null : [.. list], haveC4);
         }
 
-        private static void GiveWeapons(CCSPlayerController player, string[]? weapons, bool addC4)
+        private static void GiveWeapons(CCSPlayerController player, WeaponInfo[]? weapons, bool addC4)
         {
             if (weapons == null) return;
+            uint index = player.Index;
+
             foreach (var weapon in weapons)
-                if (weapon != "weapon_c4")
-                    player.GiveNamedItem(weapon);
+                player.GiveNamedItem(weapon.Name);
+                
             if (addC4)
                 player.GiveNamedItem("weapon_c4");
+
+            Server.NextFrame(() =>
+            {
+                var player = Utilities.GetPlayerFromIndex((int)index);
+                if (player == null || !player.IsValid) return;
+
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid) return;
+
+                if (pawn.WeaponServices == null) return;
+
+                foreach (var item in pawn.WeaponServices.MyWeapons)
+                    if (item != null && item.IsValid)
+                    {
+                        var weapon = item.Value;
+                        if (weapon == null || !weapon.IsValid || string.IsNullOrEmpty(weapon.DesignerName)) continue;
+
+                        var enemyWeapon = weapons.FirstOrDefault(w => w.Name == SkillUtils.GetDesignerName(weapon));
+                        if (enemyWeapon == null) continue;
+
+                        weapon.Clip1 = enemyWeapon.Clip1;
+                        weapon.Clip2 = enemyWeapon.Clip2;
+                        weapon.ReserveAmmo.Fill(enemyWeapon.Reserve);
+
+                        Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
+                        Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip2");
+                        Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
+                    }
+            });
         }
 
         private static CCSPlayerController? GetRandomEnemy(CCSPlayerController player)
@@ -197,6 +245,15 @@ namespace src.player.skills
             public DateTime LastClick { get; set; }
             public bool FindedEnemy { get; set; }
             public bool HaveWeapon { get; set; }
+        }
+
+        public class WeaponInfo
+        {
+            public required string Name { get; set; }
+            public required int Clip1 { get; set; }
+            public required int Clip2 { get; set; }
+            public required int Reserve { get; set; }
+
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c7e03a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

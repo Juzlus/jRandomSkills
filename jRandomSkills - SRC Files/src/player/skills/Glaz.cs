@@ -13,6 +13,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Glaz;
         private readonly static ConcurrentDictionary<int, byte> smokes = [];
+        private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -51,19 +52,82 @@ namespace src.player.skills
                 {
                     var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
                     if (entity == null || !entity.IsValid) continue;
-                    info.TransmitEntities.Remove(entity.Index);
+
+                    if (info.TransmitEntities.Contains(entity.Index))
+                        info.TransmitEntities.Remove(entity.Index);
                 }
             }
         }
 
-        public static void EnableSkill(CCSPlayerController player)
+        public static void GrenadeThrown(EventGrenadeThrown @event)
         {
-            Event.EnableTransmit();
-            SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Weapon;
+            if (weapon != "smokegrenade") return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo?.Skill != skillName) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            {
+                playersWithSkill[player.Index] = grenadesLeft - 1;
+                player!.GiveNamedItem($"weapon_{weapon}");
+                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft - 1);
+            }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5d00ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public static void WeaponEquip(EventItemEquip @event)
         {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var weapon = @event.Item;
+            if (player == null || !player.IsValid) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
+        }
+
+        public static void WeaponPickup(EventItemPickup @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Item;
+            if (string.IsNullOrEmpty(weapon) || weapon != "smokegrenade") return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
+        }
+
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            Event.EnableTransmit();
+
+            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            playersWithSkill.TryAdd(player.Index, grenadeLimit);
+
+            SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
+
+            SkillUtils.ForceFullUpdateToAll();
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            playersWithSkill.TryRemove(player.Index, out _);
+            SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
+
+            SkillUtils.ForceFullUpdateToAll();
+        }
+
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5d00ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int grenadeLimit = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        {
+            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

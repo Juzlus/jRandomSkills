@@ -241,7 +241,7 @@ namespace src.player.skills
             return clone;
         }
 
-        private unsafe static bool CheckPosition(CCSPlayerController player, Vector endPos)
+        private static bool CheckPosition(CCSPlayerController player, Vector endPos)
         {
             var playerPawn = player.PlayerPawn.Value;
 
@@ -340,10 +340,16 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            if (playersInfo.TryGetValue(victim.Index, out var playerSkill) && playerSkill.CloneProp != null)
+            if (playersInfo.TryGetValue(victim.Index, out var playerSkill))
             {
-                KillClone(playerSkill);
-                SkillUtils.RestoreHealth(victim);
+                if (playerSkill.CloneProp != null)
+                {
+                    KillClone(playerSkill);
+                    playerSkill.LastHit = Server.TickCount;
+                }
+
+                if (playerSkill.LastHit + 4 > Server.TickCount)
+                    SkillUtils.RestoreHealth(victim);
             }
         }
 
@@ -429,6 +435,7 @@ namespace src.player.skills
             public float NextUse { get; set; }
             public float UseTime { get; set; }
             public int InfoTime { get; set; }
+            public int LastHit { get; set; }
             public List<ulong> Weapons { get; set; } = [];
         }
 

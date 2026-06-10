@@ -4,8 +4,10 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.player;
 using src.player.skills;
 using System.Collections.Concurrent;
@@ -56,7 +58,30 @@ namespace src.utils
                 SkillData.Skills.Add(new jSkill_SkillInfo(skill, color, display));
         }
 
-        public static void TryGiveWeapon(CCSPlayerController player, CsItem item, int count = 1)
+        public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
+        {
+            string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
+            if (string.IsNullOrWhiteSpace(itemString)) return;
+
+            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
+            if (player.PlayerPawn.Value.WeaponServices == null) return;
+
+            var weapon = player.PlayerPawn.Value.WeaponServices.MyWeapons
+                .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && !string.IsNullOrEmpty(w.Value.DesignerName) && w.Value.DesignerName == itemString);
+
+            if (weapon == null || !weapon.IsValid || weapon.Value == null || !weapon.Value.IsValid) return;
+
+            weapon.Value.Clip1 = ammo;
+            Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_iClip1");
+
+            jRandomSkills.Instance.AddTimer(.1f, () =>
+            {
+                if (weapon == null || !weapon.IsValid || weapon.Value == null || !weapon.Value.IsValid) return;
+                weapon.Value.Clip1 = 1;
+            }, TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        public static void TryGiveWeapon(CCSPlayerController player, CsItem item, int count = 1, bool existValidator = true)
         {
             string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
             if (string.IsNullOrWhiteSpace(itemString)) return;
@@ -66,7 +91,8 @@ namespace src.utils
 
             var exists = player.PlayerPawn.Value.WeaponServices.MyWeapons
                 .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString);
-            if (exists == null)
+            
+            if (exists == null || !existValidator)
                 for (int i = 0; i < count; i++)
                     player.GiveNamedItem(item);
         }
@@ -259,6 +285,9 @@ namespace src.utils
 
                 var jester = Jester.GetJesterInfo(player.Index);
                 if (jester?.Active == true) return false;
+
+                if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
+                    return false;
             }
 
             int newHealth = (int)(pawn.Health - damage);
@@ -291,9 +320,35 @@ namespace src.utils
             return EntityManager.CreateTrackedTrigger(ownerPlayerIndex, name, radius, pos);
         }
 
+        public static void ForceFullUpdate(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid)
+                return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
+
+            QAngle lastAngle = new(pawn.V_angle.X, pawn.V_angle.Y, pawn.V_angle.Z);
+
+            INetworkServerService networkServerService = new();
+            INetworkGameServer networkGameServer = networkServerService.GetIGameServer();
+
+            var client = networkGameServer.GetClientBySlot(player.Slot);
+            if (client == null) return;
+
+            client.ForceFullUpdate();
+            pawn.Look(lastAngle);
+        }
+
+        public static void ForceFullUpdateToAll()
+        {
+            foreach (var player in Utilities.GetPlayers())
+                ForceFullUpdate(player);
+        }
+
         public static bool AddHealth(CCSPlayerPawn? pawn, int extraHealth, int? maxHealth = null)
         {
-            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0)
                 return false;
 
             maxHealth ??= pawn.MaxHealth;
@@ -381,6 +436,18 @@ namespace src.utils
             return manager.HasMenu(player);
         }
 
+        private static string GetInvisibleSignature(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return "";
+            var sb = new System.Text.StringBuilder();
+
+            foreach (char c in id)
+                for (int i = 0; i < 8; i++)
+                    sb.Append(((c >> i) & 1) == 1 ? "\u200B" : "\u200C");
+
+            return sb.ToString();
+        }
+
         public static void UpdateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> items)
         {
             if (player == null) return;
@@ -395,13 +462,19 @@ namespace src.utils
 
             Dictionary<string, Action<CCSPlayerController, IWasdMenuOption>> list = [];
             foreach (var item in items)
-                list.TryAdd(isIlliterate
+            {
+                string encodedText = isIlliterate
                     ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(item.Item1)!)
-                    : System.Net.WebUtility.HtmlEncode(item.Item1), (p, option) =>
+                    : System.Net.WebUtility.HtmlEncode(item.Item1);
+
+                string uniqueKey = GetInvisibleSignature(item.Item2) + $"\u202A{encodedText}\u202C";
+
+                list.TryAdd(uniqueKey, (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
                     manager.CloseMenu(p);
                 });
+            }
 
             manager.UpdateActiveMenu(player, list);
         }
@@ -445,11 +518,11 @@ namespace src.utils
 
             string infoLine = string.IsNullOrEmpty(your_skill)
                 ? ""
-                : $"<font class='fontWeight-Bold fontSize-{config.HeaderLineSize}' color='{config.HeaderLineColor}'>{your_skill}:</font><br>";
+                : $"<font class='fontWeight-Bold fontSize-{config.HeaderLineSize}' color='{config.HeaderLineColor}'>\u202A{your_skill}:\u202C</font><br>";
 
             string skillLine = Illiterate.CheckIlliterateSkill(player)
-                ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}</font><br>"
-                : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>{player.GetSkillName(skillData.Skill)}</font><br>";
+                ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>\u202A{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}\u202C</font><br>"
+                : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>\u202A{player.GetSkillName(skillData.Skill)}\u202C</font><br>";
 
             var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLower()}_select_info");
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
@@ -470,22 +543,34 @@ namespace src.utils
 
             IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
             foreach (var enemy in enemies)
-                menu.Add(isIlliterate 
+            {
+                string encodedEnemyName = isIlliterate
                     ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(enemy.Item1)!)
-                    : System.Net.WebUtility.HtmlEncode(enemy.Item1), (p, option) =>
+                    : System.Net.WebUtility.HtmlEncode(enemy.Item1);
+
+                string uniqueKey = GetInvisibleSignature(enemy.Item2) + $"\u202A{encodedEnemyName}\u202C";
+
+                menu.Add(uniqueKey, (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
                     manager.CloseMenu(p);
                 });
+            }
+
             if (lastElement != null)
-                menu.Add(isIlliterate
+            {
+                string encodedLastElement = isIlliterate
                     ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(lastElement.Value.Item1)!)
-                    : System.Net.WebUtility.HtmlEncode(lastElement.Value.Item1), (p, option) =>
+                    : System.Net.WebUtility.HtmlEncode(lastElement.Value.Item1);
+
+                menu.Add($"\u202A{encodedLastElement}\u202C", (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
                     if (lastElement.Value.Item3)
                         manager.CloseMenu(p);
                 });
+            }
+
             manager.OpenMainMenu(player, menu);
         }
 

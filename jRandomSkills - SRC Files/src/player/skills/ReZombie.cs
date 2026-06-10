@@ -11,7 +11,7 @@ namespace src.player.skills
     public class ReZombie : ISkill
     {
         private const Skills skillName = Skills.ReZombie;
-        private static readonly ConcurrentDictionary<uint, byte> zombies = [];
+        private static readonly ConcurrentDictionary<uint, int> zombies = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -76,24 +76,56 @@ namespace src.player.skills
             var pawn = victim.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            if (zombies.ContainsKey(victim.Index)) return;
+            bool isZombie = zombies.TryGetValue(victim.Index, out int tick);
+
+            if (isZombie && tick + 4 < Server.TickCount)
+                return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
-            if (playerInfo?.Skill != skillName || pawn.Health > 0) return;
+            if (playerInfo?.Skill != skillName) return;
 
-            lock (setLock)
+            var zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
+
+            if (pawn.Health <= 0)
             {
-                var zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
                 bool isBlock = victim.TeamChanged;
 
-                zombies.TryAdd(victim.Index, 0);
+                zombies[victim.Index] = Server.TickCount;
 
                 if (isBlock) return;
 
+                DropAllBotWeapons(victim);
                 SetPlayerColor(pawn, false);
                 SkillUtils.AddHealth(pawn, zombieHealth - pawn.Health, zombieHealth);
 
                 victim.ExecuteClientCommand("slot3");
+            }
+            else if (isZombie && tick + 4 > Server.TickCount)
+                SkillUtils.AddHealth(pawn, zombieHealth - pawn.Health, zombieHealth);
+        }
+
+        private static void DropAllBotWeapons(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid || !player.IsBot) return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            var itemServices = pawn.ItemServices?.As<CCSPlayer_ItemServices>();
+            if (itemServices == null || pawn.WeaponServices?.MyWeapons == null) return;
+
+            foreach (var item in pawn.WeaponServices.MyWeapons)
+            {
+                if (item == null || !item.IsValid) continue;
+
+                var weapon = item.Value;
+                if (weapon == null || !weapon.IsValid) continue;
+
+                var weaponName = weapon.DesignerName;
+                if (string.IsNullOrEmpty(weaponName) || weaponName.Contains("knife") || weaponName.Contains("bayonet"))
+                    continue;
+
+                SkillUtils.SafeKillEntity<CBasePlayerWeapon>(weapon.Index);
             }
         }
 

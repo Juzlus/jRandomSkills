@@ -13,6 +13,8 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
+        public static bool HaveHodMode(uint playerIndex) => SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo) && skillInfo.CanUse == false;
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -30,8 +32,12 @@ namespace src.player.skills
             {
                 SteamID = player.Index,
                 CanUse = true,
+                HaveGodMode = false,
                 Cooldown = DateTime.MinValue,
             });
+
+            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                skillInfo.HaveGodMode = true;
         }
 
         public static void OnTick()
@@ -90,11 +96,15 @@ namespace src.player.skills
                 {
                     skillInfo.CanUse = false;
                     skillInfo.Cooldown = DateTime.Now;
+                    skillInfo.HaveGodMode = true;
 
                     PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Green} {player.GetTranslation("godmode_on")}");
                     player.PlayerPawn.Value.TakesDamage = false;
 
                     Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () => {
+                        if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
+                            skillInfo.HaveGodMode = false;
+
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (player != null && player.IsValid)
                         {
@@ -102,6 +112,9 @@ namespace src.player.skills
 
                             player.PlayerPawn.Value.TakesDamage = true;
                             PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Red} {player.GetTranslation("godmode_off")}");
+
+                            if (player.PlayerPawn.Value.Health <= 0)
+                                player.CommitSuicide(false, true);
                         }
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
@@ -112,6 +125,7 @@ namespace src.player.skills
         {
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
+            public bool HaveGodMode {  get; set; }
             public DateTime Cooldown { get; set; }
         }
 
