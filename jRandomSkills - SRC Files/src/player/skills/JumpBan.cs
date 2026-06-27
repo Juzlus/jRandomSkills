@@ -117,7 +117,13 @@ namespace src.player.skills
                 return;
 
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            {
                 bannedPlayers.TryRemove(targetIndex, out _);
+
+                var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("jumpban_disable_info"));
+            }
 
             SkillUtils.CloseMenu(player);
         }

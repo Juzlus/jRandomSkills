@@ -104,7 +104,11 @@ namespace src.player.skills
             {
                 var target = Utilities.GetPlayerFromIndex((int)targetIndex);
                 if (target != null && target.IsValid)
+                {
                     target.ReplicateConVar("sv_disable_radar", "0");
+                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                        target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("glitch_disable_info"));
+                }
                 glitchedPlayers.TryRemove(targetIndex, out _);
             }
 

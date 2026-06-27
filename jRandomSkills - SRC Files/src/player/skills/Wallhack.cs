@@ -112,7 +112,10 @@ namespace src.player.skills
             playersInAction.TryRemove(player.Index, out _);
 
             if (playersInAction.IsEmpty)
+            {
                 NewRound();
+                return;
+            }
 
             SkillUtils.ForceFullUpdateToAll();
         }

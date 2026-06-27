@@ -524,7 +524,7 @@ namespace src.utils
                 ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>\u202A{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}\u202C</font><br>"
                 : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>\u202A{player.GetSkillName(skillData.Skill)}\u202C</font><br>";
 
-            var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLower()}_select_info");
+            var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLowerInvariant()}_select_info");
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
                 ? ""
                 : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
@@ -585,8 +585,8 @@ namespace src.utils
         {
             if (jRandomSkills.Instance == null || jRandomSkills.Instance.GameRules == null) return;
             var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager");
-            var ctTeam = teams.First(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.CounterTerrorist);
-            var tTeams = teams.First(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.Terrorist);
+            var ctTeam = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.CounterTerrorist);
+            var tTeams = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.Terrorist);
             if (ctTeam == null || tTeams == null) return;
 
             short ctScore = (short)(winnerTeam == CsTeam.CounterTerrorist ? ctTeam.Score + 1 : ctTeam.Score);
@@ -686,8 +686,8 @@ namespace src.utils
         private static void UpdateClientTeamScores(MCCSMatch match)
         {
             var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager");
-            var ctTeam = teams.First(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.CounterTerrorist);
-            var tTeams = teams.First(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.Terrorist);
+            var ctTeam = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.CounterTerrorist);
+            var tTeams = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.Terrorist);
 
             if (ctTeam != null && tTeams != null)
             {

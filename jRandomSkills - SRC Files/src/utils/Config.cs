@@ -71,9 +71,6 @@ namespace src.utils
 
         public class SettingsModel
         {
-            [DisplayName("Game Mode")]
-            [Description("TESTfafw..")]
-            [Range(0, 5)]
             public string ConfigName { get; set; }
             public int GameMode { get; set; }
             public bool YourSkillChatInfo { get; set; }

@@ -171,6 +171,10 @@ namespace src.player.skills
                 targetPlayers.TryRemove(targetIndex, out _);
                 lastShot.TryRemove(targetIndex, out _);
                 hitPlayer.TryRemove(targetIndex, out _);
+
+                var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("carefulbullets_disable_info"));
             }
 
             SkillUtils.CloseMenu(player);

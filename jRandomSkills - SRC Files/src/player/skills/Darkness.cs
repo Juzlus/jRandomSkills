@@ -106,7 +106,11 @@ namespace src.player.skills
                 {
                     var target = Utilities.GetPlayerFromIndex((int)targetIndex);
                     if (target != null && target.IsValid)
+                    {
                         SetUpPostProcessing(target, true);
+                        if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                            target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("darkness_disable_info"));
+                    }
                     playersInDark.TryRemove(targetIndex, out _);
                 }
 

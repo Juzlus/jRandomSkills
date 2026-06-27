@@ -60,6 +60,10 @@ namespace src.player.skills
                     playerInfo.SkillUsed = true;
 
                     playersToTarget[player.Index] = targetSite.Index;
+
+                    string siteLetter = site == 0 ? "A" : "B";
+                    foreach (var ct in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team == CsTeam.CounterTerrorist))
+                        ct.PrintToChat($" {ChatColors.Green}" + ct.GetTranslation("areareaper_teammates_info", siteLetter));
                 }
             }
         }

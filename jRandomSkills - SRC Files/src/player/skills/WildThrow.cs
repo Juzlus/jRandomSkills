@@ -121,6 +121,7 @@ namespace src.player.skills
 
             playerInfo.SkillUsed = true;
             player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("wildthrow_player_info", enemy.PlayerName));
+            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("wildthrow_enemy_info"));
         }
 
         public static void OnEntitySpawned(CEntityInstance @event)

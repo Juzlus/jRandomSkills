@@ -18,6 +18,10 @@ namespace src.utils
         private static SkillsInfoModel config = LoadSkillsInfo();
         public static SkillsInfoModel LoadedConfig => config;
 
+        private static SkillsInfoModel? _indexedConfig;
+        private static ConcurrentDictionary<string, DefaultSkillInfo> _byName = new();
+        private static readonly ConcurrentDictionary<(Type Type, string Key), MemberInfo?> _memberCache = new();
+
         public static SkillsInfoModel LoadSkillsInfo()
         {
             lock (fileLock)
@@ -84,26 +88,39 @@ namespace src.utils
         {
             if (config == null) return default!;
 
-            var skillConfig = LoadedConfig.FirstOrDefault(s => s.Name == skill.ToString());
-            if (skillConfig == null) return default!;
+            EnsureIndex();
+            if (!_byName.TryGetValue(skill.ToString()!, out var skillConfig) || skillConfig == null)
+                return default!;
 
-            var prop = skillConfig.GetType().GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-            if (prop != null)
+            var member = _memberCache.GetOrAdd((skillConfig.GetType(), key), k =>
             {
-                var value = prop.GetValue(skillConfig);
-                if (value == null) return default!;
-                else return (T)Convert.ChangeType(value, typeof(T));
-            }
+                MemberInfo? m = k.Type.GetProperty(k.Key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                m ??= k.Type.GetField(k.Key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                return m;
+            });
 
-            var field = skillConfig.GetType().GetField(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-            if (field != null)
+            object? value = member switch
             {
-                var value = field.GetValue(skillConfig);
-                if (value == null) return default!;
-                else return (T)Convert.ChangeType(value, typeof(T));
-            }
+                PropertyInfo p => p.GetValue(skillConfig),
+                FieldInfo f => f.GetValue(skillConfig),
+                _ => null
+            };
 
-            return default!;
+            if (value == null) return default!;
+            return (T)Convert.ChangeType(value, typeof(T));
+        }
+
+        private static void EnsureIndex()
+        {
+            if (ReferenceEquals(_indexedConfig, config)) return;
+
+            var dict = new ConcurrentDictionary<string, DefaultSkillInfo>();
+            foreach (var s in config)
+                dict[s.Name] = s;
+
+            _byName = dict;
+            _indexedConfig = config;
+            _memberCache.Clear();
         }
 
         public class SkillsInfoModel : ConcurrentBag<DefaultSkillInfo>
