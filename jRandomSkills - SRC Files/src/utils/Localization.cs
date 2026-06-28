@@ -50,7 +50,7 @@ namespace src.utils
             if (!File.Exists(langPath))
                 return;
 
-            var code = Path.GetFileNameWithoutExtension(langPath).ToLower();
+            var code = Path.GetFileNameWithoutExtension(langPath).ToLowerInvariant();
             var jsonText = File.ReadAllText(langPath);
             var translations = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(jsonText);
 
@@ -60,7 +60,7 @@ namespace src.utils
 
         public static bool HasTranslation(string code)
         {
-            return _translations.ContainsKey(code.ToLower());
+            return _translations.ContainsKey(code.ToLowerInvariant());
         }
 
         public static string GetSkillName(this CCSPlayerController player, Skills skill, float? chance = null)
@@ -68,7 +68,7 @@ namespace src.utils
             string langCode = GetLangCode(player);
             if (chance == null)
             {
-                var translation = GetTranslation(skill.ToString().ToLower(), langCode);
+                var translation = GetTranslation(skill.ToString().ToLowerInvariant(), langCode);
                 if (!translation.Contains("{0}"))
                     return translation;
                 
@@ -81,7 +81,7 @@ namespace src.utils
             }
 
             var value = Math.Round((double)(chance ?? 1), 2);
-            var skillNameText = GetTranslation(skill.ToString().ToLower(), langCode, player, value);
+            var skillNameText = GetTranslation(skill.ToString().ToLowerInvariant(), langCode, player, value);
             if (skillNameText.Contains('%')) skillNameText = skillNameText.Replace(value.ToString(), Math.Round(value * 100, 0).ToString());
             return skillNameText;
         }
@@ -91,7 +91,7 @@ namespace src.utils
             string langCode = GetLangCode(player);
             if (chance == null)
             {
-                var translation = GetTranslation($"{skill.ToString().ToLower()}_desc", langCode);
+                var translation = GetTranslation($"{skill.ToString().ToLowerInvariant()}_desc", langCode);
                 if (!translation.Contains("{0}"))
                     return translation;
 
@@ -103,12 +103,12 @@ namespace src.utils
                 return string.Join(' ', filtered);
             }
 
-            var skillName = $"{skill.ToString().ToLower()}_desc2";
+            var skillName = $"{skill.ToString().ToLowerInvariant()}_desc2";
             var value = Math.Round((double)(chance ?? 1), 2);
             var desc2 = GetTranslation(skillName, langCode, player, value);
 
             var skilLDescription = desc2 == skillName
-                ? player.GetTranslation($"{skill.ToString().ToLower()}_desc")
+                ? player.GetTranslation($"{skill.ToString().ToLowerInvariant()}_desc")
                 : desc2.Contains('%') ? desc2.Replace(value.ToString(), Math.Round(value * 100, 0).ToString()) : desc2;
             return skilLDescription;
         }

@@ -12,9 +12,6 @@
     <ItemGroup>
         <Compile Remove="tools\**" />
         <None Remove="tools\**" />
-        <None Remove="src\command\Command.cs~RF4f34d1e7.TMP" />
-        <None Remove="src\player\PlayerOnTick.cs~RF38b6229.TMP" />
-        <None Remove="src\player\skills\RespWroga.cs~RF528d210.TMP" />
     </ItemGroup>
 
     <ItemGroup>
@@ -53,7 +50,7 @@
     <PropertyGroup>
         <SourceLangDir>$(MSBuildProjectDirectory)\src\lang</SourceLangDir>
         <ServerLangDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills\languages</ServerLangDir>
-        <SourceDLL>$(MSBuildProjectDirectory)\bin\Debug\net10.0</SourceDLL>
+        <SourceDLL>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)</SourceDLL>
         <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills</ServerDLL>
         <SourceGamedataDir>$(MSBuildProjectDirectory)\src\gamedata</SourceGamedataDir>
 		<ServerGamedataDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\gamedata</ServerGamedataDir>

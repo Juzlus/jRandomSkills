@@ -117,7 +117,11 @@ namespace src.player.skills
             {
                 var target = Utilities.GetPlayerFromIndex((int)targetIndex);
                 if (target != null && target.IsValid)
+                {
                     SetCrosshair(target, true);
+                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                        target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("jammer_disable_info"));
+                }
                 jammedPlayers.TryRemove(targetIndex, out _);
             }
 

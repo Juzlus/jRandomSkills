@@ -109,7 +109,13 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            {
                 deafPlayers.TryRemove(targetIndex, out _);
+
+                var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("deaf_disable_info"));
+            }
 
             SkillUtils.CloseMenu(player);
         }

@@ -23,7 +23,7 @@ namespace src.command
         public static void Load()
         {
             config = Config.LoadedConfig;
-            if (config == null || config == null) return;
+            if (config == null) return;
 
             lock (setLock)
             {
@@ -200,7 +200,7 @@ namespace src.command
 
         private static void ChangeMap(CommandInfo command)
         {
-            string map = command.GetArg(1).ToLower();
+            string map = command.GetArg(1).ToLowerInvariant();
 
             if (string.IsNullOrEmpty(map))
             {
@@ -548,7 +548,7 @@ namespace src.command
                 if (langInfo.IsoCodes.Contains(newLangCode))
                     fileName = langInfo.FileName;
             if (Localization.HasTranslation(newLangCode))
-                fileName = newLangCode.ToLower();
+                fileName = newLangCode.ToLowerInvariant();
             Localization.ChangePlayerLanguage(player, fileName);
         }
 

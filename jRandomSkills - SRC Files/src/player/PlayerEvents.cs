@@ -137,17 +137,21 @@ namespace src.player
             return candidates[Random.Shared.Next(candidates.Count)];
         }
 
+        private static void DispatchToActiveSkills(string methodName, params object[] args)
+        {
+            var seen = new HashSet<Skills>();
+            foreach (var p in Instance.SkillPlayer)
+            {
+                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+                Instance.SkillAction(p.Skill.ToString(), methodName, args);
+            }
+        }
+
         private static HookResult PlayerMakeSound(UserMessage um)
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "PlayerMakeSound", [um]);
+                DispatchToActiveSkills("PlayerMakeSound", um);
                 return HookResult.Continue;
             }
         }
@@ -156,13 +160,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "WeaponFire", [@event]);
+                DispatchToActiveSkills("WeaponFire", @event);
                 return HookResult.Continue;
             }
         }
@@ -171,13 +169,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "WeaponEquip", [@event]);
+                DispatchToActiveSkills("WeaponEquip", @event);
                 return HookResult.Continue;
             }
         }
@@ -186,13 +178,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "WeaponPickup", [@event]);
+                DispatchToActiveSkills("WeaponPickup", @event);
                 return HookResult.Continue;
             }
         }
@@ -201,13 +187,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "WeaponReload", [@event]);
+                DispatchToActiveSkills("WeaponReload", @event);
                 return HookResult.Continue;
             }
         }
@@ -216,13 +196,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "GrenadeThrown", [@event]);
+                DispatchToActiveSkills("GrenadeThrown", @event);
                 return HookResult.Continue;
             }
         }
@@ -231,13 +205,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "BombBeginplant", [@event]);
+                DispatchToActiveSkills("BombBeginplant", @event);
                 return HookResult.Continue;
             }
         }
@@ -246,13 +214,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "BombAbortplant", [@event]);
+                DispatchToActiveSkills("BombAbortplant", @event);
                 return HookResult.Continue;
             }
         }
@@ -261,13 +223,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "BombPlanted", [@event]);
+                DispatchToActiveSkills("BombPlanted", @event);
                 return HookResult.Continue;
             }
         }
@@ -276,13 +232,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "BombBegindefuse", [@event]);
+                DispatchToActiveSkills("BombBegindefuse", @event);
                 return HookResult.Continue;
             }
         }
@@ -291,13 +241,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "DecoyStarted", [@event]);
+                DispatchToActiveSkills("DecoyStarted", @event);
                 return HookResult.Continue;
             }
         }
@@ -306,13 +250,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "DecoyDetonate", [@event]);
+                DispatchToActiveSkills("DecoyDetonate", @event);
                 return HookResult.Continue;
             }
         }
@@ -321,13 +259,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "SmokegrenadeDetonate", [@event]);
+                DispatchToActiveSkills("SmokegrenadeDetonate", @event);
                 return HookResult.Continue;
             }
         }
@@ -336,13 +268,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "SmokegrenadeExpired", [@event]);
+                DispatchToActiveSkills("SmokegrenadeExpired", @event);
                 return HookResult.Continue;
             }
         }
@@ -351,13 +277,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "PlayerHurt", [@event]);
+                DispatchToActiveSkills("PlayerHurt", @event);
                 return HookResult.Continue;
             }
         }
@@ -366,13 +286,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "PlayerJump", [@event]);
+                DispatchToActiveSkills("PlayerJump", @event);
                 return HookResult.Continue;
             }
         }
@@ -381,13 +295,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "PlayerBlind", [@event]);
+                DispatchToActiveSkills("PlayerBlind", @event);
                 return HookResult.Continue;
             }
         }
@@ -396,15 +304,10 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
+                DispatchToActiveSkills("OnTakeDamage", h);
 
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "OnTakeDamage", [h]);
-                
-                if (Fortnite.skillInThisRound == true && !activeSkills.Any(s => s == "Fortnite"))
+                if (Fortnite.skillInThisRound == true &&
+                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
                     Instance.SkillAction("Fortnite", "OnTakeDamage", [h]);
 
                 return HookResult.Continue;
@@ -418,13 +321,7 @@ namespace src.player
                 CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
                 CBaseEntity entity = hook.GetParam<CBaseEntity>(1);
 
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "OnTriggerEnter", [trigger, entity]);
+                DispatchToActiveSkills("OnTriggerEnter", trigger, entity);
                 return HookResult.Continue;
             }
         }
@@ -436,13 +333,7 @@ namespace src.player
                 CBaseTrigger trigger = hook.GetParam<CBaseTrigger>(0);
                 CBaseEntity entity = hook.GetParam<CBaseEntity>(1);
 
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "OnTriggerExit", [trigger, entity]);
+                DispatchToActiveSkills("OnTriggerExit", trigger, entity);
                 return HookResult.Continue;
             }
         }
@@ -544,6 +435,13 @@ namespace src.player
 
                 if (player.IsBot && !Config.LoadedConfig.EnableBotSkills)
                     return;
+
+                var existing = Instance.SkillPlayer.FirstOrDefault(p => p.PlayerIndex == player.Index);
+                if (existing != null)
+                {
+                    PlayerManager.Register(existing);
+                    return;
+                }
 
                 var playerInfo = new jSkill_PlayerInfo
                 {
@@ -699,7 +597,6 @@ namespace src.player
                     if (playerInfo == null) continue;
 
                     Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
-                    Instance.SkillAction(playerInfo.Skill.ToString(), "NewRound");
 
                     playerInfo.Skill = noneSkill.Skill;
                     playerInfo.SpecialSkill = noneSkill.Skill;
@@ -709,6 +606,9 @@ namespace src.player
 
                     RestorePlayer(player);
                 }
+
+                foreach (var skill in SkillData.Skills)
+                    Instance.SkillAction(skill.Skill.ToString(), "NewRound");
             }
         }
 
@@ -733,23 +633,24 @@ namespace src.player
             lock (setLock)
             {
                 isTransmitRegistered = false;
-
-                Instance.AddTimer(.1f, () => {
-                    DisableAll();
-                    ConVar.Find("sv_legacy_jump")?.SetValue("1");
-
-                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
-                
+
+                Fortnite.skillInThisRound = false;
+                EntityManager.DestroyAllTracked();
+                foreach (var skill in SkillData.Skills)
+                    Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+
                 playersSkills.Clear();
                 staticSkills.Clear();
-                
+
                 ctSkill = noneSkill;
                 tSkill = noneSkill;
                 allSkill = noneSkill;
-                
+
+                Instance.SkillPlayer.Clear();
                 PlayerManager.Clear();
+
+                ConVar.Find("sv_legacy_jump")?.SetValue("1");
             }
         }
 
@@ -803,13 +704,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "PlayerDeath", [@event]);
+                DispatchToActiveSkills("PlayerDeath", @event);
 
                 var victim = PlayerManager.GetPlayerEvent(@event.Userid);
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
@@ -848,10 +743,12 @@ namespace src.player
                 string? button = Config.LoadedConfig.AlternativeSkillButton;
                 if (string.IsNullOrEmpty(button) || button.Length < 2) return;
 
-                string buttonName = $"{char.ToUpper(button[0])}{button[1..].ToLower()}";
+                string buttonName = $"{char.ToUpperInvariant(button[0])}{button[1..].ToLowerInvariant()}";
                 if (!Enum.TryParse<PlayerButtons>(buttonName, out var skillButton)) return;
 
                 if ((pressed & skillButton) == 0) return;
+
+                if (SkillUtils.HasMenu(player)) return;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return;
@@ -893,13 +790,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "OnEntitySpawned", [entity]);
+                DispatchToActiveSkills("OnEntitySpawned", entity);
             }
         }
 
@@ -907,13 +798,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "BulletImpact", [@event]);
+                DispatchToActiveSkills("BulletImpact", @event);
                 return HookResult.Continue;
             }
         }
@@ -1190,6 +1075,7 @@ namespace src.player
                     }
                 }
 
+                Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
 
@@ -1221,13 +1107,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                foreach (string skillName in activeSkills)
-                    Instance.SkillAction(skillName, "CheckTransmit", [infoList]);
+                DispatchToActiveSkills("CheckTransmit", infoList);
             }
         }
 
