@@ -337,7 +337,8 @@ namespace src.utils
             if (client == null) return;
 
             client.ForceFullUpdate();
-            pawn.Look(lastAngle);
+            if (lastAngle.X != 0 || lastAngle.Y != 0 || lastAngle.Z != 0)
+                pawn.Look(lastAngle);
         }
 
         public static void ForceFullUpdateToAll()

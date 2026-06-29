@@ -9,7 +9,7 @@
   "aimlock_desc": "En yakın düşmana nişan almak için [css_useSkill] tuşuna basın",
 
   "anomaly": "Zaman Büken",
-  "anomaly_desc": "Zamanı birkaç saniye geriye alırsın",
+  "anomaly_desc": "[css_useSkill] tuşuna basarak zamanı birkaç saniye geriye alırsın",
 
   "antyflash": "Anti-Flash",
   "antyflash_desc": "Flaşa kör olmazsın ve flaşların 7 saniye sürer",
@@ -22,7 +22,7 @@
   "areareaper_incorrect_site": "Böyle bir bomba alanı yok uydurma",
   "areareaper_no_site": "Haritada bomba alanı bulunamadı",
   "areareaper_select_info": "Kapatılacak bomba alanını seç:",
-  "areareaper_site_disabled": "{0} alanı mühürlendi - artık buraya bomba kurulamaz!",
+  "areareaper_site_disabled": "{0} Bölgesi kapandı - artık buraya bomba kurulamaz!",
   "areareaper_used_info": "Yeteneğini zaten kullandın, açgözlülük yapma",
   "areareaper_teammates_info": "{0} Bölgesi bomba kurmaya kapatıldı.",
   "areareaper_bombsite_disabled": "Bu bomba alanı kullanıma kapatıldı!",
@@ -57,7 +57,7 @@
   "bunnyhop": "Tavşan",
   "bunnyhop_desc": "Otomatik \"BunnyHop\" yaparsın",
 
-  "c4camouflage": "C4 Kamuflajı",
+  "c4camouflage": "C4 Kamuflaj",
   "c4camouflage_desc": "Elinde C4 varken tamamen görünmez olursun",
 
   "carefulbullets": "Dikkatli Mermiler",
@@ -146,8 +146,8 @@
   "fortnite": "Fortnite",
   "fortnite_desc": "[css_useSkill] tuşuna basarak barikat kur",
 
-  "fragilebomb": "Hassas Bomba",
-  "fragilebomb_desc": "Kurulu bombaya ateş etmek bombanın canını azaltır",
+  "fragilebomb": "Hassas C4",
+  "fragilebomb_desc": "Kurulu C4'e ateş etmek C4'ün canını azaltır ve C4 imha edilir.",
   "fragilebomb_bomb_health": "Bombanın canı",
 
   "friendlyfire": "Dost Şifası",
@@ -261,7 +261,7 @@
   "magneticdecoy": "Manyetik Yanıltıcı",
   "magneticdecoy_desc": "Yanıltıcı bombanız yakındaki oyuncuları kendine çeker",
 
-  "magneto": "Magneto",
+  "magneto": "Mıknatıs",
   "magneto_desc": "Tüm düşman bombaları sizden uzaklaştırılır",
 
   "magnifier": "Büyüteç",
@@ -371,8 +371,8 @@
   "regeneration": "Yenilenme",
   "regeneration_desc": "Birkaç saniyede bir canın yenilenir",
 
-  "replicator": "Kopyacı",
-  "replicator_desc": "[css_useSkill] tuşuna basarak kopya oluştur ve ölürse rakibe hasar verir",
+  "replicator": "Klon",
+  "replicator_desc": "[css_useSkill] tuşuna basarak klon oluştur ve öldürene hasar verir",
 
   "retreat": "Geri Çekil",
   "retreat_desc": "[css_useSkill] tuşuna basarak başlangıç noktasına ışınlan",
@@ -380,7 +380,7 @@
   "returntosender": "İade",
   "returntosender_desc": "Düşmana ilk vuruşun onu kendi başlangıç noktasına ışınlar",
 
-  "richboy": "Zengin Bebe",
+  "richboy": "Zengin Çocuk",
   "richboy_desc": "Raund başında rastgele miktarda para alırsın",
 
   "robinhood": "Robin Hood",
@@ -417,8 +417,8 @@
   "soldier_desc": "Rastgele bir oranda fazla hasar verirsin",
   "soldier_desc2": "Hasarın: {0}x",
 
-  "soundmaker": "Halüsinasyon",
-  "soundmaker_desc": "[css_useSkill] tuşuna basarak rakibinin çığlık atmasını sağla",
+  "soundmaker": "Çığlık",
+  "soundmaker_desc": "Rakiplerinin çığlıklarını duyarsın",
 
   "spectator": "Röntgen",
   "spectator_desc": "[css_useSkill] tuşuna basarak rakibinin gözünden gör",
@@ -468,6 +468,7 @@
   "wildthrow_desc": "El bombası atmakta zorluk çekecek bir oyuncu seçin",
   "wildthrow_player_info": "'{0}' adlı oyuncu tüm taktiklerini unuttu",
   "wildthrow_enemy_info": "Bomba atarken çok heyecanlanıyorsun.",
+  "wildthrow_disable_info": "Bombaların düzeldi.",
   "wildthrow_select_info": "Bir oyuncu seçin:",
 
   "zeus": "Zeus",

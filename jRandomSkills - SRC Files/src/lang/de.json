@@ -24,6 +24,7 @@
   "areareaper_select_info": "Standort zum Deaktivieren auswählen:",
   "areareaper_site_disabled": "Bombenstandort {0} wurde deaktiviert – dort können keine Bomben platziert werden!",
   "areareaper_used_info": "Deine Fähigkeit wurde bereits eingesetzt.",
+  "areareaper_teammates_info": "areareaper_teammates_info",
   "areareaper_bombsite_disabled": "Dieser Bombenplatz wurde deaktiviert!",
 
   "armored": "Gepanzert",
@@ -62,6 +63,7 @@
   "carefulbullets": "Vorsichtige Kugeln",
   "carefulbullets_desc": "Wähle einen Spieler aus, der für jeden Fehlschuss Schaden nimmt",
   "carefulbullets_enemy_info": "Von nun an wird Ungenauigkeit buchstäblich wehtun.",
+  "carefulbullets_disable_info": "carefulbullets_disable_info",
   "carefulbullets_player_info": "‚{0}‘ muss jetzt vorsichtiger sein.",
   "carefulbullets_select_info": "Fehler schaden dem Spieler:",
 
@@ -85,6 +87,7 @@
   "darkness": "Dunkelheit",
   "darkness_desc": "Wendet einen Dunkelheitseffekt auf einen ausgewählten Gegner an",
   "darkness_enemy_info": "Lass die Lichter ausgehen",
+  "darkness_disable_info": "darkness_disable_info",
   "darkness_player_info": "Die Dunkelheit hat den Spieler \"{0}\" überwältigt.",
   "darkness_select_info": "Wähle einen Spieler für die Dunkelheit aus:",
 
@@ -97,6 +100,7 @@
   "deaf": "Taub",
   "deaf_desc": "Wähle einen Spieler aus, für den alle Sounds stummgeschaltet werden sollen",
   "deaf_enemy_info": "Deine Kopfhörer haben das Spiel verlassen.",
+  "deaf_disable_info": "deaf_disable_info",
   "deaf_player_info": "Der Ton für den Spieler ‚{0}‘ wurde deaktiviert.",
   "deaf_select_info": "Alle Töne für den Spieler stummschalten:",
 
@@ -167,6 +171,7 @@
   "glitch": "Glitch",
   "glitch_desc": "Deaktiviert das Radar für einen ausgewählten Gegner",
   "glitch_enemy_info": "Dein Radar wurde deaktiviert",
+  "glitch_disable_info": "glitch_disable_info",
   "glitch_player_info": "Das Radar des Spielers ‚{0}‘ wurde deaktiviert.",
   "glitch_select_info": "Radar des Spielers ausschalten:",
 
@@ -218,6 +223,7 @@
   "jammer": "Störsender",
   "jammer_desc": "Wähle einen Spieler aus, um dessen Fadenkreuz zu deaktivieren",
   "jammer_enemy_info": "Dein Fadenkreuz wurde deaktiviert.",
+  "jammer_disable_info": "jammer_disable_info",
   "jammer_player_info": "Das Fadenkreuz von Spieler ‚{0}‘ wurde deaktiviert.",
   "jammer_select_info": "Fadenkreuz des Spielers deaktivieren:",
 
@@ -230,6 +236,7 @@
   "jumpban": "Beinlos",
   "jumpban_desc": "Wähle einen Spieler, der nicht springen kann",
   "jumpban_enemy_info": "Jemand hat dir die Beine abgeschnitten.",
+  "jumpban_disable_info": "jumpban_disable_info",
   "jumpban_player_info": "Der Spieler ‚{0}‘ kann nicht mehr springen.",
   "jumpban_select_info": "Spieler vom Springen ausschließen:",
 
@@ -260,6 +267,7 @@
   "magnifier": "Lupe",
   "magnifier_desc": "Vergrößert den Bildschirm des Gegners und verringert dessen Sichtfeld",
   "magnifier_enemy_info": "Dein Sichtfeld wurde verzerrt!",
+  "magnifier_disable_info": "magnifier_disable_info",
   "magnifier_player_info": "Der Spieler ‚{0}‘ wurde in den Zoom-Modus versetzt.",
   "magnifier_select_info": "Bildschirm des Spielers vergrößern:",
 
@@ -321,12 +329,14 @@
   "poison": "Gift",
   "poison_desc": "Wähle einen Spieler aus, der alle paar Sekunden Schaden nimmt",
   "poison_enemy_info": "Du wurdest vergiftet",
+  "poison_disable_info": "poison_disable_info",
   "poison_player_info": "Der Spieler ‚{0}‘ wurde vergiftet",
   "poison_select_info": "Einen Spieler vergiften:",
 
   "primaryban": "Keine Gewehre",
   "primaryban_desc": "Wähle einen Spieler aus, der keine Gewehre verwenden kann",
   "primaryban_enemy_info": "Du kannst keine Gewehre mehr verwenden.",
+  "primaryban_disable_info": "primaryban_disable_info",
   "primaryban_player_info": "Der Spieler ‚{0}‘ kann keine Gewehre mehr verwenden.",
   "primaryban_select_info": "Gewehre für Spieler verbieten:",
 
@@ -457,6 +467,8 @@
   "wildthrow": "Wilder Wurf",
   "wildthrow_desc": "Wähle einen Spieler aus, der Probleme beim Werfen von Granaten haben wird",
   "wildthrow_player_info": "Spieler '{0}' hat all seine Lineups vergessen",
+  "wildthrow_enemy_info": "wildthrow_enemy_info",
+  "wildthrow_disable_info": "wildthrow_disable_info",
   "wildthrow_select_info": "Wähle einen Spieler aus:",
 
   "zeus": "Zeus",

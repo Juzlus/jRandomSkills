@@ -24,6 +24,7 @@
   "areareaper_select_info": "Wybierz strefę do dezaktyw.:",
   "areareaper_site_disabled": "Strefa detonacji {0} została dezaktywowana - nie można na niej podłożyć bomby!",
   "areareaper_used_info": "Twoja moc została już wykorzystana.",
+  "areareaper_teammates_info": "areareaper_teammates_info",
   "areareaper_bombsite_disabled": "Ten bombsite został wyłączony!",
 
   "armored": "Gruby",
@@ -62,6 +63,7 @@
   "carefulbullets": "Ostrożne pociski",
   "carefulbullets_desc": "Wybierz gracza, który otrzymuje obrażenia za każdy niecelny strzał",
   "carefulbullets_enemy_info": "Od teraz niecelność będzie dosłownie bolała.",
+  "carefulbullets_disable_info": "carefulbullets_disable_info",
   "carefulbullets_player_info": "'{0}' musi teraz być bardziej ostrożny.",
   "carefulbullets_select_info": "Niedokładność szkodzi graczowi:",
 
@@ -85,6 +87,7 @@
   "darkness": "Mrok",
   "darkness_desc": "Nadaje efekt ciemności wybranemu przeciwnikowi",
   "darkness_enemy_info": "Niech zgasną światła.",
+  "darkness_disable_info": "darkness_disable_info",
   "darkness_player_info": "Ciemność opanowała gracza '{0}'.",
   "darkness_select_info": "Nałóż efekt ciemności:",
 
@@ -97,6 +100,7 @@
   "deaf": "Głuchy",
   "deaf_desc": "Wybierasz gracza, dla którego chcesz wyłączyć wszystkie dźwięki",
   "deaf_enemy_info": "Słuchawki opuściły grę.",
+  "deaf_disable_info": "deaf_disable_info",
   "deaf_player_info": "Dźwięk został wyłączony dla gracza '{0}'.",
   "deaf_select_info": "Wycisz dźwięki gracza:",
 
@@ -167,6 +171,7 @@
   "glitch": "Glitch",
   "glitch_desc": "Wyłączasz radar wybranemu przeciwnikowi",
   "glitch_enemy_info": "Twój radar został wyłączony.",
+  "glitch_disable_info": "glitch_disable_info",
   "glitch_player_info": "Radar gracza '{0}' został wyłączony.",
   "glitch_select_info": "Wyłącz radar dla gracza:",
 
@@ -218,6 +223,7 @@
   "jammer": "Zakłócacz",
   "jammer_desc": "Wybierasz gracza, dla którego chcesz wyłączyć celownik",
   "jammer_enemy_info": "Twój celownik został wyłączony.",
+  "jammer_disable_info": "jammer_disable_info",
   "jammer_player_info": "Celownik gracza '{0}' została wyłączona.",
   "jammer_select_info": "Wyłącz celownik dla gracza:",
 
@@ -230,6 +236,7 @@
   "jumpban": "Beznogi",
   "jumpban_desc": "Wybierasz gracza, który nie będzie mógł skakać",
   "jumpban_enemy_info": "Ktoś odciął ci nogi.",
+  "jumpban_disable_info": "jumpban_disable_info",
   "jumpban_player_info": "Gracz '{0}' nie może teraz skakać.",
   "jumpban_select_info": "Zablokuj skok dla gracza:",
 
@@ -260,6 +267,7 @@
   "magnifier": "Lupa",
   "magnifier_desc": "Przybiżasz ekran wybranemu przeciwnikowi",
   "magnifier_enemy_info": "Twoje pole widzenia zostało zniekształcone!",
+  "magnifier_disable_info": "magnifier_disable_info",
   "magnifier_player_info": "Gracz '{0}' został zmuszony do przejścia w tryb powiększenia.",
   "magnifier_select_info": "Powiększ ekran gracza:",
 
@@ -321,12 +329,14 @@
   "poison": "Trutka",
   "poison_desc": "Wybierasz gracza, który co kilka sekund będzie otrzymywał obrażenia",
   "poison_enemy_info": "Zostałeś otruty.",
+  "poison_disable_info": "poison_disable_info",
   "poison_player_info": "Gracz '{0}' został otruty.",
   "poison_select_info": "Zatruj gracza:",
 
   "primaryban": "Brak Karabinów",
   "primaryban_desc": "Wybierasz gracza, który nie może używać karabinów",
   "primaryban_enemy_info": "Nie możesz już używać karabinów.",
+  "primaryban_disable_info": "primaryban_disable_info",
   "primaryban_player_info": "Gracz '{0}' nie może już używać karabinów.",
   "primaryban_select_info": "Zablokuj karabiny dla gracza:",
 
@@ -457,6 +467,8 @@
   "wildthrow": "Dzikie Rzuty",
   "wildthrow_desc": "Wybierz gracza, który będzie miał trudności z rzucaniem granatami",
   "wildthrow_player_info": "Gracz '{0}' zapomniał wszystkie lineup'y",
+  "wildthrow_enemy_info": "wildthrow_enemy_info",
+  "wildthrow_disable_info": "wildthrow_disable_info",
   "wildthrow_select_info": "Wybierz gracza:",
 
   "zeus": "Zeus",

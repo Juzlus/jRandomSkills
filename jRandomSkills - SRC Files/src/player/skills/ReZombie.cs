@@ -96,7 +96,11 @@ namespace src.player.skills
 
                 DropAllBotWeapons(victim);
                 SetPlayerColor(pawn, false);
-                SkillUtils.AddHealth(pawn, zombieHealth - pawn.Health, zombieHealth);
+
+                pawn.MaxHealth = zombieHealth;
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+                pawn.Health = zombieHealth;
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
 
                 victim.ExecuteClientCommand("slot3");
             }

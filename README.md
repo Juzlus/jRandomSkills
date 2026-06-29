@@ -375,6 +375,54 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.2.b4</b></summary>
+
+- #### General:
+    - ###### Fixed players' view angle snapping to look at 0,0,0 during freeze time at round start (ForceFullUpdate was re-applying a zeroed view angle).
+    - ###### Stability: skills are now correctly disabled and cleaned up on attacker-less deaths (fall damage, drowning, world) - the death handler previously skipped cleanup when there was no killer.
+    - ###### Performance: the end-of-round skill summary now runs in a single timer instead of one per player, and skips players who disconnect during the delay.
+    - ###### Added new English translation strings (and placeholders for the other languages) for the notifications below.
+
+- #### Skill improvements:
+    - ###### Re-Zombie:
+        - ###### Fixed the player dying instead of respawning with full zombie health (500 HP).
+    - ###### Jester (Joker):
+        - ###### Armor no longer drains while the skill is active - both when the holder is hit and when the holder deals damage (previously only health was protected).
+    - ###### Soundmaker:
+        - ###### The skill works automatically; corrected the description that incorrectly implied a manual [css_useSkill] key press.
+    - ###### Wild Throw:
+        - ###### The targeted player is now also notified when the effect ends after the skill holder dies.
+    - ###### Anomaly:
+        - ###### The description now mentions the [css_useSkill] action used to rewind time.
+
+</details>
+
+<details>
+<summary><b>v1.2.2.b3</b></summary>
+
+- #### General:
+    - ###### Fixed a bug where a player could be given multiple skills at once while the HUD displayed only one (the player list was never cleared on map change and had no duplicate protection on join).
+    - ###### Fixed skill names and descriptions showing the raw translation key on Turkish servers (culture-sensitive lowercasing) - affected skills starting with "I" (e.g. Illiterate, Impostor, InfiniteAmmo, Iana).
+    - ###### RayTrace-based skills and the skill-use button no longer throw when the RayTrace module is not installed - they now degrade gracefully instead of crashing.
+    - ###### Fixed the skill-use button (when bound to Use/E) blocking option selection inside WSAD target menus.
+    - ###### Performance: cached reflection lookups in `SkillAction` and `SkillsInfo.GetValue`, and de-duplicated the repeated event-dispatch logic on hot paths (OnTick, OnTakeDamage, etc.).
+    - ###### Stability: removed dead methods that threw `NotImplementedException`, hardened team-score handling, and reset all skill state on round start / map change.
+    - ###### Build: post-build copy paths now follow the active `$(Configuration)` and `$(TargetFramework)`.
+    - ###### Added new Turkish translation strings for the skill notifications listed below.
+
+- #### Skill improvements:
+    - ###### Wallhack:
+        - ###### Fixed enemy outlines briefly flashing for everyone when the skill holder dies.
+    - ###### Area Reaper:
+        - ###### Teammates (CT) are now notified which bombsite (A/B) was sealed.
+    - ###### Wild Throw:
+        - ###### Now notifies the targeted player, consistent with other targeted skills.
+    - ###### Careful Bullets / Darkness / Deaf / Glitch / Jammer / Jump Ban / Magnifier / Poison / Primary Ban:
+        - ###### The targeted player is now notified when the effect ends after the skill holder dies.
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b2</b></summary>
 
 - #### General:

@@ -24,6 +24,7 @@
   "areareaper_select_info": "选择你想禁用的炸弹点：",
   "areareaper_site_disabled": "炸弹点 {0} 已被禁用 - 无法在此放置炸弹！",
   "areareaper_used_info": "你的能力已被使用。",
+  "areareaper_teammates_info": "areareaper_teammates_info",
   "areareaper_bombsite_disabled": "该炸弹安置点已被禁用！",
 
   "armored": "装甲",
@@ -62,6 +63,7 @@
   "carefulbullets": "谨慎的子弹",
   "carefulbullets_desc": "选择一名球员，每当他投篮未中时就会受到伤害",
   "carefulbullets_enemy_info": "从现在起，不准确将带来切实的伤害。",
+  "carefulbullets_disable_info": "carefulbullets_disable_info",
   "carefulbullets_player_info": "'{0}' 现在必须更加谨慎。",
   "carefulbullets_select_info": "不准确会伤害玩家：",
 
@@ -85,6 +87,7 @@
   "darkness": "黑暗",
   "darkness_desc": "对选定的敌人施加黑暗效果",
   "darkness_enemy_info": "让灯光熄灭。",
+  "darkness_disable_info": "darkness_disable_info",
   "darkness_player_info": "黑暗笼罩了玩家 '{0}'。",
   "darkness_select_info": "选择你想施加黑暗效果的玩家：",
 
@@ -97,6 +100,7 @@
   "deaf": "聾病",
   "deaf_desc": "选择一个玩家以静音其所有声音",
   "deaf_enemy_info": "你的耳机已退出游戏。",
+  "deaf_disable_info": "deaf_disable_info",
   "deaf_player_info": "玩家 '{0}' 的声音已被禁用。",
   "deaf_select_info": "选择你想静音其所有声音的玩家：",
 
@@ -167,6 +171,7 @@
   "glitch": "故障",
   "glitch_desc": "禁用选定敌人的雷达",
   "glitch_enemy_info": "你的雷达已被禁用。",
+  "glitch_disable_info": "glitch_disable_info",
   "glitch_player_info": "玩家 '{0}' 的雷达已被禁用。",
   "glitch_select_info": "选择你想禁用其雷达的玩家：",
 
@@ -218,6 +223,7 @@
   "jammer": "干扰器",
   "jammer_desc": "选择一个玩家以禁用其准星",
   "jammer_enemy_info": "你的准星已被禁用。",
+  "jammer_disable_info": "jammer_disable_info",
   "jammer_player_info": "玩家 '{0}' 的准星已被禁用。",
   "jammer_select_info": "选择你想禁用其准星的玩家：",
 
@@ -230,6 +236,7 @@
   "jumpban": "无腿",
   "jumpban_desc": "选择一个玩家使其无法跳跃",
   "jumpban_enemy_info": "有人切断了你的腿。",
+  "jumpban_disable_info": "jumpban_disable_info",
   "jumpban_player_info": "玩家 '{0}' 现在无法跳跃。",
   "jumpban_select_info": "选择无法跳跃的玩家：",
 
@@ -260,6 +267,7 @@
   "magnifier": "放大镜",
   "magnifier_desc": "强制敌方屏幕放大，缩小其视野范围",
   "magnifier_enemy_info": "你的视野已被扭曲！",
+  "magnifier_disable_info": "magnifier_disable_info",
   "magnifier_player_info": "玩家'{0}'已被强制进入放大模式。",
   "magnifier_select_info": "选择需要放大的玩家：",
 
@@ -321,12 +329,14 @@
   "poison": "毒药",
   "poison_desc": "选择一个玩家，每隔几秒受到伤害",
   "poison_enemy_info": "你被毒害了。",
+  "poison_disable_info": "poison_disable_info",
   "poison_player_info": "玩家 '{0}' 已被毒害。",
   "poison_select_info": "选择每隔几秒将受到伤害的玩家：",
 
   "primaryban": "无步枪",
   "primaryban_desc": "选择一个玩家使其无法使用步枪",
   "primaryban_enemy_info": "你无法再使用步枪。",
+  "primaryban_disable_info": "primaryban_disable_info",
   "primaryban_player_info": "玩家 '{0}' 无法再使用步枪。",
   "primaryban_select_info": "选择禁止使用步枪的玩家：",
 
@@ -457,6 +467,8 @@
   "wildthrow": "乱扔手雷",
   "wildthrow_desc": "选择一名丢雷会遇到麻烦的玩家",
   "wildthrow_player_info": "玩家 '{0}' 已经忘记了所有投掷角度",
+  "wildthrow_enemy_info": "wildthrow_enemy_info",
+  "wildthrow_disable_info": "wildthrow_disable_info",
   "wildthrow_select_info": "选择一名玩家：",
 
   "zeus": "宙斯",
