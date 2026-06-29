@@ -28,24 +28,27 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             uint playerIndex = player.Index;
 
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}");
                 return;
             }
 
             var skill = SkillData.Skills.FirstOrDefault(s => player.GetSkillName(s.Skill).Equals(commands[0], StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(commands[0], StringComparison.OrdinalIgnoreCase));
             if (skill == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("skill_not_found_setskill"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("skill_not_found_setskill"));
                 return;
             }
 
             if (skill.Skill == skillName && !TakeMoney(player))
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("gambler_no_money"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("gambler_no_money"));
                 return;
             }
 
@@ -96,9 +99,12 @@ namespace src.player.skills
             skills.Remove(firstSkill);
             var secondSkill = skills[Instance.Random.Next(skills.Count)];
 
-            ConcurrentBag<(string, string)> menuItems = [(player.GetSkillName(firstSkill.Skill), firstSkill.Skill.ToString()),
-                                                   (player.GetSkillName(secondSkill.Skill), secondSkill.Skill.ToString())];
-            SkillUtils.CreateMenu(player, menuItems, (player.GetTranslation("gambler_more", SkillsInfo.GetValue<int>(skillName, "refreshPrice")), skillName.ToString(), false));
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
+            ConcurrentBag<(string, string)> menuItems = [(playerEvent.GetSkillName(firstSkill.Skill), firstSkill.Skill.ToString()),
+                                                   (playerEvent.GetSkillName(secondSkill.Skill), secondSkill.Skill.ToString())];
+            SkillUtils.CreateMenu(player, menuItems, (playerEvent.GetTranslation("gambler_more", SkillsInfo.GetValue<int>(skillName, "refreshPrice")), skillName.ToString(), false));
         }
 
         public static void DisableSkill(CCSPlayerController player)

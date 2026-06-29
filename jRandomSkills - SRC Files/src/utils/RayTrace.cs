@@ -31,6 +31,7 @@ namespace src.utils
             CRayTraceInterface? rayTrace;
             try { rayTrace = RayTraceInterface.Get(); }
             catch { return null; }
+
             if (rayTrace == null)
                 return null;
 
@@ -116,6 +117,7 @@ namespace src.utils
             CRayTraceInterface? rayTrace;
             try { rayTrace = RayTraceInterface.Get(); }
             catch { return null; }
+
             if (rayTrace == null)
                 return null;
 

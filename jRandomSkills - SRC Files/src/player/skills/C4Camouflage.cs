@@ -51,7 +51,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            if (weapon == "c4")
+            if (weapon == "c4" && player.PlayerPawn?.Value?.Health > 0)
             {
                 invisiblePlayers.TryAdd(player.Index, 0);
                 SkillUtils.SetPlayerInvisibility(player, .5f);
@@ -69,7 +69,7 @@ namespace src.player.skills
 
             foreach (var player in Utilities.GetPlayers())
             {
-                if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE && invisiblePlayers.ContainsKey(player.Index))
+                if (player.PlayerPawn?.Value?.Health <= 0 && invisiblePlayers.ContainsKey(player.Index))
                 {
                     invisiblePlayers.TryRemove(player.Index, out _);
                     SkillUtils.SetPlayerInvisibility(player, 0);

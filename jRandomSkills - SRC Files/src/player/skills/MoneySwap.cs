@@ -40,17 +40,26 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+            
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playerInfo.SkillUsed)
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
+                if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}");
                 return;
             }
 
             string enemyId = commands[0];
-            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) {
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                return;
+            }
+
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
@@ -61,8 +70,11 @@ namespace src.player.skills
 
             SwapMoney(player, enemy);
             playerInfo.SkillUsed = true;
-            player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("moneyswap_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("moneyswap_enemy_info"));
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("moneyswap_player_info", enemy.PlayerName));
+
+            var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+            if (enemyEvent != null && enemyEvent.IsValid)
+                enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("moneyswap_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

@@ -24,6 +24,7 @@
   "areareaper_select_info": "Sélectionnez un site à désactiver :",
   "areareaper_site_disabled": "Le site de bombe {0} a été désactivé – aucune bombe ne peut y être posée !",
   "areareaper_used_info": "Votre compétence a déjà été utilisée.",
+  "areareaper_teammates_info": "Le site de bombe {0} est désormais interdit au plant.",
   "areareaper_bombsite_disabled": "Ce site de bombe a été désactivé !",
 
   "armored": "Blindé",
@@ -62,6 +63,7 @@
   "carefulbullets": "Balles prudentes",
   "carefulbullets_desc": "Sélectionnez un joueur qui subit des dégâts à chaque tir manqué",
   "carefulbullets_enemy_info": "À partir de maintenant, l'inexactitude fera littéralement mal.",
+  "carefulbullets_disable_info": "Rater vos tirs ne vous blessera plus.",
   "carefulbullets_player_info": "« {0} » doit désormais être plus prudent.",
   "carefulbullets_select_info": "L'inexactitude nuit au joueur :",
 
@@ -85,6 +87,7 @@
   "darkness": "Obscurité",
   "darkness_desc": "Applique un effet d’obscurité à un ennemi choisi",
   "darkness_enemy_info": "Que la lumière s’éteigne.",
+  "darkness_disable_info": "Les lumières sont revenues.",
   "darkness_player_info": "L’obscurité a envahi le joueur « {0} ».",
   "darkness_select_info": "Sélectionnez un joueur pour l’obscurité :",
 
@@ -97,6 +100,7 @@
   "deaf": "Sourd",
   "deaf_desc": "Choisissez un joueur pour couper tous ses sons",
   "deaf_enemy_info": "Votre casque a quitté la partie.",
+  "deaf_disable_info": "Vous entendez de nouveau.",
   "deaf_player_info": "Le son a été désactivé pour le joueur « {0} ».",
   "deaf_select_info": "Couper tous les sons du joueur :",
 
@@ -167,6 +171,7 @@
   "glitch": "Glitch",
   "glitch_desc": "Désactive le radar d’un ennemi choisi",
   "glitch_enemy_info": "Votre radar a été désactivé.",
+  "glitch_disable_info": "Votre radar est revenu à la normale.",
   "glitch_player_info": "Le radar du joueur « {0} » a été désactivé.",
   "glitch_select_info": "Désactiver le radar du joueur :",
 
@@ -196,6 +201,7 @@
   "hotbomb": "Bombe brûlante",
   "hotbomb_desc": "Tant que vous êtes en vie, la bombe inflige des dégâts à son porteur",
   "hotbomb_hint": "Attention, la bombe est brûlante !",
+  "hotbomb_disable_info": "La bombe ne brûle plus.",
 
   "iana": "Hologramme",
   "iana_desc": "Cliquez sur [css_useSkill] pour contrôler votre hologramme pendant quelques secondes",
@@ -218,6 +224,7 @@
   "jammer": "Brouilleur",
   "jammer_desc": "Choisissez un joueur pour désactiver son viseur",
   "jammer_enemy_info": "Votre viseur a été désactivé.",
+  "jammer_disable_info": "Votre réticule est revenu à la normale.",
   "jammer_player_info": "Le viseur du joueur « {0} » a été désactivé.",
   "jammer_select_info": "Désactiver le viseur d’un joueur :",
 
@@ -230,6 +237,7 @@
   "jumpban": "Sans Jambes",
   "jumpban_desc": "Choisissez un joueur qui ne pourra plus sauter",
   "jumpban_enemy_info": "Quelqu’un vous a coupé les jambes.",
+  "jumpban_disable_info": "Vous pouvez de nouveau utiliser vos jambes.",
   "jumpban_player_info": "Le joueur « {0} » ne peut plus sauter.",
   "jumpban_select_info": "Interdire de sauter au joueur :",
 
@@ -260,6 +268,7 @@
   "magnifier": "Loupe",
   "magnifier_desc": "Force l’écran de l’ennemi à zoomer, réduisant son champ de vision",
   "magnifier_enemy_info": "Votre champ de vision a été déformé !",
+  "magnifier_disable_info": "Votre vision est revenue à la normale.",
   "magnifier_player_info": "Le joueur « {0} » a été forcé en mode zoom.",
   "magnifier_select_info": "Forcer l’écran du joueur à zoomer :",
 
@@ -321,12 +330,14 @@
   "poison": "Poison",
   "poison_desc": "Choisissez un joueur qui subira des dégâts toutes les quelques secondes",
   "poison_enemy_info": "Vous avez été empoisonné.",
+  "poison_disable_info": "Vous êtes désormais immunisé contre le poison.",
   "poison_player_info": "Le joueur « {0} » a été empoisonné.",
   "poison_select_info": "Empoisonner un joueur :",
 
   "primaryban": "Sans Fusils",
   "primaryban_desc": "Choisissez un joueur qui ne pourra plus utiliser de fusils",
   "primaryban_enemy_info": "Vous ne pouvez plus utiliser de fusils.",
+  "primaryban_disable_info": "Vous pouvez de nouveau utiliser des fusils.",
   "primaryban_player_info": "Le joueur « {0} » ne peut plus utiliser de fusils.",
   "primaryban_select_info": "Interdire les fusils pour un joueur :",
 
@@ -457,6 +468,8 @@
   "wildthrow": "Lancers sauvages",
   "wildthrow_desc": "Choisissez un joueur qui aura des difficultés à lancer des grenades",
   "wildthrow_player_info": "Le joueur '{0}' a oublié tous ses alignements (lineups)",
+  "wildthrow_enemy_info": "Vous êtes trop nerveux lorsque vous lancez des grenades.",
+  "wildthrow_disable_info": "Votre mémoire concernant le lancer de grenades est revenue à la normale.",
   "wildthrow_select_info": "Sélectionnez un joueur :",
 
   "zeus": "Zeus",

@@ -201,6 +201,7 @@
   "hotbomb": "Sıcak C4",
   "hotbomb_desc": "Yaşadığın sürece bombacının canı azalıyor",
   "hotbomb_hint": "Bomba çok sıcak!",
+  "hotbomb_disable_info": "Bomba artık yakmıyor.",
 
   "iana": "Hologram",
   "iana_desc": "[css_useSkill] tuşuna basarak bir hologram oluştur",
@@ -468,6 +469,7 @@
   "wildthrow_desc": "El bombası atmakta zorluk çekecek bir oyuncu seçin",
   "wildthrow_player_info": "'{0}' adlı oyuncu tüm taktiklerini unuttu",
   "wildthrow_enemy_info": "Bomba atarken çok heyecanlanıyorsun.",
+  "wildthrow_disable_info": "El bombası atma hafızan normale döndü.",
   "wildthrow_select_info": "Bir oyuncu seçin:",
 
   "zeus": "Zeus",

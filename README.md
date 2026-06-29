@@ -16,10 +16,10 @@
 jRandomSkills is a plugin for CounterStrike 2 that brings chaos and fun to gameplay! In each round, you randomly receive one of the unique skills - from invisibility and explosive shots to camera manipulation. Surprise your opponents, take control of the match, and discover dozens of creative abilities that transform the game's dynamics!
 
 #### Choose language:
-<a href="./readme-pl.md">
+<a href="./README-PL.md">
 <img width="50px" src="https://upload.wikimedia.org/wikipedia/en/thumb/1/12/Flag_of_Poland.svg/1920px-Flag_of_Poland.svg.png">
 </a>
-<a href="./readme.md">
+<a href="./README.md">
 <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/1920px-Flag_of_the_United_Kingdom_%281-2%29.svg.png">
 </a>
 
@@ -31,7 +31,7 @@ jRandomSkills is a plugin for CounterStrike 2 that brings chaos and fun to gamep
 - **German** [by: [@Enrory](https://github.com/Enrory)]
 - **Turkish** [by: [@brkvlr](https://github.com/brkvlr), [@ByDexterTR](https://github.com/ByDexterTR)]
 - **Russian** [by: [@213sdfsdgf](https://github.com/213sdfsdgf)]
-- **Simplified Chinese** [GrokAI / ChatGPT]
+- **Simplified Chinese** [by: [@Ericzzrbb](https://github.com/Ericzzrbb)]
 
 ## 🖼️ Preview
 ![Preview](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview.gif?raw=true)
@@ -354,8 +354,8 @@ This plugin uses content from the following projects:
 <div align="center">
 
 <table>
-  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td></tr>
-  <tr><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
 </table>
 
 <sub>If you are a <a href="https://github.com/Juzlus/jRandomSkills/graphs/contributors">contributor</a> and want your profile removed from this list, please contact me.</sub>
@@ -373,6 +373,58 @@ This plugin uses content from the following projects:
 </div>
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.2.b4</b></summary>
+
+- #### General:
+    - ###### Updated the GitHub source code to implement the changes introduced in merge request (https://github.com/Juzlus/jRandomSkills/pull/32).
+
+- #### Skill improvements:
+    - ###### Ninja:
+        - ###### Removed debug chat messages that were used for testing. 
+
+</details>
+
+<details>
+<summary><b>v1.2.2.b3</b></summary>
+
+- #### General:
+    - ###### Updated Chinese language translation by [by: [@Ericzzrbb](hhttps://github.com/Ericzzrbb)].
+    - ###### Fixed a bug where a player could be given multiple skills at once while the HUD displayed only one (the player list was never cleared on map change and had no duplicate protection on join). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed skill names and descriptions showing the raw translation key on Turkish servers (culture-sensitive lowercasing) - affected skills starting with "I" (e.g. Illiterate, Impostor, InfiniteAmmo, Iana). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### RayTrace-based skills and the skill-use button no longer throw when the RayTrace module is not installed - they now degrade gracefully instead of crashing. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed the skill-use button (when bound to Use/E) blocking option selection inside WSAD target menus. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Performance: cached reflection lookups in `SkillAction` and `SkillsInfo.GetValue`, and de-duplicated the repeated event-dispatch logic on hot paths (OnTick, OnTakeDamage, etc.). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Stability: removed dead methods that threw `NotImplementedException`, hardened team-score handling, and reset all skill state on round start / map change. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Build: post-build copy paths now follow the active `$(Configuration)` and `$(TargetFramework)`. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Added new Turkish translation strings for the skill notifications listed below. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed bot-related messages so they now display correctly in the chat of the controlling player.
+    - ###### When a player takes control of a bot, all active skill effects affecting that bot are now correctly transferred to the controlling player.
+    - ###### Prevented bots from automatically using skills while being controlled by a player.
+
+- #### Skill improvements:
+    - ###### Wallhack:
+        - ###### Fixed enemy outlines briefly flashing for everyone when the skill holder dies. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Area Reaper:
+        - ###### Teammates (CT) are now notified which bombsite (A/B) was sealed. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wild Throw:
+        - ###### Now notifies the targeted player, consistent with other targeted skills. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Careful Bullets / Darkness / Deaf / Glitch / Jammer / Jump Ban / Magnifier / Poison / Primary Ban / Wild Throw:
+        - ###### The targeted player is now notified when the effect ends after the skill holder dies. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Careful Bullets:
+        - ###### Added damage-taken sound effects when missing a shot
+    - ###### C4 Camouflage / Ninja:
+        - ###### Fixed a bug where dying with invisibility active and taking control of a bot would grant invisibility to the bot as well.
+    - ###### Poison:
+        - ###### Added damage-taken sound effects.
+    - ###### Primary Ban:
+        - ###### Changed mechanic to directly block shooting weapons instead of forcing a weapon switch to the knife.
+    - ###### Hot Bomb:
+        - ###### Replaced the bomb-burning sound effects.
+        - ###### Added a notification when the burning effect ends and the bomb returns to its normal color.
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b2</b></summary>

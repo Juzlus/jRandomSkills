@@ -16,22 +16,22 @@
 jRandomSkills to plugin do CounterStrike 2, który wprowadza chaos i frajdę do rozgrywki! W każdej rundzie losowo otrzymujesz jedną z unikalnych supermocy - od niewidzialności, przez wybuchowe strzały, po manipulację kamerą. Zaskocz przeciwników, przejmij kontrolę nad meczem i odkryj dziesiątki kreatywnych umiejętności, które zmieniają dynamikę gry!
 
 #### Wybierz język:
-<a href="./readme-pl.md">
+<a href="./README-PL.md">
 <img width="50px" src="https://upload.wikimedia.org/wikipedia/en/thumb/1/12/Flag_of_Poland.svg/1920px-Flag_of_Poland.svg.png">
 </a>
-<a href="./readme.md">
+<a href="./README.md">
 <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/1920px-Flag_of_the_United_Kingdom_%281-2%29.svg.png">
 </a>
 
 ## 💬 Dostępne języki
 - **Angielski**
 - **Polski**
-- **Francuski** [by: [@felyjyn](https://github.com/felyjyn)]
-- **Portugalski (Brazylijski)** [by: [@vinicius-trev](https://github.com/vinicius-trev)]
-- **Niemiecki** [by: [@Enrory](https://github.com/Enrory)]
-- **Turecki** [by: [@brkvlr](https://github.com/brkvlr), [@ByDexterTR](https://github.com/ByDexterTR)]
-- **Rosyjski** [by: [@213sdfsdgf](https://github.com/213sdfsdgf)]
-- **Chiński uproszczony** [GrokAI / ChatGPT]
+- **Francuski** [autor: [@felyjyn](https://github.com/felyjyn)]
+- **Portugalski (Brazylijski)** [autor: [@vinicius-trev](https://github.com/vinicius-trev)]
+- **Niemiecki** [autor: [@Enrory](https://github.com/Enrory)]
+- **Turecki** [autor: [@brkvlr](https://github.com/brkvlr), [@ByDexterTR](https://github.com/ByDexterTR)]
+- **Rosyjski** [autor: [@213sdfsdgf](https://github.com/213sdfsdgf)]
+- **Chiński uproszczony** [autor: [@Ericzzrbb](https://github.com/Ericzzrbb)]
 
 ## 🖼️ Prezentacja Pluginu
 ![Preview](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview.gif?raw=true)
@@ -170,7 +170,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Złodziej | Możesz ukraść supermoc wybranemu graczowi | - |
 | Trzecie Oko | Kliknij [css_useSkill], aby aktywować trzecią osobę | 0 s |
 | Ciernie | Twój przeciwnik otrzymuje część obrażeń, które zadał ci | - |
-| TNóż do Rzucania | Naciśnij [css_useSkill], aby rzucić nożem. Ale uważaj na innych | - |
+| Nóż do Rzucania | Naciśnij [css_useSkill], aby rzucić nożem. Ale uważaj na innych | - |
 | Toksyczny Dym | Twoje granaty dymne zadają obrażenia | - |
 | Wallhack | Widzisz wrogów przez ściany | - |
 | Zegarmistrz | Każdy rzut granatem zmienia czas rundy o -10 lub +10 sekund | - |
@@ -352,8 +352,8 @@ Plugin korzysta z zawartości następujących projektów:
 <div align="center">
 
 <table>
-  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td></tr>
-  <tr><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
 </table>
 
 <sub>Jeśli jesteś <a href="https://github.com/Juzlus/jRandomSkills/graphs/contributors">współtwórcą</a> i chcesz, aby Twój profil został usunięty z tej listy, skontaktuj się ze mną.</sub>
@@ -371,6 +371,58 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.2.b4</b></summary>
+
+- #### General:
+    - Ogólne Uaktualizowano kod źródłowy na GitHubie, aby uwzględniał zmiany wprowadzone w merge request: https://github.com/Juzlus/jRandomSkills/pull/32.
+
+- #### Poprawki mocy:
+    - ###### Ninja:
+        - ###### Usunięto wiadomości z czatu używane do celów testowych.
+
+</details>
+
+<details>
+<summary><b>v1.2.2.b3</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano tłumaczenie na język chiński uproszczony [autor: [@Ericzzrbb](https://www.google.com/search?q=hhttps://github.com/Ericzzrbb)].
+    - ###### Naprawiono błąd, w którym gracz mógł otrzymać kilka umiejętności jednocześnie, podczas gdy HUD wyświetlał tylko jedną (lista graczy nie była czyszczona przy zmianie mapy i brakowało zabezpieczenia przed duplikacją przy dołączaniu). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Naprawiono błąd, przez który nazwy i opisy umiejętności wyświetlały surowe klucze tłumaczenia na tureckich serwerach (zależna od języka zamiana na małe litery) - problem dotyczył umiejętności zaczynających się na literę "I" (np. Illiterate, Impostor, InfiniteAmmo, Iana). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Umiejętności oparte na module RayTrace oraz przycisk użycia umiejętności nie wyrzucają już błędów, gdy moduł RayTrace nie jest zainstalowany - teraz ich działanie ulega bezpiecznemu ograniczeniu zamiast scrashowania gry. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Naprawiono błąd, w którym przycisk użycia umiejętności (gdy był przypisany pod klawisz Użyj/E) blokował wybór opcji w menu celowania WSAD. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wydajność: dodano buforowanie (cache) dla wyszukiwań refleksji w `SkillAction` oraz `SkillsInfo.GetValue`, a także usunięto powtarzającą się logikę wysyłania zdarzeń w kluczowych ścieżkach kodu (OnTick, OnTakeDamage itp.). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Stabilność: usunięto martwe metody, które wyrzucały błąd `NotImplementedException`, wzmocniono logikę obsługi punktacji drużynowej oraz zresetowano stany wszystkich umiejętności na początku rundy / przy zmianie mapy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Build: ścieżki kopiowania plików po zbudowaniu projektu (post-build) zależą teraz od aktywnego `$(Configuration)` oraz `$(TargetFramework)`. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Dodano nowe tureckie ciągi tłumaczeń dla powiadomień o umiejętnościach wymienionych poniżej. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Naprawiono wyświetlanie wiadomości bota, dzięki czemu pojawiają się one teraz prawidłowo na czacie kontrolującego go gracza.
+    - ###### Po przejęciu bota przez gracza, wszystkie aktywne efekty umiejętności działające na tego bota przechodzą na kontrolującego go gracza.
+    - ###### Zablokowano automatyczne używanie umiejętności przez boty, jeśli są one aktualnie kontrolowane przez gracza.
+
+- #### Poprawki mocy:
+    - ###### Wallhack:
+        - ###### Naprawiono błąd, w którym obrysy przeciwników na chwilę błyskały wszystkim graczom w momencie śmierci posiadacza umiejętności. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Niszczyciel Stref:
+        - ###### Członkowie drużyny (CT) są teraz powiadamiani, który bombsite (A/B) został zamknięty. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Dzikie rzuty:
+        - ###### Umiejętność powiadamia teraz celowanego gracza, co jest spójne z działaniem innych umiejętności celowanych. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Ostrożne pociski / Mrok / Głuchy / Glitch / Zakłócacz / Beznogi / Lupa / Trutka / Brak Karabinów / Dzikie rzuty:
+        - ###### Celowany gracz otrzymuje teraz powiadomienie, gdy efekt kończy się po śmierci posiadacza umiejętności. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Ostrożne pociski:
+        - ###### Dodano efekty dźwiękowe otrzymywania obrażeń po nietrafieniu w gracza.
+    - ###### C4 Kamuflaż / Ninja:
+        - ###### Naprawiono błąd, w którym umierając z aktywną niewidzialnością i przejmując bota, bot również otrzymywał niewidzialność.
+    - ###### Trutka:
+        - ###### Dodano efekty dźwiękowe otrzymywania obrażeń.
+    - ###### Brak Karabinów:
+        - ###### Zmieniono mechanikę na bezpośrednie blokowanie możliwości oddania strzału zamiast wymuszania zmiany broni na nóż.
+    - ###### Gorąca Bomba:
+        - ###### Zmieniono efekty dźwiękowe parzenia paki.
+        - ###### Dodano powiadomienie po zakończeniu parzenia, gdy bomba wraca do swojego normalnego koloru.
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b2</b></summary>
@@ -1220,7 +1272,7 @@ Plugin korzysta z zawartości następujących projektów:
         - ###### Twój decoy zamraża wszystkich pobliskich graczy.
     - ##### Żołnierz:
         - ###### Masz losowy mnożnik obrażeń (1.15 - 1.35)x.
-    - ##### Gruby:
+    - ##### Gruautor:
         - ###### Masz losowy mnożnik otrzymywanych obrażeń (0.65 - 0.85)x.
     - ##### Aimbot:
         - ###### Każdy twój trafiony pocisk jest liczony jako głowa.

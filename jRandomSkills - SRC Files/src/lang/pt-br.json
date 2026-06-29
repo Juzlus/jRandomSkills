@@ -24,6 +24,7 @@
   "areareaper_select_info": "Escolha o bomb p/ desativar:",
   "areareaper_site_disabled": "Bombsite {0} foi desativado - nenhuma bomba pode ser plantada lá!",
   "areareaper_used_info": "Seu poder já foi usado.",
+  "areareaper_teammates_info": "A área {0} foi bloqueada para plantar a bomba.",
   "areareaper_bombsite_disabled": "Este local de bomba foi desativado!",
 
   "armored": "Super Tiro",
@@ -62,6 +63,7 @@
   "carefulbullets": "Errou, mamou",
   "carefulbullets_desc": "Selecione um jogador vai sofrer dano ao errar cada tiro",
   "carefulbullets_enemy_info": "A partir de agora, seu erro vai literalmente doer.",
+  "carefulbullets_disable_info": "Errar tiros não causará mais dano.",
   "carefulbullets_player_info": "'{0}' agora precisa ter mais cuidado.",
   "carefulbullets_select_info": "O erro prejudica o jogador:",
 
@@ -85,6 +87,7 @@
   "darkness": "Escuridão",
   "darkness_desc": "Aplica um efeito de escuridão a um inimigo escolhido",
   "darkness_enemy_info": "Que as luzes se apaguem.",
+  "darkness_disable_info": "As luzes voltaram.",
   "darkness_player_info": "A escuridão tomou conta do jogador '{0}'.",
   "darkness_select_info": "Escolha jogador: escuridão:",
 
@@ -97,6 +100,7 @@
   "deaf": "Surdo",
   "deaf_desc": "Escolha um jogador para desativar todos os sons",
   "deaf_enemy_info": "Seus fones de ouvido saíram do jogo.",
+  "deaf_disable_info": "Você pode ouvir novamente.",
   "deaf_player_info": "O som foi desativado para o jogador '{0}'.",
   "deaf_select_info": "Silenciar jogador:",
 
@@ -167,6 +171,7 @@
   "glitch": "Sem Mapa",
   "glitch_desc": "Desativa o radar de um inimigo escolhido",
   "glitch_enemy_info": "Seu radar foi desativado.",
+  "glitch_disable_info": "Seu radar voltou ao normal.",
   "glitch_player_info": "O radar do jogador '{0}' foi desativado.",
   "glitch_select_info": "Desativar radar do jogador:",
 
@@ -196,6 +201,7 @@
   "hotbomb": "Bomba Quente",
   "hotbomb_desc": "Enquanto você estiver vivo, a bomba causa dano ao portador",
   "hotbomb_hint": "Cuidado, a bomba está quente!",
+  "hotbomb_disable_info": "A bomba não está mais queimando.",
 
   "iana": "Holograma",
   "iana_desc": "Clique em [css_useSkill] para controlar seu holograma por alguns segundos",
@@ -218,6 +224,7 @@
   "jammer": "No Scope",
   "jammer_desc": "Escolha um jogador para desativar a mira",
   "jammer_enemy_info": "Sua mira foi desativada.",
+  "jammer_disable_info": "Sua mira voltou ao normal.",
   "jammer_player_info": "A mira do jogador '{0}' foi desativada.",
   "jammer_select_info": "Desativar mira do jogador:",
 
@@ -230,6 +237,7 @@
   "jumpban": "Perneta",
   "jumpban_desc": "Escolha um jogador que não poderá pular",
   "jumpban_enemy_info": "Cortaram as suas pernas.",
+  "jumpban_disable_info": "Você recuperou o uso das pernas.",
   "jumpban_player_info": "O jogador '{0}' não pode mais pular.",
   "jumpban_select_info": "Banir pulo do jogador:",
 
@@ -260,6 +268,7 @@
   "magnifier": "Lupa",
   "magnifier_desc": "Força a tela do inimigo a dar um zoom, reduzindo seu campo de visão",
   "magnifier_enemy_info": "Seu campo de visão foi distorcido!",
+  "magnifier_disable_info": "Sua visão voltou ao normal.",
   "magnifier_player_info": "O jogador ‘{0}’ foi forçado a entrar no modo zoom.",
   "magnifier_select_info": "Ampliar tela do jogador:",
 
@@ -321,12 +330,14 @@
   "poison": "Veneno",
   "poison_desc": "Escolha um jogador que receberá dano a cada poucos segundos",
   "poison_enemy_info": "Você foi envenenado.",
+  "poison_disable_info": "Você agora está imune ao veneno.",
   "poison_player_info": "O jogador '{0}' foi envenenado.",
   "poison_select_info": "Envenenar jogador:",
 
   "primaryban": "Sem Rifle",
   "primaryban_desc": "Escolha um jogador que não poderá usar rifles",
   "primaryban_enemy_info": "Você não pode mais usar rifles.",
+  "primaryban_disable_info": "Você pode usar rifles novamente.",
   "primaryban_player_info": "O jogador '{0}' não pode mais usar rifles.",
   "primaryban_select_info": "Banir rifles do jogador:",
 
@@ -457,6 +468,8 @@
   "wildthrow": "Arremesso Selvagem",
   "wildthrow_desc": "Escolha um jogador que terá problemas para lançar granadas",
   "wildthrow_player_info": "O jogador '{0}' esqueceu todos os seus lineups",
+  "wildthrow_enemy_info": "Você fica muito nervoso ao lançar granadas.",
+  "wildthrow_disable_info": "Sua memória sobre como lançar granadas voltou ao normal.",
   "wildthrow_select_info": "Selecione um jogador:",
 
   "zeus": "Zeus",

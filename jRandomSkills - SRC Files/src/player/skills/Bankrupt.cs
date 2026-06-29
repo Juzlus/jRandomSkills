@@ -58,7 +58,7 @@ namespace src.player.skills
 
             playerInfo.SkillUsed = false;
 
-            var enemies = Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = Utilities.GetPlayers().Where(p => p.IsValid && p.PlayerPawn?.Value?.Health > 0 && p.Team != player.Team && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {(e.InGameMoneyServices?.Account ?? 0)}$", e.Index.ToString()))];
@@ -77,29 +77,35 @@ namespace src.player.skills
             string option = commands[0];
             if (string.IsNullOrEmpty(option)) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_used_info")}");
                 return;
             }
 
             if (uint.TryParse(option, out uint enemyIndex))
             {
                 var enemy = Utilities.GetEntityFromIndex<CCSPlayerController>((int)enemyIndex);
-                if (enemy != null && enemy.IsValid && enemy.PawnIsAlive && enemy.Team != player.Team)
+                if (enemy != null && enemy.IsValid && enemy.PlayerPawn?.Value?.Health > 0 && enemy.Team != player.Team)
                 {
                     ResetMoney(enemy);
                     playerInfo.SkillUsed = true;
                     SkillUtils.CloseMenu(player);
-                    player.PrintToChat($" {ChatColors.Lime}{player.GetTranslation("bankrupt_player_info", enemy.PlayerName)}");
-                    enemy.PrintToChat($" {ChatColors.Red}{enemy.GetTranslation("bankrupt_enemy_info")}");
+                    playerEvent.PrintToChat($" {ChatColors.Lime}{playerEvent.GetTranslation("bankrupt_player_info", enemy.PlayerName)}");
+
+                    var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+                    if (enemyEvent != null && enemyEvent.IsValid)
+                        enemyEvent.PrintToChat($" {ChatColors.Red}{enemyEvent.GetTranslation("bankrupt_enemy_info")}");
                     return;
                 }
             }
-            player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
+            playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
         private static void ResetMoney(CCSPlayerController enemy)

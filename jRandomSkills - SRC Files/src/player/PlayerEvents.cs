@@ -46,11 +46,12 @@ namespace src.player
             Instance.RegisterEventHandler<EventPlayerSpawned>(PlayerSpawned);
             Instance.RegisterEventHandler<EventRoundStart>(RoundStart);
             Instance.RegisterEventHandler<EventRoundEnd>(RoundEnd);
-            
+
             Instance.RegisterEventHandler<EventPlayerDeath>(PlayerDeath);
             Instance.RegisterEventHandler<EventPlayerBlind>(PlayerBlind);
             Instance.RegisterEventHandler<EventPlayerHurt>(PlayerHurt);
             Instance.RegisterEventHandler<EventPlayerJump>(PlayerJump);
+            Instance.RegisterEventHandler<EventBotTakeover>(BotTakeover);
 
             Instance.RegisterEventHandler<EventWeaponFire>(WeaponFire);
             Instance.RegisterEventHandler<EventItemEquip>(WeaponEquip);
@@ -291,6 +292,15 @@ namespace src.player
             }
         }
 
+        private static HookResult BotTakeover(EventBotTakeover @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                DispatchToActiveSkills("BotTakeover", @event);
+                return HookResult.Continue;
+            }
+        }
+
         private static HookResult PlayerBlind(EventPlayerBlind @event, GameEventInfo info)
         {
             lock (setLock)
@@ -420,9 +430,9 @@ namespace src.player
 
                 foreach (var skill in activeSkills)
                     if (SkillsInfo.GetValue<bool>(skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                            continue;
-                        else
-                            Instance.SkillAction(skill.ToString(), "OnTick");
+                        continue;
+                    else
+                        Instance.SkillAction(skill.ToString(), "OnTick");
             }
         }
 
@@ -505,11 +515,11 @@ namespace src.player
         {
             var userID = @event.Userid;
             if (userID == 0 || string.IsNullOrEmpty(@event.Text)) return HookResult.Continue;
-  
+
             string text = @event.Text.Split(' ')[0].Trim();
 
             string commandName = text.StartsWith('!') || text.StartsWith('/') ? text[1..] : text;
-            
+
             var player = Utilities.GetPlayerFromUserid(userID);
             if (player == null || !player.IsValid) return HookResult.Continue;
 
@@ -518,7 +528,7 @@ namespace src.player
 
             var temp = skillPlayer.SkillHudExpired;
             skillPlayer.SkillHudExpired = DateTime.MinValue;
-;
+            ;
             Instance.AddTimer(5f, () =>
             {
                 if (skillPlayer.SkillHudExpired == DateTime.MinValue)
@@ -725,7 +735,7 @@ namespace src.player
                         if (skillData == null || specialSkillData == null) return HookResult.Continue;
                         string skillDesc = victim.GetSkillDescription(skillData.Skill);
 
-                        SkillUtils.PrintToChat(victim, 
+                        SkillUtils.PrintToChat(victim,
                             $"{ChatColors.DarkRed}{(attackerInfo.SpecialSkill == Skills.None ? victim.GetSkillName(skillData.Skill) : $"{victim.GetSkillName(specialSkillData.Skill)} -> {victim.GetSkillName(skillData.Skill)}")}{ChatColors.Lime} - {skillDesc}",
                             title: $"{victim.GetTranslation("enemy_skill")} {ChatColors.DarkRed}\u202A{attacker.PlayerName}\u202C{ChatColors.Lime}");
                     }
@@ -934,7 +944,7 @@ namespace src.player
 
                     Instance?.AddTimer(.2f, () =>
                     {
-                        if(player == null || !player.IsValid) return;
+                        if (player == null || !player.IsValid) return;
 
                         if (randomSkill.Display)
                             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
@@ -959,7 +969,7 @@ namespace src.player
 
                     float descriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration;
                     skillPlayer.SkillDescriptionHudExpired = descriptionHudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(descriptionHudExpired);
-           
+
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
                     {
                         Instance?.AddTimer(.6f, () =>

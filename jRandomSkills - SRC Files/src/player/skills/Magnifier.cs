@@ -55,31 +55,56 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}" );
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}" );
                 return;
             }
 
             string enemyId = commands[0];
-            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) {
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                return;
+            }
+            
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
             playersFOV.AddOrUpdate(enemy.Index, enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
             playersToTarget[player.Index] = enemy.Index;
 
-            enemy.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
-            Utilities.SetStateChanged(enemy, "CBasePlayerController", "m_iDesiredFOV");
+            var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+            if (enemyEvent == null || !enemyEvent.IsValid) return;
+
+            enemyEvent.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            Utilities.SetStateChanged(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
             playerInfo.SkillUsed = true;
 
-            player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("magnifier_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("magnifier_enemy_info"));
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("magnifier_player_info", enemy.PlayerName));
+            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("magnifier_enemy_info"));
+        }
+
+        public static void BotTakeover(EventBotTakeover @event)
+        {
+            var bot = PlayerManager.GetPlayerEvent(@event.Botid);
+            if (bot == null || !bot.IsValid) return;
+
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
+            if (!playersFOV.ContainsKey(bot.Index)) return;
+        
+            player.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -88,6 +113,9 @@ namespace src.player.skills
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             var enemies = Utilities.GetPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
@@ -95,7 +123,7 @@ namespace src.player.skills
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -104,7 +132,7 @@ namespace src.player.skills
 
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
             {
-                var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid)
                 {
                     if (playersFOV.TryGetValue(targetIndex, out uint fov))
@@ -112,6 +140,7 @@ namespace src.player.skills
                         target.DesiredFOV = fov;
                         Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
                     }
+
                     if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("magnifier_disable_info"));
                 }

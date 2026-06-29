@@ -57,13 +57,21 @@ namespace src.player.skills
             if (playerPawn?.CBodyComponent == null) return;
             if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             string enemyId = commands[0];
-            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) {
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                return;
+            }
+
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
@@ -72,22 +80,27 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy?.Index);
                     if (enemyInfo == null) continue;
+
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
-                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+
+                    menuItems.Add(($"\u202A{enemy!.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
                 }
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -103,11 +116,14 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             if (playerInfo != null)
             {
                 playerInfo.Skill = Skills.None;
                 playerInfo.SpecialSkill = skillName;
-                player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("deactivator_player_info", enemy.PlayerName));
+                playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("deactivator_player_info", enemy.PlayerName));
             }
 
             if (enemyInfo != null)
@@ -115,7 +131,11 @@ namespace src.player.skills
                 Instance.SkillAction(enemyInfo.Skill.ToString(), "DisableSkill", [enemy]);
                 enemyInfo.SpecialSkill = enemyInfo.Skill;
                 enemyInfo.Skill = Skills.None;
-                enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("deactivator_enemy_info"));
+
+                var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+                if (enemyEvent == null || !enemyEvent.IsValid) return;
+
+                enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("deactivator_enemy_info"));
             }
         }
 

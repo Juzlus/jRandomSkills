@@ -141,7 +141,7 @@ namespace src.utils
                         .Where(instance => instance != null)
                         .Cast<DefaultSkillInfo>())
                     Add(skill);
-			}
+            }
         }
 
         public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common)
