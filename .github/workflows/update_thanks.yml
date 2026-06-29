@@ -1,13 +1,10 @@
 name: Update Contributors & Thanks
 
 on:
-  pull_request:
-    types: [closed]
   workflow_dispatch:
 
 jobs:
   update:
-    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     runs-on: ubuntu-latest
 
     permissions:
