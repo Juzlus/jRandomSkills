@@ -28,7 +28,10 @@ namespace src.utils
                 playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
-            var rayTrace = RayTraceInterface.Get();
+            CRayTraceInterface? rayTrace;
+            try { rayTrace = RayTraceInterface.Get(); }
+            catch { return null; }
+
             if (rayTrace == null)
                 return null;
 
@@ -111,7 +114,10 @@ namespace src.utils
                 playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
-            var rayTrace = RayTraceInterface.Get();
+            CRayTraceInterface? rayTrace;
+            try { rayTrace = RayTraceInterface.Get(); }
+            catch { return null; }
+
             if (rayTrace == null)
                 return null;
 

@@ -24,6 +24,7 @@
   "areareaper_select_info": "Kapatılacak bomba alanını seç:",
   "areareaper_site_disabled": "{0} alanı mühürlendi - artık buraya bomba kurulamaz!",
   "areareaper_used_info": "Yeteneğini zaten kullandın, açgözlülük yapma",
+  "areareaper_teammates_info": "{0} Bölgesi bomba kurmaya kapatıldı.",
   "areareaper_bombsite_disabled": "Bu bomba alanı kullanıma kapatıldı!",
 
   "armored": "Zırhlı",
@@ -62,6 +63,7 @@
   "carefulbullets": "Dikkatli Mermiler",
   "carefulbullets_desc": "Düşman mermi kaçırırsa hasar alır",
   "carefulbullets_enemy_info": "Mermi kaçırmak canını yakacak",
+  "carefulbullets_disable_info": "Artık mermi kaçırmak can yakmayacak.",
   "carefulbullets_player_info": "'{0}' artık mermi sıkarken iki kere düşünecek",
   "carefulbullets_select_info": "İsabetsiz atışların hasar vereceği oyuncu:",
 
@@ -85,6 +87,7 @@
   "darkness": "Karanlık",
   "darkness_desc": "Bir düşmanın ekranını karart",
   "darkness_enemy_info": "Işıklar sönsün",
+  "darkness_disable_info": "Işıklar geldi.",
   "darkness_player_info": "'{0}' isimli oyuncunun dünyasını kararttın",
   "darkness_select_info": "Karanlık bir oyuncuyu seç:",
 
@@ -97,6 +100,7 @@
   "deaf": "Sağır",
   "deaf_desc": "Bir düşmanın kulağını kapat ve sesleri duymaz hale getir",
   "deaf_enemy_info": "Kulaklıkların tıkandı",
+  "deaf_disable_info": "Kulakların açıldı.",
   "deaf_player_info": "'{0}' isimli oyuncu için sesler kapatıldı.",
   "deaf_select_info": "Sağır bir oyuncuyu seç:",
 
@@ -167,6 +171,7 @@
   "glitch": "Glitç",
   "glitch_desc": "Seçilen bir düşmanın radarını kapatır",
   "glitch_enemy_info": "Radarın kapandı",
+  "glitch_disable_info": "Radarın açıldı",
   "glitch_player_info": "'{0}' isimli oyuncunun radarı devre dışı bırakıldı.",
   "glitch_select_info": "Radarı kapatılacak oyuncuyu seç:",
 
@@ -219,6 +224,7 @@
   "jammer": "Sinyal Kesici",
   "jammer_desc": "Bir oyuncunun nişangahını (crosshair) kapatmak için seç",
   "jammer_enemy_info": "Nişangahın kapatıldı.",
+  "jammer_disable_info": "Nişangahın açıldı",
   "jammer_player_info": "'{0}' isimli oyuncunun nişangahı kapatıldı.",
   "jammer_select_info": "Nişangahı kapatılacak oyuncuyu seç:",
 
@@ -231,6 +237,7 @@
   "jumpban": "Bacaksız",
   "jumpban_desc": "Zıplayamayacak bir oyuncu seç",
   "jumpban_enemy_info": "Bacakların kesildi",
+  "jumpban_disable_info": "Bacaklarına kavuştun",
   "jumpban_player_info": "'{0}' artık zıplayamaz.",
   "jumpban_select_info": "Zıplaması yasaklanacak oyuncu:",
 
@@ -261,6 +268,7 @@
   "magnifier": "Büyüteç",
   "magnifier_desc": "Düşmanın ekranını yakınlaştırarak görüş alanını daraltır",
   "magnifier_enemy_info": "Görüşün bozuldu!",
+  "magnifier_disable_info": "Görüşün düzeldi",
   "magnifier_player_info": "'{0}' isimli oyuncunun ekranı yakınlaştırıldı.",
   "magnifier_select_info": "Ekranı büyütülecek oyuncuyu seç:",
 
@@ -322,12 +330,14 @@
   "poison": "Zehir",
   "poison_desc": "Birkaç saniyede bir hasar alacak bir oyuncu seç",
   "poison_enemy_info": "Zehirlendin.",
+  "poison_disable_info": "Zehire bağışıklık kazandın",
   "poison_player_info": "'{0}' isimli oyuncu zehirlendi.",
   "poison_select_info": "Zehirlenecek oyuncuyu seç:",
 
   "primaryban": "Tüfek Yasak",
   "primaryban_desc": "Tüfek kullanamayacak bir oyuncu seç",
   "primaryban_enemy_info": "Tüfek kullanmayı unuttun",
+  "primaryban_disable_info": "Tüfek kullanabilirsin",
   "primaryban_player_info": "'{0}' artık tüfek kullanamaz.",
   "primaryban_select_info": "Tüfek kullanımı yasaklanacak oyuncu:",
 

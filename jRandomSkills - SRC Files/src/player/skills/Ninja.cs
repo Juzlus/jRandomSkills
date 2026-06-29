@@ -184,8 +184,6 @@ namespace src.player.skills
             if (player.PlayerPawn?.Value?.Health <= 0)
                 return;
 
-            Server.PrintToChatAll($"Update ninja for {player.PlayerName}");
-
             var playerEvent = PlayerManager.GetPlayerEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 

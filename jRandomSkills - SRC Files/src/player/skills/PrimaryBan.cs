@@ -132,6 +132,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            {
                 bannedPlayers.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));

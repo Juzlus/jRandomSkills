@@ -356,6 +356,18 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.2.b4</b></summary>
+
+- #### General:
+    - Ogólne Uaktualizowano kod źródłowy na GitHubie, aby uwzględniał zmiany wprowadzone w merge request: https://github.com/Juzlus/jRandomSkills/pull/32.
+
+- #### Poprawki mocy:
+    - ###### Ninja:
+        - ###### Usunięto wiadomości z czatu używane do celów testowych.
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b3</b></summary>
 
 - #### Ogólne:

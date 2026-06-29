@@ -28,7 +28,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.2.b2";
+        public override string ModuleVersion => "1.2.2.b4";
 
         public override void Load(bool hotReload)
         {
@@ -78,43 +78,38 @@ namespace src
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
 
+        private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
+
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
         {
             if (string.IsNullOrEmpty(skill))
                 return null;
 
-            string className = $"src.player.skills.{skill}";
-
-            Type? type = Type.GetType(className)
-                ?? Assembly.GetExecutingAssembly().GetType(className)
-                ?? AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(a =>
-                    {
-                        try { return a.GetTypes(); }
-                        catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t!= null)!; }
-                        catch { return []; }
-                    })
-                    .FirstOrDefault(t => t != null && string.Equals(t.FullName, className, StringComparison.Ordinal));
-
-            if (type != null && typeof(ISkill).IsAssignableFrom(type))
+            var method = _skillMethodCache.GetOrAdd((skill, methodName), key =>
             {
-                MethodInfo? method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
-                return method?.Invoke(null, param);
-            }
-            else
-                Server.PrintToConsole($"Could not find or load {className}");
+                string className = $"src.player.skills.{key.Skill}";
 
-            return null;
-        }
+                Type? type = Type.GetType(className)
+                    ?? Assembly.GetExecutingAssembly().GetType(className)
+                    ?? AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(a =>
+                        {
+                            try { return a.GetTypes(); }
+                            catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t != null)!; }
+                            catch { return []; }
+                        })
+                        .FirstOrDefault(t => t != null && string.Equals(t.FullName, className, StringComparison.Ordinal));
 
-        internal void RegisterListener<T>(Action onTick, HookMode pre)
-        {
-            throw new NotImplementedException();
-        }
+                if (type == null || !typeof(ISkill).IsAssignableFrom(type))
+                {
+                    Server.PrintToConsole($"Could not find or load {className}");
+                    return null;
+                }
 
-        internal void RegisterListener<T>(Action<object, object> value, HookMode pre)
-        {
-            throw new NotImplementedException();
+                return type.GetMethod(key.Method, BindingFlags.Static | BindingFlags.Public);
+            });
+
+            return method?.Invoke(null, param);
         }
 
         internal new void AddCommand(string name, string description, CommandInfo.CommandCallback handler)
@@ -328,10 +323,7 @@ namespace src
         public string Color { get; set; } = color;
         public bool Display { get; } = display;
 
-        public static implicit operator Skills(jSkill_SkillInfo v)
-        {
-            throw new NotImplementedException();
-        }
+        public static implicit operator Skills(jSkill_SkillInfo v) => v?.Skill ?? Skills.None;
     }
 
     public static class SkillData

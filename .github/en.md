@@ -358,6 +358,18 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.2.b4</b></summary>
+
+- #### General:
+    - ###### Updated the GitHub source code to implement the changes introduced in merge request (https://github.com/Juzlus/jRandomSkills/pull/32).
+
+- #### Skill improvements:
+    - ###### Ninja:
+        - ###### Removed debug chat messages that were used for testing. 
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b3</b></summary>
 
 - #### General:

@@ -134,11 +134,16 @@ namespace src.player.skills
             {
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid)
+                {
                     if (playersFOV.TryGetValue(targetIndex, out uint fov))
                     {
                         target.DesiredFOV = fov;
                         Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
                     }
+
+                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                        target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("magnifier_disable_info"));
+                }
                 playersFOV.TryRemove(targetIndex, out _);
             }
 
