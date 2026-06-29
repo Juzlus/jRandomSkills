@@ -24,6 +24,7 @@
   "areareaper_select_info": "Select site to deactivate:",
   "areareaper_site_disabled": "Bomb site {0} has been deactivated - no bombs can be planted there!",
   "areareaper_used_info": "Your skill has already been used.",
+  "areareaper_teammates_info": "Bombsite {0} has been blocked for planting.",
   "areareaper_bombsite_disabled": "This bombsite has been disabled!",
 
   "armored": "Armored",
@@ -62,6 +63,7 @@
   "carefulbullets": "Careful Bullets",
   "carefulbullets_desc": "Select a player who takes damage for every missed shot",
   "carefulbullets_enemy_info": "From now on, inaccuracy will literally hurt.",
+  "carefulbullets_disable_info": "Missing shots no longer hurts you.",
   "carefulbullets_player_info": "'{0}' must now be more careful.",
   "carefulbullets_select_info": "Inaccuracy hurts the player:",
 
@@ -85,6 +87,7 @@
   "darkness": "Darkness",
   "darkness_desc": "Applies a darkness effect to a chosen enemy",
   "darkness_enemy_info": "Let the lights go out.",
+  "darkness_disable_info": "The lights are back on.",
   "darkness_player_info": "Darkness has overtaken player '{0}'.",
   "darkness_select_info": "Select player for darkness:",
 
@@ -97,6 +100,7 @@
   "deaf": "Deaf",
   "deaf_desc": "Choose a player to mute all sounds for",
   "deaf_enemy_info": "Your headphones have left the game.",
+  "deaf_disable_info": "You can hear again.",
   "deaf_player_info": "Sound has been disabled for player '{0}'.",
   "deaf_select_info": "Mute all sounds for player:",
 
@@ -167,6 +171,7 @@
   "glitch": "Glitch",
   "glitch_desc": "Disables the radar for a chosen enemy",
   "glitch_enemy_info": "Your radar has been disabled.",
+  "glitch_disable_info": "Your radar is back to normal.",
   "glitch_player_info": "Player '{0}'s radar has been disabled.",
   "glitch_select_info": "Turn off player's radar:",
 
@@ -196,6 +201,7 @@
   "hotbomb": "Hot Bomb",
   "hotbomb_desc": "As long as you are alive, the bomb deals damage to its carrier",
   "hotbomb_hint": "Careful, the bomb is hot!",
+  "hotbomb_disable_info": "The bomb is no longer hot.",
 
   "iana": "Hologram",
   "iana_desc": "Click [css_useSkill] to control your hologram for a few seconds",
@@ -218,6 +224,7 @@
   "jammer": "Jammer",
   "jammer_desc": "Choose a player to disable their crosshair",
   "jammer_enemy_info": "Your crosshair has been disabled.",
+  "jammer_disable_info": "Your crosshair is back to normal.",
   "jammer_player_info": "Player '{0}'s crosshair has been disabled.",
   "jammer_select_info": "Disable player's crosshair:",
 
@@ -230,6 +237,7 @@
   "jumpban": "Legless",
   "jumpban_desc": "Choose a player who cannot jump",
   "jumpban_enemy_info": "Someone cut off your legs.",
+  "jumpban_disable_info": "You can use your legs again.",
   "jumpban_player_info": "Player '{0}' can no longer jump.",
   "jumpban_select_info": "Ban player from jumping:",
 
@@ -260,6 +268,7 @@
   "magnifier": "Magnifier",
   "magnifier_desc": "Forces the enemy's screen to zoom in, reducing their field of view",
   "magnifier_enemy_info": "Your field of view has been distorted!",
+  "magnifier_disable_info": "Your vision is back to normal.",
   "magnifier_player_info": "Player '{0}' has been forced into zoom mode.",
   "magnifier_select_info": "Magnify player's screen:",
 
@@ -321,12 +330,14 @@
   "poison": "Poison",
   "poison_desc": "Choose a player who will take damage every few seconds",
   "poison_enemy_info": "You have been poisoned.",
+  "poison_disable_info": "You are now immune to poison.",
   "poison_player_info": "Player '{0}' has been poisoned.",
   "poison_select_info": "Poison a player:",
 
   "primaryban": "No Rifles",
   "primaryban_desc": "Choose a player who cannot use rifles",
   "primaryban_enemy_info": "You can no longer use rifles.",
+  "primaryban_disable_info": "You can use rifles again.",
   "primaryban_player_info": "Player '{0}' can no longer use rifles.",
   "primaryban_select_info": "Ban rifles for player:",
 
@@ -457,6 +468,8 @@
   "wildthrow": "Wild Throws",
   "wildthrow_desc": "Choose a player who will have trouble throwing grenades",
   "wildthrow_player_info": "Player '{0}' has forgotten all their lineups",
+  "wildthrow_enemy_info": "You get too excited when throwing grenades.",
+  "wildthrow_disable_info": "Your memory of how to throw grenades is back to normal.",
   "wildthrow_select_info": "Select a player:",
 
   "zeus": "Zeus",

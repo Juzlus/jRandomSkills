@@ -45,7 +45,7 @@ namespace src.player.skills
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
+                var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 && !p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -58,19 +58,27 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}");
                 return;
             }
 
             string enemyId = commands[0];
-            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) {
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                return;
+            }
+
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
@@ -78,8 +86,24 @@ namespace src.player.skills
             playersToTarget[player.Index] = enemy.Index;
             playerInfo.SkillUsed = true;
 
-            player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("darkness_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("darkness_enemy_info"));
+            var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+            if (enemyEvent == null || !enemyEvent.IsValid) return;
+
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("darkness_player_info", enemy.PlayerName));
+            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("darkness_enemy_info"));
+        }
+
+        public static void BotTakeover(EventBotTakeover @event)
+        {
+            var bot = @event.Botid;
+            if (bot == null || !bot.IsValid) return;
+
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
+            if (!playersInDark.ContainsKey(bot.Index)) return;
+
+            ApplyColor(player);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -88,6 +112,9 @@ namespace src.player.skills
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
@@ -95,7 +122,7 @@ namespace src.player.skills
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -104,7 +131,7 @@ namespace src.player.skills
             {
                 if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
                 {
-                    var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+                    var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                     if (target != null && target.IsValid)
                         SetUpPostProcessing(target, true);
                     playersInDark.TryRemove(targetIndex, out _);
@@ -124,11 +151,12 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
-        private static void SetUpPostProcessing(CCSPlayerController player, bool turnOff = false)
+        private static void SetUpPostProcessing(CCSPlayerController? player, bool turnOff = false)
         {
             if (player == null || !player.IsValid) return;
 
             uint playerIndex = player.Index;
+            player = PlayerManager.GetPlayerFromEvent(player);
 
             lock (setLock)
             {
@@ -145,7 +173,7 @@ namespace src.player.skills
                             return;
                         }
 
-                        var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)playerIndex));
                         if (target == null || !target.IsValid)
                         {
                             darkTimer?.Kill();

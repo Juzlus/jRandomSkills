@@ -31,7 +31,7 @@ jRandomSkills is a plugin for CounterStrike 2 that brings chaos and fun to gamep
 - **German** [by: [@Enrory](https://github.com/Enrory)]
 - **Turkish** [by: [@brkvlr](https://github.com/brkvlr), [@ByDexterTR](https://github.com/ByDexterTR)]
 - **Russian** [by: [@213sdfsdgf](https://github.com/213sdfsdgf)]
-- **Simplified Chinese** [GrokAI / ChatGPT]
+- **Simplified Chinese** [by: [@Ericzzrbb](hhttps://github.com/Ericzzrbb)]
 
 ## 🖼️ Preview
 ![Preview](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview.gif?raw=true)
@@ -356,6 +356,46 @@ This plugin uses content from the following projects:
 [THANKS]
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.2.b3</b></summary>
+
+- #### General:
+    - ###### Updated Chinese language translation by [by: [@Ericzzrbb](hhttps://github.com/Ericzzrbb)].
+    - ###### Fixed a bug where a player could be given multiple skills at once while the HUD displayed only one (the player list was never cleared on map change and had no duplicate protection on join). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed skill names and descriptions showing the raw translation key on Turkish servers (culture-sensitive lowercasing) - affected skills starting with "I" (e.g. Illiterate, Impostor, InfiniteAmmo, Iana). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### RayTrace-based skills and the skill-use button no longer throw when the RayTrace module is not installed - they now degrade gracefully instead of crashing. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed the skill-use button (when bound to Use/E) blocking option selection inside WSAD target menus. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Performance: cached reflection lookups in `SkillAction` and `SkillsInfo.GetValue`, and de-duplicated the repeated event-dispatch logic on hot paths (OnTick, OnTakeDamage, etc.). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Stability: removed dead methods that threw `NotImplementedException`, hardened team-score handling, and reset all skill state on round start / map change. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Build: post-build copy paths now follow the active `$(Configuration)` and `$(TargetFramework)`. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Added new Turkish translation strings for the skill notifications listed below. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed bot-related messages so they now display correctly in the chat of the controlling player.
+    - ###### When a player takes control of a bot, all active skill effects affecting that bot are now correctly transferred to the controlling player.
+    - ###### Prevented bots from automatically using skills while being controlled by a player.
+
+- #### Skill improvements:
+    - ###### Wallhack:
+        - ###### Fixed enemy outlines briefly flashing for everyone when the skill holder dies. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Area Reaper:
+        - ###### Teammates (CT) are now notified which bombsite (A/B) was sealed. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wild Throw:
+        - ###### Now notifies the targeted player, consistent with other targeted skills. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Careful Bullets / Darkness / Deaf / Glitch / Jammer / Jump Ban / Magnifier / Poison / Primary Ban / Wild Throw:
+        - ###### The targeted player is now notified when the effect ends after the skill holder dies. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Careful Bullets:
+        - ###### Added damage-taken sound effects when missing a shot
+    - ###### C4 Camouflage / Ninja:
+        - ###### Fixed a bug where dying with invisibility active and taking control of a bot would grant invisibility to the bot as well.
+    - ###### Poison:
+        - ###### Added damage-taken sound effects.
+    - ###### Primary Ban:
+        - ###### Changed mechanic to directly block shooting weapons instead of forcing a weapon switch to the knife.
+    - ###### Hot Bomb:
+        - ###### Replaced the bomb-burning sound effects.
+        - ###### Added a notification when the burning effect ends and the bomb returns to its normal color.
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b2</b></summary>

@@ -1,7 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
 
@@ -41,29 +40,42 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}");
                 return;
             }
 
             string enemyId = commands[0];
-            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) {
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                return;
+            }
+
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
             SwapHealth(player, enemy);
             playerInfo.SkillUsed = true;
-            player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("lifeswap_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("lifeswap_enemy_info"));
+
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("lifeswap_player_info", enemy.PlayerName));
+
+            var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+            if (enemyEvent != null && enemyEvent.IsValid)
+                enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("lifeswap_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)

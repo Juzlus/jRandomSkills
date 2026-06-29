@@ -110,7 +110,7 @@ namespace src.player.skills
 
             foreach (var player in Utilities.GetPlayers())
             {
-                if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                if (player.PlayerPawn?.Value == null || player.PlayerPawn?.Value?.Health <= 0)
                     invisiblePlayers.TryRemove(player.Index, out _);
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -180,6 +180,11 @@ namespace src.player.skills
         private static void UpdateNinja(CCSPlayerController? player)
         {
             if (player == null || !player.IsValid) return;
+
+            if (player.PlayerPawn?.Value?.Health <= 0)
+                return;
+
+            Server.PrintToChatAll($"Update ninja for {player.PlayerName}");
 
             var playerEvent = PlayerManager.GetPlayerEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;

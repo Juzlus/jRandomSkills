@@ -14,8 +14,13 @@ namespace src.player.skills
         private static readonly object setLock = new();
         private static readonly string[] disabledWeapons =
         [
-            "ak47", "m4a1", "m4a4", "m4a1_silencer", "famas", "galilar", "aug", "sg553", "mp9", "mac10", "bizon", "mp7", "ump45",
-            "p90", "mp5sd", "ssg08", "awp", "scar20", "g3sg1", "nova", "xm1014", "mag7", "sawedoff", "m249", "negev"
+            "weapon_ak47", "weapon_m4a4", "weapon_m4a1", "weapon_m4a1_silencer",
+            "weapon_famas", "weapon_galilar", "weapon_aug", "weapon_sg553",
+            "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7",
+            "weapon_ump45", "weapon_p90", "weapon_mp5sd", "weapon_ssg08",
+            "weapon_awp", "weapon_scar20", "weapon_g3sg1", "weapon_nova",
+            "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
+            "weapon_negev", "weapon_sg556"
         ];
 
         public static void LoadSkill()
@@ -37,11 +42,14 @@ namespace src.player.skills
 
         public static void WeaponEquip(EventItemEquip @event)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var player = @event.Userid;
+            var playerEvent = PlayerManager.GetPlayerEvent(@event.Userid);
             var weapon = @event.Item;
-            if (player == null || !player.IsValid) return;
-            if (!bannedPlayers.ContainsKey(player.Index) || !disabledWeapons.Contains(weapon)) return;
-            player.ExecuteClientCommand("slot3");
+
+            if (player == null || !player.IsValid || playerEvent == null || !playerEvent.IsValid) return;
+            if (!bannedPlayers.ContainsKey(playerEvent.Index) || !disabledWeapons.Contains("weapon_" + weapon)) return;
+
+            SetWeaponAttack(player, true);
         }
 
         public static void OnTick()
@@ -66,39 +74,40 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}");
                 return;
             }
 
             string enemyId = commands[0];
-            if (!uint.TryParse(enemyId, out uint enemyIndex)) { player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index")); return; }
+
+            if (!uint.TryParse(enemyId, out uint enemyIndex)) {
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                return;
+            }
+            
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
             if (enemy == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
             bannedPlayers.TryAdd(enemy.Index, 0);
             playersToTarget[player.Index] = enemy.Index;
-            CheckWeapon(enemy);
+            SetWeaponAttack(enemy, true);
             playerInfo.SkillUsed = true;
 
-            player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("primaryban_player_info", enemy.PlayerName));
-            enemy.PrintToChat($" {ChatColors.Red}" + enemy.GetTranslation("primaryban_enemy_info"));
-        }
+            var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+            if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-        private static void CheckWeapon(CCSPlayerController player)
-        {
-            var activeWeapon = player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon?.Value;
-            if (activeWeapon == null || !activeWeapon.IsValid) return;
-            if (activeWeapon.DesignerName == null || string.IsNullOrEmpty(activeWeapon.DesignerName)) return;
-
-            if (!bannedPlayers.ContainsKey(player.Index) || !disabledWeapons.Contains(activeWeapon.DesignerName?.Replace("weapon_", ""))) return;
-            player.ExecuteClientCommand("slot3");
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("primaryban_player_info", enemy.PlayerName));
+            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("primaryban_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -107,6 +116,9 @@ namespace src.player.skills
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             var enemies = Utilities.GetPlayers().Where(p =>p != null &&p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p =>p != null &&p.IsValid &&p.Team != player.Team &&p.PlayerPawn?.Value != null &&p.PlayerPawn.Value.IsValid &&p.PlayerPawn.Value.Health > 0 &&!p.IsHLTV &&p.Team != CsTeam.Spectator&& p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
@@ -114,13 +126,21 @@ namespace src.player.skills
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
                 bannedPlayers.TryRemove(targetIndex, out _);
+
+                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                {
+                    target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("primaryban_disable_info"));
+                    SetWeaponAttack(target, false);
+                }
+            }
 
             SkillUtils.CloseMenu(player);
         }
@@ -131,7 +151,30 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             bannedPlayers.TryRemove(player.Index, out _);
+            SetWeaponAttack(player, false);
             SkillUtils.CloseMenu(player);
+        }
+
+        private static void SetWeaponAttack(CCSPlayerController? player, bool disableWeapon)
+        {
+            player = PlayerManager.GetPlayerEvent(player);
+            if (player == null || !player.IsValid) return;
+
+            var pawn = player?.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return;
+            foreach (var weapon in pawn.WeaponServices.MyWeapons)
+                if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid && !string.IsNullOrEmpty(weapon.Value.DesignerName))
+                {
+                    string weaponName = weapon.Value.DesignerName;
+                    if (disabledWeapons.Contains(weaponName)) 
+                    {
+                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
+                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
+
+                        Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+                        Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
+                    }
+                }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffc061", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

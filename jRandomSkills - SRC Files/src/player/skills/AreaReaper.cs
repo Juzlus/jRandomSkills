@@ -36,16 +36,19 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             if (playerInfo.SkillUsed)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_used_info")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_used_info")}");
                 return;
             }
 
             int site = bombsiteA.Contains(commands[0]) ? 0 : bombsiteB.Contains(commands[0]) ? 1 : -1;
             if (site == -1)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("areareaper_incorrect_site")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("areareaper_incorrect_site")}");
                 return;
             }
 
@@ -71,8 +74,11 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
             if (playerInfo == null) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             playerInfo.SkillUsed = false;
-            SkillUtils.CreateMenu(player, [(player.GetTranslation("bombsite_a"), "a")], (player.GetTranslation("bombsite_b"), "b", true));
+            SkillUtils.CreateMenu(player, [(playerEvent.GetTranslation("bombsite_a"), "a")], (playerEvent.GetTranslation("bombsite_b"), "b", true));
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -103,23 +109,24 @@ namespace src.player.skills
 
             foreach (var player in Utilities.GetPlayers())
             {
-                if (player == null || !player.IsValid || player.Team != CsTeam.Terrorist) continue;
+                var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+                if (playerEvent == null || !playerEvent.IsValid || player == null || !player.IsValid || player.Team != CsTeam.Terrorist || player.PlayerPawn?.Value?.Health <= 0) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == null) continue;
 
-                var pawn = player.PlayerPawn.Value;
+                var pawn = player.PlayerPawn!.Value;
                 if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) continue;
 
                 var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
                 if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_c4") continue;
-
+  
                 if (!pawn.InBombZone && pawn.InBombZoneTrigger)
-                    player.PrintToCenterAlert(player.GetTranslation("areareaper_bombsite_disabled"));
+                    playerEvent.PrintToCenterAlert(playerEvent.GetTranslation("areareaper_bombsite_disabled"));
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#edf5b5", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#edf5b5", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
         {
         }
     }

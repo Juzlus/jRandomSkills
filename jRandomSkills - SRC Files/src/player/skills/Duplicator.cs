@@ -59,12 +59,15 @@ namespace src.player.skills
             if (playerPawn?.CBodyComponent == null) return;
             if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             string enemyId = commands[0];
             var enemy = Utilities.GetPlayers().FirstOrDefault(p => p.Index.ToString() == enemyId);
 
             if (enemy == null)
             {
-                player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
@@ -73,7 +76,10 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var enemies = Utilities.GetPlayers().Where(p => p.PawnIsAlive && p != player && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
+            var enemies = Utilities.GetPlayers().Where(p => p != null && p.IsValid && p != player && p.PlayerPawn?.Value?.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<string> skills = [];
@@ -87,7 +93,7 @@ namespace src.player.skills
                     if (skillData == null) continue;
                     
                     skills.Add(skillData.Skill.ToString());
-                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
                 }
 
                 int ctSkills = Event.counterterroristSkills.Count(s => skills.Contains(s.Name));
@@ -100,11 +106,11 @@ namespace src.player.skills
                 }
 
                 SkillUtils.CreateMenu(player, menuItems);
-                SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName)}",
+                SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{playerEvent.GetSkillName(skillName)}{ChatColors.Lime}: {playerEvent.GetSkillDescription(skillName)}",
                     border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
             }
             else
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
+                playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -121,6 +127,9 @@ namespace src.player.skills
             var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
             if (playerInfo == null || enemyInfo == null) return;
 
+            var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+            if (playerEvent == null || !playerEvent.IsValid) return;
+
             var enemySkill = enemyInfo.Skill;
             bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
             bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
@@ -135,8 +144,10 @@ namespace src.player.skills
                     var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                     if (player == null || !player.IsValid) return;
 
-                    Instance.SkillAction(skillName.ToString(), "EnableSkill", [player]);
-                    player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("thief_incorrect_skill", enemyName));
+                    if (!player.IsBot)
+                        Instance.SkillAction(skillName.ToString(), "EnableSkill", [player]);
+
+                    playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("thief_incorrect_skill", enemyName));
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 return;
             }
@@ -160,7 +171,7 @@ namespace src.player.skills
                 else
                     Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-            player.PrintToChat($" {ChatColors.Green}" + player.GetTranslation("duplicator_player_info", enemy.PlayerName));
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("duplicator_player_info", enemy.PlayerName));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffb73b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

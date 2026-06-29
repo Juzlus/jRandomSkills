@@ -51,6 +51,7 @@ namespace src.player
             Instance.RegisterEventHandler<EventPlayerBlind>(PlayerBlind);
             Instance.RegisterEventHandler<EventPlayerHurt>(PlayerHurt);
             Instance.RegisterEventHandler<EventPlayerJump>(PlayerJump);
+            Instance.RegisterEventHandler<EventBotTakeover>(BotTakeover);
 
             Instance.RegisterEventHandler<EventWeaponFire>(WeaponFire);
             Instance.RegisterEventHandler<EventItemEquip>(WeaponEquip);
@@ -373,6 +374,15 @@ namespace src.player
 
                 foreach (string skillName in activeSkills)
                     Instance.SkillAction(skillName, "PlayerJump", [@event]);
+                return HookResult.Continue;
+            }
+        }
+
+        private static HookResult BotTakeover(EventBotTakeover @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                DispatchToActiveSkills("BotTakeover", @event);
                 return HookResult.Continue;
             }
         }

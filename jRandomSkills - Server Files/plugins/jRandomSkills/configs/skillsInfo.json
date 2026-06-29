@@ -1486,7 +1486,7 @@
     "Active": true,
     "Name": "AreaReaper",
     "RequiredPermission": "",
-    "MaxPerServer": -1,
+    "MaxPerServer": 1,
     "Rarity": "Common"
   },
   {

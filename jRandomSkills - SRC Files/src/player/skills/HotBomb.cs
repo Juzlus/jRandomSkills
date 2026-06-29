@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -19,25 +20,25 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
-            if (Server.TickCount % (int)(cooldown * 64) != 0) return;
+            int cooldown = (int)(SkillsInfo.GetValue<float>(skillName, "cooldown") * 64);
+            if (Server.TickCount % cooldown != 0) return;
 
             if (players.IsEmpty || jRandomSkills.Instance.GameRules?.FreezePeriod == true) return;
             int damage = SkillsInfo.GetValue<int>(skillName, "damage");
 
-            foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PawnIsAlive))
+            foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
             {
-                var playerEvent = PlayerManager.GetPlayerEvent(player);
+                var playerEvent = PlayerManager.GetPlayerFromEvent(player);
                 if (playerEvent == null || !playerEvent.IsValid) continue;
 
-                var pawn = playerEvent.PlayerPawn.Value;
+                var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) continue;
 
                 bool hasC4 = pawn.WeaponServices.MyWeapons.Any(w => w.Value?.DesignerName == "weapon_c4");
-
                 if (!hasC4) continue;
+
                 SkillUtils.TakeHealth(pawn, damage);
-                player.ExecuteClientCommand("play sounds/player/burn_damage1");
+                playerEvent?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
             }
         }
 
@@ -52,7 +53,7 @@ namespace src.player.skills
             player.PrintToCenterAlert(player.GetTranslation("hotbomb_hint"));
         }
 
-        private static void ChangeC4Color()
+        private static void ChangeC4Color(Color color)
         {
             Server.NextFrame(() =>
             {
@@ -62,7 +63,7 @@ namespace src.player.skills
                 var bomb = bombEntities.FirstOrDefault();
                 if (bomb == null) return;
 
-                bomb.Render = Color.Red;
+                bomb.Render = color;
                 Utilities.SetStateChanged(bomb, "CBaseModelEntity", "m_clrRender");
             });
         }
@@ -83,8 +84,8 @@ namespace src.player.skills
         {
             if (players.IsEmpty)
             {
-                ChangeC4Color();
-                foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PawnIsAlive))
+                ChangeC4Color(Color.Red);
+                foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
                     enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_hint"));
             }
 
@@ -94,6 +95,13 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             players.TryRemove(player.Index, out _);
+
+            if (players.IsEmpty && !SkillUtils.IsFreezeTime())
+            {
+                ChangeC4Color(Color.White);
+                foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
+                    enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_disable"));
+            }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#baf081", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common, float cooldown = 1, int damage = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
