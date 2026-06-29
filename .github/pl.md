@@ -31,7 +31,7 @@ jRandomSkills to plugin do CounterStrike 2, który wprowadza chaos i frajdę do 
 - **Niemiecki** [autor: [@Enrory](https://github.com/Enrory)]
 - **Turecki** [autor: [@brkvlr](https://github.com/brkvlr), [@ByDexterTR](https://github.com/ByDexterTR)]
 - **Rosyjski** [autor: [@213sdfsdgf](https://github.com/213sdfsdgf)]
-- **Chiński uproszczony** [autor: [@Ericzzrbb](hhttps://github.com/Ericzzrbb)]
+- **Chiński uproszczony** [autor: [@Ericzzrbb](https://github.com/Ericzzrbb)]
 
 ## 🖼️ Prezentacja Pluginu
 ![Preview](https://github.com/Juzlus/jRandomSkills/blob/main/.github/preview.gif?raw=true)
