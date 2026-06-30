@@ -56,7 +56,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | - | - | - |
 | Aimbot | Every bullet you hit counts as a headshot | - |
 | Aim Lock | Click [css_useSkill] to lock your aim on the nearest enemy | 20 s |
-| Anomaly | You rewind a few seconds back in time | 15 s |
+| Anomaly | Click [css_useSkill] to rewind a few seconds back in time | 15 s |
 | Anti-Flash | You are immune to flashbangs, and your flashbangs last 7 seconds | - |
 | Iron Head | You take no damage from headshots | - |
 | Zone Reaper | You can choose a bomb site to deactivate | - |
@@ -163,7 +163,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Smoker | Your smoke grenades never run out | - |
 | Sniper Elite | Click [css_useSkill] to swap your current weapon for an AWP | 0 s |
 | Soldier | You have a random damage multiplier | (1.15 - 1.35)x |
-| Soundmaker | Click [css_useSkill] to trigger a sound for every enemy | 5 s |
+| Soundmaker |Every now and then, you hear player screams | 2 s |
 | Spectator | Click [css_useSkill] to spectate a random enemy | 0 s |
 | Position Swap | Click [css_useSkill] to swap places with a random enemy | 30 s |
 | Teleporter | You swap places with the hit enemy | - |
@@ -358,6 +358,24 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.2.b5</b></summary>
+
+- #### General:
+    - ###### Fixed players' view angle snapping to look at (0, 0, 0) at round start (ForceFullUpdate was re-applying a zeroed view angle). [by: [@ByDexterTR](https://github.com/ByDexterTR)] and Juzlus].
+    - ###### Stability: skills are now correctly disabled and cleaned up on attacker-less deaths (fall damage, drowning, world). [by: [@ByDexterTR](https://github.com/ByDexterTR)]].
+    - ###### Performance: the end-of-round skill summary now runs in a single timer instead of one per player, and skips players who disconnect during the delay. [by: [@ByDexterTR](https://github.com/ByDexterTR)]].
+
+- #### Skill improvements:
+    - ###### Re-Zombie:
+        - ###### Fixed the player dying instead of respawning with full zombie health. [by: [@ByDexterTR](https://github.com/ByDexterTR)]].
+    - ###### Jester:
+        - ###### Armor no longer drains while the skill is active. [by: [@ByDexterTR](https://github.com/ByDexterTR)]].
+    - ###### Soundmaker / Anomaly:
+        - ###### Updated the description. [by: [@ByDexterTR](https://github.com/ByDexterTR)]].
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b4</b></summary>
 
 - #### General:
@@ -373,7 +391,7 @@ This plugin uses content from the following projects:
 <summary><b>v1.2.2.b3</b></summary>
 
 - #### General:
-    - ###### Updated Chinese language translation by [by: [@Ericzzrbb](hhttps://github.com/Ericzzrbb)].
+    - ###### Updated Chinese language translation by [by: [@Ericzzrbb](https://github.com/Ericzzrbb)].
     - ###### Fixed a bug where a player could be given multiple skills at once while the HUD displayed only one (the player list was never cleared on map change and had no duplicate protection on join). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Fixed skill names and descriptions showing the raw translation key on Turkish servers (culture-sensitive lowercasing) - affected skills starting with "I" (e.g. Illiterate, Impostor, InfiniteAmmo, Iana). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### RayTrace-based skills and the skill-use button no longer throw when the RayTrace module is not installed - they now degrade gracefully instead of crashing. [by: [@ByDexterTR](https://github.com/ByDexterTR)]

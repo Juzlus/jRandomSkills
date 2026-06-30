@@ -670,35 +670,36 @@ namespace src.player
 
             lock (setLock)
             {
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
+                Instance.AddTimer(.5f, () =>
                 {
-                    Instance.AddTimer(.5f, () =>
-                    {
-                        var _players = Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).OrderBy(p => p.Team);
+                    if (!Config.LoadedConfig.SummaryAfterTheRound) return;
 
+                    var _players = Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).OrderBy(p => p.Team).ToList();
+
+                    foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
+                    {
                         string skillsText = "";
                         foreach (var _player in _players)
                         {
                             var _playerSkill = PlayerManager.GetPlayerByIndex(_player.Index);
-                            if (_playerSkill != null)
-                            {
-                                var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == _playerSkill.Skill);
-                                var specialSkillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == _playerSkill.SpecialSkill);
-                                if (skillInfo == null) continue;
-                                skillsText += $" {ChatColors.DarkRed}\u202A{_player.PlayerName}\u202C{ChatColors.Lime}: {(_playerSkill.SpecialSkill == Skills.None || specialSkillInfo == null ? player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance) : $"{player.GetSkillName(specialSkillInfo.Skill)} -> {player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance)}")}\n";
-                            }
+                            if (_playerSkill == null) continue;
+
+                            var skillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == _playerSkill.Skill);
+                            var specialSkillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == _playerSkill.SpecialSkill);
+                            if (skillInfo == null) continue;
+
+                            skillsText += $" {ChatColors.DarkRed}\u202A{_player.PlayerName}\u202C{ChatColors.Lime}: {(_playerSkill.SpecialSkill == Skills.None || specialSkillInfo == null ? player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance) : $"{player.GetSkillName(specialSkillInfo.Skill)} -> {player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance)}")}\n";
                         }
 
-                        if (Config.LoadedConfig.SummaryAfterTheRound && !string.IsNullOrEmpty(skillsText))
-                        {
-                            SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary"), border: "t");
-                            foreach (string text in skillsText.Split("\n"))
-                                if (!string.IsNullOrEmpty(text))
-                                    SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
-                            SkillUtils.PrintToChat(player, string.Empty, border: "b");
-                        }
-                    }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-                }
+                        if (string.IsNullOrEmpty(skillsText)) continue;
+
+                        SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary"), border: "t");
+                        foreach (string text in skillsText.Split("\n"))
+                            if (!string.IsNullOrEmpty(text))
+                                SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
+                        SkillUtils.PrintToChat(player, string.Empty, border: "b");
+                    }
+                }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 if (Config.LoadedConfig.DisableSkillsOnRoundEnd)
                 {
@@ -717,12 +718,14 @@ namespace src.player
                 DispatchToActiveSkills("PlayerDeath", @event);
 
                 var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-                var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-                if (victim == null || attacker == null) return HookResult.Continue;
+                if (victim == null) return HookResult.Continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
                 Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
+
+                var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+                if (attacker == null || victim == attacker) return HookResult.Continue;
 
                 if (victim == attacker) return HookResult.Continue;
                 if (Config.LoadedConfig.KillerSkillChatInfo)
@@ -958,6 +961,7 @@ namespace src.player
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
                         {
+                            if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
                         }
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);

@@ -96,12 +96,12 @@ namespace src.player.skills
 
                 DropAllBotWeapons(victim);
                 SetPlayerColor(pawn, false);
-                SkillUtils.AddHealth(pawn, zombieHealth - pawn.Health, zombieHealth);
+                SkillUtils.SetHealth(pawn, zombieHealth, zombieHealth);
 
                 victim.ExecuteClientCommand("slot3");
             }
             else if (isZombie && tick + 4 > Server.TickCount)
-                SkillUtils.AddHealth(pawn, zombieHealth - pawn.Health, zombieHealth);
+                SkillUtils.SetHealth(pawn, zombieHealth, zombieHealth);
         }
 
         private static void DropAllBotWeapons(CCSPlayerController player)

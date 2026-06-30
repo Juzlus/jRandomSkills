@@ -320,10 +320,9 @@ namespace src.utils
             return EntityManager.CreateTrackedTrigger(ownerPlayerIndex, name, radius, pos);
         }
 
-        public static void ForceFullUpdate(CCSPlayerController player)
+        public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null)
         {
-            if (player == null || !player.IsValid)
-                return;
+            if (player == null || !player.IsValid) return;
 
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
@@ -337,13 +336,75 @@ namespace src.utils
             if (client == null) return;
 
             client.ForceFullUpdate();
-            pawn.Look(lastAngle);
+            if (lastAngle.Y == 0) return;
+
+            uint playerIndex = player.Index;
+
+            if (batchList != null)
+            {
+                batchList.Add((playerIndex, lastAngle));
+                return;
+            }
+
+            jRandomSkills.Instance.AddTickTimer(3, () =>
+            {
+                var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (target == null || !target.IsValid) return;
+
+                var targetPawn = target.PlayerPawn?.Value;
+                if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) return;
+
+                targetPawn.Look(lastAngle);
+            });
         }
+
+        private static int lastForceFullUpdateAll = int.MinValue;
 
         public static void ForceFullUpdateToAll()
         {
+            int tickCount = Server.TickCount;
+            if (tickCount == lastForceFullUpdateAll) return;
+
+            lastForceFullUpdateAll = tickCount;
+            var playersToRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
+
             foreach (var player in Utilities.GetPlayers())
-                ForceFullUpdate(player);
+                ForceFullUpdate(player, playersToRestore);
+
+            if (playersToRestore.Count <= 0) return;
+
+            jRandomSkills.Instance.AddTickTimer(3, () =>
+            {
+                foreach (var item in playersToRestore)
+                {
+                    var target = Utilities.GetPlayerFromIndex((int)item.PlayerIndex);
+                    if (target == null || !target.IsValid) continue;
+
+                    var targetPawn = target.PlayerPawn?.Value;
+                    if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
+
+                    targetPawn.Look(item.LastAngle);
+                }
+            });
+        }
+
+        public static bool SetHealth(CCSPlayerPawn? pawn, int newHealth, int? maxHealth = null)
+        {
+            if (pawn == null || !pawn.IsValid)
+                return false;
+
+            maxHealth ??= pawn.MaxHealth;
+
+            if (pawn.Health == maxHealth)
+                return false;
+
+            pawn.Health = Math.Min(newHealth, (int)maxHealth);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+
+            pawn.MaxHealth = (int)maxHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+
+            return true;
         }
 
         public static bool AddHealth(CCSPlayerPawn? pawn, int extraHealth, int? maxHealth = null)
