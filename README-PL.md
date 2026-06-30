@@ -55,7 +55,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | - | - | -|
 | Aimbot | Każdy twój trafiony pocisk liczy się jako strzał w głowę | - |
 | Aim Lock | Kliknij [css_useSkill], aby wycelować na najbliższego wroga | 20 s |
-| Anomalia | Cofasz się o 5 sekund do tyłu | 15 s |
+| Anomalia | Kliknij [css_useSkill], aby cofnąć się o kilka sekund w czasie | 15 s |
 | Anty Flash | Posiadasz odporność na flash'e, a twoje flash'e trwają 7 sekund | - |
 | Żelazna Głowa | Nie otrzymujesz obrażeń w głowę | - |
 | Niszczyciel Stref | Możesz wybrać strefę detonacji, którą chcesz dezaktywować | - |
@@ -162,7 +162,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Zadymiarz | Twoje granaty dymne nigdy się nie kończą | - |
 | Papito | Kliknij [css_useSkill], aby zamienić aktualną broń na AWP | 0 s |
 | Żołnierz | Masz losowy mnożnik obrażeń | (1.15 - 1.35)x |
-| Dźwiękowiec | Kliknij [css_useSkill], aby wywołać dźwięk u każdego przeciwnika | 5 s |
+| Dźwiękowiec | Co jakiś czas słyszysz krzyki graczy | 2 s |
 | Obserwator | Kliknij [css_useSkill], aby obserwować losowego przeciwnika | 0 s |
 | Zamiana Miejsc | Kliknij [css_useSkill], aby zamienić się miejscami z losowym przeciwnikiem | 30 s |
 | Zamiana Broni | Kliknij [css_useSkill], aby zamienić się bronią z losowym przeciwnikiem | 30 s |
@@ -373,10 +373,28 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.2.b5</b></summary>
+
+- #### Ogólne:
+    - ###### Naprawiono problem, w wyniku którego kąt widzenia gracza ustawiał się na punkt (0, 0, 0) na początku rundy (funkcja ForceFullUpdate ponownie stosowała zerowy kąt widzenia). [autor: [@ByDexterTR](https://github.com/ByDexterTR)] and Juzlus].
+    - ###### Stabilność: umiejętności są teraz poprawnie dezaktywowane i usuwane w przypadku śmierci bez udziału przeciwnika (obrażenia od upadku, utonięcie, śmierć w świecie gry). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]].
+    - ###### Wydajność: podsumowanie umiejętności na koniec rundy jest teraz wyświetlane w ramach jednego licznika czasu zamiast osobnego dla każdego gracza, a gracze, którzy stracili połączenie w trakcie tego opóźnienia, są pomijani. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]].
+
+- #### Poprawki mocy:
+    - ###### Re-Zombie:
+        - ###### Naprawiono błąd, w wyniku którego gracz ginął zamiast odradzać się z pełnym poziomem zdrowia zombie. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]].
+    - ###### Błazen:
+        - ###### Pancerz nie traci już wytrzymałości podczas działania tej umiejętności. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]].
+    - ###### Dźwiękowiec / Anomalia:
+        - ###### Zaktualizowano opis. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]].
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b4</b></summary>
 
-- #### General:
-    - Ogólne Uaktualizowano kod źródłowy na GitHubie, aby uwzględniał zmiany wprowadzone w merge request: https://github.com/Juzlus/jRandomSkills/pull/32.
+- #### Ogólne:
+    - ###### Uaktualizowano kod źródłowy na GitHubie, aby uwzględniał zmiany wprowadzone w merge request: https://github.com/Juzlus/jRandomSkills/pull/32.
 
 - #### Poprawki mocy:
     - ###### Ninja:
@@ -388,7 +406,7 @@ Plugin korzysta z zawartości następujących projektów:
 <summary><b>v1.2.2.b3</b></summary>
 
 - #### Ogólne:
-    - ###### Zaktualizowano tłumaczenie na język chiński uproszczony [autor: [@Ericzzrbb](https://www.google.com/search?q=hhttps://github.com/Ericzzrbb)].
+    - ###### Zaktualizowano tłumaczenie na język chiński uproszczony [autor: [@Ericzzrbb](https://www.google.com/search?q=https://github.com/Ericzzrbb)].
     - ###### Naprawiono błąd, w którym gracz mógł otrzymać kilka umiejętności jednocześnie, podczas gdy HUD wyświetlał tylko jedną (lista graczy nie była czyszczona przy zmianie mapy i brakowało zabezpieczenia przed duplikacją przy dołączaniu). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Naprawiono błąd, przez który nazwy i opisy umiejętności wyświetlały surowe klucze tłumaczenia na tureckich serwerach (zależna od języka zamiana na małe litery) - problem dotyczył umiejętności zaczynających się na literę "I" (np. Illiterate, Impostor, InfiniteAmmo, Iana). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Umiejętności oparte na module RayTrace oraz przycisk użycia umiejętności nie wyrzucają już błędów, gdy moduł RayTrace nie jest zainstalowany - teraz ich działanie ulega bezpiecznemu ograniczeniu zamiast scrashowania gry. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
