@@ -9,7 +9,7 @@
   "aimlock_desc": "Klicke [css_useSkill], um dein Visier auf den nächsten Gegner zu fixieren",
 
   "anomaly": "Anomalie",
-  "anomaly_desc": "Du spulst die Zeit um einige Sekunden zurück",
+  "anomaly_desc": "Drücke [css_useSkill], um einige Sekunden in der Zeit zurückzuspringen",
 
   "antyflash": "Anti-Flash",
   "antyflash_desc": "Du bist immun gegen Blendgranaten und deine Blendgranaten halten 7 Sekunden lang",
@@ -419,7 +419,7 @@
   "soldier_desc2": "Dein Schadensmultiplikator beträgt: {0}x",
 
   "soundmaker": "Soundmaker",
-  "soundmaker_desc": "Klicke auf [css_useSkill], um für jeden Gegner einen Sound auszulösen",
+  "soundmaker_desc": "Von Zeit zu Zeit hörst du die Schreie von Spielern",
 
   "spectator": "Zuschauer",
   "spectator_desc": "Klicke auf [css_useSkill], um einen zufälligen Gegner zu beobachten",

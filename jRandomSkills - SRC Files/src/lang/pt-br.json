@@ -9,7 +9,7 @@
   "aimlock_desc": "Clique em [css_useSkill] para travar a mira no inimigo mais próximo",
 
   "anomaly": "Máquina do Tempo",
-  "anomaly_desc": "Você volta alguns segundos no tempo",
+  "anomaly_desc": "Pressione [css_useSkill] para voltar alguns segundos no tempo",
 
   "antyflash": "Anti-Flash",
   "antyflash_desc": "Você é imune a flashes, e flashbangs duram 7 segundos",
@@ -419,7 +419,7 @@
   "soldier_desc2": "Seu multiplicador de dano é: {0}x",
 
   "soundmaker": "Criador de Som",
-  "soundmaker_desc": "Clique em [css_useSkill] para tocar um som para cada inimigo",
+  "soundmaker_desc": "De vez em quando, você ouve gritos de jogadores",
 
   "spectator": "Espectador",
   "spectator_desc": "Clique em [css_useSkill] para ver a tela de um inimigo aleatório",

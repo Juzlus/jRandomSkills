@@ -9,7 +9,7 @@
   "aimlock_desc": "Cliquez sur [css_useSkill] pour verrouiller votre visée sur l'ennemi le plus proche",
 
   "anomaly": "Anomalie",
-  "anomaly_desc": "Vous revenez quelques secondes en arrière dans le temps",
+  "anomaly_desc": "Appuyez sur [css_useSkill] pour remonter de quelques secondes dans le temps",
 
   "antyflash": "Anti-Flash",
   "antyflash_desc": "Vous êtes immunisé contre les flashbangs, et vos flashbangs durent 7 secondes",
@@ -419,7 +419,7 @@
   "soldier_desc2": "Votre multiplicateur de dégâts est : {0}x",
 
   "soundmaker": "Faiseur de Bruit",
-  "soundmaker_desc": "Appuyez sur [css_useSkill] pour déclencher un son pour chaque ennemi",
+  "soundmaker_desc": "De temps en temps, vous entendez les cris des joueurs",
 
   "spectator": "Spectateur",
   "spectator_desc": "Appuyez sur [css_useSkill] pour observer un ennemi aléatoire",

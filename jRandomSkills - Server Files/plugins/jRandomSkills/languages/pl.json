@@ -9,7 +9,7 @@
   "aimlock_desc": "Kliknij [css_useSkill], aby wycelować na najbliższego wroga",
 
   "anomaly": "Anomalia",
-  "anomaly_desc": "Cofasz się o kilka sekund do tyłu",
+  "anomaly_desc": "Kliknij [css_useSkill], aby cofnąć się o kilka sekund w czasie",
 
   "antyflash": "Anty Flash",
   "antyflash_desc": "Posiadasz odporność na flash'e, a twoje flash'e trwają 7 sekund",
@@ -419,7 +419,7 @@
   "soldier_desc2": "Twój mnożnik obrażeń wynosi: {0}x",
 
   "soundmaker": "Dźwiękowiec",
-  "soundmaker_desc": "Co jakiś czas szłyszysz krzyki graczy",
+  "soundmaker_desc": "Co jakiś czas słyszysz krzyki graczy",
 
   "spectator": "Obserwator",
   "spectator_desc": "Kliknij [css_useSkill], aby obserwować losowego przeciwnika",

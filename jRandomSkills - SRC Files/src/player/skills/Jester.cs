@@ -118,13 +118,30 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker))
             {
                 if (jesterVictim != null && jesterVictim.Active)
+                {
                     SkillUtils.RestoreHealth(victim);
+                    RestoreArmor(victim, @event.DmgArmor);
+                }
                 return;
             }
 
             var jesterAttacker = GetJesterInfo(attacker!.Index);
             if ((jesterVictim != null && jesterVictim.Active) || (jesterAttacker != null && jesterAttacker.Active))
+            {
                 SkillUtils.RestoreHealth(victim);
+                RestoreArmor(victim, @event.DmgArmor);
+            }
+        }
+
+        private static void RestoreArmor(CCSPlayerController? victim, int dmgArmor)
+        {
+            if (victim == null || !victim.IsValid || dmgArmor <= 0) return;
+
+            var pawn = victim.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            pawn.ArmorValue += dmgArmor;
+            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
         }
 
         public static void EnableSkill(CCSPlayerController player)

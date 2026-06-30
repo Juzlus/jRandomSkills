@@ -9,7 +9,7 @@
   "aimlock_desc": "Click [css_useSkill] to lock your aim on the nearest enemy",
 
   "anomaly": "Anomaly",
-  "anomaly_desc": "You rewind a few seconds back in time",
+  "anomaly_desc": "Click [css_useSkill] to rewind a few seconds back in time",
 
   "antyflash": "Anti-Flash",
   "antyflash_desc": "You are immune to flashbangs, and your flashbangs last 7 seconds",
