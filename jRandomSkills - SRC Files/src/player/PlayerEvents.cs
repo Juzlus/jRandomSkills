@@ -417,22 +417,50 @@ namespace src.player
             }
         }
 
+        private static readonly Dictionary<Skills, string> _skillNames =
+            Enum.GetValues<Skills>().ToDictionary(s => s, s => s.ToString());
+        private static readonly HashSet<Skills> _activeSkillsSet = [];
+        private static readonly List<Skills> _activeSkillsList = [];
+        private static readonly Comparison<Skills> _tickOrderCmp = (a, b) => TickOrder(a).CompareTo(TickOrder(b));
+        private static HashSet<Skills>? _freezeDisabledSkills;
+
+        // AreaReaper and ChillOut depend on other skills' tick results, so they must tick last.
+        private static int TickOrder(Skills s) => s == Skills.AreaReaper ? 2 : s == Skills.ChillOut ? 1 : 0;
+
+        private static HashSet<Skills> BuildFreezeDisabledSkills()
+        {
+            var set = new HashSet<Skills>();
+            foreach (var s in SkillData.Skills)
+                if (SkillsInfo.GetValue<bool>(s.Skill, "disableOnFreezeTime"))
+                    set.Add(s.Skill);
+            return set;
+        }
+
+        public static void InvalidateFreezeDisabledCache() => _freezeDisabledSkills = null;
+
         private static void OnTick()
         {
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill)
-                    .Distinct()
-                    .OrderBy(skill => skill.ToString() == "AreaReaper")
-                    .ThenBy(skill => skill.ToString() == "ChillOut");
+                _activeSkillsSet.Clear();
+                _activeSkillsList.Clear();
+                foreach (var p in Instance.SkillPlayer)
+                {
+                    if (p.IsDrawing) continue;
+                    if (_activeSkillsSet.Add(p.Skill))
+                        _activeSkillsList.Add(p.Skill);
+                }
 
-                foreach (var skill in activeSkills)
-                    if (SkillsInfo.GetValue<bool>(skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                        continue;
-                    else
-                        Instance.SkillAction(skill.ToString(), "OnTick");
+                _activeSkillsList.Sort(_tickOrderCmp);
+
+                bool freeze = SkillUtils.IsFreezeTime();
+                _freezeDisabledSkills ??= BuildFreezeDisabledSkills();
+
+                foreach (var skill in _activeSkillsList)
+                {
+                    if (freeze && _freezeDisabledSkills.Contains(skill)) continue;
+                    Instance.SkillAction(_skillNames[skill], "OnTick");
+                }
             }
         }
 
@@ -466,7 +494,6 @@ namespace src.player
                     DisplayHUD = true,
                     SkillUsed = false,
                 };
-                Instance.SkillPlayer.Add(playerInfo);
                 PlayerManager.Register(playerInfo);
             }
         }
@@ -502,8 +529,6 @@ namespace src.player
 
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
 
-                var items = Instance.SkillPlayer.ToList();
-                Instance.SkillPlayer = [.. items.Where(p => p.PlayerIndex != player.Index)];
                 PlayerManager.UnregisterPlayer(player.Index);
                 EntityManager.DestroyPlayerEntities(player.Index);
 
@@ -606,6 +631,10 @@ namespace src.player
                     var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (playerInfo == null) continue;
 
+                    ActiveSkillsThisRound.TryAdd(playerInfo.Skill.ToString(), 0);
+                    if (playerInfo.SpecialSkill != noneSkill.Skill)
+                        ActiveSkillsThisRound.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
+
                     Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
 
                     playerInfo.Skill = noneSkill.Skill;
@@ -617,8 +646,9 @@ namespace src.player
                     RestorePlayer(player);
                 }
 
-                foreach (var skill in SkillData.Skills)
-                    Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+                foreach (var skillName in ActiveSkillsThisRound.Keys)
+                    Instance.SkillAction(skillName, "NewRound");
+                ActiveSkillsThisRound.Clear();
             }
         }
 
@@ -649,6 +679,7 @@ namespace src.player
                 EntityManager.DestroyAllTracked();
                 foreach (var skill in SkillData.Skills)
                     Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+                ActiveSkillsThisRound.Clear();
 
                 playersSkills.Clear();
                 staticSkills.Clear();
@@ -657,7 +688,6 @@ namespace src.player
                 tSkill = noneSkill;
                 allSkill = noneSkill;
 
-                Instance.SkillPlayer.Clear();
                 PlayerManager.Clear();
 
                 ConVar.Find("sv_legacy_jump")?.SetValue("1");
@@ -1113,7 +1143,7 @@ namespace src.player
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
-                skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
             }
         }
 

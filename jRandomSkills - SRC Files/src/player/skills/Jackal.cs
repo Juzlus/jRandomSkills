@@ -46,7 +46,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+                var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
                 bool isJackalOwner = playerInfo?.Skill == skillName;
 
                 if (!isJackalOwner)
@@ -89,6 +89,11 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null
                 || playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || playerPawn.Health <= 0) return; ;
+
+            foreach (var old in EntityManager.GetPlayerEntities(player.Index, "prop_physics_multiplayer"))
+                EntityManager.DestroyEntity(old);
+            foreach (var old in EntityManager.GetPlayerEntities(player.Index, "particle_system"))
+                EntityManager.DestroyEntity(old);
 
             var relay = EntityManager.CreateTrackedPhysicsProp(player.Index);
             if (relay == null || !relay.IsValid) return;

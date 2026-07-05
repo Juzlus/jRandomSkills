@@ -14,7 +14,6 @@ public class WASDMenuAPI
     
     public static void LoadPlugin(BasePlugin basePlugin, bool hotReload)
     {
-        var wasdMenuManager = new WasdManager();
         basePlugin.RegisterEventHandler<EventPlayerActivate>((@event, info) =>
         {
             if (@event.Userid != null)
@@ -46,7 +45,7 @@ public class WASDMenuAPI
 
     public static void OnTick()
     {
-        foreach (var player in Players.Values.Where(p => p.MainMenu != null))
+        foreach (var player in Players.Values.Where(p => p.MainMenu != null && p.Player?.IsValid == true))
         {
             if ((player.Buttons & PlayerButtons.Forward) == 0 && (player.Player.Buttons & PlayerButtons.Forward) != 0)
             {

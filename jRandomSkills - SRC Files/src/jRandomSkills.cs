@@ -19,16 +19,18 @@ namespace src
 #pragma warning disable CS8618
         public static jRandomSkills Instance { get; private set; }
 #pragma warning restore CS8618
-        public ConcurrentBag<jSkill_PlayerInfo> SkillPlayer { get; set; } = [];
+        public IEnumerable<jSkill_PlayerInfo> SkillPlayer => PlayerManager.GetAllPlayers();
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
         public IWasdMenuManager? MenuManager;
+        // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
+        public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
 
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.2.b5";
+        public override string ModuleVersion => "1.2.2.b6";
 
         public override void Load(bool hotReload)
         {
@@ -84,6 +86,9 @@ namespace src
         {
             if (string.IsNullOrEmpty(skill))
                 return null;
+
+            if (methodName == "EnableSkill")
+                ActiveSkillsThisRound.TryAdd(skill, 0);
 
             var method = _skillMethodCache.GetOrAdd((skill, methodName), key =>
             {
@@ -292,12 +297,9 @@ namespace src
             }
         }
 
-        /// <summary>
-        /// Gets a player info by index. O(n) lookup - consider caching if called frequently.
-        /// </summary>
         internal jSkill_PlayerInfo? GetPlayerInfoByIndex(uint playerIndex)
         {
-            return SkillPlayer.FirstOrDefault(p => p.PlayerIndex == playerIndex);
+            return PlayerManager.GetPlayerByIndex(playerIndex);
         }
     }
 
@@ -329,6 +331,23 @@ namespace src
     public static class SkillData
     {
         public static ConcurrentBag<jSkill_SkillInfo> Skills { get; } = [];
+
+        private static Dictionary<Skills, jSkill_SkillInfo>? _bySkill;
+
+        public static jSkill_SkillInfo? GetInfo(Skills skill)
+        {
+            var map = _bySkill;
+            if (map == null)
+            {
+                map = new Dictionary<Skills, jSkill_SkillInfo>();
+                foreach (var s in Skills)
+                    map[s.Skill] = s;
+                _bySkill = map;
+            }
+            return map.TryGetValue(skill, out var info) ? info : null;
+        }
+
+        public static void Invalidate() => _bySkill = null;
     }
 
     public enum CS2ConsoleColors

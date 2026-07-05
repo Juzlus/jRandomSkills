@@ -55,7 +55,18 @@ namespace src.utils
             var translations = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(jsonText);
 
             if (translations != null)
+            {
+                string redColor = ChatColors.Red.ToString();
+                string? altButton = Config.LoadedConfig.AlternativeSkillButton;
+                foreach (var tkey in translations.Keys.ToList())
+                {
+                    var val = translations[tkey].Replace("CHATCOLORS.RED", redColor);
+                    if (!string.IsNullOrEmpty(altButton))
+                        val = val.Replace("css_useSkill", $"css_useSkill/{altButton}");
+                    translations[tkey] = val;
+                }
                 _translations.AddOrUpdate(code, translations, (k, v) => translations);
+            }
         }
 
         public static bool HasTranslation(string code)
@@ -150,9 +161,6 @@ namespace src.utils
                 else
                 {
                     string output = args.Length == 0 ? translation : string.Format(translation, args);
-                    output = output.Replace("CHATCOLORS.RED", ChatColors.Red.ToString());
-                    if (Config.LoadedConfig.AlternativeSkillButton != null)
-                        output = output.Replace("css_useSkill", $"css_useSkill/{Config.LoadedConfig.AlternativeSkillButton}");
 
                     if (Illiterate.CheckIlliterateSkill(player))
                         return Illiterate.GetRandomText(output)!;

@@ -13,10 +13,17 @@ namespace src.player
     {
         private static string sessionId = "00000";
         private static readonly string debugFolder = Path.Combine(Instance.ModuleDirectory, "logs");
+        private static StreamWriter? _writer;
+        private static readonly object _writeLock = new();
 
         public static void Load()
         {
             sessionId = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+            lock (_writeLock) { _writer?.Dispose(); _writer = null; }
+
+            if (Config.LoadedConfig.DebugMode != true)
+                return;
+
             Instance.RegisterEventHandler<EventPlayerConnectFull>((@event, info) =>
             {
                 var player = PlayerManager.GetPlayerEvent(@event.Userid);
@@ -131,13 +138,25 @@ namespace src.player
             if (Config.LoadedConfig.DebugMode != true)
                 return;
 
-            // GetAllEntityIndexes();
+            lock (_writeLock)
+            {
+                _writer ??= CreateWriter();
+                _writer?.WriteLine($"[{DateTime.Now:dd.MM.yyyy HH:mm:ss}] {message}");
+            }
+        }
 
-            string filename = $"debug_{sessionId}.txt";
-            string path = Path.Combine(debugFolder, filename);
-
-            Directory.CreateDirectory(debugFolder);
-            File.AppendAllText(path, $"[{DateTime.Now:dd.MM.yyyy HH:mm:ss}] {message}{Environment.NewLine}", System.Text.Encoding.UTF8);
+        private static StreamWriter? CreateWriter()
+        {
+            try
+            {
+                Directory.CreateDirectory(debugFolder);
+                string path = Path.Combine(debugFolder, $"debug_{sessionId}.txt");
+                return new StreamWriter(path, append: true, System.Text.Encoding.UTF8) { AutoFlush = true };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static void GetAllEntityIndexes()

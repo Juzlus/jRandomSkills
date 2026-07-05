@@ -39,7 +39,7 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
             if (playerInfo?.Skill != skillName) return;
             UpdateNinja(player);
@@ -50,7 +50,7 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
             if (playerInfo?.Skill != skillName) return;
             UpdateNinja(player);
@@ -118,7 +118,7 @@ namespace src.player.skills
 
                 UpdateNinja(PlayerManager.GetPlayerFromEvent(player));
 
-                var props = EntityManager.GetPlayerEntities(PlayerManager.GetPlayerEvent(player)!.Index, "empty_prop");
+                var props = EntityManager.GetPlayerEntities((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index), "empty_prop");
                 if (props.Count == 0) continue;
 
                 var prop = Utilities.GetEntityFromIndex<CDynamicProp>((int)props[0]);

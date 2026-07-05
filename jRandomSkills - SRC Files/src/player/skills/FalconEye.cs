@@ -53,6 +53,7 @@ namespace src.player.skills
             if (player == null) return;
             ChangeCamera(player, true);
             EntityManager.DestroyPlayerEntities(player.Index);
+            cameras.TryRemove(player.Index, out _);
         }
 
         public static void OnTick()
