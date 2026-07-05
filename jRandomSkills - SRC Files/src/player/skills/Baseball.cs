@@ -36,7 +36,7 @@ namespace src.player.skills
             if (victim.Index == attacker.Index || victim.Team == attacker.Team)
                 return;
 
-            var attackerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(attacker)!.Index);
+            var attackerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (attackerInfo?.Skill != skillName) return;
 
             SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"));

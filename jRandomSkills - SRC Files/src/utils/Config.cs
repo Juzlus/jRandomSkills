@@ -80,6 +80,7 @@ namespace src.utils
             public bool EnableBotSkills { get; set; }
             public bool EnableBotKickDebug { get; set; }
             public bool DebugMode { get; set; }
+            public bool PerfMode { get; set; }
             public string? AlternativeSkillButton { get; set; }
             public float SkillTimeBeforeStart { get; set; }
             public float SkillHudDuration { get; set; }
@@ -107,6 +108,7 @@ namespace src.utils
                 EnableBotSkills = true;
                 EnableBotKickDebug = false;
                 DebugMode = false;
+                PerfMode = false;
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;

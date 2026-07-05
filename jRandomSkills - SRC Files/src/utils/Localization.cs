@@ -172,6 +172,8 @@ namespace src.utils
             return key;
         }
 
+        private static bool _geoLiteBroken = false;
+
         private static string GetLangCode(CCSPlayerController? player)
         {
             if (player == null || !player.IsValid || player.IsBot) return defaultLangCode;
@@ -180,10 +182,24 @@ namespace src.utils
             if (!string.IsNullOrEmpty(fileLangCode))
                 return fileLangCode;
 
-            if (Config.LoadedConfig.LanguageSystem.DisableGeoLite == true)
+            if (Config.LoadedConfig.LanguageSystem.DisableGeoLite == true || _geoLiteBroken)
                 return defaultLangCode;
 
-            string? geoliteLandCode = GetLangCodeFromDatabase(GetPlayerIP(player)) ?? defaultLangCode;
+            string? geoliteLandCode;
+            try
+            {
+                geoliteLandCode = GetLangCodeFromDatabase(GetPlayerIP(player)) ?? defaultLangCode;
+            }
+            catch (Exception ex)
+            {
+                // MaxMind.Db can fail to load (e.g. hot-reload while the old AssemblyLoadContext is
+                // unloading) or the .mmdb can be corrupt; fall back to the default language and stop
+                // trying for the rest of the session instead of throwing every HUD tick.
+                _geoLiteBroken = true;
+                Server.PrintToConsole($"[jRandomSkills] GeoLite lookup disabled for this session: {ex.GetType().Name}: {ex.Message}");
+                geoliteLandCode = defaultLangCode;
+            }
+
             ChangePlayerLanguage(player, geoliteLandCode);
             return geoliteLandCode;
         }
@@ -197,6 +213,9 @@ namespace src.utils
             return parts.Length > 1 ? parts[0] : playerIP;
         }
 
+        // NoInlining keeps the MaxMind.Db type references out of GetLangCode, so an assembly-load
+        // failure surfaces inside the try/catch at the call site instead of when GetLangCode is JITed.
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
         private static string? GetLangCodeFromDatabase(string? playerIP)
         {
             if (string.IsNullOrEmpty(playerIP)) return null;

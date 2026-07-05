@@ -78,7 +78,7 @@ namespace src.command
             player = PlayerManager.GetPlayerEvent(player);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (playerInfo == null || playerInfo.IsDrawing) return;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -406,7 +406,7 @@ namespace src.command
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.HudCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (playerInfo == null) return;
 
             playerInfo.DisplayHUD = !playerInfo.DisplayHUD;
@@ -569,6 +569,9 @@ namespace src.command
                 foreach (var skill in Enum.GetValues(typeof(Skills)))
                     if (SkillsInfo.GetValue<bool>(skill, "active"))
                         Instance.SkillAction(skill.ToString()!, "LoadSkill");
+
+                SkillData.Invalidate();
+                Event.InvalidateFreezeDisabledCache();
 
                 if (player != null && player.IsValid)
                     player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("reload")}");

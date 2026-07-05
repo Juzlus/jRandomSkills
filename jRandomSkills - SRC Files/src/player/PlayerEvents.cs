@@ -440,6 +440,7 @@ namespace src.player
 
         private static void OnTick()
         {
+            long perfStart = PerfLog.Start();
             lock (setLock)
             {
                 _activeSkillsSet.Clear();
@@ -462,6 +463,7 @@ namespace src.player
                     Instance.SkillAction(_skillNames[skill], "OnTick");
                 }
             }
+            PerfLog.Sample("OnTick(skills)", perfStart);
         }
 
         private static void OnPlayerConnectedBot(int playerSlot)
@@ -619,6 +621,13 @@ namespace src.player
 
         private static void DisableAll()
         {
+            long perfStart = PerfLog.Start();
+            DisableAllCore();
+            PerfLog.End("DisableAll total", perfStart, 2.0);
+        }
+
+        private static void DisableAllCore()
+        {
             lock (setLock)
             {
                 Fortnite.skillInThisRound = false;
@@ -743,6 +752,14 @@ namespace src.player
 
         private static HookResult PlayerDeath(EventPlayerDeath @event, GameEventInfo info)
         {
+            long perfStart = PerfLog.Start();
+            var result = PlayerDeathCore(@event, info);
+            PerfLog.End("PlayerDeath total", perfStart, 2.0);
+            return result;
+        }
+
+        private static HookResult PlayerDeathCore(EventPlayerDeath @event, GameEventInfo info)
+        {
             lock (setLock)
             {
                 DispatchToActiveSkills("PlayerDeath", @event);
@@ -847,6 +864,13 @@ namespace src.player
         }
 
         private static void SetSkill()
+        {
+            long perfStart = PerfLog.Start();
+            SetSkillCore();
+            PerfLog.End("SetSkill total", perfStart, 2.0);
+        }
+
+        private static void SetSkillCore()
         {
             setSkillTimer = null;
             lock (setLock)
@@ -1149,10 +1173,12 @@ namespace src.player
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            long perfStart = PerfLog.Start();
             lock (setLock)
             {
                 DispatchToActiveSkills("CheckTransmit", infoList);
             }
+            PerfLog.Sample("CheckTransmit", perfStart);
         }
 
         public static void UpdateSkillHUD(CCSPlayerController? player, string? headerLine, string? centerLine, string? extraLine, bool isDescription)

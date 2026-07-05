@@ -17,11 +17,13 @@ namespace src.player
                 UpdateGameRules();
                 if (Server.TickCount % 2 != 0) return;
 
+                long perfStart = PerfLog.Start();
                 foreach (var player in Utilities.GetPlayers())
                 {
                     if (player != null && player.IsValid)
                         UpdatePlayerHud(player);
                 }
+                PerfLog.Sample("OnTick(hud)", perfStart);
             });
 
             Instance.RegisterListener<OnMapStart>(OnMapStart);

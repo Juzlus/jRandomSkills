@@ -32,9 +32,10 @@ namespace src.player.skills
             if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
                 return;
 
-            CCSPlayerController attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>())!;
+            var attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>());
+            if (attacker == null || !attacker.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(attacker)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo == null) return;
 
             if (playerInfo.Skill == skillName)

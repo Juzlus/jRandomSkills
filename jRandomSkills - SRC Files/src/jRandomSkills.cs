@@ -114,7 +114,15 @@ namespace src
                 return type.GetMethod(key.Method, BindingFlags.Static | BindingFlags.Public);
             });
 
-            return method?.Invoke(null, param);
+            if (method == null) return null;
+
+            if (!PerfLog.Enabled)
+                return method.Invoke(null, param);
+
+            long perfStart = PerfLog.Start();
+            var result = method.Invoke(null, param);
+            PerfLog.End($"SkillAction {skill}.{methodName}", perfStart, 2.0);
+            return result;
         }
 
         internal new void AddCommand(string name, string description, CommandInfo.CommandCallback handler)
