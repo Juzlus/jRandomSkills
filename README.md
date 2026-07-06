@@ -274,7 +274,8 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         "SummaryAfterTheRound": true,    // Show summary of the last round
         "EnableBotSkills": true,         // Enable skills for bots
         "EnableBotKickDebug": false,     // Kick a random bot every 45s (for debug/testing)
-        "DebugMode": false,              // Write activity to the ‘Debug’ folder
+        "DebugMode": false,              // Save debug logs (player events and plugin activity) to the Debug folder
+        "PerfMode": false,               // Save performance measurements to the logs folder
         "AlternativeSkillButton": null,  // Possible buttons:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",

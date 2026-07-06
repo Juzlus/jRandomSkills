@@ -274,7 +274,8 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         "SummaryAfterTheRound": true,    // Show summary of the last round
         "EnableBotSkills": true,         // Enable skills for bots
         "EnableBotKickDebug": false,     // Kick a random bot every 45s (for debug/testing)
-        "DebugMode": false,              // Write activity to the ‘Debug’ folder
+        "DebugMode": false,              // Save debug logs (player events and plugin activity) to the Debug folder
+        "PerfMode": false,               // Save performance measurements to the logs folder
         "AlternativeSkillButton": null,  // Possible buttons:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",
@@ -356,6 +357,29 @@ This plugin uses content from the following projects:
 [THANKS]
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.2.b6</b></summary>
+
+- #### General:
+    - ###### Performance: much faster round changes - only skills that were actually active in the previous round are reset, instead of every loaded skill (`DisableAll` dropped from ~89ms to ~5ms on a full server). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Performance & memory: removed per-tick LINQ and skill-name allocations in the tick loop, made HUD skill lookups O(1), and moved translation color/button substitutions to load time. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `ForceFullUpdate` now creates the network service once per broadcast, and the round-start view-angle guard only skips a genuine (0, 0, 0) spawn placeholder instead of over-skipping valid angles. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Debug logging is only installed when `DebugMode` is enabled and writes through a single reused writer instead of reopening the file for every line. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Player skill state unified to a single collection (removed a duplicate list), closing a rare desync/race on player disconnect. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Gamedata signatures are now resolved lazily and in isolation, so one broken signature after a CS2 update no longer takes down the whole utility layer. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Hardened many tick/transmit code paths against invalid player handles to prevent rare crashes. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### The skill description HUD honours "always show" / `-1` duration consistently across every assignment path. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Skill improvements:
+    - ###### Jester (Joker):
+        - ###### Fixed the no-damage effect leaking onto a player after their skill was changed mid-round (e.g. stolen by Thief or removed by Deactivator) - the internal state is now cleared when the skill is disabled. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Jackal:
+        - ###### Fixed trail entities piling up over a round - the previous trail is now removed before a new one is spawned. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Falcon Eye / Third Eye / Spectator:
+        - ###### Camera state is now fully cleared when the skill is disabled. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b5</b></summary>

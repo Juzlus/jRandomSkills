@@ -272,7 +272,8 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
         "SummaryAfterTheRound": true,    // Pokazuj podsumowanie z ostatniej rundy
         "EnableBotSkills": true,         // Włącz umiejętności dla botów
         "EnableBotKickDebug": false,     // Co 45 sekund wyrzuć losowego bota (do celów debugowania/testowania)
-        "DebugMode": false,              // Zapisuj aktywność do folderu 'Debug'
+        "DebugMode": false,              // Zapisuje logi debugowania (zdarzenia graczy i działanie pluginu) do folderu Debug
+        "PerfMode": false,               // Zapisuje pomiary wydajności pluginu do folderu logs
         "AlternativeSkillButton": null,  // Możliwe przyciski:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",
@@ -371,6 +372,29 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.2.b6</b></summary>
+
+- #### Ogólne:
+    - ###### Wydajność: znacznie przyspieszono zmianę rundy - resetowane są tylko moce, które były aktywne w poprzedniej rundzie, zamiast wszystkich załadowanych (DisableAll skrócono z ok. 89 ms do ok. 5 ms na pełnym serwerze). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wydajność i zużycie pamięci: usunięto alokacje LINQ oraz nazw mocy wykonywane przy każdym ticku, przyspieszono wyszukiwanie nazw mocy w HUD do złożoności O(1), a podstawianie kolorów i przycisków w tłumaczeniach przeniesiono do etapu ich wczytywania. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `ForceFullUpdate` tworzy teraz usługę sieciową tylko raz na każde rozgłoszenie, a zabezpieczenie kątów widoku na początku rundy pomija wyłącznie rzeczywistą wartość zastępczą (0, 0, 0), zamiast błędnie pomijać również poprawne kąty. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Logowanie debugowania jest aktywowane tylko wtedy, gdy włączony jest DebugMode, a wpisy są zapisywane przy użyciu jednego, ponownie wykorzystywanego strumienia zamiast każdorazowego otwierania pliku. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Stan mocy gracza został ujednolicony do jednej kolekcji (usunięto zduplikowaną listę), eliminując rzadkie problemy z desynchronizacją podczas rozłączenia gracza. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Sygnatury Gamedata są teraz wczytywane leniwie i niezależnie od siebie, dzięki czemu uszkodzona sygnatura po aktualizacji CS2 nie powoduje już awarii całej warstwy narzędziowej. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Zabezpieczono wiele ścieżek wykonywanych przy tickach i transmisji przed nieprawidłowymi uchwytami graczy, co zapobiega rzadkim awariom. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### HUD z opisem mocy poprawnie obsługuje opcję "zawsze pokazuj" (-1) we wszystkich ścieżkach przypisywania mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Poprawki mocy:
+    - ###### Błazen:
+        - ###### Naprawiono błąd, przez który efekt braku obrażeń pozostawał na graczu po zmianie jego mocy w trakcie rundy (np. po kradzieży przez Złodzieja lub usunięciu przez Dezaktywatora) - stan wewnętrzny jest teraz poprawnie czyszczony po wyłączeniu mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Stópkarz:
+        - ###### Naprawiono problem z gromadzeniem się śladów w trakcie rundy - poprzedni ślad jest teraz usuwany przed utworzeniem nowego. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Oko Sokoła / Trzecie Oko / Obserwator:
+        - ###### Stan kamery jest teraz całkowicie resetowany po wyłączeniu mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b5</b></summary>
