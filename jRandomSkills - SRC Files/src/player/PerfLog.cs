@@ -14,7 +14,22 @@ namespace src.player
 
         public static bool Enabled => Config.LoadedConfig.PerfMode;
 
-        public static long Start() => Enabled ? Stopwatch.GetTimestamp() : 0;
+        private static bool _headerWritten;
+
+        public static long Start()
+        {
+            if (!Enabled) return 0;
+
+            // Write a header on the first measurement so the perf file appears immediately
+            // when PerfMode is active - makes "is it working?" instantly visible.
+            if (!_headerWritten)
+            {
+                _headerWritten = true;
+                Write($"PerfMode enabled (plugin v{Instance.ModuleVersion})");
+            }
+
+            return Stopwatch.GetTimestamp();
+        }
 
         // One-shot measurement: logs "label took X.XXms" when the elapsed time reaches the threshold.
         public static void End(string label, long startTimestamp, double thresholdMs = 1.0)

@@ -595,7 +595,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                bool isWarmup = Instance.GameRules != null && Instance.GameRules.WarmupPeriod == true;
+                bool isWarmup = Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true;
                 isTransmitRegistered = false;
                 Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
@@ -877,7 +877,9 @@ namespace src.player
             {
                 if (Instance == null) return;
 
-                if (Instance.GameRules != null && Instance.GameRules.WarmupPeriod == true)
+                // GameRules can be null for a short window right after plugin load/hot-reload;
+                // treat that as "not ready" so skills are never assigned during warmup by accident.
+                if (Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true)
                 {
                     setSkillTimer?.Kill();
                     return;
