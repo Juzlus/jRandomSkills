@@ -88,7 +88,7 @@ namespace src.player.skills
             if (pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return;
             var player = pawn.Controller.Value.As<CCSPlayerController>();
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
             if (playerInfo?.Skill != skillName) return;
 
             nades.TryAdd(grenade.Index, 0);

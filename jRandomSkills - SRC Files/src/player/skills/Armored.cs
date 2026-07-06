@@ -47,7 +47,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
             if (playerInfo == null) return;
 
             if (playerInfo.Skill == skillName && victim.PawnIsAlive)

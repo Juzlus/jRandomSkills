@@ -78,7 +78,7 @@ namespace src.command
             player = PlayerManager.GetPlayerEvent(player);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (playerInfo == null || playerInfo.IsDrawing) return;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -150,7 +150,7 @@ namespace src.command
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
-                skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
 
                 if (player == null)
                 {
@@ -406,7 +406,7 @@ namespace src.command
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.HudCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (playerInfo == null) return;
 
             playerInfo.DisplayHUD = !playerInfo.DisplayHUD;
@@ -504,7 +504,7 @@ namespace src.command
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = src.player.Skills.None;
-                skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
 
                 if (skill.Skill == src.player.Skills.None)
                     Event.staticSkills.TryRemove(targetPlayer.Index, out _);
@@ -569,6 +569,9 @@ namespace src.command
                 foreach (var skill in Enum.GetValues(typeof(Skills)))
                     if (SkillsInfo.GetValue<bool>(skill, "active"))
                         Instance.SkillAction(skill.ToString()!, "LoadSkill");
+
+                SkillData.Invalidate();
+                Event.InvalidateFreezeDisabledCache();
 
                 if (player != null && player.IsValid)
                     player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("reload")}");

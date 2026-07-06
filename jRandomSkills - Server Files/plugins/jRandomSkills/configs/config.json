@@ -8,6 +8,7 @@
   "EnableBotSkills": true,
   "EnableBotKickDebug": false,
   "DebugMode": false,
+  "PerfMode": false,
   "AlternativeSkillButton": null,
   "SkillTimeBeforeStart": 7.0,
   "SkillHudDuration": -1.0,

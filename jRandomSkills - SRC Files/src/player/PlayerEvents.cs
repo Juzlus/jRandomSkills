@@ -417,23 +417,53 @@ namespace src.player
             }
         }
 
+        private static readonly Dictionary<Skills, string> _skillNames =
+            Enum.GetValues<Skills>().ToDictionary(s => s, s => s.ToString());
+        private static readonly HashSet<Skills> _activeSkillsSet = [];
+        private static readonly List<Skills> _activeSkillsList = [];
+        private static readonly Comparison<Skills> _tickOrderCmp = (a, b) => TickOrder(a).CompareTo(TickOrder(b));
+        private static HashSet<Skills>? _freezeDisabledSkills;
+
+        // AreaReaper and ChillOut depend on other skills' tick results, so they must tick last.
+        private static int TickOrder(Skills s) => s == Skills.AreaReaper ? 2 : s == Skills.ChillOut ? 1 : 0;
+
+        private static HashSet<Skills> BuildFreezeDisabledSkills()
+        {
+            var set = new HashSet<Skills>();
+            foreach (var s in SkillData.Skills)
+                if (SkillsInfo.GetValue<bool>(s.Skill, "disableOnFreezeTime"))
+                    set.Add(s.Skill);
+            return set;
+        }
+
+        public static void InvalidateFreezeDisabledCache() => _freezeDisabledSkills = null;
+
         private static void OnTick()
         {
+            long perfStart = PerfLog.Start();
             lock (setLock)
             {
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill)
-                    .Distinct()
-                    .OrderBy(skill => skill.ToString() == "AreaReaper")
-                    .ThenBy(skill => skill.ToString() == "ChillOut");
+                _activeSkillsSet.Clear();
+                _activeSkillsList.Clear();
+                foreach (var p in Instance.SkillPlayer)
+                {
+                    if (p.IsDrawing) continue;
+                    if (_activeSkillsSet.Add(p.Skill))
+                        _activeSkillsList.Add(p.Skill);
+                }
 
-                foreach (var skill in activeSkills)
-                    if (SkillsInfo.GetValue<bool>(skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                        continue;
-                    else
-                        Instance.SkillAction(skill.ToString(), "OnTick");
+                _activeSkillsList.Sort(_tickOrderCmp);
+
+                bool freeze = SkillUtils.IsFreezeTime();
+                _freezeDisabledSkills ??= BuildFreezeDisabledSkills();
+
+                foreach (var skill in _activeSkillsList)
+                {
+                    if (freeze && _freezeDisabledSkills.Contains(skill)) continue;
+                    Instance.SkillAction(_skillNames[skill], "OnTick");
+                }
             }
+            PerfLog.Sample("OnTick(skills)", perfStart);
         }
 
         private static void OnPlayerConnectedBot(int playerSlot)
@@ -466,7 +496,6 @@ namespace src.player
                     DisplayHUD = true,
                     SkillUsed = false,
                 };
-                Instance.SkillPlayer.Add(playerInfo);
                 PlayerManager.Register(playerInfo);
             }
         }
@@ -502,8 +531,6 @@ namespace src.player
 
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
 
-                var items = Instance.SkillPlayer.ToList();
-                Instance.SkillPlayer = [.. items.Where(p => p.PlayerIndex != player.Index)];
                 PlayerManager.UnregisterPlayer(player.Index);
                 EntityManager.DestroyPlayerEntities(player.Index);
 
@@ -568,7 +595,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                bool isWarmup = Instance.GameRules != null && Instance.GameRules.WarmupPeriod == true;
+                bool isWarmup = Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true;
                 isTransmitRegistered = false;
                 Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
@@ -594,6 +621,13 @@ namespace src.player
 
         private static void DisableAll()
         {
+            long perfStart = PerfLog.Start();
+            DisableAllCore();
+            PerfLog.End("DisableAll total", perfStart, 2.0);
+        }
+
+        private static void DisableAllCore()
+        {
             lock (setLock)
             {
                 Fortnite.skillInThisRound = false;
@@ -606,6 +640,10 @@ namespace src.player
                     var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (playerInfo == null) continue;
 
+                    ActiveSkillsThisRound.TryAdd(playerInfo.Skill.ToString(), 0);
+                    if (playerInfo.SpecialSkill != noneSkill.Skill)
+                        ActiveSkillsThisRound.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
+
                     Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
 
                     playerInfo.Skill = noneSkill.Skill;
@@ -617,8 +655,9 @@ namespace src.player
                     RestorePlayer(player);
                 }
 
-                foreach (var skill in SkillData.Skills)
-                    Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+                foreach (var skillName in ActiveSkillsThisRound.Keys)
+                    Instance.SkillAction(skillName, "NewRound");
+                ActiveSkillsThisRound.Clear();
             }
         }
 
@@ -649,6 +688,7 @@ namespace src.player
                 EntityManager.DestroyAllTracked();
                 foreach (var skill in SkillData.Skills)
                     Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+                ActiveSkillsThisRound.Clear();
 
                 playersSkills.Clear();
                 staticSkills.Clear();
@@ -657,7 +697,6 @@ namespace src.player
                 tSkill = noneSkill;
                 allSkill = noneSkill;
 
-                Instance.SkillPlayer.Clear();
                 PlayerManager.Clear();
 
                 ConVar.Find("sv_legacy_jump")?.SetValue("1");
@@ -712,6 +751,14 @@ namespace src.player
         }
 
         private static HookResult PlayerDeath(EventPlayerDeath @event, GameEventInfo info)
+        {
+            long perfStart = PerfLog.Start();
+            var result = PlayerDeathCore(@event, info);
+            PerfLog.End("PlayerDeath total", perfStart, 2.0);
+            return result;
+        }
+
+        private static HookResult PlayerDeathCore(EventPlayerDeath @event, GameEventInfo info)
         {
             lock (setLock)
             {
@@ -818,12 +865,21 @@ namespace src.player
 
         private static void SetSkill()
         {
+            long perfStart = PerfLog.Start();
+            SetSkillCore();
+            PerfLog.End("SetSkill total", perfStart, 2.0);
+        }
+
+        private static void SetSkillCore()
+        {
             setSkillTimer = null;
             lock (setLock)
             {
                 if (Instance == null) return;
 
-                if (Instance.GameRules != null && Instance.GameRules.WarmupPeriod == true)
+                // GameRules can be null for a short window right after plugin load/hot-reload;
+                // treat that as "not ready" so skills are never assigned during warmup by accident.
+                if (Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true)
                 {
                     setSkillTimer?.Kill();
                     return;
@@ -1113,16 +1169,18 @@ namespace src.player
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
-                skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
             }
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            long perfStart = PerfLog.Start();
             lock (setLock)
             {
                 DispatchToActiveSkills("CheckTransmit", infoList);
             }
+            PerfLog.Sample("CheckTransmit", perfStart);
         }
 
         public static void UpdateSkillHUD(CCSPlayerController? player, string? headerLine, string? centerLine, string? extraLine, bool isDescription)

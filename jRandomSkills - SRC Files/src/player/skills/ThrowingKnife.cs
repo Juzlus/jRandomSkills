@@ -388,7 +388,7 @@ namespace src.player.skills
                         continue;
                     }
 
-                    bool isOwner = knifeOwnerIndex == PlayerManager.GetPlayerEvent(player)!.Index;
+                    bool isOwner = knifeOwnerIndex == (PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
                     bool isObservingOwner = observedPlayerIndex.HasValue && observedPlayerIndex.Value == knifeOwnerIndex;
 
                     if (!isOwner && !isObservingOwner)

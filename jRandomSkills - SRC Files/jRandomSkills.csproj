@@ -71,7 +71,9 @@
         <Message Text="Copying compiled DLL from $(SourceDLL) to $(ServerDLL)" Importance="High" />
         <ItemGroup>
             <CompiledDLL Include="$(SourceDLL)\jRandomSkills.dll" />
+            <CompiledDLL Include="$(SourceDLL)\jRandomSkills.pdb" />
             <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.dll" />
+            <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.pdb" />
 	        <CompiledDLL Include="$(SourceDLL)\MaxMind.Db.dll" />
 	        <CompiledDLL Include="$(SourceDLL)\Newtonsoft.Json.dll" />
         </ItemGroup>

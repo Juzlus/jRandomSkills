@@ -17,11 +17,13 @@ namespace src.player
                 UpdateGameRules();
                 if (Server.TickCount % 2 != 0) return;
 
+                long perfStart = PerfLog.Start();
                 foreach (var player in Utilities.GetPlayers())
                 {
                     if (player != null && player.IsValid)
                         UpdatePlayerHud(player);
                 }
+                PerfLog.Sample("OnTick(hud)", perfStart);
             });
 
             Instance.RegisterListener<OnMapStart>(OnMapStart);
@@ -61,7 +63,7 @@ namespace src.player
         {
             if (player == null || !player.IsValid || player.IsBot) return;
 
-            var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)!.Index);
+            var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
 
             var now = DateTime.Now;
@@ -72,7 +74,7 @@ namespace src.player
             string skillLine = string.Empty;
             string remainingLine = string.Empty;
 
-            bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now;
+            bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || Config.LoadedConfig.DisplayAlwaysDescription;
             bool isDescription = true;
 
             var skills = SkillData.Skills;
@@ -99,7 +101,7 @@ namespace src.player
             {
                 if (player.PawnIsAlive)
                 {
-                    var skillInfo = skills.FirstOrDefault(s => s.Skill == skillPlayer.Skill);
+                    var skillInfo = SkillData.GetInfo(skillPlayer.Skill);
 
                     if (skillInfo != null)
                     {
@@ -139,9 +141,9 @@ namespace src.player
                     var observedSkill = PlayerManager.GetPlayerByIndex(observedEvent.Index);
                     if (observedSkill == null) return;
 
-                    var observedSkillInfo = skills.FirstOrDefault(s => s.Skill == observedSkill.Skill);
+                    var observedSkillInfo = SkillData.GetInfo(observedSkill.Skill);
                     var observedSpecialInfo = observedSkill.SpecialSkill != Skills.None
-                        ? skills.FirstOrDefault(s => s.Skill == observedSkill.SpecialSkill)
+                        ? SkillData.GetInfo(observedSkill.SpecialSkill)
                         : null;
 
                     string primaryName = player.GetSkillName(observedSkill.Skill, observedSkill.SkillChance);

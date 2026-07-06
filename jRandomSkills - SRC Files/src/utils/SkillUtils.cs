@@ -21,10 +21,21 @@ namespace src.utils
 {
     public static class SkillUtils
     {
-        private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int> HEGrenadeProjectile_CreateFunc = new(GameData.GetSignature("HEGrenadeProjectile_CreateFunc"));
-        private static readonly MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile> SmokeGrenadeProjectile_CreateFunc = new(GameData.GetSignature("SmokeGrenadeProjectile_CreateFunc"));
-        private static readonly MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint> TerminateRoundFunc = new(GameData.GetSignature("CCSGameRules_TerminateRound"));
-        private static readonly MemoryFunctionVoid<CBasePlayerPawn, QAngle> SnapViewAngles = new(GameData.GetSignature("SnapViewAngles"));
+        private static Lazy<T?> LazySig<T>(string name, Func<string, T> factory) where T : class =>
+            new(() =>
+            {
+                try { return factory(GameData.GetSignature(name)); }
+                catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] gamedata signature '{name}' could not be resolved: {ex.Message}"); return null; }
+            });
+
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> HEGrenadeProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("HEGrenadeProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>?> SmokeGrenadeProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>>("SmokeGrenadeProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>?> TerminateRoundFunc =
+            LazySig<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>>("CCSGameRules_TerminateRound", s => new(s));
+        private static readonly Lazy<MemoryFunctionVoid<CBasePlayerPawn, QAngle>?> SnapViewAngles =
+            LazySig<MemoryFunctionVoid<CBasePlayerPawn, QAngle>>("SnapViewAngles", s => new(s));
         // private static readonly int collisionRulesChangedOffset = GameData.GetOffset("CBaseEntity_CollisionRulesChanged");
 
         public static void PrintToChat(CCSPlayerController player, string? msg, string border = "tb", string? title = null)
@@ -73,6 +84,8 @@ namespace src.utils
 
             weapon.Value.Clip1 = ammo;
             Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_iClip1");
+
+            if (ammo == 1) return;
 
             jRandomSkills.Instance.AddTimer(.1f, () =>
             {
@@ -169,7 +182,7 @@ namespace src.utils
         public static void Look(this CBasePlayerPawn pawn, QAngle angle)
         {
             if (pawn == null || !pawn.IsValid) return;
-            SnapViewAngles.Invoke(pawn, angle);
+            SnapViewAngles.Value?.Invoke(pawn, angle);
         }
 
         public static CBeam? CreateLine(Vector start, Vector end, Color color, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
@@ -264,12 +277,12 @@ namespace src.utils
 
         public static void CreateHEGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
-            HEGrenadeProjectile_CreateFunc.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
+            HEGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
         }
 
         public static void CreateSmokeGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
-            SmokeGrenadeProjectile_CreateFunc.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
+            SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
         }
 
         public static bool TakeHealth(CCSPlayerPawn? pawn, int damage)
@@ -320,7 +333,7 @@ namespace src.utils
             return EntityManager.CreateTrackedTrigger(ownerPlayerIndex, name, radius, pos);
         }
 
-        public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null)
+        public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null, INetworkGameServer? networkGameServer = null)
         {
             if (player == null || !player.IsValid) return;
 
@@ -329,14 +342,15 @@ namespace src.utils
 
             QAngle lastAngle = new(pawn.V_angle.X, pawn.V_angle.Y, pawn.V_angle.Z);
 
-            INetworkServerService networkServerService = new();
-            INetworkGameServer networkGameServer = networkServerService.GetIGameServer();
+            networkGameServer ??= new INetworkServerService().GetIGameServer();
 
             var client = networkGameServer.GetClientBySlot(player.Slot);
             if (client == null) return;
 
             client.ForceFullUpdate();
-            if (lastAngle.Y == 0) return;
+            // Only skip the angle restore when the captured view is a spawn-time (0,0,0) placeholder;
+            // a genuine angle with a single zero component (e.g. yaw exactly 0) must still be restored.
+            if (lastAngle.X == 0 && lastAngle.Y == 0 && lastAngle.Z == 0) return;
 
             uint playerIndex = player.Index;
 
@@ -368,8 +382,9 @@ namespace src.utils
             lastForceFullUpdateAll = tickCount;
             var playersToRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
 
+            INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
             foreach (var player in Utilities.GetPlayers())
-                ForceFullUpdate(player, playersToRestore);
+                ForceFullUpdate(player, playersToRestore, networkGameServer);
 
             if (playersToRestore.Count <= 0) return;
 
@@ -639,7 +654,7 @@ namespace src.utils
         {
             if (jRandomSkills.Instance == null || jRandomSkills.Instance.GameRules == null) return;
             UpdateServerTeamScores(ctScore, tScore);
-            TerminateRoundFunc.Invoke(jRandomSkills.Instance.GameRules.Handle, 5f, roundEndReason, 0, 0);
+            TerminateRoundFunc.Value?.Invoke(jRandomSkills.Instance.GameRules.Handle, 5f, roundEndReason, 0, 0);
         }
 
         public static void TerminateRound(CsTeam winnerTeam)

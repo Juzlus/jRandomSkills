@@ -53,16 +53,18 @@ namespace src.player.skills
             var jester = GetJesterInfo(player.Index);
             if (jester == null) return;
 
+            jester.Active = false;
+            if (jester.Timer != null)
+            {
+                jester.Timer.Kill();
+                jester.Timer = null;
+            }
+
             Server.NextWorldUpdate(() =>
             {
-                if (jester.Timer != null)
-                {
-                    jester.Timer?.Kill();
-                    jester.Timer = null;
-                }
-
                 SkillUtils.ResetPrintHTML(player);
                 SetPlayerColor(player, true);
+                jesters.TryRemove(player.Index, out _);
             });
         }
 
