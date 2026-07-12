@@ -3,14 +3,14 @@
     "signatures": {
       "library": "server",
       "windows": "48 8B C4 48 89 58 ? 48 89 68 ? 48 89 70 ? 57 41 56 41 57 48 81 EC ? ? ? ? 48 8B B4 24 ? ? ? ? 4D 8B F8",
-      "linux": "55 4C 89 C1 48 89 E5 41 57 45 89 CF 41 56 49 89 FE"
+      "linux": "55 4C 89 C1 48 89 E5 41 57 49 89 FF 41 56 45 89 CE 41 55 4D 89 C5 41 54 53 48 83 EC ? 48 89 55 ? 48 89 F2 48 89 FE"
     }
   },
   "HEGrenadeProjectile_CreateFunc": {
     "signatures": {
       "library": "server",
-      "windows": "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B AC 24 ? ? ? ? 49 8B F8",
-      "linux": "55 4C 89 C1 48 89 E5 41 57 49 89 D7"
+      "windows": "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 6C 24 ? 49 8B F8 4C 8B C2 0F 29 74 24 ? 48 8B D1 48 8B D9 48 8D 0D ? ? ? ? 4C 8B CD E8 ? ? ? ? F3 0F 10 0D ? ? ? ? 48 8B C8 48 8B F0 E8 ? ? ? ? 48 8B D7 48 8B CE",
+      "linux": "55 4C 89 C1 48 89 E5 41 57 49 89 FF 41 56 49 89 D6 48 89 F2 48 89 FE 41 55 48 8D 3D ? ? ? ? 4D 89 C5 41 54 45 89 CC 53"
     }
   },
   "Shoot_Secondary": {
@@ -24,25 +24,7 @@
     "signatures": {
       "library": "server",
       "windows": "48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B DA 48 8B F1 48 8D 55",
-      "linux": "55 48 89 E5 41 57 49 89 FF 48 89 F7 41 56 41 55 41 54 53 48 81 EC"
-    }
-  },
-  "CServerSideClient_m_nDeltaTick": {
-    "offsets": {
-      "windows": 348,
-      "linux": 348
-    }
-  },
-  "INetworkGameServer_Slots": {
-    "offsets": {
-      "windows": 592,
-      "linux": 592
-    }
-  },
-  "INetworkServerService_GetIGameServer": {
-    "offsets": {
-      "windows": 23,
-      "linux": 24
+      "linux": "55 48 89 E5 41 57 49 89 FF 48 89 F7 41 56 41 55 41 54 53 48 81 EC ? ? ? ? E8"
     }
   }
 }
