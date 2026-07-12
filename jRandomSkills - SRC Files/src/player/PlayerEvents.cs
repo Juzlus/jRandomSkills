@@ -144,7 +144,15 @@ namespace src.player
             foreach (var p in Instance.SkillPlayer)
             {
                 if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                Instance.SkillAction(p.Skill.ToString(), methodName, args);
+                try
+                {
+                    Instance.SkillAction(p.Skill.ToString(), methodName, args);
+                }
+                catch (Exception ex)
+                {
+                    // One skill's failure must not break the dispatch chain.
+                    Server.PrintToConsole($"[jRandomSkills] {p.Skill}.{methodName} failed: {ex.InnerException?.Message ?? ex.Message}");
+                }
             }
         }
 
@@ -368,7 +376,7 @@ namespace src.player
                 if (playerInfo == null) return HookResult.Continue;
 
                 CCSWeaponBaseVData vdata = VirtualFunctions.GetCSWeaponDataFromKeyFunc.Invoke(-1, econItem.ItemDefinitionIndex.ToString());
-                if (vdata == null) return HookResult.Continue;
+                if (vdata == null || vdata.Handle == IntPtr.Zero) return HookResult.Continue;
 
                 var activeSkills = Instance.SkillPlayer
                     .Where(p => !p.IsDrawing)
@@ -507,6 +515,8 @@ namespace src.player
                 var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
+                Localization.PreResolveLanguage(player);
+
                 string welcomeMsg = player.GetTranslation("welcome_message", "welcome");
                 foreach (string line in welcomeMsg.Split("\n"))
                     player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}\u202A{player.PlayerName}\u202C{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
@@ -613,6 +623,12 @@ namespace src.player
 
                 setSkillTimer?.Kill();
 
+                if (isWarmup)
+                {
+                    setSkillTimer = Instance?.AddTimer(1f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                    return HookResult.Continue;
+                }
+
                 float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
                 setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 return HookResult.Continue;
@@ -630,6 +646,9 @@ namespace src.player
         {
             lock (setLock)
             {
+                // Re-register CheckTransmit so the dying-entity filter covers the kills below.
+                EnableTransmit();
+
                 Fortnite.skillInThisRound = false;
                 EntityManager.DestroyAllTracked();
 
@@ -685,10 +704,15 @@ namespace src.player
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
 
                 Fortnite.skillInThisRound = false;
+
+                EntityManager.SuppressKills = true;
                 EntityManager.DestroyAllTracked();
                 foreach (var skill in SkillData.Skills)
                     Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+                EntityManager.SuppressKills = false;
+
                 ActiveSkillsThisRound.Clear();
+                nextRoundPicks.Clear();
 
                 playersSkills.Clear();
                 staticSkills.Clear();
@@ -739,6 +763,10 @@ namespace src.player
                         SkillUtils.PrintToChat(player, string.Empty, border: "b");
                     }
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
+                // Before the optional disable below, so the "don't repeat the current skill"
+                // exclusion still sees this round's skills.
+                Instance.AddTimer(.6f, PrecomputeNextRoundSkills, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 if (Config.LoadedConfig.DisableSkillsOnRoundEnd)
                 {
@@ -870,6 +898,98 @@ namespace src.player
             PerfLog.End("SetSkill total", perfStart, 2.0);
         }
 
+        private static readonly Dictionary<uint, jSkill_SkillInfo> nextRoundPicks = [];
+
+        private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, List<CCSPlayerController> validPlayers, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
+        {
+            List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
+            skillList.RemoveAll(s => s?.Skill == Skills.None);
+            if (!player.IsBot)
+                skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+
+            if (gameMode != Config.GameModes.FullRandom)
+                skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
+
+            if (validPlayers.Count(p => p.Team == player.Team) == 1)
+            {
+                SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = [.. SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates)];
+                skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
+            }
+
+            if (player.Team == CsTeam.Terrorist)
+                skillList.RemoveAll(s => counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+            else
+                skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+
+            if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+            {
+                skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
+                if (skillList.Count == 0) skills.Clear();
+            }
+
+            var randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode);
+
+            if (gameMode == Config.GameModes.NoRepeat)
+            {
+                if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? value))
+                    value.Add(randomSkill);
+                else
+                    playersSkills.TryAdd(player.Index, [randomSkill]);
+            }
+
+            return randomSkill;
+        }
+
+        private static bool IsPickStillValid(jSkill_SkillInfo pick, CCSPlayerController player, List<CCSPlayerController> validPlayers, Dictionary<Skills, int> assignmentCounts)
+        {
+            if (pick.Skill == Skills.None) return true;
+            if (!SkillData.Skills.Any(s => s.Skill == pick.Skill)) return false;
+
+            string name = pick.Skill.ToString();
+            if (player.Team == CsTeam.Terrorist && counterterroristSkills.Any(s => s.Name == name)) return false;
+            if (player.Team == CsTeam.CounterTerrorist && terroristSkills.Any(s => s.Name == name)) return false;
+
+            var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == name);
+            if (def == null) return false;
+            if (def.NeedsTeammates && validPlayers.Count(p => p.Team == player.Team) == 1) return false;
+            if (def.MaxPerServer >= 0 && assignmentCounts.TryGetValue(pick.Skill, out var c) && c >= def.MaxPerServer) return false;
+
+            return true;
+        }
+
+        // Runs at round end so the expensive skill selection is off the round-start hot path;
+        // SetSkillCore then only applies the picks.
+        private static void PrecomputeNextRoundSkills()
+        {
+            long perfStart = PerfLog.Start();
+            lock (setLock)
+            {
+                nextRoundPicks.Clear();
+
+                var gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
+                if (gameMode is not (Config.GameModes.Normal or Config.GameModes.FullRandom or Config.GameModes.NoRepeat)) return;
+                if (Instance?.GameRules == null || Instance.GameRules.WarmupPeriod == true) return;
+
+                var validPlayers = Utilities.GetPlayers()
+                    .Where(p => p != null && p.IsValid && !p.IsHLTV)
+                    .Where(p => { try { return p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; } catch { return false; } }).ToList();
+
+                Dictionary<Skills, int> assignmentCounts = [];
+                foreach (var player in validPlayers)
+                {
+                    var skillPlayer = PlayerManager.GetPlayerByIndex(player.Index);
+                    if (skillPlayer == null) continue;
+
+                    var pick = PickSkillForPlayer(player, skillPlayer, validPlayers, assignmentCounts, gameMode);
+                    nextRoundPicks[player.Index] = pick;
+
+                    if (pick.Skill != Skills.None)
+                        assignmentCounts[pick.Skill] = assignmentCounts.TryGetValue(pick.Skill, out var c) ? c + 1 : 1;
+                }
+            }
+            PerfLog.End("PrecomputeSkills total", perfStart, 2.0);
+        }
+
         private static void SetSkillCore()
         {
             setSkillTimer = null;
@@ -877,11 +997,11 @@ namespace src.player
             {
                 if (Instance == null) return;
 
-                // GameRules can be null for a short window right after plugin load/hot-reload;
-                // treat that as "not ready" so skills are never assigned during warmup by accident.
+                // GameRules null = not ready; keep polling so skills land right after warmup ends.
                 if (Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true)
                 {
                     setSkillTimer?.Kill();
+                    setSkillTimer = Instance.AddTimer(1f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     return;
                 }
 
@@ -940,40 +1060,12 @@ namespace src.player
                     Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
                     if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                     {
-                        List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-                        skillList.RemoveAll(s => s?.Skill == Skills.None);
-                        if (!player.IsBot)
-                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
-
-                        if (gameMode != Config.GameModes.FullRandom)
-                            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
-
-                        if (validPlayers.Count(p => p.Team == player.Team) == 1)
-                        {
-                            SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = [.. SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates)];
-                            skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
-                        }
-
-                        if (player.Team == CsTeam.Terrorist)
-                            skillList.RemoveAll(s => counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                        // Prefer the pick made at the end of the previous round; re-pick only when
+                        // it no longer fits (team change, missing player, max reached).
+                        if (nextRoundPicks.TryGetValue(player.Index, out var pre) && IsPickStillValid(pre, player, validPlayers, assignmentCounts))
+                            randomSkill = pre;
                         else
-                            skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
-
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
-                        {
-                            skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
-                            if (skillList.Count == 0) skills.Clear();
-                        }
-
-                        randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode);
-
-                        if (gameMode == Config.GameModes.NoRepeat)
-                        {
-                            if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? value))
-                                value.Add(randomSkill);
-                            else
-                                playersSkills.TryAdd(player.Index, [randomSkill]);
-                        }
+                            randomSkill = PickSkillForPlayer(player, skillPlayer, validPlayers, assignmentCounts, gameMode);
                     }
                     else if (gameMode == Config.GameModes.TeamSkills)
                         randomSkill = player.Team == CsTeam.Terrorist ? tSkill : ctSkill;
@@ -1057,6 +1149,8 @@ namespace src.player
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     }
                 }
+
+                nextRoundPicks.Clear();
             }
         }
 
@@ -1178,6 +1272,19 @@ namespace src.player
             long perfStart = PerfLog.Start();
             lock (setLock)
             {
+                // Keep dying entities out of snapshots until the engine processes the kill.
+                var dying = EntityManager.GetRecentlyDestroyedSnapshot();
+                if (dying.Count > 0)
+                {
+                    foreach (var (info, player) in infoList)
+                    {
+                        if (player == null || !player.IsValid) continue;
+                        foreach (var entityIndex in dying)
+                            if (info.TransmitEntities.Contains(entityIndex))
+                                info.TransmitEntities.Remove(entityIndex);
+                    }
+                }
+
                 DispatchToActiveSkills("CheckTransmit", infoList);
             }
             PerfLog.Sample("CheckTransmit", perfStart);

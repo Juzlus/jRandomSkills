@@ -111,8 +111,6 @@ namespace src.player.skills
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -121,8 +119,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5d00ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int grenadeLimit = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

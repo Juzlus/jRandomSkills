@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -15,6 +16,8 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        private static int GetMaxMoney() => ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
+
         public static void EnableSkill(CCSPlayerController player)
         {
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -24,7 +27,7 @@ namespace src.player.skills
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            moneyBonus = Math.Min(moneyBonus, 16000 - moneyServices.Account);
+            moneyBonus = Math.Min(moneyBonus, GetMaxMoney() - moneyServices.Account);
 
             playerInfo.SkillChance = moneyBonus;
             AddMoney(player, moneyBonus);
@@ -48,7 +51,7 @@ namespace src.player.skills
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            moneyServices.Account = Math.Clamp(moneyServices.Account + money, minimum, 16000);
+            moneyServices.Account = Math.Clamp(moneyServices.Account + money, minimum, GetMaxMoney());
             Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 

@@ -172,6 +172,14 @@ namespace src.utils
             return key;
         }
 
+        // Resolves and caches the player's language at connect time, so the GeoLite
+        // database lookup never runs on the tick path.
+        public static void PreResolveLanguage(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid || player.IsBot) return;
+            GetLangCode(player);
+        }
+
         private static bool _geoLiteBroken = false;
 
         private static string GetLangCode(CCSPlayerController? player)

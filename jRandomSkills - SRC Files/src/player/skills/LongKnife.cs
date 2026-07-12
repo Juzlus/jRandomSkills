@@ -15,7 +15,13 @@ namespace src.player.skills
         private static bool hooked = false;
         private const int actionCode = 503;
         private static readonly ConcurrentDictionary<uint, byte> playersInAction = [];
-        private static readonly MemoryFunctionVoid<IntPtr, short> Shoot_Secondary = new(GameData.GetSignature("Shoot_Secondary"));
+        private static readonly MemoryFunctionVoid<IntPtr, short>? Shoot_Secondary = ResolveShootSecondary();
+
+        private static MemoryFunctionVoid<IntPtr, short>? ResolveShootSecondary()
+        {
+            try { return new(GameData.GetSignature("Shoot_Secondary")); }
+            catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] Shoot_Secondary signature unresolved: {ex.Message}"); return null; }
+        }
 
         public static void LoadSkill()
         {
@@ -26,12 +32,12 @@ namespace src.player.skills
         {
             playersInAction.Clear();
             hooked = false;
-            Shoot_Secondary.Unhook(ShootSecondary, HookMode.Pre);
+            Shoot_Secondary?.Unhook(ShootSecondary, HookMode.Pre);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            if (hooked) return;
+            if (hooked || Shoot_Secondary == null) return;
             hooked = true;
             Shoot_Secondary.Hook(ShootSecondary, HookMode.Pre);
             playersInAction.TryAdd(player.Index, 0);
@@ -42,7 +48,7 @@ namespace src.player.skills
             playersInAction.TryRemove(player.Index, out _);
             if (playersInAction.IsEmpty)
             {
-                Shoot_Secondary.Unhook(ShootSecondary, HookMode.Pre);
+                Shoot_Secondary?.Unhook(ShootSecondary, HookMode.Pre);
                 hooked = false;
             }
         }

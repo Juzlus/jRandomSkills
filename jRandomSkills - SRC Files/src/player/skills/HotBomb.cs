@@ -44,11 +44,17 @@ namespace src.player.skills
 
         public static void WeaponPickup(EventItemPickup @event)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (player == null || !player.IsValid) return;
-
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "c4") return;
+
+            // Gate on the bomb being hot (red), not on `players`: the fresh round's C4 is
+            // handed out before NewRound clears `players`, but a new C4 spawns white, so colour is race-free.
+            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            if (bomb == null || !bomb.IsValid) return;
+            if (bomb.Render.R != 255 || bomb.Render.G != 0 || bomb.Render.B != 0) return;
+
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
 
             player.PrintToCenterAlert(player.GetTranslation("hotbomb_hint"));
         }
@@ -100,7 +106,7 @@ namespace src.player.skills
             {
                 ChangeC4Color(Color.White);
                 foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
-                    enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_disable"));
+                    enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_disable_info"));
             }
         }
 

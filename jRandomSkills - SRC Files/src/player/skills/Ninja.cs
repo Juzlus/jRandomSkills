@@ -63,14 +63,6 @@ namespace src.player.skills
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
 
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
-                bool isObservingNinja = false;
-
-                if (targetHandle != nint.Zero)
-                {
-                    var target = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
-                    var targetInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(target)?.Index);
-                    if (targetInfo?.Skill == skillName) isObservingNinja = true;
-                }
 
                 foreach (var playerIndex in invisiblePlayers.Keys)
                 {
@@ -81,25 +73,26 @@ namespace src.player.skills
                     if (player.Team == playerController.Team)
                         continue;
 
-                    if (!isObservingNinja)
-                    {
-                        var playerPawn = playerController.PlayerPawn.Value;
-                        if (playerPawn == null || !playerPawn.IsValid) continue;
+                    var playerPawn = playerController.PlayerPawn.Value;
+                    if (playerPawn == null || !playerPawn.IsValid) continue;
 
-                        var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
-                        if (entity == null || !entity.IsValid) continue;
+                    // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
+                    if (targetHandle != nint.Zero && playerPawn.Handle == targetHandle)
+                        continue;
 
-                        if (info.TransmitEntities.Contains(entity.Index))
-                            info.TransmitEntities.Remove(entity.Index);
+                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
+                    if (entity == null || !entity.IsValid) continue;
 
-                        var bombIndex = GetBombIndex(playerController);
-                        if (bombIndex == null) continue;
-                        var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
-                        if (bombEntity == null || !bombEntity.IsValid) continue;
+                    if (info.TransmitEntities.Contains(entity.Index))
+                        info.TransmitEntities.Remove(entity.Index);
 
-                        if (info.TransmitEntities.Contains(bombEntity.Index))
-                            info.TransmitEntities.Remove(bombEntity.Index);
-                    }
+                    var bombIndex = GetBombIndex(playerController);
+                    if (bombIndex == null) continue;
+                    var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
+                    if (bombEntity == null || !bombEntity.IsValid) continue;
+
+                    if (info.TransmitEntities.Contains(bombEntity.Index))
+                        info.TransmitEntities.Remove(bombEntity.Index);
                 }
             }
         }
@@ -139,8 +132,6 @@ namespace src.player.skills
 
             if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
         
         public static void DisableSkill(CCSPlayerController player)
@@ -148,8 +139,6 @@ namespace src.player.skills
             SkillUtils.SetPlayerInvisibility(player, 0);
             invisiblePlayers.TryRemove(player.Index, out _);
             EntityManager.DestroyPlayerEntities(player.Index);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)

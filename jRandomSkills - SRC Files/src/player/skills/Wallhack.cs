@@ -28,19 +28,30 @@ namespace src.player.skills
                     temporaryBlockList.TryRemove(kvp.Key, out _);
             }
 
+            // One pawn->info map per frame instead of a GetPlayers scan per client.
+            var infoByPawnHandle = new Dictionary<nint, jSkill_PlayerInfo?>();
+            foreach (var p in Utilities.GetPlayers())
+            {
+                var h = p?.Pawn?.Value?.Handle;
+                if (p != null && p.IsValid && h != null)
+                    infoByPawnHandle[h.Value] = PlayerManager.GetPlayerByIndex(p.Index);
+            }
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-                var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
-                var observerInfo = observedPlayer != null ? PlayerManager.GetPlayerByIndex(observedPlayer.Index) : null;
+                var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
+                jSkill_PlayerInfo? observerInfo = null;
+                if (targetHandle != nint.Zero)
+                    infoByPawnHandle.TryGetValue(targetHandle, out observerInfo);
 
                 foreach (var kvp in glows)
                 {
                     var enemyIndex = kvp.Key;
                     var glowInfo = kvp.Value;
-                    var enemy = Utilities.GetPlayers().FirstOrDefault(e => e != null && e.IsValid && e.Index == enemyIndex);
+                    var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
                     bool hasSkill = playerInfo?.Skill == skillName;
                     bool observerHasSkill = observerInfo != null && observerInfo?.Skill == skillName;
@@ -85,8 +96,9 @@ namespace src.player.skills
                 var relayIndex = kvp.Value.RelayIndex;
                 var glowIndex = kvp.Value.GlowIndex;
 
-                SkillUtils.SafeKillEntity<CDynamicProp>(relayIndex);
+                // The glow follows the relay, so it dies first.
                 SkillUtils.SafeKillEntity<CDynamicProp>(glowIndex);
+                SkillUtils.SafeKillEntity<CDynamicProp>(relayIndex);
 
                 temporaryBlockList.TryAdd(relayIndex, DateTime.Now.AddSeconds(2));
                 temporaryBlockList.TryAdd(glowIndex, DateTime.Now.AddSeconds(2));
@@ -103,8 +115,6 @@ namespace src.player.skills
 
             if (glows.IsEmpty)
                 SetGlowEffectForAll();
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -116,8 +126,6 @@ namespace src.player.skills
                 NewRound();
                 return;
             }
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void SetGlowEffectForAll()
@@ -148,6 +156,9 @@ namespace src.player.skills
 
                 if (modelGlow == null || !modelGlow.IsValid || modelRelay == null || !modelRelay.IsValid)
                     continue;
+
+                // Register before spawn so the glow is filtered from its first snapshot.
+                glows.TryAdd(enemy.Index, (modelRelay.Index, modelGlow.Index, enemy.Team));
 
                 var relayEntity = modelRelay.CBodyComponent?.SceneNode?.Owner?.Entity;
                 if (relayEntity != null)
@@ -180,8 +191,6 @@ namespace src.player.skills
 
                 modelRelay.AcceptInput("FollowEntity", enemyPawn, modelRelay, "!activator");
                 modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
-
-                glows.TryAdd(enemy.Index, (modelRelay.Index, modelGlow.Index, enemy.Team));
             }
         }
 

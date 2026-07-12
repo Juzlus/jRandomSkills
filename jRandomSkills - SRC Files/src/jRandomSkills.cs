@@ -30,7 +30,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X, Juzlus";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.2.b6";
+        public override string ModuleVersion => "1.2.2.b7";
 
         public override void Load(bool hotReload)
         {
@@ -54,6 +54,13 @@ namespace src
                 await Task.Delay(3500);
                 PrintInfoToConsole();
             });
+        }
+
+        public override void Unload(bool hotReload)
+        {
+            src.player.PerfLog.Info("===== PLUGIN UNLOAD (clean shutdown/reload) =====");
+            Debug.WriteToDebug("===== PLUGIN UNLOAD (clean shutdown/reload) =====");
+            base.Unload(hotReload);
         }
 
         internal void AddToManifest(string prop)

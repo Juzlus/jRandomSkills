@@ -17,6 +17,13 @@ namespace src.player
                 UpdateGameRules();
                 if (Server.TickCount % 2 != 0) return;
 
+                if (PerfLog.Enabled && Server.TickCount % 1920 == 0)
+                {
+                    int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
+                    var (tracked, owners) = EntityManager.GetStatistics();
+                    PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}");
+                }
+
                 long perfStart = PerfLog.Start();
                 foreach (var player in Utilities.GetPlayers())
                 {
@@ -39,6 +46,8 @@ namespace src.player
 
         private static void OnMapEnd()
         {
+            PerfLog.Info("===== MAP END (clean map change) =====");
+            Debug.WriteToDebug("===== MAP END (clean map change) =====");
             BotManager.Stop();
         }
 
@@ -62,6 +71,10 @@ namespace src.player
         private static void UpdatePlayerHud(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.IsBot) return;
+
+            // No skill HUD during warmup or after the match ended.
+            var gameRules = Instance?.GameRules;
+            if (gameRules == null || gameRules.WarmupPeriod == true || gameRules.GamePhase >= 5) return;
 
             var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
