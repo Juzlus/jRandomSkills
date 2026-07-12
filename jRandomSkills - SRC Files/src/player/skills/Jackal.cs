@@ -98,6 +98,9 @@ namespace src.player.skills
             var relay = EntityManager.CreateTrackedPhysicsProp(player.Index);
             if (relay == null || !relay.IsValid) return;
 
+            // Register before parenting so the trail is filtered from its first snapshot.
+            activeTrails[player.Index] = relay.Index;
+
             CBaseEntity target = playerPawn;
             var entities = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
 
@@ -123,8 +126,6 @@ namespace src.player.skills
                 particle.AcceptInput("SetParent", relay, particle, "!activator");
                 particle.AcceptInput("Start");
             }
-
-            activeTrails[player.Index] = relay.Index;
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -144,8 +145,6 @@ namespace src.player.skills
 
             mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
                     CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void UpdateAllTrails()
@@ -168,8 +167,6 @@ namespace src.player.skills
                 mainSkillTimer.Kill();
                 mainSkillTimer = null;
             }
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f542ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = 1, Rarity rarity = Rarity.Common, string particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

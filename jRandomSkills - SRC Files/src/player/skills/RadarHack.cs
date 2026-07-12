@@ -31,7 +31,9 @@ namespace src.player.skills
         private static void SetEnemiesVisibleOnRadar(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.PlayerPawn?.Value == null) return;
-            int playerIndex = (int)player.Index - 1;
+
+            // SpottedByMask is indexed by player slot (0-63), not entity index.
+            int slot = player.Slot;
 
             foreach (var enemy in Utilities.GetPlayers().FindAll(p => p.Team != player.Team))
             {
@@ -39,17 +41,21 @@ namespace src.player.skills
                 if (enemyEvent == null || !enemyEvent.IsValid) continue;
 
                 var enemyPawn = enemyEvent.PlayerPawn.Value;
-                if (enemyPawn == null) continue;
+                if (enemyPawn == null || !enemyPawn.IsValid) continue;
 
-                enemyPawn.EntitySpottedState.SpottedByMask[0] |= (1u << (int)(playerIndex % 32));
+                // Invisibility (low render alpha) beats the radar hack.
+                if (enemyPawn.Render.A < 200) continue;
+
+                // Only the observer's slot bit — the Spotted bool would reveal to the whole team.
+                enemyPawn.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));
             }
-            
+
             var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
             if (bombEntities.Count != 0)
             {
                 var bomb = bombEntities.FirstOrDefault();
                 if (bomb != null && bomb.IsValid)
-                    bomb.EntitySpottedState.SpottedByMask[0] |= (1u << (int)(playerIndex % 32));
+                    bomb.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));
             }
         }
 

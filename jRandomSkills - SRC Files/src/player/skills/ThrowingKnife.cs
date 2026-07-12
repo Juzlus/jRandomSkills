@@ -95,6 +95,10 @@ namespace src.player.skills
 
         public static bool OnWeaponCanAcquire(DynamicHook hook, CCSPlayerController player, CEconItemView econItem, CCSWeaponBaseVData vdata)
         {
+            // vdata can be non-null yet point at freed/invalid schema memory; reading
+            // .Name then throws NullReferenceException inside get_Name(). Guard the handle.
+            if (vdata == null || vdata.Handle == IntPtr.Zero) return false;
+
             string weaponName = vdata.Name;
             if (string.IsNullOrEmpty(weaponName)) return false;
 
@@ -123,15 +127,12 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController _)
         {
             Event.EnableTransmit();
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (knivesInfo.TryRemove(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null)
                 DisableKnifeSkill(knifeInfo);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableKnifeSkill(KnifeInfo knifeInfo)

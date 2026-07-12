@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
 using System.Collections.Concurrent;
@@ -10,7 +11,7 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
-        private static readonly ConcurrentDictionary<nint, int> secondLifePlayers = [];
+        private static readonly ConcurrentDictionary<nint, byte> usedThisRound = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -20,30 +21,53 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            secondLifePlayers.Clear();
+            usedThisRound.Clear();
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        // Must intercept pre-damage: player_hurt fires after the death is committed, so a
+        // lethal hit (esp. fall damage) can't be undone there. Cancelling the blow here keeps the respawn clean.
+        public static void OnTakeDamage(DynamicHook h)
         {
-            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            var victimEntity = h.GetParam<CEntityInstance>(0);
+            var info = h.GetParam<CTakeDamageInfo>(1);
+            if (victimEntity == null || !victimEntity.IsValid || info == null) return;
 
-            if (!Instance.IsPlayerValid(victim)) return;
-            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
+            var victimPawn = victimEntity.As<CCSPlayerPawn>();
+            if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
+
+            var victimController = victimPawn.Controller.Value;
+            if (victimController == null || !victimController.IsValid) return;
+
+            var victim = victimController.As<CCSPlayerController>();
+            if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
+
+            var victimInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
-            var victimPawn = victim!.PlayerPawn.Value;
-            if (victimPawn!.Health > 0 || (secondLifePlayers.TryGetValue(victim.Handle, out int tick) && tick + 4 < Server.TickCount))
-                return;
+            if (info.Damage < victimPawn.Health) return;
+            if (usedThisRound.ContainsKey(victim.Handle)) return;
 
             lock (setLock)
             {
-                SetHealth(victim, SkillsInfo.GetValue<int>(skillName, "startHealth"));
+                if (usedThisRound.ContainsKey(victim.Handle)) return;
 
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
-                if (spawnpoint == null) return;
+                if (spawnpoint == null) return; // no clean respawn point -> let the normal death happen
 
-                victimPawn.Teleport(spawnpoint, null, null);
-                secondLifePlayers.TryAdd(victim.Handle, Server.TickCount);
+                usedThisRound.TryAdd(victim.Handle, 0);
+                info.Damage = 0;
+
+                int startHealth = SkillsInfo.GetValue<int>(skillName, "startHealth");
+                Server.NextFrame(() =>
+                {
+                    if (victim == null || !victim.IsValid) return;
+                    var pawn = victim.PlayerPawn.Value;
+                    if (pawn == null || !pawn.IsValid) return;
+
+                    pawn.Health = startHealth;
+                    Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+                    pawn.Teleport(spawnpoint, null, new Vector(0, 0, 0));
+                });
             }
         }
 
@@ -54,7 +78,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            secondLifePlayers.TryRemove(player.Handle, out _);
+            usedThisRound.TryRemove(player.Handle, out _);
             if (player.PlayerPawn.Value == null) return;
             SetHealth(player, Math.Min(player.PlayerPawn.Value.Health + SkillsInfo.GetValue<int>(skillName, "startHealth"), 100));
         }

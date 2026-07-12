@@ -75,6 +75,10 @@ namespace src.player.skills
                     SkillUtils.SetPlayerInvisibility(player, 0);
                 }
 
+                // CheckTransmit hides the model but the radar blip comes from spotted state, so clear it every tick.
+                if (invisiblePlayers.ContainsKey(player.Index))
+                    ClearSpottedState(player);
+
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
@@ -100,14 +104,6 @@ namespace src.player.skills
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
 
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
-                bool isObservingC4Camouflage = false;
-
-                if (targetHandle != nint.Zero)
-                {
-                    var target = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
-                    var targetInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(target)?.Index);
-                    if (targetInfo?.Skill == skillName) isObservingC4Camouflage = true;
-                }
 
                 foreach (var playerIndex in invisiblePlayers.Keys)
                 {
@@ -118,26 +114,27 @@ namespace src.player.skills
                     if (player.Team == playerController.Team)
                         continue;
 
-                    if (!isObservingC4Camouflage)
-                    {
-                        var playerPawn = playerController.PlayerPawn.Value;
-                        if (playerPawn == null || !playerPawn.IsValid) continue;
+                    var playerPawn = playerController.PlayerPawn.Value;
+                    if (playerPawn == null || !playerPawn.IsValid) continue;
 
-                        var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
-                        if (entity == null || !entity.IsValid) continue;
+                    // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
+                    if (targetHandle != nint.Zero && playerPawn.Handle == targetHandle)
+                        continue;
 
-                        if (info.TransmitEntities.Contains(entity.Index))
-                            info.TransmitEntities.Remove(entity.Index);
+                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
+                    if (entity == null || !entity.IsValid) continue;
 
-                        var bombIndex = GetBombIndex();
-                        if (bombIndex == null) continue;
+                    if (info.TransmitEntities.Contains(entity.Index))
+                        info.TransmitEntities.Remove(entity.Index);
 
-                        var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
-                        if (bombEntity == null || !bombEntity.IsValid) continue;
+                    var bombIndex = GetBombIndex();
+                    if (bombIndex == null) continue;
 
-                        if (info.TransmitEntities.Contains(bombEntity.Index))
-                            info.TransmitEntities.Remove(bombEntity.Index);
-                    }
+                    var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
+                    if (bombEntity == null || !bombEntity.IsValid) continue;
+
+                    if (info.TransmitEntities.Contains(bombEntity.Index))
+                        info.TransmitEntities.Remove(bombEntity.Index);
                 }
             }
         }
@@ -162,8 +159,6 @@ namespace src.player.skills
 
             invisiblePlayers.TryAdd(player.Index, 0);
             SkillUtils.SetPlayerInvisibility(player, .5f);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -171,8 +166,6 @@ namespace src.player.skills
             invisiblePlayers.TryRemove(player.Index, out _);
             SkillUtils.SetPlayerInvisibility(player, 0);
             EntityManager.DestroyPlayerEntities(player.Index);
-
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)
@@ -226,6 +219,26 @@ namespace src.player.skills
             if (bomb == null) return null;
 
             return bomb.Index;
+        }
+
+        // Wipe spotted state (pawn + carried bomb) so a disguised carrier produces no radar blip.
+        private static void ClearSpottedState(CCSPlayerController player)
+        {
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn != null && pawn.IsValid)
+            {
+                pawn.EntitySpottedState.Spotted = false;
+                pawn.EntitySpottedState.SpottedByMask[0] = 0;
+                pawn.EntitySpottedState.SpottedByMask[1] = 0;
+            }
+
+            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            if (bomb != null && bomb.IsValid && bomb.OwnerEntity?.Index == player.Index)
+            {
+                bomb.EntitySpottedState.Spotted = false;
+                bomb.EntitySpottedState.SpottedByMask[0] = 0;
+                bomb.EntitySpottedState.SpottedByMask[1] = 0;
+            }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00911f", CsTeam onlyTeam = CsTeam.Terrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Uncommon) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)

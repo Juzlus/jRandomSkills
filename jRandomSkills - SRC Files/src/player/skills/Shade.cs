@@ -83,7 +83,7 @@ namespace src.player.skills
             var attackerPawn = attacker.PlayerPawn.Value;
             if (attackerPawn == null || !attackerPawn.IsValid) return false;
 
-            var victimPawn = attacker.PlayerPawn.Value;
+            var victimPawn = victim.PlayerPawn.Value;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
             var result = RayTrace.TraceHullShape(
@@ -123,7 +123,11 @@ namespace src.player.skills
                 Vector direction = SkillUtils.GetForwardVector(targetAngle);
                 Vector targetPos = victimPos - (direction * distance);
 
-                if (CheckTeleport(attacker, victim, victimPos, targetPos, targetAngle))
+                // Trace can only ignore one entity (victim); start a step out so the attacker's
+                // own body in melee range doesn't clip the hull and report a false "no space".
+                Vector traceStart = victimPos - (direction * 20f);
+
+                if (CheckTeleport(attacker, victim, traceStart, targetPos, targetAngle))
                 {
                     attackerPawn.Teleport(targetPos, targetAngle, Vector.Zero);
                     teleported = true;

@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -12,10 +13,19 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Planter;
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
+        // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.
+        private static int defaultC4Timer = 40;
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            defaultC4Timer = ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 40;
+        }
+
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            // At round start (not at plant) so the client HUD/alert countdown is right before the plant completes.
+            Server.ExecuteCommand($"mp_c4timer {SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime")}");
         }
 
         public static void BombBeginplant(EventBombBeginplant @event)
@@ -59,6 +69,8 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
                 DisableSkill(player);
             plantingPlayers.Clear();
+
+            Server.ExecuteCommand($"mp_c4timer {defaultC4Timer}");
         }
 
         public static void DisableSkill(CCSPlayerController player)

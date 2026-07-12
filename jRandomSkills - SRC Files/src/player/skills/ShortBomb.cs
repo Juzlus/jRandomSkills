@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -9,10 +10,24 @@ namespace src.player.skills
     public class ShortBomb : ISkill
     {
         private const Skills skillName = Skills.ShortBomb;
+        // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.
+        private static int defaultC4Timer = 40;
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            defaultC4Timer = ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 40;
+        }
+
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            // At round start (not at plant) so the client HUD/alert countdown is right before the plant completes.
+            Server.ExecuteCommand($"mp_c4timer {SkillsInfo.GetValue<int>(skillName, "detonationTime")}");
+        }
+
+        public static void NewRound()
+        {
+            Server.ExecuteCommand($"mp_c4timer {defaultC4Timer}");
         }
 
         public static void BombPlanted(EventBombPlanted @event)
