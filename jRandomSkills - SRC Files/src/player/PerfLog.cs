@@ -20,8 +20,7 @@ namespace src.player
         {
             if (!Enabled) return 0;
 
-            // Write a header on the first measurement so the perf file appears immediately
-            // when PerfMode is active - makes "is it working?" instantly visible.
+            // First write creates the file so an active PerfMode is immediately visible.
             if (!_headerWritten)
             {
                 _headerWritten = true;
@@ -29,6 +28,12 @@ namespace src.player
             }
 
             return Stopwatch.GetTimestamp();
+        }
+
+        public static void Info(string message)
+        {
+            if (!Enabled) return;
+            Write(message);
         }
 
         // One-shot measurement: logs "label took X.XXms" when the elapsed time reaches the threshold.

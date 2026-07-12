@@ -21,6 +21,22 @@ namespace src.utils
             public DateTime CreatedAt;
         }
 
+        private const int EntityBudget = 3500;
+        private static int _cachedCount;
+        private static int _cachedCountTick = -1000000;
+
+        public static bool OverBudget()
+        {
+            int tick = Server.TickCount;
+            if (tick - _cachedCountTick > 64 || tick < _cachedCountTick)
+            {
+                _cachedCountTick = tick;
+                try { _cachedCount = Utilities.GetAllEntities().Count(); }
+                catch { _cachedCount = 0; }
+            }
+            return _cachedCount >= EntityBudget;
+        }
+
         public static void RegisterEntity(uint entityIndex, uint playerIndex, string entityType)
         {
             if (entityIndex == 0) return;
@@ -59,6 +75,7 @@ namespace src.utils
         {
             try
             {
+                if (OverBudget()) return null;
                 var particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system");
                 if (particle == null || !particle.IsValid) return null;
 
@@ -81,6 +98,7 @@ namespace src.utils
         {
             try
             {
+                if (OverBudget()) return null;
                 var prop = Utilities.CreateEntityByName<CDynamicProp>(designerName);
                 if (prop == null || !prop.IsValid) return null;
 
@@ -103,6 +121,7 @@ namespace src.utils
         {
             try
             {
+                if (OverBudget()) return null;
                 var shake = Utilities.CreateEntityByName<CEnvShake>("env_shake");
                 if (shake == null || !shake.IsValid) return null;
 
@@ -121,6 +140,7 @@ namespace src.utils
         {
             try
             {
+                if (OverBudget()) return null;
                 var chicken = Utilities.CreateEntityByName<CChicken>("chicken");
                 if (chicken == null || !chicken.IsValid) return null;
 
@@ -139,6 +159,7 @@ namespace src.utils
         {
             try
             {
+                if (OverBudget()) return null;
                 var prop = Utilities.CreateEntityByName<CPhysicsPropMultiplayer>("prop_physics_multiplayer");
                 if (prop == null || !prop.IsValid) return null;
 
@@ -158,6 +179,7 @@ namespace src.utils
 
             try
             {
+                if (OverBudget()) return null;
                 var trigger = Utilities.CreateEntityByName<CTriggerMultiple>("trigger_multiple");
                 if (trigger == null || trigger.AbsOrigin == null) return null;
 
@@ -218,16 +240,41 @@ namespace src.utils
             }
         }
 
-        public static bool DestroyEntity(uint entityIndex)
+        // Dying entities stay out of transmit until the engine processes the kill (Event.CheckTransmit).
+        private static readonly ConcurrentDictionary<uint, DateTime> recentlyDestroyed = new();
+
+        public static List<uint> GetRecentlyDestroyedSnapshot()
+        {
+            if (recentlyDestroyed.IsEmpty) return [];
+
+            var now = DateTime.UtcNow;
+            var result = new List<uint>();
+            foreach (var kvp in recentlyDestroyed)
+            {
+                if (now > kvp.Value) recentlyDestroyed.TryRemove(kvp.Key, out _);
+                else result.Add(kvp.Key);
+            }
+            return result;
+        }
+
+        public static bool SuppressKills = false;
+
+        public static bool DestroyEntity(uint entityIndex, float delay = 0.1f)
         {
             trackedEntities.TryRemove(entityIndex, out _);
+
+            if (SuppressKills)
+                return false;
 
             try
             {
                 var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
                 if (entity != null && entity.IsValid)
                 {
-                    entity.AddEntityIOEvent("Kill", entity, delay: 0.1f);
+                    recentlyDestroyed[entityIndex] = DateTime.UtcNow.AddSeconds(delay + 2.0);
+                    // Detach first so no follower is left on a freed parent.
+                    entity.AcceptInput("ClearParent");
+                    entity.AddEntityIOEvent("Kill", entity, delay: delay);
                     return true;
                 }
             }
@@ -247,14 +294,33 @@ namespace src.utils
 
         public static void DestroyPlayerEntities(uint playerIndex)
         {
-            foreach (var entityIndex in GetPlayerEntities(playerIndex).ToList())
+            // Children die first (reverse creation order), same frame.
+            var ordered = trackedEntities
+                .Where(kvp => kvp.Value.PlayerIndex == playerIndex)
+                .OrderByDescending(kvp => kvp.Value.CreatedAt)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var entityIndex in ordered)
                 DestroyEntity(entityIndex);
         }
 
         public static void DestroyAllTracked()
         {
-            foreach (var entityIndex in trackedEntities.Keys.ToList())
-                DestroyEntity(entityIndex);
+            // Stagger between owners; each owner's chain dies child-first in one frame.
+            int group = 0;
+            foreach (var owner in trackedEntities.Values.Select(e => e.PlayerIndex).Distinct().ToList())
+            {
+                float delay = 0.1f + (group++ % 16) * 0.03f;
+                var ordered = trackedEntities
+                    .Where(kvp => kvp.Value.PlayerIndex == owner)
+                    .OrderByDescending(kvp => kvp.Value.CreatedAt)
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+
+                foreach (var entityIndex in ordered)
+                    DestroyEntity(entityIndex, delay);
+            }
 
             trackedEntities.Clear();
         }
