@@ -145,6 +145,8 @@ namespace src.player.skills
 
             mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
                     CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void UpdateAllTrails()

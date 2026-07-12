@@ -357,6 +357,36 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.2.b7</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano sygnatury gamedata do najnowszej aktualizacji CS2 (build 24134959) oraz zaktualizowano CounterStrikeSharp do wersji 1.0.371. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### FNaprawiono `NullReferenceException` występujący podczas podnoszenia broni, gdy dane broni wskazywały na zwolnioną pamięć schematu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `FullForceUpdate` został zmieniony na opcjonalne ustawienie w konfiguracji. Jego włączenie zmniejsza ryzyko błędów PVS, ale powoduje znaczne obciążenie serwera (domyślnie wyłączone). [by: [@Juzlus](https://github.com/Juzlus)]
+
+- #### Poprawki mocy:
+    - ###### Duszek:
+        - ###### Teraz może podkładać C4. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Samowolka / Krótka Bomba:
+        - ###### Odliczanie bomby wyświetlane na ekranie jest teraz zgodne z ustawionym czasem detonacji (`mp_c4timer`). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Bogacz:
+        - ###### Bonus za pieniądze teraz respektuje `mp_maxmoney` zamiast być ograniczony na sztywno do wartości 16000. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Druga Szansa:
+        - ###### Teraz niezawodnie odradza gracza w bazie po otrzymaniu śmiertelnego obrażenia, również od obrażeń od upadku. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Cień:
+        - ###### Naprawiono fałszywy komunikat "brak miejsca" podczas teleportacji za cel z bliskiej odległości. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Radarowiec:
+        - ###### Teraz ujawnia przeciwników tylko posiadaczowi mocy zamiast całej jego drużynie oraz nie ujawnia już niewidzialnych ani zamaskowanych przeciwników. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### C4 Kamuflaż:
+        - ###### Niewidzialny gracz niosący bombe nie pojawia się już na radarze przeciwników. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Gorąca bomba:
+        - ###### Podpowiedź dotycząca "gorącej bomby" nie pojawia się już w rundach, w których nikt nie posiada tej mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Błazen:
+        - ###### Naprawiono crashe występujące podczas wyłączania mocy. [by: [@Juzlus](https://github.com/Juzlus)]
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b6</b></summary>
 
 - #### Ogólne:

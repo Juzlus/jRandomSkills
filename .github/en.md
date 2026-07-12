@@ -359,6 +359,36 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.2.b7</b></summary>
+
+- #### General:
+    - ###### Updated the gamedata signatures for the latest CS2 update (build 24134959) and bumped CounterStrikeSharp to 1.0.371. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed a NullReferenceException thrown on weapon pickup when the weapon data pointed at freed schema memory. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### FullFoceUpdate has been changed to an optional setting in the configuration. Enabling it reduces the risk of PVS errors, but places a significant load on the server (disabled by default). [by: [@Juzlus](https://github.com/Juzlus)]
+
+- #### Skill improvements:
+    - ###### Ghost:
+        - ###### Can now plant the C4. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Free Planter / Short Bomb:
+        - ###### The on-screen bomb countdown now matches the configured detonation time (`mp_c4timer` is set at round start instead of only the blow time being overridden after the plant). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Rich Boy:
+        - ###### The money bonus now respects `mp_maxmoney` instead of being capped at a hardcoded 16000. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Second Chance:
+        - ###### Now reliably respawns at base on a lethal hit, including fall damage (the revive moved to a pre-damage hook so the death is cancelled before it is committed). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Shadow:
+        - ###### Fixed a false "no suitable area" when teleporting behind a target at close range. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Radar Hack:
+        - ###### Now reveals enemies only to the skill holder instead of the holder's whole team, and no longer reveals invisible or camouflaged enemies. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### C4 Camouflage:
+        - ###### The disguised bomb carrier no longer appears on the enemy radar. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Hot Bomb:
+        - ###### The "hot bomb" hint no longer shows in a round where nobody has the skill. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Jester:
+        - ###### Fixes crashes that occur when a skill is being disabled. [by: [@Juzlus](https://github.com/Juzlus)]
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b6</b></summary>
 
 - #### General:

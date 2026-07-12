@@ -115,6 +115,8 @@ namespace src.player.skills
 
             if (glows.IsEmpty)
                 SetGlowEffectForAll();
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)

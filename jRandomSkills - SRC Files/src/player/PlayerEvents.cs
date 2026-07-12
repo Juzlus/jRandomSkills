@@ -1093,24 +1093,31 @@ namespace src.player
                     if (randomSkill.Skill == Skills.Illiterate)
                         Illiterate.Enable();
 
+                    var playerIndex = player.Index;
                     Instance?.AddTimer(.2f, () =>
                     {
-                        if (player == null || !player.IsValid) return;
+                        var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        if (playerTarget == null || !playerTarget.IsValid) return;
 
                         if (randomSkill.Display)
-                            SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
-                                border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
+                            SkillUtils.PrintToChat(playerTarget, $"{ChatColors.DarkRed}{playerTarget.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {playerTarget.GetSkillDescription(randomSkill.Skill)}",
+                                border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == playerTarget.Team && p != playerTarget) ? "tb" : "t");
 
                         if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
-                                if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
-                                Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                                var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
+                                if (playerTarget == null || !playerTarget.IsValid) return;
+
+                                if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
+                                Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill);
+                                Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
                         {
-                            if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
-                            Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                            if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
+                            Debug.WriteToDebug("Enabling skill: " + randomSkill.Skill);
+                            Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
                         }
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 

@@ -127,6 +127,7 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController _)
         {
             Event.EnableTransmit();
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)

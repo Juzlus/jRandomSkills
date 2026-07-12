@@ -106,6 +106,8 @@ namespace src.player.skills
 
             if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)

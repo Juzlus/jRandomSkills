@@ -111,6 +111,8 @@ namespace src.player.skills
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)

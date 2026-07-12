@@ -159,6 +159,8 @@ namespace src.player.skills
 
             invisiblePlayers.TryAdd(player.Index, 0);
             SkillUtils.SetPlayerInvisibility(player, .5f);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)

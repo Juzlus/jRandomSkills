@@ -53,18 +53,17 @@ namespace src.player.skills
             var jester = GetJesterInfo(player.Index);
             if (jester == null) return;
 
+            jester.Generation++;
             jester.Active = false;
-            if (jester.Timer != null)
-            {
-                jester.Timer.Kill();
-                jester.Timer = null;
-            }
+            jester.Timer = null;
+
+            jesters.TryRemove(player.Index, out _);
 
             Server.NextWorldUpdate(() =>
             {
                 SkillUtils.ResetPrintHTML(player);
                 SetPlayerColor(player, true);
-                jesters.TryRemove(player.Index, out _);
+                
             });
         }
 
@@ -154,22 +153,36 @@ namespace src.player.skills
 
             uint playerIndex = player.Index;
 
-            jesters.TryAdd(playerIndex, new JesterInfo {
-                PlayerIndex = playerIndex,
-                Active = false,
-                Timer = Instance.AddTimer(wait, () => ChangeMode(playerIndex), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE)
-            });
+            if (!jesters.TryGetValue(playerIndex, out var jester))
+            {
+                jester = new JesterInfo
+                {
+                    PlayerIndex = playerIndex,
+                    Active = false,
+                    Generation = 0
+                };
+
+                jesters[playerIndex] = jester;
+            }
+
+            jester.Generation++;
+            int generation = jester.Generation;
+
+            jester.Timer = Instance.AddTimer(wait, () =>
+            {
+                if (!jesters.TryGetValue(playerIndex, out var info))
+                    return;
+
+                if (info.Generation != generation)
+                    return;
+
+                ChangeMode(playerIndex);
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private static void ChangeMode(uint playerIndex, bool? forceActive = null)
         {
             if (!jesters.TryGetValue(playerIndex, out var jester)) return;
-
-            if (jester.Timer != null)
-            {
-                jester.Timer?.Kill();
-                jester.Timer = null;
-            }
 
             var player = Utilities.GetPlayerFromIndex((int)playerIndex);
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
@@ -194,7 +207,19 @@ namespace src.player.skills
             var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
-            jester.Timer = Instance.AddTimer(wait, () => ChangeMode(playerIndex), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+            jester.Generation++;
+            int generation = jester.Generation;
+
+            jester.Timer = Instance.AddTimer(wait, () =>
+            {
+                if (!jesters.TryGetValue(playerIndex, out var info))
+                    return;
+
+                if (info.Generation != generation)
+                    return;
+
+                ChangeMode(playerIndex);
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private static void SetPlayerColor(CCSPlayerController? player, bool forceDisable = false)
@@ -205,9 +230,9 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid) return;
 
             var jester = GetJesterInfo(player.Index);
-            if (jester == null) return;
+            if (!forceDisable && jester == null) return;
 
-            var color = jester.Active && !forceDisable ? Color.FromArgb(255, 128, 0, 128) : Color.FromArgb(255, 255, 255, 255);
+            var color = jester?.Active == true && !forceDisable ? Color.FromArgb(255, 128, 0, 128) : Color.FromArgb(255, 255, 255, 255);
             pawn.Render = color;
             Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
@@ -249,6 +274,7 @@ namespace src.player.skills
         {
             public required uint PlayerIndex { get; set; }
             public bool Active { get; set; } = false;
+            public int Generation { get; set; } = 0;
             public Timer? Timer { get; set; } = null;
         }
 

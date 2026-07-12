@@ -7,6 +7,7 @@
   "SummaryAfterTheRound": true,
   "EnableBotSkills": true,
   "EnableBotKickDebug": false,
+  "EnableFullForceUpdate": false,
   "DebugMode": false,
   "PerfMode": false,
   "AlternativeSkillButton": null,

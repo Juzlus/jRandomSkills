@@ -132,6 +132,8 @@ namespace src.player.skills
 
             if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
+
+            SkillUtils.ForceFullUpdateToAll();
         }
         
         public static void DisableSkill(CCSPlayerController player)

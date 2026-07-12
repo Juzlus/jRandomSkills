@@ -79,6 +79,7 @@ namespace src.utils
             public bool SummaryAfterTheRound { get; set; }
             public bool EnableBotSkills { get; set; }
             public bool EnableBotKickDebug { get; set; }
+            public bool EnableFullForceUpdate { get; set; }
             public bool DebugMode { get; set; }
             public bool PerfMode { get; set; }
             public string? AlternativeSkillButton { get; set; }
@@ -107,6 +108,7 @@ namespace src.utils
                 SummaryAfterTheRound = true;
                 EnableBotSkills = true;
                 EnableBotKickDebug = false;
+                EnableFullForceUpdate = false;
                 DebugMode = false;
                 PerfMode = false;
                 AlternativeSkillButton = null;
