@@ -353,8 +353,8 @@ Plugin korzysta z zawartości następujących projektów:
 <div align="center">
 
 <table>
-  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td></tr>
-  <tr><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
 </table>
 
 <sub>Jeśli jesteś <a href="https://github.com/Juzlus/jRandomSkills/graphs/contributors">współtwórcą</a> i chcesz, aby Twój profil został usunięty z tej listy, skontaktuj się ze mną.</sub>
@@ -372,6 +372,36 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.2.b7</b></summary>
+
+- #### Ogólne:
+    - ###### Zaktualizowano sygnatury gamedata do najnowszej aktualizacji CS2 (build 24134959) oraz zaktualizowano CounterStrikeSharp do wersji 1.0.371. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### FNaprawiono `NullReferenceException` występujący podczas podnoszenia broni, gdy dane broni wskazywały na zwolnioną pamięć schematu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `FullForceUpdate` został zmieniony na opcjonalne ustawienie w konfiguracji. Jego włączenie zmniejsza ryzyko błędów PVS, ale powoduje znaczne obciążenie serwera (domyślnie wyłączone). [by: [@Juzlus](https://github.com/Juzlus)]
+
+- #### Poprawki mocy:
+    - ###### Duszek:
+        - ###### Teraz może podkładać C4. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Samowolka / Krótka Bomba:
+        - ###### Odliczanie bomby wyświetlane na ekranie jest teraz zgodne z ustawionym czasem detonacji (`mp_c4timer`). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Bogacz:
+        - ###### Bonus za pieniądze teraz respektuje `mp_maxmoney` zamiast być ograniczony na sztywno do wartości 16000. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Druga Szansa:
+        - ###### Teraz niezawodnie odradza gracza w bazie po otrzymaniu śmiertelnego obrażenia, również od obrażeń od upadku. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Cień:
+        - ###### Naprawiono fałszywy komunikat "brak miejsca" podczas teleportacji za cel z bliskiej odległości. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Radarowiec:
+        - ###### Teraz ujawnia przeciwników tylko posiadaczowi mocy zamiast całej jego drużynie oraz nie ujawnia już niewidzialnych ani zamaskowanych przeciwników. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### C4 Kamuflaż:
+        - ###### Niewidzialny gracz niosący bombe nie pojawia się już na radarze przeciwników. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Gorąca bomba:
+        - ###### Podpowiedź dotycząca "gorącej bomby" nie pojawia się już w rundach, w których nikt nie posiada tej mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Błazen:
+        - ###### Naprawiono crashe występujące podczas wyłączania mocy. [by: [@Juzlus](https://github.com/Juzlus)]
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b6</b></summary>
