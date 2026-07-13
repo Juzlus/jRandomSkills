@@ -320,6 +320,14 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         "Color": "#ff0000",           // Skill color
         "Active": true,               // Enabled on startup
         "Name": "Aimbot",             // Skill name
+        "HudDuration": null,          // Overrides the global SkillHudDuration for this skill.
+                                      // null = use SkillHudDuration from config.json,
+                                      // -1 = never hide the HUD,
+                                      // >= 0 = display duration in seconds.
+        "DescriptionHudDuration":null,// Overrides the global DescriptionHudDuration for this skill.
+                                      // null = use DescriptionHudDuration from config.json,
+                                      // -1 = never hide the description,
+                                      // >= 0 = display duration in seconds.
         "RequiredPermission": "",     // Required permission
         "MaxPerServer": -1,           // Maximum number of players allowed to have
                                       // this skill on the server (-1 for unlimited)
@@ -357,6 +365,14 @@ This plugin uses content from the following projects:
 [THANKS]
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.2.b8</b></summary>
+
+- #### General:
+    - ###### Added per-skill HUD duration override. Skills can now define their own `HudDuration` / `DescriptionHudDuration` in `skillsInfo.json`, allowing specific skills to keep their HUD visible permanently (`-1`) or use a custom duration instead of the global `SkillHudDuration` setting.
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b7</b></summary>

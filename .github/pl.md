@@ -318,6 +318,14 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
         "Color": "#ff0000",           // Kolor supermocy
         "Active": true,               // Włączona przy uruchamianiu
         "Name": "Aimbot",             // Nazwa supermocy
+        "HudDuration": null,          // Nadpisuje globalne ustawienie SkillHudDuration dla tej mocy.
+                                      // null = użyj SkillHudDuration z config.json,
+                                      // -1 = nigdy nie ukrywaj HUD-u,
+                                      // >= 0 = czas wyświetlania w sekundach.
+        "DescriptionHudDuration":null,// Nadpisuje globalne ustawienie DescriptionHudDuration dla tej mocy.
+                                      // null = użyj DescriptionHudDuration z config.json,
+                                      // -1 = nigdy nie ukrywaj opisu,
+                                      // >= 0 = czas wyświetlania w sekundach.
         "RequiredPermission": "",     // Wymagane uprawnienie
         "MaxPerServer": -1,           // Maksymalna liczba graczy, którzy mogą posiadać tę 
                                       // umiejętność na serwerze (-1 dla "nieograniczona")
@@ -355,6 +363,14 @@ Plugin korzysta z zawartości następujących projektów:
 [THANKS]
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.2.b8</b></summary>
+
+- #### Ogólne:
+    - ###### Dodano możliwość ustawienia czasu wyświetlania HUD-u dla każdej mocy z osobna. Moce mogą teraz definiować własną wartość `HudDuration` / `DescriptionHudDuration` w `skillsInfo.json`, dzięki czemu mogą wyświetlać HUD bez ograniczeń (`-1`) lub używać własnego czasu zamiast globalnego ustawienia SkillHudDuration.
+
+</details>
 
 <details>
 <summary><b>v1.2.2.b7</b></summary>
