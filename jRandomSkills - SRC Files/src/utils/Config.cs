@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using static src.jRandomSkills;
 
 namespace src.utils

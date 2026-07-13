@@ -61,7 +61,7 @@ namespace src.player.skills
 
         public class SkillConfig : SkillsInfo.DefaultSkillInfo
         {
-            public SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effcb", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = utils.Rarity.Common) : base(skill, active, color, onlyTeam, needsTeammates)
+            public SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effcb", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = utils.Rarity.Common) : base(skill, active, color, onlyTeam, needsTeammates)
             {
             }
         }

@@ -107,7 +107,10 @@ namespace src.utils
             };
 
             if (value == null) return default!;
-            return (T)Convert.ChangeType(value, typeof(T));
+
+            Type targetType = typeof(T);
+            Type? underlyingType = Nullable.GetUnderlyingType(targetType);
+            return (T)Convert.ChangeType(value, underlyingType ?? targetType);
         }
 
         private static void EnsureIndex()
@@ -144,7 +147,7 @@ namespace src.utils
             }
         }
 
-        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common)
+        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common)
         {
             public bool NeedsTeammates { get; set; } = needsTeammates;
             public bool DisableOnFreezeTime { get; set; } = disableOnFreezeTime;
@@ -152,6 +155,8 @@ namespace src.utils
             public string Color { get; set; } = color;
             public bool Active { get; set; } = active;
             public string Name { get; set; } = skill.ToString();
+            public float? HudDuration { get; set; } = hudDuration;
+            public float? DescriptionHudDuration { get; set; } = descriptionHudDuration;
             public string RequiredPermission { get; set; } = requiredPermission;
             public int MaxPerServer { get; set; } = maxPerServer;
             public string Rarity { get; set; } = rarity.ToString();

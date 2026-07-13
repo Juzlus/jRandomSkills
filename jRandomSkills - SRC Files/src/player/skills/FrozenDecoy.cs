@@ -128,7 +128,7 @@ namespace src.player.skills
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00eaff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, float triggerRadius = 180, int slownessMultiplier = 5, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00eaff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float triggerRadius = 180, int slownessMultiplier = 5, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float TriggerRadius { get; set; } = triggerRadius;
             public int SlownessMultiplier { get; set; } = slownessMultiplier;

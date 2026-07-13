@@ -150,7 +150,7 @@ namespace src.command
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
-                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
                 if (player == null)
                 {
@@ -503,10 +503,10 @@ namespace src.command
             {
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
                 skillPlayer.Skill = skill.Skill;
-                skillPlayer.SpecialSkill = src.player.Skills.None;
-                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                skillPlayer.SpecialSkill = Skills.None;
+                Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
-                if (skill.Skill == src.player.Skills.None)
+                if (skill.Skill == Skills.None)
                     Event.staticSkills.TryRemove(targetPlayer.Index, out _);
                 else
                     Event.staticSkills.TryAdd(targetPlayer.Index, skill);
@@ -651,7 +651,7 @@ namespace src.command
             nextSkill[targetPlayer.Index] = nextIndex;
 
             Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
-            skillPlayer.SkillDescriptionHudExpired = DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+            Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
             if (skill.Display)
                 SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", border: "b");

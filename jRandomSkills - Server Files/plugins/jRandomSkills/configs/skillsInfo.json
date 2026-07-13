@@ -6,6 +6,8 @@
     "Color": "#fbff00",
     "Active": true,
     "Name": "Zeus",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -17,6 +19,8 @@
     "Color": "#384728",
     "Active": true,
     "Name": "WildThrow",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -29,6 +33,8 @@
     "Color": "#8f6dc9",
     "Active": true,
     "Name": "Weightless",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -41,6 +47,8 @@
     "Color": "#c7e03a",
     "Active": true,
     "Name": "WeaponsSwap",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -54,6 +62,8 @@
     "Color": "#ff462e",
     "Active": true,
     "Name": "Watchmaker",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -65,6 +75,8 @@
     "Color": "#5d00ff",
     "Active": true,
     "Name": "Wallhack",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Epic"
@@ -80,6 +92,8 @@
     "Color": "#507529",
     "Active": true,
     "Name": "ToxicSmoke",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -93,6 +107,8 @@
     "Color": "#8f108f",
     "Active": true,
     "Name": "ThrowingKnife",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -106,6 +122,8 @@
     "Color": "#962631",
     "Active": true,
     "Name": "Thorns",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -118,6 +136,8 @@
     "Color": "#1b04cc",
     "Active": true,
     "Name": "ThirdEye",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -129,6 +149,8 @@
     "Color": "#adaec7",
     "Active": true,
     "Name": "Thief",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -142,6 +164,8 @@
     "Color": "#8A2BE2",
     "Active": true,
     "Name": "Teleporter",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -155,6 +179,8 @@
     "Color": "#1466F5",
     "Active": true,
     "Name": "SwapPosition",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -167,6 +193,8 @@
     "Color": "#42f5da",
     "Active": true,
     "Name": "Spectator",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -179,6 +207,8 @@
     "Color": "#e3ed8c",
     "Active": true,
     "Name": "SoundMaker",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -192,6 +222,8 @@
     "Color": "#09ba00",
     "Active": true,
     "Name": "Soldier",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -203,6 +235,8 @@
     "Color": "#e0873a",
     "Active": true,
     "Name": "SniperElite",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -215,6 +249,8 @@
     "Color": "#b5ab8f",
     "Active": true,
     "Name": "Smoker",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -226,6 +262,8 @@
     "Color": "#333333",
     "Active": true,
     "Name": "Silent",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -238,6 +276,8 @@
     "Color": "#f5b74c",
     "Active": true,
     "Name": "ShortBomb",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -252,6 +292,8 @@
     "Color": "#4d4d4d",
     "Active": true,
     "Name": "Shade",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -264,6 +306,8 @@
     "Color": "#d41c1c",
     "Active": true,
     "Name": "SecondLife",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -275,6 +319,8 @@
     "Color": "#8A2BE2",
     "Active": true,
     "Name": "Saper",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -288,6 +334,8 @@
     "Color": "#8B4513",
     "Active": true,
     "Name": "Rubber",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -300,6 +348,8 @@
     "Color": "#119125",
     "Active": true,
     "Name": "RobinHood",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -313,6 +363,8 @@
     "Color": "#D4AF37",
     "Active": true,
     "Name": "RichBoy",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -325,6 +377,8 @@
     "Color": "#ff5C0A",
     "Active": true,
     "Name": "ReZombie",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -336,6 +390,8 @@
     "Color": "#a68132",
     "Active": true,
     "Name": "ReturnToSender",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -348,6 +404,8 @@
     "Color": "#a86eff",
     "Active": true,
     "Name": "Retreat",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -362,6 +420,8 @@
     "Color": "#a3000b",
     "Active": true,
     "Name": "Replicator",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 2,
     "Rarity": "Common"
@@ -375,6 +435,8 @@
     "Color": "#ff462e",
     "Active": true,
     "Name": "Regeneration",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -387,6 +449,8 @@
     "Color": "#3cded3",
     "Active": true,
     "Name": "ReactiveArmor",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -399,6 +463,8 @@
     "Color": "#e0873a",
     "Active": true,
     "Name": "RandomWeapon",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -412,6 +478,8 @@
     "Color": "#009905",
     "Active": true,
     "Name": "Rambo",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -423,6 +491,8 @@
     "Color": "#2effcb",
     "Active": true,
     "Name": "RadarHack",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -434,6 +504,8 @@
     "Color": "#8a42f5",
     "Active": true,
     "Name": "QuickShot",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -447,6 +519,8 @@
     "Color": "#3c47de",
     "Active": true,
     "Name": "Pyro",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -462,6 +536,8 @@
     "Color": "#1e9ab0",
     "Active": true,
     "Name": "Push",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -475,6 +551,8 @@
     "Color": "#507529",
     "Active": true,
     "Name": "PsychicDefusing",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -486,6 +564,8 @@
     "Color": "#9c9c9c",
     "Active": true,
     "Name": "Prosthesis",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -497,6 +577,8 @@
     "Color": "#ffc061",
     "Active": true,
     "Name": "PrimaryBan",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -511,6 +593,8 @@
     "Color": "#902eff",
     "Active": true,
     "Name": "Poison",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 2,
     "Rarity": "Common"
@@ -523,6 +607,8 @@
     "Color": "#7d7d7d",
     "Active": true,
     "Name": "Planter",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -537,6 +623,8 @@
     "Color": "#1466F5",
     "Active": true,
     "Name": "Pilot",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -550,6 +638,8 @@
     "Color": "#ff5C0A",
     "Active": true,
     "Name": "Phoenix",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -563,6 +653,8 @@
     "Color": "#FFA500",
     "Active": true,
     "Name": "PawelJumper",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -574,6 +666,8 @@
     "Color": "#3c47de",
     "Active": true,
     "Name": "OnlyHead",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -585,6 +679,8 @@
     "Color": "#ff5CD9",
     "Active": true,
     "Name": "OneShot",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -596,6 +692,8 @@
     "Color": "#8a42f5",
     "Active": true,
     "Name": "NoRecoil",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -607,6 +705,8 @@
     "Color": "#FFFFFF",
     "Active": true,
     "Name": "None",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -618,6 +718,8 @@
     "Color": "#a38c1a",
     "Active": true,
     "Name": "NoNades",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -632,6 +734,8 @@
     "Color": "#44ebd4",
     "Active": true,
     "Name": "Noclip",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -646,6 +750,8 @@
     "Color": "#dedede",
     "Active": true,
     "Name": "Ninja",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -657,6 +763,8 @@
     "Color": "#52f54c",
     "Active": true,
     "Name": "MoneySwap",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -670,6 +778,8 @@
     "Color": "#adf542",
     "Active": true,
     "Name": "Miner",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -684,6 +794,8 @@
     "Color": "#10c212",
     "Active": true,
     "Name": "Medic",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -696,6 +808,8 @@
     "Color": "#9ba882",
     "Active": true,
     "Name": "Magnifier",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -708,6 +822,8 @@
     "Color": "#f081ec",
     "Active": true,
     "Name": "Magneto",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -722,6 +838,8 @@
     "Color": "#81f0c4",
     "Active": true,
     "Name": "MagneticDecoy",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -735,6 +853,8 @@
     "Color": "#6effc7",
     "Active": true,
     "Name": "LongZeus",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Uncommon"
@@ -748,6 +868,8 @@
     "Color": "#c9f8ff",
     "Active": true,
     "Name": "LongKnife",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -759,6 +881,8 @@
     "Color": "#a3651a",
     "Active": true,
     "Name": "LifeSwap",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -773,6 +897,8 @@
     "Color": "#57bcff",
     "Active": true,
     "Name": "KillerFlash",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Epic"
@@ -785,6 +911,8 @@
     "Color": "#a86eff",
     "Active": true,
     "Name": "JumpingJack",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -796,6 +924,8 @@
     "Color": "#b01e5d",
     "Active": true,
     "Name": "JumpBan",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -809,6 +939,8 @@
     "Color": "#8f108f",
     "Active": true,
     "Name": "Jester",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -820,6 +952,8 @@
     "Color": "#42f5a7",
     "Active": true,
     "Name": "Jammer",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -832,6 +966,8 @@
     "Color": "#f542ef",
     "Active": true,
     "Name": "Jackal",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -843,6 +979,8 @@
     "Color": "#0000FF",
     "Active": true,
     "Name": "InfiniteAmmo",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -854,6 +992,8 @@
     "Color": "#99140B",
     "Active": true,
     "Name": "Impostor",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -870,6 +1010,8 @@
     "Color": "#42f5ef",
     "Active": true,
     "Name": "Illusionist",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 2,
     "Rarity": "Common"
@@ -881,6 +1023,8 @@
     "Color": "#1466F5",
     "Active": true,
     "Name": "Illiterate",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -894,6 +1038,8 @@
     "Color": "#d0d930",
     "Active": true,
     "Name": "Iana",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -907,6 +1053,8 @@
     "Color": "#baf081",
     "Active": true,
     "Name": "HotBomb",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -922,6 +1070,8 @@
     "Color": "#384728",
     "Active": true,
     "Name": "HomingNades",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -936,6 +1086,8 @@
     "Color": "#ffdd00",
     "Active": true,
     "Name": "HolyHandGrenade",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -948,6 +1100,8 @@
     "Color": "#ded678",
     "Active": true,
     "Name": "Hermit",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -963,6 +1117,8 @@
     "Color": "#1fe070",
     "Active": true,
     "Name": "HealingSmoke",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -974,6 +1130,8 @@
     "Color": "#4a6e21",
     "Active": true,
     "Name": "Grenadier",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -987,6 +1145,8 @@
     "Color": "#e0d83a",
     "Active": true,
     "Name": "GodMode",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -998,6 +1158,8 @@
     "Color": "#fff52e",
     "Active": true,
     "Name": "Glue",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1009,6 +1171,8 @@
     "Color": "#f542ef",
     "Active": true,
     "Name": "Glitch",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1021,6 +1185,8 @@
     "Color": "#5d00ff",
     "Active": true,
     "Name": "Glaz",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1032,6 +1198,8 @@
     "Color": "#FFFFFF",
     "Active": true,
     "Name": "Ghost",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Epic"
@@ -1044,6 +1212,8 @@
     "Color": "#7eff47",
     "Active": true,
     "Name": "Gambler",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1058,6 +1228,8 @@
     "Color": "#00eaff",
     "Active": true,
     "Name": "FrozenDecoy",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1070,6 +1242,8 @@
     "Color": "#ff0000",
     "Active": true,
     "Name": "FriendlyFire",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1082,6 +1256,8 @@
     "Color": "#5d00ff",
     "Active": true,
     "Name": "FragileBomb",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -1096,6 +1272,8 @@
     "Color": "#1b04cc",
     "Active": true,
     "Name": "Fortnite",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 5,
     "Rarity": "Common"
@@ -1109,6 +1287,8 @@
     "Color": "#A31912",
     "Active": true,
     "Name": "Flash",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1120,6 +1300,8 @@
     "Color": "#ffc061",
     "Active": true,
     "Name": "FastReload",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1132,6 +1314,8 @@
     "Color": "#d1f542",
     "Active": true,
     "Name": "FalconEye",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1147,6 +1331,8 @@
     "Color": "#9c0000",
     "Active": true,
     "Name": "ExplosiveShot",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1160,6 +1346,8 @@
     "Color": "#ff8c92",
     "Active": true,
     "Name": "EnemySpawn",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1173,6 +1361,8 @@
     "Color": "#ffff00",
     "Active": true,
     "Name": "Dwarf",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1184,6 +1374,8 @@
     "Color": "#ffb73b",
     "Active": true,
     "Name": "Duplicator",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1196,6 +1388,8 @@
     "Color": "#FA050D",
     "Active": true,
     "Name": "Dracula",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1207,6 +1401,8 @@
     "Color": "#00f2ff",
     "Active": true,
     "Name": "Distancer",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1220,6 +1416,8 @@
     "Color": "#FF4500",
     "Active": true,
     "Name": "Disarmament",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1234,6 +1432,8 @@
     "Color": "#F5CB42",
     "Active": true,
     "Name": "DeathBomb",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1245,6 +1445,8 @@
     "Color": "#dae01f",
     "Active": true,
     "Name": "Deaf",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1256,6 +1458,8 @@
     "Color": "#919191",
     "Active": true,
     "Name": "Deactivator",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1271,6 +1475,8 @@
     "Color": "#42bbfc",
     "Active": true,
     "Name": "Dash",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1286,6 +1492,8 @@
     "Color": "#383838",
     "Active": true,
     "Name": "Darkness",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Rare"
@@ -1298,6 +1506,8 @@
     "Color": "#34ebd5",
     "Active": true,
     "Name": "Cypher",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1309,6 +1519,8 @@
     "Color": "#88a31a",
     "Active": true,
     "Name": "Cutter",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1321,6 +1533,8 @@
     "Color": "#343deb",
     "Active": true,
     "Name": "ChillOut",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -1332,6 +1546,8 @@
     "Color": "#FF8B42",
     "Active": true,
     "Name": "Chicken",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1345,6 +1561,8 @@
     "Color": "#FF4500",
     "Active": true,
     "Name": "Catapult",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1357,6 +1575,8 @@
     "Color": "#db6c35",
     "Active": true,
     "Name": "CarefulBullets",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1368,6 +1588,8 @@
     "Color": "#00911f",
     "Active": true,
     "Name": "C4Camouflage",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Uncommon"
@@ -1382,6 +1604,8 @@
     "Color": "#d1430a",
     "Active": true,
     "Name": "BunnyHop",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1396,6 +1620,8 @@
     "Color": "#cc7504",
     "Active": true,
     "Name": "BladeMaster",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1409,6 +1635,8 @@
     "Color": "#00FF00",
     "Active": true,
     "Name": "Behind",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1424,6 +1652,8 @@
     "Color": "#2effc7",
     "Active": true,
     "Name": "Baseball",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1435,6 +1665,8 @@
     "Color": "#abab33",
     "Active": true,
     "Name": "Bankrupt",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1448,6 +1680,8 @@
     "Color": "#7E10AD",
     "Active": true,
     "Name": "Astronaut",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1461,6 +1695,8 @@
     "Color": "#d9d9d9",
     "Active": true,
     "Name": "Assassin",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1474,6 +1710,8 @@
     "Color": "#d1430a",
     "Active": true,
     "Name": "Armored",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1485,6 +1723,8 @@
     "Color": "#edf5b5",
     "Active": true,
     "Name": "AreaReaper",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": 1,
     "Rarity": "Common"
@@ -1496,6 +1736,8 @@
     "Color": "#8B4513",
     "Active": true,
     "Name": "AntyHead",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1509,6 +1751,8 @@
     "Color": "#D6E6FF",
     "Active": true,
     "Name": "AntyFlash",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1522,6 +1766,8 @@
     "Color": "#a86eff",
     "Active": true,
     "Name": "Anomaly",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1535,6 +1781,8 @@
     "Color": "#fa7b48",
     "Active": true,
     "Name": "AimLock",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
@@ -1546,6 +1794,8 @@
     "Color": "#ff0000",
     "Active": true,
     "Name": "Aimbot",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"

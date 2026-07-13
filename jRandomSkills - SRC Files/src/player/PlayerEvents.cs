@@ -565,7 +565,7 @@ namespace src.player
 
             var temp = skillPlayer.SkillHudExpired;
             skillPlayer.SkillHudExpired = DateTime.MinValue;
-            ;
+            
             Instance.AddTimer(5f, () =>
             {
                 if (skillPlayer.SkillHudExpired == DateTime.MinValue)
@@ -990,6 +990,27 @@ namespace src.player
             PerfLog.End("PrecomputeSkills total", perfStart, 2.0);
         }
 
+        public static void UpdateSkillHudExpired(jSkill_PlayerInfo skillPlayer, Skills skill)
+        {
+            float globalHudExpired = Config.LoadedConfig.SkillHudDuration;
+            float? skillHudExpired = SkillsInfo.GetValue<float?>(skill, "hudDuration");
+
+            skillPlayer.SkillHudExpired =
+                !skillHudExpired.HasValue ? 
+                    (globalHudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(globalHudExpired))
+                : skillHudExpired.Value == -1 ? DateTime.MaxValue
+                : DateTime.Now.AddSeconds(skillHudExpired.Value);
+
+            float globalDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration;
+            float? skillDescriptionHudExpired = SkillsInfo.GetValue<float?>(skill, "descriptionHudDuration");
+
+            skillPlayer.SkillDescriptionHudExpired =
+                !skillDescriptionHudExpired.HasValue ?
+                    (globalDescriptionHudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(globalDescriptionHudExpired))
+                : skillDescriptionHudExpired.Value == -1 ? DateTime.MaxValue
+                : DateTime.Now.AddSeconds(skillDescriptionHudExpired.Value);
+        }
+
         private static void SetSkillCore()
         {
             setSkillTimer = null;
@@ -1122,12 +1143,7 @@ namespace src.player
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
-
-                    float hudExpired = Config.LoadedConfig.SkillHudDuration;
-                    skillPlayer.SkillHudExpired = hudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(hudExpired);
-
-                    float descriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration;
-                    skillPlayer.SkillDescriptionHudExpired = descriptionHudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(descriptionHudExpired);
+                    UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
 
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
                     {
@@ -1270,7 +1286,7 @@ namespace src.player
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
-                skillPlayer.SkillDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+                UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
             }
         }
 

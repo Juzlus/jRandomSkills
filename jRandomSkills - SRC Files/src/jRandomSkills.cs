@@ -30,7 +30,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.2.b7";
+        public override string ModuleVersion => "1.2.2.b8";
 
         public override void Load(bool hotReload)
         {
@@ -327,8 +327,8 @@ namespace src
         public Skills SpecialSkill { get; set; }
         public float? SkillChance { get; set; }
         public bool IsDrawing { get; set; }
-        public DateTime SkillHudExpired { get; set; } = Config.LoadedConfig.SkillHudDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillHudDuration);
-        public DateTime SkillDescriptionHudExpired { get; set; } = Config.LoadedConfig.SkillDescriptionDuration == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(Config.LoadedConfig.SkillDescriptionDuration);
+        public DateTime SkillHudExpired { get; set; }
+        public DateTime SkillDescriptionHudExpired { get; set; }
         public string? PrintHTML { get; set; }
         public bool DisplayHUD { get; set; }
         public bool SkillUsed = false;

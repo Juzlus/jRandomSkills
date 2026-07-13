@@ -105,7 +105,7 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#10c212", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 50, int healthShotLimit = 3, float cooldown = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#10c212", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 50, int healthShotLimit = 3, float cooldown = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int HealthToAdd { get; set; } = healthToAdd;
             public int HealthShotLimit { get; set; } = healthShotLimit;
