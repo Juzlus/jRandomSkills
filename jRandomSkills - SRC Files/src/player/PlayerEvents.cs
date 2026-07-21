@@ -138,22 +138,54 @@ namespace src.player
             return candidates[Random.Shared.Next(candidates.Count)];
         }
 
+        private static readonly Skills[] lateDamageSkills = [Skills.SecondLife];
+
+        private static readonly HashSet<Skills> tickFailuresLogged = [];
+
+        private static void InvokeSkill(Skills skill, string methodName, object[] args)
+        {
+            try
+            {
+                Instance.SkillAction(skill.ToString(), methodName, args);
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[jRandomSkills] {skill}.{methodName} failed: {ex.InnerException?.Message ?? ex.Message}");
+            }
+        }
+
         private static void DispatchToActiveSkills(string methodName, params object[] args)
         {
             var seen = new HashSet<Skills>();
             foreach (var p in Instance.SkillPlayer)
             {
                 if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                try
-                {
-                    Instance.SkillAction(p.Skill.ToString(), methodName, args);
-                }
-                catch (Exception ex)
-                {
-                    // One skill's failure must not break the dispatch chain.
-                    Server.PrintToConsole($"[jRandomSkills] {p.Skill}.{methodName} failed: {ex.InnerException?.Message ?? ex.Message}");
-                }
+                InvokeSkill(p.Skill, methodName, args);
             }
+        }
+
+        private static void DispatchOnTakeDamage(DynamicHook h)
+        {
+            object[] args = [h];
+            var seen = new HashSet<Skills>();
+            List<Skills>? deferred = null;
+
+            foreach (var p in Instance.SkillPlayer)
+            {
+                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+
+                if (Array.IndexOf(lateDamageSkills, p.Skill) >= 0)
+                {
+                    (deferred ??= []).Add(p.Skill);
+                    continue;
+                }
+
+                InvokeSkill(p.Skill, "OnTakeDamage", args);
+            }
+
+            if (deferred == null) return;
+            foreach (var skill in deferred)
+                InvokeSkill(skill, "OnTakeDamage", args);
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -322,7 +354,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("OnTakeDamage", h);
+                DispatchOnTakeDamage(h);
 
                 if (Fortnite.skillInThisRound == true &&
                     !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
@@ -468,7 +500,17 @@ namespace src.player
                 foreach (var skill in _activeSkillsList)
                 {
                     if (freeze && _freezeDisabledSkills.Contains(skill)) continue;
-                    Instance.SkillAction(_skillNames[skill], "OnTick");
+                    try
+                    {
+                        Instance.SkillAction(_skillNames[skill], "OnTick");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Without this one throwing skill cancels every later skill's tick, every frame.
+                        // Logged once per skill per round; at 64 ticks a repeat would flood the console.
+                        if (tickFailuresLogged.Add(skill))
+                            Server.PrintToConsole($"[jRandomSkills] {skill}.OnTick failed: {ex.InnerException?.Message ?? ex.Message}");
+                    }
                 }
             }
             PerfLog.Sample("OnTick(skills)", perfStart);
@@ -540,6 +582,10 @@ namespace src.player
                 if (skillPlayer == null) return HookResult.Continue;
 
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+
+                uint leavingIndex = player.Index;
+                foreach (var skill in SkillData.Skills)
+                    Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingIndex]);
 
                 PlayerManager.UnregisterPlayer(player.Index);
                 EntityManager.DestroyPlayerEntities(player.Index);
@@ -660,8 +706,12 @@ namespace src.player
                     if (playerInfo == null) continue;
 
                     ActiveSkillsThisRound.TryAdd(playerInfo.Skill.ToString(), 0);
+                    SkillsUsedThisMap.TryAdd(playerInfo.Skill.ToString(), 0);
                     if (playerInfo.SpecialSkill != noneSkill.Skill)
+                    {
                         ActiveSkillsThisRound.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
+                        SkillsUsedThisMap.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
+                    }
 
                     Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
 
@@ -674,9 +724,13 @@ namespace src.player
                     RestorePlayer(player);
                 }
 
-                foreach (var skillName in ActiveSkillsThisRound.Keys)
+                // Reset every skill used so far on this map, not only the ones held this round: a skill
+                // nobody drew now would otherwise never clear state left over from an earlier round.
+                // Skills that never ran cannot hold state, so they stay out of the sweep.
+                foreach (var skillName in SkillsUsedThisMap.Keys)
                     Instance.SkillAction(skillName, "NewRound");
                 ActiveSkillsThisRound.Clear();
+                tickFailuresLogged.Clear();
             }
         }
 
@@ -712,6 +766,7 @@ namespace src.player
                 EntityManager.SuppressKills = false;
 
                 ActiveSkillsThisRound.Clear();
+                SkillsUsedThisMap.Clear();
                 nextRoundPicks.Clear();
 
                 playersSkills.Clear();

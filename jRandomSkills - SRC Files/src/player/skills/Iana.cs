@@ -340,6 +340,8 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
+            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+
             if (playersInfo.TryGetValue(victim.Index, out var playerSkill))
             {
                 if (playerSkill.CloneProp != null)

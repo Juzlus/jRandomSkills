@@ -75,7 +75,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tick = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
+            int tick = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown"));
             if (Server.TickCount % tick != 0) return;
 
             float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");

@@ -161,7 +161,7 @@ namespace src.player.skills
                     replica.Teleport(nexPos, null, null);
                 }, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
                 ActiveTimers.TryAdd(replicaIndex, moveTimer);
-            });
+            }, TimerFlags.STOP_ON_MAPCHANGE);
 
             float duration = SkillsInfo.GetValue<float>(skillName, ducking ? "durationCrouch" : "durationRun");
             Instance.AddTimer(duration, () =>

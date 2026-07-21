@@ -58,6 +58,11 @@ namespace src.player.skills
                 Marshal.WriteInt32(hitGroupOffset, 56, hitGroup);
         }
 
+        public static void NewRound()
+        {
+            hitGroups.Clear();
+        }
+
         public static void DisableSkill(CCSPlayerController _)
         {
             foreach (var hit in hitGroups)
@@ -65,6 +70,8 @@ namespace src.player.skills
                 if (hit.Key != nint.Zero)
                     Marshal.WriteInt32(hit.Key, 56, hit.Value);
             }
+
+            hitGroups.Clear();
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

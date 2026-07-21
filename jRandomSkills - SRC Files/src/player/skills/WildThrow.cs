@@ -23,6 +23,8 @@ namespace src.player.skills
         {
             lock (setLock)
             {
+                if (infectedPlayers.IsEmpty && playersToTarget.IsEmpty) return;
+
                 foreach (var player in Utilities.GetPlayers())
                     DisableSkill(player);
 

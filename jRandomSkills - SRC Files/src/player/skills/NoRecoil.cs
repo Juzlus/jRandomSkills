@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
+using System.Collections.Concurrent;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -10,6 +11,9 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.NoRecoil;
 
+        private static readonly ConcurrentDictionary<uint, byte> holders = [];
+        private static bool noSpreadActive;
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -17,21 +21,33 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            var players = Utilities.GetPlayers();
-            foreach (var player in players)
-                DisableSkill(player);
+            holders.Clear();
+            ApplyNoSpread(false);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            Server.ExecuteCommand("weapon_accuracy_nospread 1");
+
+            holders.TryAdd(player.Index, 0);
+            ApplyNoSpread(true);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            Server.ExecuteCommand("weapon_accuracy_nospread 0");
+
+            holders.TryRemove(player.Index, out _);
+            if (holders.IsEmpty)
+                ApplyNoSpread(false);
+        }
+
+        private static void ApplyNoSpread(bool enabled)
+        {
+            if (noSpreadActive == enabled) return;
+
+            noSpreadActive = enabled;
+            Server.ExecuteCommand($"weapon_accuracy_nospread {(enabled ? 1 : 0)}");
         }
 
         public static void OnTick()

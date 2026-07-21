@@ -296,8 +296,8 @@ namespace src.utils
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) return false;
 
-                var jester = Jester.GetJesterInfo(player.Index);
-                if (jester?.Active == true) return false;
+                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
+                    return false;
 
                 if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
                     return false;

@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -9,10 +10,23 @@ namespace src.player.skills
     public class FriendlyFire : ISkill
     {
         private const Skills skillName = Skills.FriendlyFire;
+        private static bool defaultAutoKick = true;
+        private static bool autoKickOverridden;
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+
+            try { defaultAutoKick = ConVar.Find("mp_autokick")?.GetPrimitiveValue<bool>() ?? true; }
+            catch { defaultAutoKick = true; }
+        }
+
+        public static void NewRound()
+        {
+            if (!autoKickOverridden) return;
+
+            autoKickOverridden = false;
+            Server.ExecuteCommand($"mp_autokick {(defaultAutoKick ? 1 : 0)}");
         }
 
         public static void OnTakeDamage(DynamicHook h)
@@ -56,8 +70,12 @@ namespace src.player.skills
             float damage = param2.Damage;
             param2.Damage = 0;
 
-            Server.ExecuteCommand("mp_autokick 0");
-        
+            if (!autoKickOverridden)
+            {
+                autoKickOverridden = true;
+                Server.ExecuteCommand("mp_autokick 0");
+            }
+
             SkillUtils.AddHealth(
                 victimPawn,
                 (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthDamageMultiplier")),

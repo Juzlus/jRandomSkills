@@ -18,6 +18,19 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            lock (setLock)
+            {
+                jammedPlayers.TryRemove(playerIndex, out _);
+                jammerToTarget.TryRemove(playerIndex, out _);
+
+                foreach (var kvp in jammerToTarget)
+                    if (kvp.Value == playerIndex)
+                        jammerToTarget.TryRemove(kvp.Key, out _);
+            }
+        }
+
         public static void NewRound()
         {
             lock (setLock)

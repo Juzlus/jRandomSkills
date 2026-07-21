@@ -59,20 +59,20 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
                 if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
-                    if (player == null || !player.IsValid) return;
+                    if (player == null || !player.IsValid) continue;
 
                     var enemy = Utilities.GetPlayerFromIndex((int)cameraInfo.Item3);
                     if (enemy == null || !enemy.IsValid || enemy.PlayerPawn == null)
                     {
                         ChangeCamera(player, true);
-                        return;
+                        continue;
                     }
 
                     var enemyPawn = enemy.PlayerPawn.Value;
                     if (enemyPawn == null || !enemyPawn.IsValid)
                     {
                         ChangeCamera(player, true);
-                        return;
+                        continue;
                     }
 
                     if (enemyPawn.Health <= 0 || (player.PlayerPawn?.Value != null && player.PlayerPawn.Value.Health <= 0))
@@ -117,6 +117,10 @@ namespace src.player.skills
                 pawn.CameraServices.ViewEntity.Raw = orginalCameraRaw;
 
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+
+            if (forceToDefault && cameras.TryGetValue(player.Index, out var current) && current.Item2 != 0)
+                cameras[player.Index] = (current.Item1, 0, current.Item3);
+
             BlockWeapon(player, !defaultCam);
         }
 
