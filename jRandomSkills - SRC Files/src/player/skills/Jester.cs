@@ -19,6 +19,16 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            if (!jesters.TryRemove(playerIndex, out var jester)) return;
+
+            jester.Generation++;
+            jester.Active = false;
+            jester.Timer?.Kill();
+            jester.Timer = null;
+        }
+
         public static void NewRound()
         {
             Server.NextWorldUpdate(() =>
@@ -37,7 +47,7 @@ namespace src.player.skills
                         SkillUtils.ResetPrintHTML(player);
 
                         var pawn = player.PlayerPawn.Value;
-                        if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+                        if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
 
                         var color = Color.FromArgb(255, 255, 255, 255);
                         pawn.Render = color;
@@ -114,11 +124,10 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(victim)) return;
-            var jesterVictim = GetJesterInfo(victim!.Index);
 
             if (!Instance.IsPlayerValid(attacker))
             {
-                if (jesterVictim != null && jesterVictim.Active)
+                if (IsActiveJester(victim!.Index))
                 {
                     SkillUtils.RestoreHealth(victim);
                     RestoreArmor(victim, @event.DmgArmor);
@@ -126,12 +135,17 @@ namespace src.player.skills
                 return;
             }
 
-            var jesterAttacker = GetJesterInfo(attacker!.Index);
-            if ((jesterVictim != null && jesterVictim.Active) || (jesterAttacker != null && jesterAttacker.Active))
+            if (IsActiveJester(victim!.Index) || IsActiveJester(attacker!.Index))
             {
                 SkillUtils.RestoreHealth(victim);
                 RestoreArmor(victim, @event.DmgArmor);
             }
+        }
+
+        public static bool IsActiveJester(uint playerIndex)
+        {
+            if (GetJesterInfo(playerIndex)?.Active != true) return false;
+            return PlayerManager.GetPlayerByIndex(playerIndex)?.Skill == skillName;
         }
 
         private static void RestoreArmor(CCSPlayerController? victim, int dmgArmor)

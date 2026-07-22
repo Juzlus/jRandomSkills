@@ -16,7 +16,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")) != 0) return;
+            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")));
+            if (Server.TickCount % cooldown != 0) return;
             foreach (var player in Utilities.GetPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);

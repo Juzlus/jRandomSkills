@@ -11,7 +11,7 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
-        private static readonly ConcurrentDictionary<nint, byte> usedThisRound = [];
+        private static readonly ConcurrentDictionary<nint, int> usedThisRound = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -45,7 +45,13 @@ namespace src.player.skills
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             if (info.Damage < victimPawn.Health) return;
-            if (usedThisRound.ContainsKey(victim.Handle)) return;
+
+            if (usedThisRound.TryGetValue(victim.Handle, out int savedTick))
+            {
+                if (savedTick == Server.TickCount)
+                    info.Damage = 0;
+                return;
+            }
 
             lock (setLock)
             {
@@ -54,18 +60,18 @@ namespace src.player.skills
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
                 if (spawnpoint == null) return; // no clean respawn point -> let the normal death happen
 
-                usedThisRound.TryAdd(victim.Handle, 0);
+                usedThisRound.TryAdd(victim.Handle, Server.TickCount);
                 info.Damage = 0;
 
-                int startHealth = SkillsInfo.GetValue<int>(skillName, "startHealth");
+                victimPawn.Health = SkillsInfo.GetValue<int>(skillName, "startHealth");
+                Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
+
                 Server.NextFrame(() =>
                 {
                     if (victim == null || !victim.IsValid) return;
                     var pawn = victim.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid) return;
 
-                    pawn.Health = startHealth;
-                    Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
                     pawn.Teleport(spawnpoint, null, new Vector(0, 0, 0));
                 });
             }

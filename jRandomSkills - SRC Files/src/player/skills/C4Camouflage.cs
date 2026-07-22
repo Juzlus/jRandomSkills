@@ -67,6 +67,10 @@ namespace src.player.skills
         {
             if (Server.TickCount % 2 != 0) return;
 
+            var bomb = invisiblePlayers.IsEmpty
+                ? null
+                : Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+
             foreach (var player in Utilities.GetPlayers())
             {
                 if (player.PlayerPawn?.Value?.Health <= 0 && invisiblePlayers.ContainsKey(player.Index))
@@ -77,7 +81,7 @@ namespace src.player.skills
 
                 // CheckTransmit hides the model but the radar blip comes from spotted state, so clear it every tick.
                 if (invisiblePlayers.ContainsKey(player.Index))
-                    ClearSpottedState(player);
+                    ClearSpottedState(player, bomb);
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
@@ -99,6 +103,11 @@ namespace src.player.skills
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            if (invisiblePlayers.IsEmpty) return;
+
+            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            if (bomb != null && !bomb.IsValid) bomb = null;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
@@ -127,14 +136,10 @@ namespace src.player.skills
                     if (info.TransmitEntities.Contains(entity.Index))
                         info.TransmitEntities.Remove(entity.Index);
 
-                    var bombIndex = GetBombIndex();
-                    if (bombIndex == null) continue;
+                    if (bomb == null) continue;
 
-                    var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
-                    if (bombEntity == null || !bombEntity.IsValid) continue;
-
-                    if (info.TransmitEntities.Contains(bombEntity.Index))
-                        info.TransmitEntities.Remove(bombEntity.Index);
+                    if (info.TransmitEntities.Contains(bomb.Index))
+                        info.TransmitEntities.Remove(bomb.Index);
                 }
             }
         }
@@ -212,19 +217,8 @@ namespace src.player.skills
             particle.AcceptInput("Start");
         }
 
-        private static uint? GetBombIndex()
-        {
-            var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-            if (bombEntities.Count == 0) return null;
-
-            var bomb = bombEntities.FirstOrDefault();
-            if (bomb == null) return null;
-
-            return bomb.Index;
-        }
-
         // Wipe spotted state (pawn + carried bomb) so a disguised carrier produces no radar blip.
-        private static void ClearSpottedState(CCSPlayerController player)
+        private static void ClearSpottedState(CCSPlayerController player, CC4? bomb)
         {
             var pawn = player.PlayerPawn?.Value;
             if (pawn != null && pawn.IsValid)
@@ -234,7 +228,6 @@ namespace src.player.skills
                 pawn.EntitySpottedState.SpottedByMask[1] = 0;
             }
 
-            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
             if (bomb != null && bomb.IsValid && bomb.OwnerEntity?.Index == player.Index)
             {
                 bomb.EntitySpottedState.Spotted = false;

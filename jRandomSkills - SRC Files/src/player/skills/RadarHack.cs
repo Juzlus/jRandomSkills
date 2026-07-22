@@ -9,6 +9,7 @@ namespace src.player.skills
     public class RadarHack : ISkill
     {
         private const Skills skillName = Skills.RadarHack;
+        private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
 
         public static void LoadSkill()
         {
@@ -43,8 +44,9 @@ namespace src.player.skills
                 var enemyPawn = enemyEvent.PlayerPawn.Value;
                 if (enemyPawn == null || !enemyPawn.IsValid) continue;
 
-                // Invisibility (low render alpha) beats the radar hack.
-                if (enemyPawn.Render.A < 200) continue;
+                var enemyInfo = PlayerManager.GetPlayerByIndex(enemyEvent.Index);
+                if (enemyInfo != null && Array.IndexOf(hidingSkills, enemyInfo.Skill) >= 0 && enemyPawn.Render.A < 200)
+                    continue;
 
                 // Only the observer's slot bit — the Spotted bool would reveal to the whole team.
                 enemyPawn.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));

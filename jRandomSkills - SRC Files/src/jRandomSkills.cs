@@ -26,6 +26,7 @@ namespace src
         public IWasdMenuManager? MenuManager;
         // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
         public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
+        public static readonly ConcurrentDictionary<string, byte> SkillsUsedThisMap = new();
 
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
@@ -95,7 +96,10 @@ namespace src
                 return null;
 
             if (methodName == "EnableSkill")
+            {
                 ActiveSkillsThisRound.TryAdd(skill, 0);
+                SkillsUsedThisMap.TryAdd(skill, 0);
+            }
 
             var method = _skillMethodCache.GetOrAdd((skill, methodName), key =>
             {

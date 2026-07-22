@@ -56,6 +56,11 @@ namespace src.player.skills
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            if (invisiblePlayers.IsEmpty) return;
+
+            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            uint? bombOwnerIndex = bomb != null && bomb.IsValid ? bomb.OwnerEntity?.Index : null;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
@@ -84,14 +89,11 @@ namespace src.player.skills
                     if (info.TransmitEntities.Contains(entity.Index))
                         info.TransmitEntities.Remove(entity.Index);
 
-                    var bombIndex = GetBombIndex(playerController);
-                    if (bombIndex == null) continue;
+                    // Hide the bomb as well, but only while this hidden player is the one holding it.
+                    if (bomb == null || bombOwnerIndex != playerController.Index) continue;
 
-                    var bombEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)bombIndex);
-                    if (bombEntity == null || !bombEntity.IsValid) continue;
-
-                    if (info.TransmitEntities.Contains(bombEntity.Index))
-                        info.TransmitEntities.Remove(bombEntity.Index);
+                    if (info.TransmitEntities.Contains(bomb.Index))
+                        info.TransmitEntities.Remove(bomb.Index);
                 }
             }
         }
@@ -230,18 +232,6 @@ namespace src.player.skills
             }
 
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("disabled_weapon")}</font>";
-        }
-
-        private static uint? GetBombIndex(CCSPlayerController player)
-        {
-            var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-            if (bombEntities.Count == 0) return null;
-
-            var bomb = bombEntities.FirstOrDefault();
-            if (bomb == null) return null;
-
-            if (bomb.OwnerEntity.Index != player.Index) return null;
-            return bomb.Index;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FFFFFF", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Epic) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

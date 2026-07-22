@@ -15,6 +15,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
         // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.
         private static int defaultC4Timer = 40;
+        private static bool c4TimerOverridden;
 
         public static void LoadSkill()
         {
@@ -25,6 +26,7 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             // At round start (not at plant) so the client HUD/alert countdown is right before the plant completes.
+            c4TimerOverridden = true;
             Server.ExecuteCommand($"mp_c4timer {SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime")}");
         }
 
@@ -70,6 +72,9 @@ namespace src.player.skills
                 DisableSkill(player);
             plantingPlayers.Clear();
 
+            if (!c4TimerOverridden) return;
+
+            c4TimerOverridden = false;
             Server.ExecuteCommand($"mp_c4timer {defaultC4Timer}");
         }
 

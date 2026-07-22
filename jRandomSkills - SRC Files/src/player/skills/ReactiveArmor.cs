@@ -45,6 +45,8 @@ namespace src.player.skills
             if (attacker == null || !attacker.IsValid) return;
             if (victimEvent == null || !victimEvent.IsValid || !victim.PawnIsAlive) return;
 
+            if (PlayerManager.GetPlayerByIndex(victimEvent!.Index)?.Skill != skillName) return;
+
             if (SkillPlayerInfo.TryGetValue(victimEvent!.Index, out var skillInfo))
             {
                 if (!skillInfo.CanUse) return;

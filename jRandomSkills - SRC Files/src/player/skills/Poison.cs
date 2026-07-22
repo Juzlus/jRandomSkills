@@ -18,6 +18,19 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            lock (setLock)
+            {
+                poisonedPlayers.TryRemove(playerIndex, out _);
+                playersToTarget.TryRemove(playerIndex, out _);
+
+                foreach (var kvp in playersToTarget)
+                    if (kvp.Value == playerIndex)
+                        playersToTarget.TryRemove(kvp.Key, out _);
+            }
+        }
+
         public static void NewRound()
         {
             lock (setLock)
@@ -29,7 +42,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int cooldown = (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown"));
+            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")));
          
             if (Server.TickCount % cooldown == 0)
             {
@@ -43,7 +56,7 @@ namespace src.player.skills
                     var pawn = player.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid) continue;
 
-                    if (Jester.GetJesterInfo(playerIndex)?.Active == true) continue;
+                    if (Jester.IsActiveJester(playerIndex)) continue;
 
                     if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
                     SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"));

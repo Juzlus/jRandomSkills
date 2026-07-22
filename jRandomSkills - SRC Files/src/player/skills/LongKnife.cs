@@ -31,6 +31,9 @@ namespace src.player.skills
         public static void NewRound()
         {
             playersInAction.Clear();
+
+            if (!hooked) return;
+
             hooked = false;
             Shoot_Secondary?.Unhook(ShootSecondary, HookMode.Pre);
         }

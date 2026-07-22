@@ -17,6 +17,16 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            bannedPlayers.TryRemove(playerIndex, out _);
+            playersToTarget.TryRemove(playerIndex, out _);
+
+            foreach (var kvp in playersToTarget)
+                if (kvp.Value == playerIndex)
+                    playersToTarget.TryRemove(kvp.Key, out _);
+        }
+
         public static void NewRound()
         {
             bannedPlayers.Clear();
