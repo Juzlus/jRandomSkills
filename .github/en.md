@@ -367,6 +367,43 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.2.b9</b></summary>
+
+- #### General
+    - ###### Fixed Jester's no-damage effect affecting players without the skill.
+    - ###### Fixed Jester state not clearing if the holder died before round end.
+    - ###### All skill data now resets every round, even for unused skills.
+    - ###### Skills tracking players now clear targets when they disconnect (Poison, Deaf, Darkness, Glitch, Magnifier, Legless, No Rifles, Jammer, Jester).
+    - ###### Fixed Aimbot keeping invalid native pointers, preventing possible crashes.
+    - ###### An error in one skill's `OnTick` no longer stops other skills from updating.
+    - ###### Fixed zero cooldown values causing errors (Poison, Regeneration, Hot Bomb, Healing Smoke, Toxic Smoke).
+    - ###### Improved round change performance by removing unnecessary cleanup.
+
+- #### Skill improvements
+    - ###### Second Chance:
+        - ###### Now handles multiple lethal hits in the same tick and restores health instantly after damage. It also works correctly with damage-modifying skills.
+    - ###### Spectator:
+        - ###### Fixed rapid-fire caused by returning to your own view.
+    - ###### Radar Hack:
+        - ###### Players disguised as Chickens are visible on radar again.
+    - ###### Focus:
+        - ###### No-spread now stays active while at least one player has the skill.
+    - ###### Friendly Fire:
+        - ###### Restores `mp_autokick` at round end and no longer updates it on every team hit.
+    - ###### Reactive Armor / Iana:
+        - ###### No longer restore health after the skill is lost.
+    - ###### Free Planter / Short Fuse:
+        - ###### Restore `mp_c4timer` only if they changed it.
+    - ###### Illusionist:
+        - ###### Replica movement timer now stops on map change.
+    - ###### Ghost / Ninja / C4 Camouflage:
+        - ###### Improved hidden-player processing for better performance.
+
+**Full update contributed by @ByDexterTR in pull request #41. Thanks to ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b8</b></summary>
 
 - #### General:
