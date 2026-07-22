@@ -385,6 +385,43 @@ Plugin korzysta z zawartości następujących projektów:
 <summary><b>v1.2.2.b8</b></summary>
 
 - #### Ogólne:
+    - ###### Naprawiono efekt niewrażliwości Błazna, który mógł działać na graczy bez tej mocy.
+    - ###### Naprawiono brak czyszczenia stanu Błazna, jeśli jego posiadacz zginął przed końcem rundy.
+    - ###### Dane wszystkich mocy są teraz resetowane co rundę, nawet jeśli dana moc nie została wylosowana.
+    - ###### Moce śledzące graczy usuwają teraz cele po ich rozłączeniu (Trutka, Głuchy, Mrok, Glitch, Lupa, Beznogi, Brak Karabinów, Zakłócacz, Błazen).
+    - ###### Naprawiono Aimbota przechowującego nieprawidłowe wskaźniki, co mogło powodować crashe.
+    - ###### Błąd w metodzie `OnTick` jednej mocy nie zatrzymuje już aktualizacji pozostałych mocy.
+    - ###### Naprawiono błędy powodowane przez zerowe wartości czasu odnowienia (Trutka, Regeneracja, Gorąca Bomba, Leczący Dym, Toksyczny Dym).
+    - ###### Zoptymalizowano zmianę rundy poprzez usunięcie zbędnych operacji czyszczenia.
+
+- #### Poprawki mocy:
+    - ###### Druga Szansa:
+        - ###### Teraz poprawnie obsługuje kilka śmiertelnych trafień w tym samym ticku i natychmiast przywraca zdrowie po otrzymaniu obrażeń. Działa także poprawnie z mocami modyfikującymi obrażenia.
+    - ###### Obserwator:
+        - ###### Naprawiono problem z bardzo szybkim strzelaniem po powrocie do własnego widoku.
+    - ###### Radarowiec:
+        - ###### Gracze zamienieni w Kurczaki są ponownie widoczni na radarze.
+    - ###### Skupienie:
+        - ###### Efekt braku rozrzutu pozostaje aktywny, dopóki przynajmniej jeden gracz posiada tę moc.
+    - ###### Ogień Przyjacielski:
+        - ###### `mp_autokick` jest przywracane po zakończeniu rundy i nie jest już aktualizowane przy każdym trafieniu sojusznika.
+    - ###### Pancerz Reaktywny / Hologram:
+        - ###### Nie przywracają już zdrowia po utracie mocy.
+    - ###### Samowolka / Krótka Bomba:
+        - ###### Przywracają `mp_c4timer` tylko wtedy, gdy faktycznie go zmieniły.
+    - ###### Iluzjonista:
+        - ###### Timer ruchu repliki zatrzymuje się teraz przy zmianie mapy.
+    - ###### Duszek / Ninja / C4 Kamuflaż:
+        - ###### Zoptymalizowano przetwarzanie ukrytych graczy, poprawiając wydajność.
+
+**Pełna aktualizacja została przygotowana przez @ByDexterTR w ramach pull requesta #41. Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
+<summary><b>v1.2.2.b8</b></summary>
+
+- #### Ogólne:
     - ###### Dodano możliwość ustawienia czasu wyświetlania HUD-u dla każdej mocy z osobna. Moce mogą teraz definiować własną wartość `HudDuration` / `DescriptionHudDuration` w `skillsInfo.json`, dzięki czemu mogą wyświetlać HUD bez ograniczeń (`-1`) lub używać własnego czasu zamiast globalnego ustawienia SkillHudDuration.
 
 </details>
