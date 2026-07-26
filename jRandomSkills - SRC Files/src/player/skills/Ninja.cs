@@ -60,7 +60,7 @@ namespace src.player.skills
         {
             if (invisiblePlayers.IsEmpty) return;
 
-            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            var bomb = PlayerManager.GetTickBomb();
             uint? bombOwnerIndex = bomb != null && bomb.IsValid ? bomb.OwnerEntity?.Index : null;
 
             foreach (var (info, player) in infoList)
@@ -103,7 +103,7 @@ namespace src.player.skills
         {
             if (Server.TickCount % 2 != 0) return;
 
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player.PlayerPawn?.Value == null || player.PlayerPawn?.Value?.Health <= 0)
                     invisiblePlayers.TryRemove(player.Index, out _);
@@ -137,7 +137,7 @@ namespace src.player.skills
 
             SkillUtils.ForceFullUpdateToAll();
         }
-        
+
         public static void DisableSkill(CCSPlayerController player)
         {
             SkillUtils.SetPlayerInvisibility(player, 0);
@@ -182,7 +182,7 @@ namespace src.player.skills
 
             var pawn = playerEvent.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            
+
             var flags = (PlayerFlags)pawn.Flags;
             var buttons = player.Buttons;
 

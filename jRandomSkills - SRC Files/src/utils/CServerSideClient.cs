@@ -100,7 +100,11 @@ namespace jRandomSkills.src.utils
             set => Field<int>(m_nDeltaTick) = value;
         }
 
-        public void ForceFullUpdate() => DeltaTick = -1;
+        public void ForceFullUpdate()
+        {
+            if (Handle == nint.Zero) return;
+            DeltaTick = -1;
+        }
     }
 
     #endregion

@@ -26,12 +26,12 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (Server.TickCount % 10 != 0) return;
-            
+
             foreach (var index in nades.Keys.ToList())
             {
                 if (!nades.TryGetValue(index, out var data)) continue;
                 Vector oldPos = data;
-                
+
                 var nade = Utilities.GetEntityFromIndex<CBaseCSGrenadeProjectile>((int)index);
                 if (nade == null || !nade.IsValid || nade.AbsOrigin == null)
                 {
@@ -49,7 +49,7 @@ namespace src.player.skills
                 {
                     nade.DetonateTime = isZero ? 0f : nade.CreateTime + 1.5f;
                     Utilities.SetStateChanged(nade, "CBaseGrenade", "m_flDetonateTime");
-   
+
                     nades.TryRemove(index, out _);
                     continue;
                 }
@@ -75,11 +75,11 @@ namespace src.player.skills
             double minDistance = int.MaxValue;
             Vector nadePos = nade.AbsOrigin;
 
-            foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.TeamNum != team))
+            foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.TeamNum != team))
             {
                 var pawn = enemy.PlayerPawn.Value;
                 if (pawn?.IsValid != true || pawn.AbsOrigin == null) continue;
-                
+
                 double dist = SkillUtils.GetDistance(nadePos, pawn.AbsOrigin);
                 if (dist < SkillsInfo.GetValue<float>(skillName, "detonationRange"))
                 {

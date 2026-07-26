@@ -18,7 +18,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerEvent = PlayerManager.GetPlayerEvent(player);
                 if (!Instance.IsPlayerValid(playerEvent)) continue;
@@ -28,7 +28,7 @@ namespace src.player.skills
                     SetEnemiesVisibleOnRadar(player);
             }
         }
-        
+
         private static void SetEnemiesVisibleOnRadar(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.PlayerPawn?.Value == null) return;
@@ -36,7 +36,7 @@ namespace src.player.skills
             // SpottedByMask is indexed by player slot (0-63), not entity index.
             int slot = player.Slot;
 
-            foreach (var enemy in Utilities.GetPlayers().FindAll(p => p.Team != player.Team))
+            foreach (var enemy in PlayerManager.GetTickPlayers().FindAll(p => p.Team != player.Team))
             {
                 var enemyEvent = PlayerManager.GetPlayerEvent(enemy);
                 if (enemyEvent == null || !enemyEvent.IsValid) continue;
@@ -52,13 +52,9 @@ namespace src.player.skills
                 enemyPawn.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));
             }
 
-            var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-            if (bombEntities.Count != 0)
-            {
-                var bomb = bombEntities.FirstOrDefault();
-                if (bomb != null && bomb.IsValid)
-                    bomb.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));
-            }
+            var bomb = PlayerManager.GetTickBomb();
+            if (bomb != null && bomb.IsValid)
+                bomb.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));
         }
 
         public class SkillConfig : SkillsInfo.DefaultSkillInfo

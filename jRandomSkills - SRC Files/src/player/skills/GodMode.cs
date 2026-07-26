@@ -22,7 +22,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            lock (setLock) 
+            lock (setLock)
                 SkillPlayerInfo.Clear();
         }
 
@@ -42,7 +42,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -101,7 +101,8 @@ namespace src.player.skills
                     PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Green} {player.GetTranslation("godmode_on")}");
                     player.PlayerPawn.Value.TakesDamage = false;
 
-                    Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () => {
+                    Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () =>
+                    {
                         if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
                             skillInfo.HaveGodMode = false;
 
@@ -125,7 +126,7 @@ namespace src.player.skills
         {
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
-            public bool HaveGodMode {  get; set; }
+            public bool HaveGodMode { get; set; }
             public DateTime Cooldown { get; set; }
         }
 

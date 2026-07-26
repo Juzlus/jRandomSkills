@@ -82,7 +82,7 @@ namespace src.player.skills
             int smokeDamage = SkillsInfo.GetValue<int>(skillName, "smokeDamage");
 
             foreach (Vector smokePos in smokes.Keys)
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
+                foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
                 {
                     var eventPlayer = PlayerManager.GetPlayerEvent(player);
                     if (eventPlayer == null || !eventPlayer.IsValid) continue;

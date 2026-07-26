@@ -59,7 +59,7 @@ namespace src.player.skills
 
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
-                
+
                 if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > SkillsInfo.GetValue<float>(skillName, "maxDefusingRange"))
                 {
                     info.Defusing = false;
@@ -118,7 +118,7 @@ namespace src.player.skills
 
             if (cooldown == 0)
                 playerInfo.PrintHTML = null;
-            else 
+            else
                 playerInfo.PrintHTML = $"{player.GetTranslation("psychicdefusing_hud_info", $"<font color='#00d5ff'>{cooldown}</font>")}";
         }
         public class PlayerSkillInfo

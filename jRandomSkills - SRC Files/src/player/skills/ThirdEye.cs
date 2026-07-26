@@ -44,7 +44,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
                 if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
                     var pawn = player.PlayerPawn.Value;
@@ -108,10 +108,15 @@ namespace src.player.skills
             Server.NextFrame(() =>
             {
                 if (camera == null || !camera.IsValid) return;
-                camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
+                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
+
+                var camNode = camera.CBodyComponent?.SceneNode?.Owner?.Entity;
+                if (camNode != null)
+                    camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
+
                 camera.SetModel("models/sprays/spray_plane.vmdl");
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
-                camera.Teleport(pawn!.AbsOrigin, pawn.EyeAngles);
+                camera.Teleport(pawn.AbsOrigin, pawn.EyeAngles);
                 camera.DispatchSpawn();
             });
 

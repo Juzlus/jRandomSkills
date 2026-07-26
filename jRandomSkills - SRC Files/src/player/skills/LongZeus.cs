@@ -38,7 +38,7 @@ namespace src.player.skills
 
             if (target.Handle == player.Handle) return;
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
-            
+
             SkillUtils.TakeHealth(target.PlayerPawn.Value, 9999);
         }
 

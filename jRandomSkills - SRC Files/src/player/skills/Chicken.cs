@@ -29,7 +29,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
                 SetWeaponAttack(player, false);
 
             var chickenIndices = chickens.Values.ToArray();

@@ -56,7 +56,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
                 if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
                     if (player == null || !player.IsValid) continue;
@@ -86,7 +86,7 @@ namespace src.player.skills
 
             uint orginalCameraRaw;
             uint newCameraRaw = 0;
-         
+
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
@@ -100,7 +100,8 @@ namespace src.player.skills
 
                 if (!forceToDefault)
                     newCameraRaw = CreateCamera(player);
-            } else
+            }
+            else
             {
                 orginalCameraRaw = pawn.CameraServices.ViewEntity.Raw;
                 if (!forceToDefault)
@@ -129,14 +130,14 @@ namespace src.player.skills
             var camera = EntityManager.CreateTrackedDynamicProp(player.Index);
             if (camera == null || !camera.IsValid) return 0;
 
-            var enemies = Utilities.GetPlayers().Where(p =>
+            var enemies = PlayerManager.GetTickPlayers().Where(p =>
                 p != null &&
                 p.IsValid &&
                 p.Team != player.Team &&
                 p.PlayerPawn?.Value != null &&
                 p.PlayerPawn.Value.IsValid &&
                 p.PlayerPawn.Value.Health > 0).ToList();
-            
+
             if (enemies.Count == 0)
                 return 0;
 
@@ -153,13 +154,17 @@ namespace src.player.skills
             Server.NextFrame(() =>
             {
                 if (camera == null || !camera.IsValid) return;
-                camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
+
+                var camNode = camera.CBodyComponent?.SceneNode?.Owner?.Entity;
+                if (camNode != null)
+                    camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
+
                 camera.SetModel("models/sprays/spray_plane.vmdl");
                 camera.Render = Color.FromArgb(1, 255, 255, 255);
                 camera.Teleport(pos, angle);
                 camera.DispatchSpawn();
 
-                CBaseEntity target = pawn;
+                CBaseEntity? target = pawn != null && pawn.IsValid ? pawn : null;
                 var entities = EntityManager.GetPlayerEntities(enemy.Index, "empty_prop");
 
                 if (entities.Count > 0)
@@ -169,6 +174,7 @@ namespace src.player.skills
                         target = entity;
                 }
 
+                if (target == null || !target.IsValid) return;
                 camera.AcceptInput("SetParent", target, target, "!activator");
             });
 

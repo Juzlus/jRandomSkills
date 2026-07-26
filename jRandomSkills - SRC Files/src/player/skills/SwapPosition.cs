@@ -12,7 +12,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.SwapPosition;
         private static readonly ConcurrentDictionary<uint, ZamianaMiejsc_PlayerInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
-        
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -27,7 +27,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (SkillUtils.IsFreezeTime()) return;
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -68,7 +68,7 @@ namespace src.player.skills
 
         private static void UpdateHUD(CCSPlayerController player, ZamianaMiejsc_PlayerInfo skillInfo, bool showInfo)
         {
-            if(player == null || !player.IsValid) return;
+            if (player == null || !player.IsValid) return;
 
             float cooldown = 0;
             if (skillInfo != null)
@@ -86,7 +86,7 @@ namespace src.player.skills
             if (cooldown == 0)
             {
                 if (showInfo)
-                    playerInfo.PrintHTML = skillInfo != null && !skillInfo.FindedEnemy 
+                    playerInfo.PrintHTML = skillInfo != null && !skillInfo.FindedEnemy
                         ? $"<font color='#FF0000'>{player.GetTranslation("hud_info_no_enemy")}</font>" : null;
                 else
                     SkillUtils.ResetPrintHTML(player);
@@ -103,7 +103,7 @@ namespace src.player.skills
 
             if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
             {
-                List<CCSPlayerController> enemy = Utilities.GetPlayers().FindAll(p => Instance.IsPlayerValid(p) && p.Team != player.Team && p.PawnIsAlive);
+                List<CCSPlayerController> enemy = PlayerManager.GetTickPlayers().FindAll(p => Instance.IsPlayerValid(p) && p.Team != player.Team && p.PawnIsAlive);
                 if (enemy.Count == 0)
                 {
                     skillInfo.FindedEnemy = false;

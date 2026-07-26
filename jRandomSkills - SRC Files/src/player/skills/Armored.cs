@@ -28,7 +28,7 @@ namespace src.player.skills
             newScale = (float)Math.Round(newScale, 2);
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newScale)}",
-                border: !Utilities.GetPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
+                border: !PlayerManager.GetTickPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         public static void OnTakeDamage(DynamicHook h)

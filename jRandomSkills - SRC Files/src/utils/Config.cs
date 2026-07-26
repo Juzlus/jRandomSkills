@@ -91,7 +91,7 @@ namespace src.utils
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
-            public HtmlHudCustomisation HtmlHudCustomisation {  get; set; }
+            public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
             public ChatMessage ChatMessage { get; set; }
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }

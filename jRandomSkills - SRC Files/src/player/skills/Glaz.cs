@@ -41,10 +41,10 @@ namespace src.player.skills
         {
             foreach (var (info, player) in infoList)
             {
-                if (player == null) continue;
+                if (player == null || !player.IsValid) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
-                var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
+                var observedPlayer = PlayerManager.GetTickPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
                 var observerInfo = observedPlayer != null ? PlayerManager.GetPlayerByIndex(observedPlayer.Index) : null;
 
                 if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName) continue;

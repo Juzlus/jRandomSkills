@@ -275,6 +275,22 @@ namespace src.utils
             return null;
         }
 
+        public static HitGroup_t GetHitGroup(CTakeDamageInfo? info)
+        {
+            if (info == null || info.Handle == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+
+            int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
+            if (offset <= 0) return HitGroup_t.HITGROUP_GENERIC;
+
+            nint hitGroupPointer = Marshal.ReadIntPtr(info.Handle, offset);
+            if (hitGroupPointer == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+
+            nint hitGroupData = Marshal.ReadIntPtr(hitGroupPointer, 16);
+            if (hitGroupData == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+
+            return (HitGroup_t)Marshal.ReadInt32(hitGroupData, 56);
+        }
+
         public static void CreateHEGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
             HEGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
@@ -285,15 +301,40 @@ namespace src.utils
             SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
         }
 
+        // True when this hit would be nullified by the server's friendly-fire rules (same-team hit,
+        // mp_friendlyfire 0 and mp_teammates_are_enemies 0). The TakeDamage pre-hook still sees the raw
+        // damage, so lethal victim-side skills (SecondLife/Phoenix) must skip it — otherwise they "revive"
+        // a teammate that was never going to take damage.
+        public static bool IsFriendlyFireBlocked(CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (info == null || victimPawn == null || !victimPawn.IsValid) return false;
+
+            var attackerEnt = info.Attacker?.Value;
+            if (attackerEnt == null || !attackerEnt.IsValid) return false;   // world/no attacker -> real damage
+            if (attackerEnt.Handle == victimPawn.Handle) return false;       // self damage applies
+
+            var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
+            if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return false; // non-player inflictor
+            if (attackerPawn.TeamNum != victimPawn.TeamNum) return false;    // enemy -> real damage
+
+            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
+            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            return !ff && !tae; // same team + FF off -> engine will zero this damage
+        }
+
         public static bool TakeHealth(CCSPlayerPawn? pawn, int damage)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return false;
 
+            CCSPlayerController? victim = null;
+            jSkill_PlayerInfo? playerInfo = null;
+
             var player = pawn.Controller.Value;
-            if (player != null && player.IsValid && player.SteamID != 0)
+            if (player != null && player.IsValid)
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                victim = player.As<CCSPlayerController>();
+                playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) return false;
 
                 if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
@@ -301,9 +342,22 @@ namespace src.utils
 
                 if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
                     return false;
+
+                if (playerInfo.Skill == Skills.Armored)
+                    damage = (int)Math.Round(damage * (playerInfo.SkillChance ?? 1f));
             }
 
             int newHealth = (int)(pawn.Health - damage);
+            if (newHealth <= 0 && playerInfo != null)
+            {
+                if (playerInfo.Skill == Skills.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
+                    return true;
+                if (playerInfo.Skill == Skills.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
+                    return true;
+                if (playerInfo.Skill == Skills.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
+                    return true;
+            }
+
             pawn.Health = newHealth;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
 
@@ -336,7 +390,7 @@ namespace src.utils
         public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null, INetworkGameServer? networkGameServer = null)
         {
             if (!Config.LoadedConfig.EnableFullForceUpdate) return;
-            if (player == null || !player.IsValid) return;
+            if (player == null || !player.IsValid || player.IsBot) return;
 
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;

@@ -18,7 +18,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
                 SkillUtils.CloseMenu(player);
         }
 
@@ -60,7 +60,8 @@ namespace src.player.skills
                 playerInfo.SkillUsed = true;
 
                 if (SkillsInfo.GetValue<bool>(skill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                    Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () => {
+                    Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
+                    {
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (player == null || !player.IsValid) return;
 
@@ -120,7 +121,7 @@ namespace src.player.skills
             List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None);
 
-            if (Utilities.GetPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
+            if (PlayerManager.GetTickPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
             {
                 SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).ToArray();
                 skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));

@@ -11,6 +11,7 @@ namespace src.player.skills
     public class ReZombie : ISkill
     {
         private const Skills skillName = Skills.ReZombie;
+        private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> zombies = [];
         private static readonly object setLock = new();
 
@@ -68,40 +69,73 @@ namespace src.player.skills
             zombies.Clear();
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static void OnTakeDamage(DynamicHook h)
         {
-            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (victim == null || !victim.IsValid) return;
+            var victimEntity = h.GetParam<CEntityInstance>(0);
+            var info = h.GetParam<CTakeDamageInfo>(1);
+            if (victimEntity == null || !victimEntity.IsValid || info == null) return;
 
-            var pawn = victim.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
+            var victimPawn = victimEntity.As<CCSPlayerPawn>();
+            if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
-            bool isZombie = zombies.TryGetValue(victim.Index, out int tick);
+            var victimController = victimPawn.Controller.Value;
+            if (victimController == null || !victimController.IsValid) return;
 
-            if (isZombie && tick + 4 < Server.TickCount)
-                return;
+            var victim = victimController.As<CCSPlayerController>();
+            if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
-            if (playerInfo?.Skill != skillName) return;
+            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            if (victimInfo == null || victimInfo.Skill != skillName) return;
 
-            var zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
+            // Friendly-fire-off teammate hit deals 0 damage; don't zombify over a hit that never lands.
+            if (SkillUtils.IsFriendlyFireBlocked(info, victimPawn)) return;
 
-            if (pawn.Health <= 0)
+            float effectiveDamage = info.Damage;
+            if (SkillUtils.GetHitGroup(info) == HitGroup_t.HITGROUP_HEAD)
+                effectiveDamage *= GetHeadshotMultiplier(info);
+
+            if (effectiveDamage < victimPawn.Health) return; // survivable, let it through
+
+            if (TryBecomeZombie(victim, victimPawn))
+                info.Damage = 0;
+        }
+
+        public static bool TryBecomeZombie(CCSPlayerController? victim, CCSPlayerPawn? victimPawn)
+        {
+            if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
+            if (victimPawn == null || !victimPawn.IsValid) return false;
+
+            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            if (victimInfo == null || victimInfo.Skill != skillName) return false;
+
+            lock (setLock)
             {
-                bool isBlock = victim.TeamChanged;
+                if (zombies.ContainsKey(victim.Index)) return false;
+                if (victim.TeamChanged) return false;
 
                 zombies[victim.Index] = Server.TickCount;
 
-                if (isBlock) return;
-
+                int zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
                 DropAllBotWeapons(victim);
-                SetPlayerColor(pawn, false);
-                SkillUtils.SetHealth(pawn, zombieHealth, zombieHealth);
-
+                SetPlayerColor(victimPawn, false);
+                SkillUtils.SetHealth(victimPawn, zombieHealth, zombieHealth);
                 victim.ExecuteClientCommand("slot3");
+                return true;
             }
-            else if (isZombie && tick + 4 > Server.TickCount)
-                SkillUtils.SetHealth(pawn, zombieHealth, zombieHealth);
+        }
+
+        private static float GetHeadshotMultiplier(CTakeDamageInfo info)
+        {
+            var ability = info.Ability?.Value;
+            if (ability == null || !ability.IsValid) return DefaultHeadshotMultiplier;
+
+            var weapon = ability.As<CCSWeaponBase>();
+            if (weapon == null || !weapon.IsValid) return DefaultHeadshotMultiplier;
+
+            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
+            if (vdata == null || vdata.HeadshotMultiplier <= 0) return DefaultHeadshotMultiplier;
+
+            return vdata.HeadshotMultiplier;
         }
 
         private static void DropAllBotWeapons(CCSPlayerController player)

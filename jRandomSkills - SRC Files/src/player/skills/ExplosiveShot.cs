@@ -23,12 +23,12 @@ namespace src.player.skills
         {
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            
+
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newChance;
-            
+
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
+                border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         private static void SpawnExplosion(Vector vector)
@@ -58,7 +58,7 @@ namespace src.player.skills
             });
         }
 
-        private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a -b) < epsilon;
+        private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
 
         public static void BulletImpact(EventBulletImpact @event)
         {

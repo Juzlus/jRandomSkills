@@ -25,7 +25,7 @@ namespace src.player.skills
             var victimEvent = PlayerManager.GetPlayerEvent(victim);
 
             if (attackerEvent == null || !attackerEvent.IsValid) return;
-            if (victimEvent == null || !victimEvent.IsValid ) return;
+            if (victimEvent == null || !victimEvent.IsValid) return;
 
             var attackerPawn = attackerEvent.PlayerPawn.Value;
             if (attackerPawn == null || !attackerPawn.IsValid || attackerPawn.Health == 0) return;

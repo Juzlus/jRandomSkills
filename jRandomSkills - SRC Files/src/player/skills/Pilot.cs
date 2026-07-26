@@ -24,7 +24,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -121,14 +121,14 @@ namespace src.player.skills
             float fuelPercentage = maximumFuel;
 
             string fuelColor = GetFuelColor(pilotInfo.Fuel);
-            playerInfo.PrintHTML = $"{player.GetTranslation("pilot_hud_info")}: <font color='{fuelColor}'>{(pilotInfo.Fuel/maximumFuel)*100:F0}%</font>";
+            playerInfo.PrintHTML = $"{player.GetTranslation("pilot_hud_info")}: <font color='{fuelColor}'>{(pilotInfo.Fuel / maximumFuel) * 100:F0}%</font>";
         }
 
         private static string GetFuelColor(float fuelPercentage)
         {
             var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
-            if (fuelPercentage > (maximumFuel/2f)) return "#00FF00";
-            if (fuelPercentage > (maximumFuel/4f)) return "#FFFF00";
+            if (fuelPercentage > (maximumFuel / 2f)) return "#00FF00";
+            if (fuelPercentage > (maximumFuel / 4f)) return "#FFFF00";
             return "#FF0000";
         }
 
@@ -136,7 +136,7 @@ namespace src.player.skills
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
-            
+
             QAngle eye_angle = playerPawn.EyeAngles;
             double pitch = (Math.PI / 180) * eye_angle.X;
             double yaw = (Math.PI / 180) * eye_angle.Y;

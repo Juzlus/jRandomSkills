@@ -17,7 +17,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (!Instance.IsPlayerValid(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -27,7 +27,7 @@ namespace src.player.skills
                     var pawn = player.PlayerPawn.Value!;
                     var weaponServices = pawn.WeaponServices;
                     if (weaponServices == null || weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid) continue;
-                   
+
                     var weapon = weaponServices.ActiveWeapon.Value;
                     if (weapon == null || !weapon.IsValid || pawn.CameraServices == null) continue;
 

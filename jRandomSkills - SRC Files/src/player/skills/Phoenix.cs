@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -10,6 +11,7 @@ namespace src.player.skills
     public class Phoenix : ISkill
     {
         private const Skills skillName = Skills.Phoenix;
+        private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> phoenixTicks = new();
 
         public static void LoadSkill()
@@ -17,38 +19,61 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static void OnTakeDamage(DynamicHook h)
         {
-            var user = @event.Userid;
-            if (user == null || !user.IsValid) return;
+            var victimEntity = h.GetParam<CEntityInstance>(0);
+            var info = h.GetParam<CTakeDamageInfo>(1);
+            if (victimEntity == null || !victimEntity.IsValid || info == null) return;
 
-            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (victim == null || !victim.IsValid) return;
+            var victimPawn = victimEntity.As<CCSPlayerPawn>();
+            if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
-            var pawn = victim.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
+            var victimController = victimPawn.Controller.Value;
+            if (victimController == null || !victimController.IsValid) return;
 
-            bool isProtected = phoenixTicks.TryGetValue(victim.Index, out int tick);
-            if (isProtected && tick + 4 > Server.TickCount)
-            {
-                SkillUtils.AddHealth(pawn, 100 - pawn.Health);
-                return;
-            }
+            var victim = victimController.As<CCSPlayerController>();
+            if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
-            if (playerInfo?.Skill != skillName || pawn.Health > 0) return;
+            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            if (victimInfo == null || victimInfo.Skill != skillName) return;
 
-            if (Instance.Random.NextDouble() > playerInfo.SkillChance) return;
-            if (victim.TeamChanged) return;
+            if (SkillUtils.IsFriendlyFireBlocked(info, victimPawn)) return;
+
+            float effectiveDamage = info.Damage;
+            if (SkillUtils.GetHitGroup(info) == HitGroup_t.HITGROUP_HEAD)
+                effectiveDamage *= GetHeadshotMultiplier(info);
+
+            if (effectiveDamage < victimPawn.Health) return;
+
+            if (TryConsumeRevive(victim, victimPawn))
+                info.Damage = 0;
+        }
+
+        public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn)
+        {
+            if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
+            if (victimPawn == null || !victimPawn.IsValid) return false;
+
+            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            if (victimInfo == null || victimInfo.Skill != skillName) return false;
+
+            if (phoenixTicks.TryGetValue(victim.Index, out int savedTick) && savedTick + 4 > Server.TickCount)
+                return true;
+
+            if (victim.TeamChanged) return false;
+            if (victimInfo.SkillChance is float chance && Instance.Random.NextDouble() > chance) return false; // roll failed -> die
 
             phoenixTicks[victim.Index] = Server.TickCount;
 
-            SkillUtils.AddHealth(pawn, 100 - pawn.Health);
-            SkillUtils.PrintToChat(user, user.GetTranslation("phoenix_respawn"));
+            victimPawn.Health = 100;
+            Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
+
+            SkillUtils.PrintToChat(victim, victim.GetTranslation("phoenix_respawn"));
 
             Server.NextFrame(() =>
             {
                 if (victim == null || !victim.IsValid) return;
+                var pawn = victim.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) return;
 
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
@@ -56,6 +81,22 @@ namespace src.player.skills
 
                 pawn.Teleport(spawnpoint);
             });
+
+            return true;
+        }
+
+        private static float GetHeadshotMultiplier(CTakeDamageInfo info)
+        {
+            var ability = info.Ability?.Value;
+            if (ability == null || !ability.IsValid) return DefaultHeadshotMultiplier;
+
+            var weapon = ability.As<CCSWeaponBase>();
+            if (weapon == null || !weapon.IsValid) return DefaultHeadshotMultiplier;
+
+            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
+            if (vdata == null || vdata.HeadshotMultiplier <= 0) return DefaultHeadshotMultiplier;
+
+            return vdata.HeadshotMultiplier;
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -65,9 +106,9 @@ namespace src.player.skills
 
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newChance;
-            
+
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
-                border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
+                border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = .2f, float chanceTo = .4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

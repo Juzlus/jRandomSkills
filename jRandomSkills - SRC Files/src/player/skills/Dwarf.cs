@@ -17,7 +17,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (!Instance.IsPlayerValid(player)) continue;
                 DisableSkill(player);
@@ -38,7 +38,7 @@ namespace src.player.skills
 
                 SkillUtils.ChangePlayerScale(player, newSize);
                 SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newSize)}",
-                    border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
+                    border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
             }
         }
 

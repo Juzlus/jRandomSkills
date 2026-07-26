@@ -22,7 +22,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player != null && player.IsValid)
                     DisableSkill(player);
@@ -54,7 +54,7 @@ namespace src.player.skills
             playerInfo.SkillChance = gravityModifier;
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, gravityModifier)}",
-                border: !Utilities.GetPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
+                border: !PlayerManager.GetTickPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
 
             pawn.ActualGravityScale = gravityModifier;
         }

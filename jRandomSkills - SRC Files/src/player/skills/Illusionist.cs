@@ -42,9 +42,9 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (player == null || !player.IsValid ) continue;
+                if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -115,7 +115,7 @@ namespace src.player.skills
 
             replica.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-           
+
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
             replica.Entity!.Name = replica.Globalname = $"Illusionist_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
 
@@ -137,7 +137,8 @@ namespace src.player.skills
             Vector forwardVec = SkillUtils.GetForwardVector(angle);
             int replicaIndex = (int)replica.Index;
 
-            Instance.AddTickTimer(10, () => {
+            Instance.AddTickTimer(10, () =>
+            {
                 var moveTimer = Instance.AddTickTimer(1, () =>
                 {
                     if (replica == null || !replica.IsValid)

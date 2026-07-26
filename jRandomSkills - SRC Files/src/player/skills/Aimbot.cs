@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Runtime.InteropServices;
-using System.Collections.Concurrent;
 using src.utils;
 using CounterStrikeSharp.API;
 
@@ -11,7 +10,6 @@ namespace src.player.skills
     public class Aimbot : ISkill
     {
         private const Skills skillName = Skills.Aimbot;
-        private static readonly ConcurrentDictionary<nint, int> hitGroups = [];
 
         public static void LoadSkill()
         {
@@ -35,10 +33,11 @@ namespace src.player.skills
             var attackerController = attackerPawn.Controller.Value;
             if (attackerController == null || !attackerController.IsValid) return;
 
-            var attacker = PlayerManager.GetPlayerEvent(attackerController.As<CCSPlayerController>())!;
+            var attacker = PlayerManager.GetPlayerEvent(attackerController.As<CCSPlayerController>());
+            if (attacker == null) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-            if (playerInfo == null) return;
+            if (playerInfo == null || playerInfo.Skill != skillName) return;
 
             int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
             if (offset <= 0) return;
@@ -46,32 +45,10 @@ namespace src.player.skills
             nint hitGroupPointer = Marshal.ReadIntPtr(param2.Handle, offset);
             if (hitGroupPointer == nint.Zero) return;
 
-            nint hitGroupOffset = Marshal.ReadIntPtr(hitGroupPointer, 16);
-            if (hitGroupOffset == nint.Zero) return;
+            nint hitGroupData = Marshal.ReadIntPtr(hitGroupPointer, 16);
+            if (hitGroupData == nint.Zero) return;
 
-            if (playerInfo.Skill == skillName)
-            {
-                hitGroups.TryAdd(hitGroupOffset, Marshal.ReadInt32(hitGroupOffset, 56));
-                Marshal.WriteInt32(hitGroupOffset, 56, (int)HitGroup_t.HITGROUP_HEAD);
-            }
-            else if (hitGroups.TryGetValue(hitGroupOffset, out var hitGroup))
-                Marshal.WriteInt32(hitGroupOffset, 56, hitGroup);
-        }
-
-        public static void NewRound()
-        {
-            hitGroups.Clear();
-        }
-
-        public static void DisableSkill(CCSPlayerController _)
-        {
-            foreach (var hit in hitGroups)
-            {
-                if (hit.Key != nint.Zero)
-                    Marshal.WriteInt32(hit.Key, 56, hit.Value);
-            }
-
-            hitGroups.Clear();
+            Marshal.WriteInt32(hitGroupData, 56, (int)HitGroup_t.HITGROUP_HEAD);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

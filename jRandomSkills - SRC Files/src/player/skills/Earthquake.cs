@@ -51,7 +51,7 @@ namespace src.player.skills
 
         //public static void OnTick()
         //{
-        //    foreach (var player in Utilities.GetPlayers())
+        //    foreach (var player in PlayerManager.GetTickPlayers())
         //    {
         //        var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
         //        if (playerInfo?.Skill == skillName)
@@ -100,7 +100,7 @@ namespace src.player.skills
 
         //private static void MakeShake(CCSPlayerController player)
         //{
-        //    foreach (var enemy in Utilities.GetPlayers().Where(p => p != null && p.IsValid && p.PawnIsAlive))
+        //    foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.PawnIsAlive))
         //        CreateShake(player);
         //}
 

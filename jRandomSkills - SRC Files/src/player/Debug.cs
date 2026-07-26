@@ -102,7 +102,7 @@ namespace src.player
                 WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} fired a shot.");
                 return HookResult.Continue;
             });
-            
+
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
         }
 

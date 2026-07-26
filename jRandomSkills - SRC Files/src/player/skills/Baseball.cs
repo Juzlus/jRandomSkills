@@ -18,6 +18,12 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void NewRound()
+        {
+            decoys.Clear();
+            playersWithSkill.Clear();
+        }
+
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
@@ -50,17 +56,17 @@ namespace src.player.skills
 
             var decoy = entity.As<CDecoyProjectile>();
             if (decoy == null || !decoy.IsValid || decoy.OwnerEntity == null || decoy.OwnerEntity.Value == null || !decoy.OwnerEntity.Value.IsValid) return;
-            
+
             var pawn = decoy.OwnerEntity.Value.As<CCSPlayerPawn>();
             if (pawn == null || !pawn.IsValid || pawn.Controller == null || pawn.Controller.Value == null || !pawn.Controller.Value.IsValid) return;
-            
+
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return;
-            
+
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
             if (playerInfo?.Skill != skillName) return;
             decoys.TryAdd(decoy.Index, 0);
-            
+
             decoy.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
             decoy.Collision.CollisionGroup = pawn.Collision.CollisionGroup;
         }
@@ -69,7 +75,7 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            
+
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
@@ -93,14 +99,14 @@ namespace src.player.skills
             {
                 var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>((int)decoyIndex);
 
-                if (decoy == null || !decoy.IsValid)
+                if (decoy == null || !decoy.IsValid || decoy.DesignerName != "decoy_projectile")
                 {
                     decoys.TryRemove(decoyIndex, out _);
                     continue;
                 }
 
                 decoy.Bounces = 0;
-                
+
                 var vel = decoy.AbsVelocity;
                 float speed = vel.Length();
                 float targetSpeed = Math.Min(speed * SkillsInfo.GetValue<float>(skillName, "speedMultipier"), SkillsInfo.GetValue<float>(skillName, "maxSpeed"));

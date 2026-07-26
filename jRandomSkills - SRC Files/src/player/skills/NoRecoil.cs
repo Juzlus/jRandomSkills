@@ -52,7 +52,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (!Instance.IsPlayerValid(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);

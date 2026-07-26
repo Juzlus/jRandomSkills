@@ -30,7 +30,7 @@ namespace src.utils
             LoadAllLanguages();
             LoadPlayersLanguage();
         }
-        
+
         private static void SetLangCode()
         {
             defaultLangCode = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
@@ -82,10 +82,10 @@ namespace src.utils
                 var translation = GetTranslation(skill.ToString().ToLowerInvariant(), langCode);
                 if (!translation.Contains("{0}"))
                     return translation;
-                
+
                 if (!translation.Contains(' '))
                     return translation.Replace("{0}", "").Trim();
-                
+
                 var parts = translation.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var filtered = parts.Where(p => !p.Contains("{0}"));
                 return string.Join(' ', filtered);
@@ -279,7 +279,7 @@ namespace src.utils
         public static void ChangePlayerLanguage(CCSPlayerController? player, string language)
         {
             if (player == null || !player.IsValid) return;
-            _playersLanguage.AddOrUpdate(player.SteamID, language, (k,v) => language);
+            _playersLanguage.AddOrUpdate(player.SteamID, language, (k, v) => language);
             SavePlayersLanguage();
         }
     }

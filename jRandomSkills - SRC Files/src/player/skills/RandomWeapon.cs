@@ -40,7 +40,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            var players = Utilities.GetPlayers().ToArray();
+            var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);

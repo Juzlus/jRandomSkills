@@ -45,12 +45,13 @@ namespace src.player.skills
 
             var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
             if (plantedBomb != null)
-                Server.NextFrame(() => {
+                Server.NextFrame(() =>
+                {
                     if (plantedBomb != null && plantedBomb.IsValid)
                         plantedBomb.C4Blow = Server.CurrentTime + SkillsInfo.GetValue<int>(skillName, "detonationTime");
                 });
 
-            foreach (var p in Utilities.GetPlayers().Where(p => p.IsValid))
+            foreach (var p in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
                 p.PrintToCenterAlert(p.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "detonationTime")));
         }
 

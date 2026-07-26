@@ -136,7 +136,7 @@ namespace src.player.skills
 
                 var newProp = CreateCameraProp(player);
                 playerInfo.CameraProp = newProp?.Index ?? null;
-                
+
                 if (playerInfo.CameraProp == null)
                 {
                     playerInfo.NoSpace = Server.TickCount + (64 * 2);
@@ -144,7 +144,7 @@ namespace src.player.skills
                 }
                 else
                     playerInfo.CameraView = CreateCameraView(newProp)?.Index ?? null;
-                
+
                 if (playerInfo.CameraView == null) return;
             }
 
@@ -194,7 +194,7 @@ namespace src.player.skills
                     Timer? cameraTimer = null;
                     cameraTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                     {
-                        var target = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.Index == playerIndex);
+                        var target = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.IsValid && p.Index == playerIndex);
                         if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                         {
                             cameraTimer?.Kill();
@@ -259,6 +259,7 @@ namespace src.player.skills
 
             Vector diffVector = SkillUtils.GetForwardVector(cameraProp.AbsRotation) * 25;
             Vector finalPos = cameraProp.AbsOrigin + diffVector;
+            var camRot = new QAngle(cameraProp.AbsRotation.X, cameraProp.AbsRotation.Y, cameraProp.AbsRotation.Z);
 
             uint ownerIndex = EntityManager.SystemOwnerIndex;
             if (!string.IsNullOrEmpty(cameraProp.Globalname))
@@ -274,11 +275,15 @@ namespace src.player.skills
             Server.NextFrame(() =>
             {
                 if (camera == null || !camera.IsValid) return;
-                camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
+
+                var camNode = camera.CBodyComponent?.SceneNode?.Owner?.Entity;
+                if (camNode != null)
+                    camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
+
                 camera.SetModel(cameraViewModel);
                 camera.Render = Color.FromArgb(1, 255, 255, 255);
 
-                camera.Teleport(finalPos, cameraProp.AbsRotation);
+                camera.Teleport(finalPos, camRot);
                 camera.DispatchSpawn();
                 EntityManager.RegisterExisting(camera, ownerIndex, "prop_dynamic");
             });

@@ -52,7 +52,7 @@ namespace src.player.skills
             var playersWithSkill = jRandomSkills.Instance.SkillPlayer.Where(p => p.Skill == skillName).Select(p => p.PlayerIndex).ToHashSet();
             if (playersWithSkill.Count == 0) return false;
 
-            return Utilities.GetPlayers().Any(
+            return PlayerManager.GetTickPlayers().Any(
                 p => p != null &&
                      p.IsValid &&
                      p.Pawn?.Value != null &&

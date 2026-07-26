@@ -17,7 +17,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player != null && player.IsValid)
                     SkillUtils.CloseMenu(player);
@@ -28,14 +28,14 @@ namespace src.player.skills
         {
             if (Server.TickCount % 32 != 0) return;
 
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid || !SkillUtils.HasMenu(player)) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
 
-                var enemies = Utilities.GetPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
                 ConcurrentBag<(string, string)> menuItems = [];
 
                 foreach (var e in enemies)
@@ -58,7 +58,7 @@ namespace src.player.skills
 
             playerInfo.SkillUsed = false;
 
-            var enemies = Utilities.GetPlayers().Where(p => p.IsValid && p.PlayerPawn?.Value?.Health > 0 && p.Team != player.Team && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.PlayerPawn?.Value?.Health > 0 && p.Team != player.Team && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {(e.InGameMoneyServices?.Account ?? 0)}$", e.Index.ToString()))];

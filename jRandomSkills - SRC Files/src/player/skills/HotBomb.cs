@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -26,7 +26,7 @@ namespace src.player.skills
             if (players.IsEmpty || jRandomSkills.Instance.GameRules?.FreezePeriod == true) return;
             int damage = SkillsInfo.GetValue<int>(skillName, "damage");
 
-            foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
+            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
             {
                 var playerEvent = PlayerManager.GetPlayerFromEvent(player);
                 if (playerEvent == null || !playerEvent.IsValid) continue;
@@ -91,7 +91,7 @@ namespace src.player.skills
             if (players.IsEmpty)
             {
                 ChangeC4Color(Color.Red);
-                foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
+                foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
                     enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_hint"));
             }
 
@@ -105,7 +105,7 @@ namespace src.player.skills
             if (players.IsEmpty && !SkillUtils.IsFreezeTime())
             {
                 ChangeC4Color(Color.White);
-                foreach (var enemy in Utilities.GetPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
+                foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
                     enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_disable_info"));
             }
         }

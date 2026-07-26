@@ -49,7 +49,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             foreach (Vector decoyPos in decoys.Keys)
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+                foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 {
                     var eventPlayer = PlayerManager.GetPlayerEvent(player);
                     if (eventPlayer == null || !eventPlayer.IsValid) continue;
@@ -60,7 +60,7 @@ namespace src.player.skills
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
 
                     double distance = SkillUtils.GetDistance(decoyPos, pawn.AbsOrigin);
-                    if (distance <= decoyRadius &&  distance > 10)
+                    if (distance <= decoyRadius && distance > 10)
                     {
                         Vector direction = new(decoyPos.X - pawn.AbsOrigin.X, decoyPos.Y - pawn.AbsOrigin.Y, 0);
                         float length = direction.Length();

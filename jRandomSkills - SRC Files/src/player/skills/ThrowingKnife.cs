@@ -28,7 +28,7 @@ namespace src.player.skills
         {
             foreach (var knifeInfo in knivesInfo.Values.ToArray())
                 DisableKnifeSkill(knifeInfo);
-            
+
             knivesInfo.Clear();
         }
 
@@ -50,18 +50,19 @@ namespace src.player.skills
                     float y = BitConverter.ToSingle(packedParams, 11);
                     float z = BitConverter.ToSingle(packedParams, 15);
                     soundPos = new Vector(x, y, z);
-                } catch { }
+                }
+                catch { }
             }
             if (soundPos == null) return;
 
             (var knife, var knifeInfo) = GetClosetKnife(soundPos);
-            
+
             if (knife == null || !knife.IsValid || knife.AbsRotation == null)
                 return;
-            
+
             if (knifeInfo == null || knifeInfo.InitialLook == null || knife.Collision == null)
                 return;
-        
+
             knifeInfo.IsDropped = false;
             QAngle rotation = new(knifeInfo.InitialLook?.X, knifeInfo.InitialLook?.Y, knife.AbsRotation.Z);
             Vector offset = SkillUtils.GetForwardVector(new QAngle(rotation.X - 90, rotation.Y, rotation.Z)) * 2;
@@ -74,11 +75,11 @@ namespace src.player.skills
 
             knife.Collision.CollisionAttribute.InteractsWith = knifeInfo.OriginalCollisionMask;
             Utilities.SetStateChanged(knife, "CCollisionProperty", "m_collisionAttribute");
-            
+
             var world = Utilities.GetEntityFromIndex<CBaseEntity>(0);
             if (world != null && world.IsValid)
                 knife.AcceptInput("SetParent", world, world, "!activator");
-        
+
             if (knifeInfo.Timer != null)
                 knifeInfo.Timer?.Kill();
 
@@ -136,6 +137,12 @@ namespace src.player.skills
                 DisableKnifeSkill(knifeInfo);
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            if (knivesInfo.TryRemove(playerIndex, out KnifeInfo? knifeInfo) && knifeInfo != null)
+                DisableKnifeSkill(knifeInfo);
+        }
+
         public static void DisableKnifeSkill(KnifeInfo knifeInfo)
         {
             if (knifeInfo.Timer != null)
@@ -185,7 +192,8 @@ namespace src.player.skills
                 if (weapon == null || !weapon.IsValid || (!weapon.DesignerName.Contains("knife") && !weapon.DesignerName.Contains("bayonet"))) return;
 
                 player.DropActiveWeapon();
-                Server.NextFrame(() => {
+                Server.NextFrame(() =>
+                {
                     if (player == null || !player.IsValid) return;
                     if (weapon == null || !weapon.IsValid) return;
                     ThrowKnife(player, weapon);
@@ -243,10 +251,10 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return null;
             if (knife == null || !knife.IsValid || knife.AbsOrigin == null) return null;
-            
+
             var trigger = SkillUtils.CreateTrigger($"trowingknife", 10, knife.AbsOrigin);
             if (trigger == null || !trigger.IsValid) return null;
-            
+
             trigger.AcceptInput("SetParent", knife, knife, "!activator");
             return trigger.Index;
         }
@@ -312,8 +320,14 @@ namespace src.player.skills
                 if (victimPawn.Index == throwerPawn.Index)
                     return;
 
+                var victimController = victimPawn.Controller.Value?.As<CCSPlayerController>();
+
                 bool friendlyFire = SkillsInfo.GetValue<bool>(skillName, "friendlyFire");
-                if (!friendlyFire && thrower.TeamNum == victimPawn.TeamNum) return;
+                if (!friendlyFire)
+                {
+                    if (thrower.TeamNum == victimPawn.TeamNum) return;
+                    if (victimController != null && victimController.IsValid && thrower.Team == victimController.Team) return;
+                }
 
                 if (CheckHasKnife(thrower!)) return;
 
@@ -371,7 +385,7 @@ namespace src.player.skills
                     var obs = playerPawn.ObserverServices?.ObserverTarget?.Value;
                     if (obs != null && obs.IsValid)
                     {
-                        var observed = Utilities.GetPlayers().FirstOrDefault(p =>
+                        var observed = PlayerManager.GetTickPlayers().FirstOrDefault(p =>
                             p != null && p.IsValid &&
                             p.Pawn?.Value?.Handle == obs.Handle);
                         if (observed != null)

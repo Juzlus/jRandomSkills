@@ -42,7 +42,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))    
+            foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
                 smokes.TryRemove(smoke, out _);
         }
 
@@ -82,7 +82,7 @@ namespace src.player.skills
             int smokeHeal = SkillsInfo.GetValue<int>(skillName, "smokeHeal");
 
             foreach (Vector smokePos in smokes.Keys)
-                foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
+                foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
                 {
                     var eventPlayer = PlayerManager.GetPlayerEvent(player);
                     if (eventPlayer == null || !eventPlayer.IsValid) continue;
