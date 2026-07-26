@@ -1,7 +1,19 @@
 {
     "name": "jRandomSkills",
-    "current_version": "v1.2.2.b8",
+    "current_version": "v1.2.3.b1",
     "releases": [
+        {
+            "version": "v1.2.3.b1",
+            "release_date": "2026-07-27",
+            "download": "https://github.com/Juzlus/jRandomSkills/releases/download/v1.2.3.b1/jRandomSkills.v1.2.3.b1.zip",
+            "output_folder": "addons/counterstrikesharp/"
+        }
+        {
+            "version": "v1.2.2.b9",
+            "release_date": "2026-07-23",
+            "download": "https://github.com/Juzlus/jRandomSkills/releases/download/v1.2.2.b9/jRandomSkills.v1.2.2.b9.zip",
+            "output_folder": "addons/counterstrikesharp/"
+        }
         {
             "version": "v1.2.2.b8",
             "release_date": "2026-07-14",
