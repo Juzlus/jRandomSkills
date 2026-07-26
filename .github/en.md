@@ -389,7 +389,7 @@ This plugin uses content from the following projects:
     - ###### Spectator / Cypher / FalconEye / ThirdEye:
         - ###### null-guard the camera SceneNode walk and re-validate the  target before teleport/parent.
 
-**Full update contributed by @ByDexterTR in pull request #41. Thanks to ByDexterTR!**
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Thanks to ByDexterTR!**
 
 </details>
 
@@ -426,7 +426,7 @@ This plugin uses content from the following projects:
     - ###### Ghost / Ninja / C4 Camouflage:
         - ###### Improved hidden-player processing for better performance.
 
-**Full update contributed by @ByDexterTR in pull request #41. Thanks to ByDexterTR!**
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#41](https://github.com/Juzlus/jRandomSkills/pull/41). Thanks to ByDexterTR!**
 
 </details>
 
