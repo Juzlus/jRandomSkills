@@ -384,6 +384,31 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.3.b1</b></summary>
+
+- #### General (Performance and Stability)
+    - ###### `CServerSideClient.ForceFullUpdate` now bails on a null client handle.
+    - ###### Added a per-tick player/bomb cache.
+    - ###### Migrated 82 skills from per-skill `Utilities.GetPlayers()` to the one shared per-tick scan, and the HUD loop reuses it. Much lower per-tick cost at high player counts (verified 10v10).
+    - ###### Print a single notice when the RayTrace is not installed.
+
+- #### Skill improvements:
+    - ###### Second Chance / Phoenix / Re-Zombie:
+        - ###### Intercept the lethal hit before it is applied. Previously they reacted after the death was already committed, so one-shots, fall damage and skill-based kills were missed.
+    - ###### Killer Flash:
+        - ###### Kills through real damage instead of forcing a suicide, so revive skills can intercept.
+    - ###### Baseball:
+        - ###### Fixed a rare server crash from decoy grenades (decoy's entity index could be reused by another entity).
+    - ###### Aimbot:
+        - ###### Guard the hit-group native pointer before writing (avoids writing to freed/null memory).
+    - ###### Wallhack:
+        - ###### Detach the glow when the target dies or disconnects.
+    - ###### Spectator / Cypher / FalconEye / ThirdEye:
+        - ###### null-guard the camera SceneNode walk and re-validate the  target before teleport/parent.
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b9</b></summary>
 
 - #### General
