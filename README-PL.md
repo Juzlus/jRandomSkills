@@ -404,7 +404,7 @@ Plugin korzysta z zawartości następujących projektów:
     - ###### Obserwator / Kamera / Oko Sokoła / Trzecie Oko:
         - ###### Dodano zabezpieczenia przed pustymi wskaźnikami kamery oraz ponowną weryfikację celu przed teleportacją lub przypisaniem kamery.
 
-**Pełna aktualizacja została przygotowana przez @ByDexterTR w ramach pull requesta #41. Dziękujemy ByDexterTR!**
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Dziękujemy ByDexterTR!**
 
 </details>
 
@@ -441,7 +441,7 @@ Plugin korzysta z zawartości następujących projektów:
     - ###### Duszek / Ninja / C4 Kamuflaż:
         - ###### Zoptymalizowano przetwarzanie ukrytych graczy, poprawiając wydajność.
 
-**Pełna aktualizacja została przygotowana przez @ByDexterTR w ramach pull requesta #41. Dziękujemy ByDexterTR!**
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Dziękujemy ByDexterTR!**
 
 </details>
 
