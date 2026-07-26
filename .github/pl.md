@@ -387,6 +387,8 @@ Plugin korzysta z zawartości następujących projektów:
     - ###### Obserwator / Kamera / Oko Sokoła / Trzecie Oko:
         - ###### Dodano zabezpieczenia przed pustymi wskaźnikami kamery oraz ponowną weryfikację celu przed teleportacją lub przypisaniem kamery.
 
+**Pełna aktualizacja została przygotowana przez @ByDexterTR w ramach pull requesta #41. Dziękujemy ByDexterTR!**
+
 </details>
 
 <details>

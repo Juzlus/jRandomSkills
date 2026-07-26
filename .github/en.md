@@ -389,6 +389,8 @@ This plugin uses content from the following projects:
     - ###### Spectator / Cypher / FalconEye / ThirdEye:
         - ###### null-guard the camera SceneNode walk and re-validate the  target before teleport/parent.
 
+**Full update contributed by @ByDexterTR in pull request #41. Thanks to ByDexterTR!**
+
 </details>
 
 <details>
