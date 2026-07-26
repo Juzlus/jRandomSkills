@@ -37,7 +37,7 @@ namespace src.player.skills
                 if (player == null || !player.IsValid || player.Team != lastTeam) return;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null ||  !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
+                if (pawn == null || !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -54,10 +54,10 @@ namespace src.player.skills
             pos.Z += 10;
 
             SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), player.TeamNum);
-           
-            foreach (var _p in Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+
+            foreach (var _p in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
                 SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}\u202A{player.PlayerName}\u202C: {ChatColors.Lime}{_p.GetTranslation("deathbomb_explosion")}",
-                    border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
+                    border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
 
             var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
             var randomFile = fileNames[new Random().Next(fileNames.Length)];

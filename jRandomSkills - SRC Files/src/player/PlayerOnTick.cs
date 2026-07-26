@@ -25,7 +25,9 @@ namespace src.player
                 }
 
                 long perfStart = PerfLog.Start();
-                foreach (var player in Utilities.GetPlayers())
+                // Shared per-tick controller snapshot: the skill OnTick loop already scans the
+                // player list this frame, so reuse that native scan instead of running a second one.
+                foreach (var player in PlayerManager.GetTickPlayers())
                 {
                     if (player != null && player.IsValid)
                         UpdatePlayerHud(player);

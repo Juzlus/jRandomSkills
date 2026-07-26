@@ -138,7 +138,7 @@ namespace src.player
             return candidates[Random.Shared.Next(candidates.Count)];
         }
 
-        private static readonly Skills[] lateDamageSkills = [Skills.SecondLife];
+        private static readonly Skills[] lateDamageSkills = [Skills.SecondLife, Skills.Phoenix, Skills.ReZombie];
 
         private static readonly HashSet<Skills> tickFailuresLogged = [];
 
@@ -611,7 +611,7 @@ namespace src.player
 
             var temp = skillPlayer.SkillHudExpired;
             skillPlayer.SkillHudExpired = DateTime.MinValue;
-            
+
             Instance.AddTimer(5f, () =>
             {
                 if (skillPlayer.SkillHudExpired == DateTime.MinValue)
@@ -1051,7 +1051,7 @@ namespace src.player
             float? skillHudExpired = SkillsInfo.GetValue<float?>(skill, "hudDuration");
 
             skillPlayer.SkillHudExpired =
-                !skillHudExpired.HasValue ? 
+                !skillHudExpired.HasValue ?
                     (globalHudExpired == -1 ? DateTime.MaxValue : DateTime.Now.AddSeconds(globalHudExpired))
                 : skillHudExpired.Value == -1 ? DateTime.MaxValue
                 : DateTime.Now.AddSeconds(skillHudExpired.Value);
@@ -1083,7 +1083,8 @@ namespace src.player
 
                 var validPlayers = Utilities.GetPlayers()
                     .Where(p => p != null && p.IsValid && !p.IsHLTV)
-                    .Where(p => {
+                    .Where(p =>
+                    {
                         try { return p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; }
                         catch { return false; }
                     }).ToList();
@@ -1350,17 +1351,24 @@ namespace src.player
             long perfStart = PerfLog.Start();
             lock (setLock)
             {
-                // Keep dying entities out of snapshots until the engine processes the kill.
-                var dying = EntityManager.GetRecentlyDestroyedSnapshot();
-                if (dying.Count > 0)
+                try
                 {
-                    foreach (var (info, player) in infoList)
+                    // Keep dying entities out of snapshots until the engine processes the kill.
+                    var dying = EntityManager.GetRecentlyDestroyedSnapshot();
+                    if (dying.Count > 0)
                     {
-                        if (player == null || !player.IsValid) continue;
-                        foreach (var entityIndex in dying)
-                            if (info.TransmitEntities.Contains(entityIndex))
-                                info.TransmitEntities.Remove(entityIndex);
+                        foreach (var (info, player) in infoList)
+                        {
+                            if (player == null || !player.IsValid) continue;
+                            foreach (var entityIndex in dying)
+                                if (info.TransmitEntities.Contains(entityIndex))
+                                    info.TransmitEntities.Remove(entityIndex);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Server.PrintToConsole($"[jRandomSkills] CheckTransmit dying-filter failed: {ex.Message}");
                 }
 
                 DispatchToActiveSkills("CheckTransmit", infoList);

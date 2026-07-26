@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -20,7 +20,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player != null && player.IsValid)
                     SkillUtils.CloseMenu(player);
@@ -65,7 +65,7 @@ namespace src.player.skills
                     playersToTarget[player.Index] = targetSite.Index;
 
                     string siteLetter = site == 0 ? "A" : "B";
-                    foreach (var ct in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team == CsTeam.CounterTerrorist))
+                    foreach (var ct in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team == CsTeam.CounterTerrorist))
                         ct.PrintToChat($" {ChatColors.Green}" + ct.GetTranslation("areareaper_teammates_info", siteLetter));
                 }
             }
@@ -111,7 +111,7 @@ namespace src.player.skills
         {
             if (Server.TickCount % 16 != 0) return;
 
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerEvent = PlayerManager.GetPlayerFromEvent(player);
                 if (playerEvent == null || !playerEvent.IsValid || player == null || !player.IsValid || player.Team != CsTeam.Terrorist || player.PlayerPawn?.Value?.Health <= 0) continue;
@@ -124,7 +124,7 @@ namespace src.player.skills
 
                 var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
                 if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_c4") continue;
-  
+
                 if (!pawn.InBombZone && pawn.InBombZoneTrigger)
                     playerEvent.PrintToCenterAlert(playerEvent.GetTranslation("areareaper_bombsite_disabled"));
             }

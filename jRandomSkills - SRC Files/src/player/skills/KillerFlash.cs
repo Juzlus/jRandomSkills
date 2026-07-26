@@ -30,7 +30,7 @@ namespace src.player.skills
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player!.Team == attacker!.Team) return;
 
             if (attackerInfo?.Skill == skillName && playerInfo?.Skill != Skills.AntyFlash && player!.PlayerPawn.Value!.FlashDuration >= SkillsInfo.GetValue<float>(skillName, "flashDuration"))
-                player?.PlayerPawn?.Value?.CommitSuicide(false, true);
+                SkillUtils.TakeHealth(player.PlayerPawn.Value, 9999);
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)

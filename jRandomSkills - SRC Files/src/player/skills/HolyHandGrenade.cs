@@ -32,7 +32,7 @@ namespace src.player.skills
                 var playerPawn = hegrenade.Thrower.Value;
                 if (playerPawn == null || !playerPawn.IsValid) return;
 
-                var player = Utilities.GetPlayers().FirstOrDefault(p => p.PlayerPawn.Index == playerPawn.Index);
+                var player = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.PlayerPawn.Index == playerPawn.Index);
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) return;
 

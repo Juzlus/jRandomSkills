@@ -29,7 +29,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -110,7 +110,7 @@ namespace src.player.skills
                     skillInfo.IsFlying = true;
                     skillInfo.Cooldown = DateTime.Now;
                     skillInfo.LastPosition = playerPawn.AbsOrigin == null ? null : new Vector(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z);
-                    
+
                     SetNoclip(player, true);
                     skillInfo.Timer?.Kill();
 
@@ -211,7 +211,7 @@ namespace src.player.skills
                 if (result.HasValue && !result.Value.DidHit)
                     return newPos;
             }
-            
+
             if (hasGround)
                 skillInfo.Cooldown = DateTime.Now.AddSeconds(-SkillsInfo.GetValue<float>(skillName, "cooldown") + SkillsInfo.GetValue<float>(skillName, "cooldownWhenStuck"));
             return hasGround ? stuckVector : null;

@@ -30,7 +30,7 @@ namespace src.player.skills
 
             // One pawn->info map per frame instead of a GetPlayers scan per client.
             var infoByPawnHandle = new Dictionary<nint, jSkill_PlayerInfo?>();
-            foreach (var p in Utilities.GetPlayers())
+            foreach (var p in PlayerManager.GetTickPlayers())
             {
                 var h = p?.Pawn?.Value?.Handle;
                 if (p != null && p.IsValid && h != null)
@@ -108,6 +108,29 @@ namespace src.player.skills
             playersInAction.Clear();
         }
 
+        public static void PlayerDeath(EventPlayerDeath @event)
+        {
+            var victim = @event.Userid;
+            if (victim == null || !victim.IsValid) return;
+            RemoveGlow(victim.Index);
+        }
+
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            RemoveGlow(playerIndex);
+        }
+
+        private static void RemoveGlow(uint enemyIndex)
+        {
+            if (!glows.TryRemove(enemyIndex, out var glowInfo)) return;
+
+            SkillUtils.SafeKillEntity<CDynamicProp>(glowInfo.GlowIndex);
+            SkillUtils.SafeKillEntity<CDynamicProp>(glowInfo.RelayIndex);
+
+            temporaryBlockList.TryAdd(glowInfo.RelayIndex, DateTime.Now.AddSeconds(2));
+            temporaryBlockList.TryAdd(glowInfo.GlowIndex, DateTime.Now.AddSeconds(2));
+        }
+
         public static void EnableSkill(CCSPlayerController player)
         {
             Event.EnableTransmit();
@@ -132,14 +155,14 @@ namespace src.player.skills
 
         private static void SetGlowEffectForAll()
         {
-            var enemies = Utilities.GetPlayers().Where(p => 
+            var enemies = PlayerManager.GetTickPlayers().Where(p =>
                 p != null &&
                 p.IsValid &&
                 p.PlayerPawn?.Value != null &&
                 p.PlayerPawn.Value.IsValid &&
                 p.PlayerPawn.Value.Health > 0 &&
             (p.Team == CsTeam.Terrorist || p.Team == CsTeam.CounterTerrorist)).ToList();
-            
+
             foreach (var enemy in enemies)
             {
                 var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);

@@ -52,7 +52,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            var players = Utilities.GetPlayers().ToArray();
+            var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -154,7 +154,7 @@ namespace src.player.skills
 
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return (null, haveC4);
-            
+
             if (pawn.WeaponServices == null) return (null, haveC4);
 
             var list = new List<WeaponInfo>();
@@ -186,7 +186,7 @@ namespace src.player.skills
 
             foreach (var weapon in weapons)
                 player.GiveNamedItem(weapon.Name);
-                
+
             if (addC4)
                 player.GiveNamedItem("weapon_c4");
 
@@ -222,7 +222,7 @@ namespace src.player.skills
 
         private static CCSPlayerController? GetRandomEnemy(CCSPlayerController player)
         {
-            CCSPlayerController[] enemies = [.. Utilities.GetPlayers().FindAll(e => e.Team != player.Team && e.PawnIsAlive)];
+            CCSPlayerController[] enemies = [.. PlayerManager.GetTickPlayers().FindAll(e => e.Team != player.Team && e.PawnIsAlive)];
             if (enemies.Length == 0) return null;
             return enemies[Instance.Random.Next(enemies.Length)];
         }

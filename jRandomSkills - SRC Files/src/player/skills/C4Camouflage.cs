@@ -32,7 +32,7 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            
+
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
@@ -67,11 +67,9 @@ namespace src.player.skills
         {
             if (Server.TickCount % 2 != 0) return;
 
-            var bomb = invisiblePlayers.IsEmpty
-                ? null
-                : Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            var bomb = invisiblePlayers.IsEmpty ? null : PlayerManager.GetTickBomb();
 
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player.PlayerPawn?.Value?.Health <= 0 && invisiblePlayers.ContainsKey(player.Index))
                 {
@@ -105,8 +103,7 @@ namespace src.player.skills
         {
             if (invisiblePlayers.IsEmpty) return;
 
-            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
-            if (bomb != null && !bomb.IsValid) bomb = null;
+            var bomb = PlayerManager.GetTickBomb();
 
             foreach (var (info, player) in infoList)
             {

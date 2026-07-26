@@ -15,6 +15,30 @@ namespace src.utils
     {
         private static PluginCapability<CRayTraceInterface> RayTraceInterface { get; } = new("raytrace:craytraceinterface");
 
+        private static bool missingModuleLogged;
+
+        private static CRayTraceInterface? GetInterface()
+        {
+            try
+            {
+                var rayTrace = RayTraceInterface.Get();
+                if (rayTrace != null) return rayTrace;
+            }
+            catch { }
+
+            if (!missingModuleLogged)
+            {
+                missingModuleLogged = true;
+                Server.PrintToConsole("[jRandomSkills] RayTrace module not found - skills that need it do nothing: " +
+                    "LongZeus, LongKnife, Iana, Cypher, Noclip, Shade (and the skill-use button's aim check). " +
+                    "Install RayTrace-CSS-API and RayTrace-MM: https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases");
+            }
+
+            return null;
+        }
+
+        public static bool IsAvailable => GetInterface() != null;
+
         public static CustomTraceResult? TraceShape(CCSPlayerController player, Vector startPos, Vector endPos, ulong? mask = null, ulong? contents = null)
         {
             if (player == null || !player.IsValid) return null;
@@ -28,10 +52,7 @@ namespace src.utils
                 playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
-            CRayTraceInterface? rayTrace;
-            try { rayTrace = RayTraceInterface.Get(); }
-            catch { return null; }
-
+            var rayTrace = GetInterface();
             if (rayTrace == null)
                 return null;
 
@@ -114,10 +135,7 @@ namespace src.utils
                 playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
-            CRayTraceInterface? rayTrace;
-            try { rayTrace = RayTraceInterface.Get(); }
-            catch { return null; }
-
+            var rayTrace = GetInterface();
             if (rayTrace == null)
                 return null;
 

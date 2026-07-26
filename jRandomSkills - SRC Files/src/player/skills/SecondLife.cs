@@ -11,6 +11,7 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
+        private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<nint, int> usedThisRound = [];
         private static readonly object setLock = new();
 
@@ -44,7 +45,13 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
-            if (info.Damage < victimPawn.Health) return;
+            if (SkillUtils.IsFriendlyFireBlocked(info, victimPawn)) return;
+
+            float effectiveDamage = info.Damage;
+            if (SkillUtils.GetHitGroup(info) == HitGroup_t.HITGROUP_HEAD)
+                effectiveDamage *= GetHeadshotMultiplier(info);
+
+            if (effectiveDamage < victimPawn.Health) return;
 
             if (usedThisRound.TryGetValue(victim.Handle, out int savedTick))
             {
@@ -53,15 +60,39 @@ namespace src.player.skills
                 return;
             }
 
+            if (TryConsumeRevive(victim, victimPawn))
+                info.Damage = 0;
+        }
+
+        private static float GetHeadshotMultiplier(CTakeDamageInfo info)
+        {
+            var ability = info.Ability?.Value;
+            if (ability == null || !ability.IsValid) return DefaultHeadshotMultiplier;
+
+            var weapon = ability.As<CCSWeaponBase>();
+            if (weapon == null || !weapon.IsValid) return DefaultHeadshotMultiplier;
+
+            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
+            if (vdata == null || vdata.HeadshotMultiplier <= 0) return DefaultHeadshotMultiplier;
+
+            return vdata.HeadshotMultiplier;
+        }
+
+        public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn)
+        {
+            if (victim == null || !victim.IsValid) return false;
+            if (victimPawn == null || !victimPawn.IsValid) return false;
+
+            if (SkillUtils.IsFreezeTime()) return false;
+
             lock (setLock)
             {
-                if (usedThisRound.ContainsKey(victim.Handle)) return;
+                if (usedThisRound.ContainsKey(victim.Handle)) return false;
 
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
-                if (spawnpoint == null) return; // no clean respawn point -> let the normal death happen
+                if (spawnpoint == null) return false; // no clean respawn point -> let the normal death happen
 
                 usedThisRound.TryAdd(victim.Handle, Server.TickCount);
-                info.Damage = 0;
 
                 victimPawn.Health = SkillsInfo.GetValue<int>(skillName, "startHealth");
                 Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
@@ -69,11 +100,14 @@ namespace src.player.skills
                 Server.NextFrame(() =>
                 {
                     if (victim == null || !victim.IsValid) return;
+                    if (SkillUtils.IsFreezeTime()) return;
                     var pawn = victim.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid) return;
 
                     pawn.Teleport(spawnpoint, null, new Vector(0, 0, 0));
                 });
+
+                return true;
             }
         }
 

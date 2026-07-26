@@ -24,7 +24,7 @@ namespace src.utils
             _skillTimer = Instance.AddTimer(SkillInterval, OnBotUseSkillTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
 
             if (!Config.LoadedConfig.EnableBotKickDebug) return;
-           
+
             _rotationTimer = Instance.AddTimer(RotationInterval, OnBotRotationTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         }
 

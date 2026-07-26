@@ -10,6 +10,31 @@ namespace src.utils
     {
         private static readonly ConcurrentDictionary<uint, jSkill_PlayerInfo> playersByIndex = [];
 
+        private static int cachedTick = int.MinValue;
+        private static List<CCSPlayerController> cachedControllers = [];
+        private static CC4? cachedBomb;
+
+        private static void EnsureTickCache()
+        {
+            int tick = Server.TickCount;
+            if (tick == cachedTick) return;
+            cachedTick = tick;
+            cachedControllers = Utilities.GetPlayers();
+            cachedBomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+        }
+
+        public static List<CCSPlayerController> GetTickPlayers()
+        {
+            EnsureTickCache();
+            return cachedControllers;
+        }
+
+        public static CC4? GetTickBomb()
+        {
+            EnsureTickCache();
+            return cachedBomb != null && cachedBomb.IsValid ? cachedBomb : null;
+        }
+
         public static void Register(jSkill_PlayerInfo playerInfo)
         {
             if (playerInfo == null) return;
@@ -37,7 +62,7 @@ namespace src.utils
             if (!player.ControllingBot)
                 return player;
 
-            return Utilities.GetPlayers().FirstOrDefault(p => 
+            return Utilities.GetPlayers().FirstOrDefault(p =>
                 p != null &&
                 p.IsValid &&
                 p.IsBot &&

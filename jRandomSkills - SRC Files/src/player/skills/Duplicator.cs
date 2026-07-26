@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -18,20 +18,20 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
                 SkillUtils.CloseMenu(player);
         }
 
         public static void OnTick()
         {
             if (Server.TickCount % 32 != 0) return;
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (!SkillUtils.HasMenu(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = Utilities.GetPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Index != player.Index && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Index != player.Index && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
@@ -63,7 +63,7 @@ namespace src.player.skills
             if (playerEvent == null || !playerEvent.IsValid) return;
 
             string enemyId = commands[0];
-            var enemy = Utilities.GetPlayers().FirstOrDefault(p => p.Index.ToString() == enemyId);
+            var enemy = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Index.ToString() == enemyId);
 
             if (enemy == null)
             {
@@ -79,7 +79,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var enemies = Utilities.GetPlayers().Where(p => p != null && p.IsValid && p != player && p.PlayerPawn?.Value?.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p != player && p.PlayerPawn?.Value?.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
                 ConcurrentBag<string> skills = [];
@@ -91,14 +91,14 @@ namespace src.player.skills
 
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
-                    
+
                     skills.Add(skillData.Skill.ToString());
                     menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
                 }
 
                 int ctSkills = Event.counterterroristSkills.Count(s => skills.Contains(s.Name));
                 int ttSkills = Event.terroristSkills.Count(s => skills.Contains(s.Name));
-                
+
                 if ((player.Team == CsTeam.Terrorist && ctSkills == skills.Count) || (player.Team == CsTeam.CounterTerrorist && ttSkills == skills.Count))
                 {
                     Event.SetRandomSkill(player);
@@ -107,7 +107,7 @@ namespace src.player.skills
 
                 SkillUtils.CreateMenu(player, menuItems);
                 SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{playerEvent.GetSkillName(skillName)}{ChatColors.Lime}: {playerEvent.GetSkillDescription(skillName)}",
-                    border: !Utilities.GetPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
+                    border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
             }
             else
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
@@ -160,7 +160,8 @@ namespace src.player.skills
                 SkillUtils.CloseMenu(player);
 
                 if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
-                    Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () => {
+                    Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
+                    {
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (player == null || !player.IsValid) return;
 

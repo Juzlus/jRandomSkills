@@ -81,7 +81,7 @@ namespace src.player.skills
                 foreach (var index in AWPs.ToList())
                     SkillUtils.SafeKillEntity<CBasePlayerWeapon>(index);
 
-            if (savedWeapons.TryGetValue(player.Index, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))    
+            if (savedWeapons.TryGetValue(player.Index, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))
                 Server.NextFrame(() =>
                 {
                     if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
@@ -162,7 +162,8 @@ namespace src.player.skills
                         weaponToGive = weapon_awp + "_script";
                 }
 
-                Instance.AddTimer(.15f, () => {
+                Instance.AddTimer(.15f, () =>
+                {
                     var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                     if (player == null || !player.IsValid) return;
 
@@ -180,7 +181,7 @@ namespace src.player.skills
                             {
                                 if (!playerAWPIndexes.ContainsKey(playerIndex))
                                     playerAWPIndexes.TryAdd(playerIndex, []);
-                                
+
                                 if (playerAWPIndexes.TryGetValue(playerIndex, out var list))
                                     list.Add(createdWeapon.Index);
                             }
@@ -191,7 +192,8 @@ namespace src.player.skills
                     isProcessing.TryRemove(playerIndex, out _);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
-            catch {
+            catch
+            {
                 isProcessing.TryRemove(playerIndex, out _);
             }
         }
@@ -227,7 +229,7 @@ namespace src.player.skills
         {
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return null;
-         
+
             var activeWeapon = pawn.WeaponServices?.ActiveWeapon.Value;
             if (activeWeapon != null && activeWeapon.IsValid && rifles.Contains(activeWeapon.DesignerName))
                 return activeWeapon;

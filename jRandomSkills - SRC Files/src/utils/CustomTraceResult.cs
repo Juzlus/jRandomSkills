@@ -4,7 +4,7 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace jRandomSkills.src.utils
 {
-    public struct CustomTraceResult (TraceResult result, Vector startPos, ulong mask, ulong contents, bool drawBeam)
+    public struct CustomTraceResult(TraceResult result, Vector startPos, ulong mask, ulong contents, bool drawBeam)
     {
         public float StartPosX = startPos.X;
         public float StartPosY = startPos.Y;

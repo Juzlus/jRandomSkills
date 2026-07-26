@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using static src.jRandomSkills;
@@ -19,13 +19,13 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (Server.TickCount % 32 != 0) return;
-            
-            foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && SkillUtils.HasMenu(p)))
+
+            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && SkillUtils.HasMenu(p)))
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
-                var enemies = Utilities.GetPlayers().Where(p =>
+                var enemies = PlayerManager.GetTickPlayers().Where(p =>
                     p != null &&
                     p.IsValid)
                 .Select(p => PlayerManager.GetPlayerEvent(p))
@@ -46,10 +46,10 @@ namespace src.player.skills
                 {
                     var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
                     if (enemyInfo == null) continue;
-                    
+
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
-                    
+
                     menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
                 }
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -58,7 +58,7 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid))
+            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid))
                 SkillUtils.CloseMenu(player);
         }
 
@@ -106,12 +106,12 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var enemies = Utilities.GetPlayers()
+            var enemies = PlayerManager.GetTickPlayers()
                 .Where(p => p != null
                     && p.IsValid
-                    && p.Team != player.Team 
+                    && p.Team != player.Team
                     && p.PlayerPawn?.Value?.Health > 0
-                    && p.Team != CsTeam.Spectator 
+                    && p.Team != CsTeam.Spectator
                     && p.Team != CsTeam.None)
                 .ToArray();
 
@@ -122,16 +122,16 @@ namespace src.player.skills
                 {
                     var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
                     if (enemyInfo == null) continue;
-                    
+
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
-                    
+
                     menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
                 }
 
                 SkillUtils.CreateMenu(player, menuItems);
                 SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName)}",
-                    border: !Utilities.GetPlayers().Any(p => p != null && p.Team == player.Team && p != player) ? "tb" : "t");
+                    border: !PlayerManager.GetTickPlayers().Any(p => p != null && p.Team == player.Team && p != player) ? "tb" : "t");
             }
             else
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
@@ -143,7 +143,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            
+
             playerInfo.SpecialSkill = Skills.None;
             SkillUtils.CloseMenu(player);
         }
@@ -155,7 +155,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
             if (playerInfo == null || enemyInfo == null) return;
-            
+
             var enemySkill = enemyInfo.Skill;
             bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
             bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
@@ -236,7 +236,7 @@ namespace src.player.skills
                 if (enemyEvent == null || !enemyEvent.IsValid) return;
 
                 Instance.SkillAction(enemySkill.ToString(), "DisableSkill", [e]);
-                
+
                 eInfo.SpecialSkill = enemySkill;
                 eInfo.Skill = Skills.None;
                 enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("thief_enemy_info"));

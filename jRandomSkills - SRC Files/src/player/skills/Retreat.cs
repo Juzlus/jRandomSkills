@@ -26,7 +26,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -84,11 +84,11 @@ namespace src.player.skills
                 {
                     skillInfo.CanUse = false;
                     skillInfo.Cooldown = DateTime.Now;
-                    
+
                     var spawnpoint = SkillUtils.GetSpawnPointVector(player);
                     if (spawnpoint == null) return;
                     playerPawn.Teleport(spawnpoint);
-                } 
+                }
             }
         }
 

@@ -7,7 +7,7 @@ using src.utils;
 
 namespace src.player.skills
 {
-    public class Rubber: ISkill
+    public class Rubber : ISkill
     {
         private const Skills skillName = Skills.Rubber;
         private static readonly ConcurrentDictionary<uint, float> playersToSlow = [];
@@ -40,7 +40,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach(var item in playersToSlow)
+            foreach (var item in playersToSlow)
             {
                 var playerIndex = item.Key;
                 var time = item.Value;

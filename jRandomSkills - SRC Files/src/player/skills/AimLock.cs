@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
@@ -25,7 +25,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
 
@@ -105,7 +105,7 @@ namespace src.player.skills
 
             var myEyePos = new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
 
-            var enemy = Utilities.GetPlayers()
+            var enemy = PlayerManager.GetTickPlayers()
                 .Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team && p.PlayerPawn.Value != null && p.PlayerPawn.Value.AbsOrigin != null)
                 .OrderBy(p => (p.PlayerPawn.Value!.AbsOrigin! - pawn.AbsOrigin).LengthSqr())
                 .FirstOrDefault();

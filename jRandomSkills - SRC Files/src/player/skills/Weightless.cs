@@ -39,7 +39,7 @@ namespace src.player.skills
                 if (nade.Bounces != 0)
                 {
                     nade.ActualGravityScale = 2;
-                    
+
                     nade.DetonateTime = 0;
                     Utilities.SetStateChanged(nade, "CBaseGrenade", "m_flDetonateTime");
 
@@ -65,10 +65,11 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
             if (playerInfo?.Skill != skillName) return;
 
-            Server.NextFrame(() => {
+            Server.NextFrame(() =>
+            {
                 if (grenade == null || !grenade.IsValid) return;
                 grenade.ActualGravityScale = .0001f;
-                
+
                 Vector currentVelocity = new(grenade.AbsVelocity.X, grenade.AbsVelocity.Y, grenade.AbsVelocity.Z);
                 float speed = currentVelocity.Length() * 2;
 

@@ -57,7 +57,7 @@ namespace src.player.skills
             if (entityIndex == 0) return;
 
             CCSPlayerController? emitter = null;
-            foreach (var p in Utilities.GetPlayers().Where(p => p != null && p.IsValid))
+            foreach (var p in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid))
             {
                 if (p.PlayerPawn.Value?.Index == entityIndex)
                 {
@@ -75,12 +75,12 @@ namespace src.player.skills
 
             if (emitter == null)
             {
-                foreach (var p in Utilities.GetPlayers().Where(p => p != null && p.IsValid))
+                foreach (var p in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid))
                     um.Recipients.Remove(p);
                 return;
             }
 
-            foreach (var recipient in Utilities.GetPlayers().Where(p => p != null && p.IsValid))
+            foreach (var recipient in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid))
             {
                 bool hasSkill = SkillPlayerInfo.ContainsKey(recipient.Index);
 
@@ -98,7 +98,7 @@ namespace src.player.skills
         {
             if (Server.TickCount % (60 * SkillsInfo.GetValue<int>(skillName, "cooldown")) != 0) return;
 
-            foreach (var player in Utilities.GetPlayers()
+            foreach (var player in PlayerManager.GetTickPlayers()
                 .Where(p => p != null && p.IsValid && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0))
             {
                 var entities = EntityManager.GetPlayerEntities(player.Index, "empty_prop");

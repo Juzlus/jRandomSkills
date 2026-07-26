@@ -41,7 +41,7 @@ namespace src.player.skills
                 string closetEnemy = "Bot";
                 double closetDistance = double.MaxValue;
 
-                foreach (var enemy in Utilities.GetPlayers().Where(p => p.Team != player.Team))
+                foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.Team != player.Team))
                 {
                     var enemyPawn = enemy.PlayerPawn.Value;
                     if (enemyPawn == null || !enemyPawn.IsValid) continue;

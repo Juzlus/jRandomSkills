@@ -34,7 +34,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
@@ -140,7 +140,7 @@ namespace src.player.skills
             if (barricades.TryGetValue(box.Index, out int health))
             {
                 int newHealth = health - (int)param2.Damage;
-                
+
                 if (newHealth <= 0)
                 {
                     barricades.TryRemove(box.Index, out _);

@@ -25,7 +25,7 @@ namespace src.player.skills
         {
             foreach (var playerSkill in playersInfo.Values)
                 KillClone(playerSkill);
-            
+
             lock (setLock)
                 playersInfo.Clear();
         }
@@ -107,11 +107,11 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             player.EmitSound("SolidMetal.BulletImpact");
-            
+
             CDynamicProp? cloneProp = null;
             if (playerSkill.CloneProp != null)
                 cloneProp = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CloneProp);
-            
+
             if (cloneProp != null && cloneProp.IsValid && cloneProp.AbsOrigin != null && cloneProp.AbsRotation != null)
             {
                 var playerPawn = player.PlayerPawn.Value;
@@ -203,7 +203,7 @@ namespace src.player.skills
                 playerSkill.NextUse = Server.TickCount + 64000;
                 playerSkill.CloneProp = clone.Index;
 
-                jRandomSkills.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () => 
+                jRandomSkills.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () =>
                 {
                     if (playerSkill.CloneProp != null)
                         KillClone(playerSkill);
@@ -250,7 +250,7 @@ namespace src.player.skills
 
             if (!result.HasValue)
                 return false;
-            
+
             return !result.Value.DidHit;
         }
 
@@ -313,7 +313,7 @@ namespace src.player.skills
                 {
                     Vector pos = param2.DamagePosition;
                     Vector posCl = cloneProp.AbsOrigin;
-                    
+
                     bool isHead = false;
                     float viewOffset = 63.27f;
                     float diff = 2f;

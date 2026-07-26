@@ -73,7 +73,7 @@ namespace src.player.skills
             {
                 SkillUtils.ResetPrintHTML(player);
                 SetPlayerColor(player, true);
-                
+
             });
         }
 
@@ -92,7 +92,8 @@ namespace src.player.skills
                 jester.Timer = null;
             }
 
-            jester.Timer = Instance.AddTimer(1, () => {
+            jester.Timer = Instance.AddTimer(1, () =>
+            {
                 ChangeMode(playerIndex, false);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
@@ -112,7 +113,8 @@ namespace src.player.skills
                 jester.Timer = null;
             }
 
-            jester.Timer = Instance.AddTimer(1, () => {
+            jester.Timer = Instance.AddTimer(1, () =>
+            {
                 if (player != null && player.IsValid)
                     ChangeMode(playerIndex, false);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -211,7 +213,7 @@ namespace src.player.skills
             if (jester.Active != previousState)
             {
                 SetPlayerColor(player);
-             
+
                 var playerEvent = PlayerManager.GetPlayerFromEvent(player);
                 if (playerEvent != null && playerEvent.IsValid)
                     playerEvent.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
@@ -254,7 +256,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (SkillUtils.IsFreezeTime()) return;
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playeEvent = PlayerManager.GetPlayerEvent(player);
                 if (playeEvent == null || !playeEvent.IsValid || playeEvent.PlayerPawn.Value == null || !playeEvent.PlayerPawn.Value.IsValid) continue;

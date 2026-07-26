@@ -43,7 +43,7 @@ namespace src.player.skills
 
         private static string GetEnemyModel(CCSPlayerController player)
         {
-            CCSPlayerController[] models = [.. Utilities.GetPlayers().FindAll(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team)];
+            CCSPlayerController[] models = [.. PlayerManager.GetTickPlayers().FindAll(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team)];
             if (models != null && models.Length > 0)
             {
                 var model = models[Instance.Random.Next(models.Length)];

@@ -26,12 +26,12 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (SkillUtils.IsFreezeTime()) return;
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill == skillName)
                     if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
-                            UpdateHUD(player, skillInfo);
+                        UpdateHUD(player, skillInfo);
             }
         }
 

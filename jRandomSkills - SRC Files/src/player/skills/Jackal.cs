@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Entities;
@@ -54,7 +54,7 @@ namespace src.player.skills
                     var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
                     if (targetHandle != nint.Zero)
                     {
-                        var observed = Utilities.GetPlayers()
+                        var observed = PlayerManager.GetTickPlayers()
                             .FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
                         if (observed != null && observed.IsValid)
                         {
@@ -135,7 +135,7 @@ namespace src.player.skills
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Index, 0);
 
-            var opponents = Utilities.GetPlayers()
+            var opponents = PlayerManager.GetTickPlayers()
                 .Where(p => p != null
                     && p.IsValid
                     && p.Team != player.Team
@@ -151,7 +151,7 @@ namespace src.player.skills
 
         private static void UpdateAllTrails()
         {
-            foreach (var player in Utilities.GetPlayers())
+            foreach (var player in PlayerManager.GetTickPlayers())
                 CreatePlayerTrail(player);
         }
 
