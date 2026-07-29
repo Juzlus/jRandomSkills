@@ -42,15 +42,11 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill == skillName)
             {
-                var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-                if (bombEntities.Count != 0)
+                var bomb = PlayerManager.GetTickBomb();
+                if (bomb != null && bomb.IsValid)
                 {
-                    var bomb = bombEntities.FirstOrDefault();
-                    if (bomb != null)
-                    {
-                        bomb.BombPlacedAnimation = false;
-                        bomb.ArmedTime = 0.0f;
-                    }
+                    bomb.BombPlacedAnimation = false;
+                    bomb.ArmedTime = 0.0f;
                 }
             }
         }

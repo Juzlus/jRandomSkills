@@ -50,11 +50,19 @@ namespace src.player.skills
             Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
             Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
             SkillUtils.AddHealth(pawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+
+            float effectDuration = SkillsInfo.GetValue<float>(skillName, "effectDuration");
+            if (effectDuration > 0)
+            {
+                pawn.HealthShotBoostExpirationTime = Server.CurrentTime + effectDuration;
+                Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_flHealthShotBoostExpirationTime");
+            }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ded678", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 100) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ded678", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 100, float effectDuration = 1.0f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int HealthToAdd { get; set; } = healthToAdd;
+            public float EffectDuration { get; set; } = effectDuration;
         }
     }
 }

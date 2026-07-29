@@ -120,45 +120,25 @@ namespace src.player.skills
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
-            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (!Instance.IsPlayerValid(victim)) return false;
 
-            if (!Instance.IsPlayerValid(victim)) return;
-
-            if (!Instance.IsPlayerValid(attacker))
+            if (!IsActiveJester(victim!.Index))
             {
-                if (IsActiveJester(victim!.Index))
-                {
-                    SkillUtils.RestoreHealth(victim);
-                    RestoreArmor(victim, @event.DmgArmor);
-                }
-                return;
+                var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+                if (!Instance.IsPlayerValid(attacker) || !IsActiveJester(attacker!.Index)) return false;
             }
 
-            if (IsActiveJester(victim!.Index) || IsActiveJester(attacker!.Index))
-            {
-                SkillUtils.RestoreHealth(victim);
-                RestoreArmor(victim, @event.DmgArmor);
-            }
+            SkillUtils.RestoreHealth(victim);
+            return true;
         }
 
         public static bool IsActiveJester(uint playerIndex)
         {
             if (GetJesterInfo(playerIndex)?.Active != true) return false;
             return PlayerManager.GetPlayerByIndex(playerIndex)?.Skill == skillName;
-        }
-
-        private static void RestoreArmor(CCSPlayerController? victim, int dmgArmor)
-        {
-            if (victim == null || !victim.IsValid || dmgArmor <= 0) return;
-
-            var pawn = victim.PlayerPawn?.Value;
-            if (pawn == null || !pawn.IsValid) return;
-
-            pawn.ArmorValue += dmgArmor;
-            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
         }
 
         public static void EnableSkill(CCSPlayerController player)

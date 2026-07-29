@@ -382,6 +382,33 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.3.b1</b></summary>
+
+- #### Ogólne (Wydajność i stabilność)
+    - ###### `CServerSideClient.ForceFullUpdate` przerywa teraz działanie, jeśli klient handle jest pusty.
+    - ###### Dodano współdzieloną pamięć podręczną graczy i bomby odświeżaną co tick.
+    - ###### 82 moce zostały przeniesione z własnych wywołań `Utilities.GetPlayers()` na jedno współdzielone skanowanie wykonywane raz na tick. Pętla HUD również z niego korzysta, co znacznie zmniejsza obciążenie serwera przy większej liczbie graczy (potwierdzone w 10v10).
+    - ###### Wyświetlanie informacji o braku zainstalowanego RayTrace.
+
+- #### Poprawki mocy:
+    - ###### Druga Szansa / Feniks / Re-Zombie:
+        - ###### Przechwytują śmiertelne obrażenia przed ich zastosowaniem. Wcześniej reagowały dopiero po śmierci gracza, przez co nie działały przy natychmiastowych zabójstwach, obrażeniach od upadku oraz zabójstwach zadawanych przez moce.
+    - ###### Zabójczy Flash:
+        - ###### Zabija teraz poprzez zadanie rzeczywistych obrażeń zamiast wymuszania samobójstwa, dzięki czemu moce wskrzeszające mogą zadziałać.
+    - ###### Bejsbolista:
+        - ###### Naprawiono rzadki crash serwera związany z granatem wabikiem (indeks encji wabika mógł zostać ponownie wykorzystany przez inną encję).
+    - ###### Aimbot:
+        - ###### Dodano sprawdzanie poprawności wskaźnika hit-group przed zapisem, co zapobiega zapisywaniu do zwolnionej lub pustej pamięci.
+    - ###### Wallhack:
+        - ###### Efekt poświaty jest teraz usuwany, gdy cel zginie lub opuści serwer.
+    - ###### Obserwator / Kamera / Oko Sokoła / Trzecie Oko:
+        - ###### Dodano zabezpieczenia przed pustymi wskaźnikami kamery oraz ponowną weryfikację celu przed teleportacją lub przypisaniem kamery.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.2.b8</b></summary>
 
 - #### Ogólne:
@@ -414,7 +441,7 @@ Plugin korzysta z zawartości następujących projektów:
     - ###### Duszek / Ninja / C4 Kamuflaż:
         - ###### Zoptymalizowano przetwarzanie ukrytych graczy, poprawiając wydajność.
 
-**Pełna aktualizacja została przygotowana przez @ByDexterTR w ramach pull requesta #41. Dziękujemy ByDexterTR!**
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Dziękujemy ByDexterTR!**
 
 </details>
 

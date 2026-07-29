@@ -19,9 +19,11 @@ public interface ISkill
     public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList _) { }
 
     public static void NewRound() { }
+    public static void RoundEnd() { }
     public static void PlayerMakeSound(UserMessage _) { }
     public static void PlayerBlind(EventPlayerBlind _) { }
     public static void PlayerHurt(EventPlayerHurt _) { }
+    public static bool PlayerHurtPre(EventPlayerHurt _) { return false; }
     public static void PlayerDeath(EventPlayerDeath _) { }
     public static void PlayerJump(EventPlayerJump _) { }
     public static void SwitchTeam(EventSwitchTeam _, GameEventInfo __) { }
@@ -88,6 +90,8 @@ public enum Skills
     Duplicator,
     Dwarf,
     EnemySpawn,
+    ExpensiveAmmo,
+    ExplodingBarrel,
     ExplosiveShot,
     FalconEye,
     FastReload,
@@ -98,6 +102,7 @@ public enum Skills
     FrozenDecoy,
     Gambler,
     Ghost,
+    Giant,
     Glaz,
     Glitch,
     Glue,
@@ -117,8 +122,10 @@ public enum Skills
     Jammer,
     Jester,
     JumpBan,
+    JumpCurse,
     JumpingJack,
     KillerFlash,
+    Knockback,
     LifeSwap,
     LongKnife,
     LongZeus,
@@ -128,6 +135,7 @@ public enum Skills
     Medic,
     Miner,
     MoneySwap,
+    Nightmare,
     Ninja,
     NoNades,
     NoRecoil,
@@ -174,6 +182,7 @@ public enum Skills
     Thorns,
     ThrowingKnife,
     ToxicSmoke,
+    Tripwire,
     Wallhack,
     Watchmaker,
     WeaponsSwap,

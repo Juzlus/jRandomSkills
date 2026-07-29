@@ -15,6 +15,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.Illusionist;
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<int, Timer> ActiveTimers = [];
+        private static readonly ConcurrentDictionary<uint, byte> consumedReplicas = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -26,7 +27,10 @@ namespace src.player.skills
         {
             ClearAllReplicas();
             lock (setLock)
+            {
                 SkillPlayerInfo.Clear();
+                consumedReplicas.Clear();
+            }
         }
 
         private static void ClearAllReplicas()
@@ -113,6 +117,8 @@ namespace src.player.skills
             var replica = EntityManager.CreateTrackedPropOverride(player.Index);
             if (replica == null || !replica.IsValid) return;
 
+            consumedReplicas.TryRemove(replica.Index, out _);
+
             replica.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
 
@@ -189,8 +195,12 @@ namespace src.player.skills
             var replica = param.As<CDynamicProp>();
             if (replica == null || !replica.IsValid) return;
 
+            if (!consumedReplicas.TryAdd(replica.Index, 0)) return;
+
             replica.EmitSound("GlassBottle.BulletImpact", volume: 1f);
             if (ActiveTimers.TryRemove((int)replica.Index, out var timer)) timer?.Kill();
+
+            var owner = GetReplicaOwner(replica.Index);
             EntityManager.DestroyEntity(replica.Index);
 
             CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
@@ -198,7 +208,17 @@ namespace src.player.skills
 
             var attackerTeam = attackerPawn.TeamNum;
             var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
-            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"));
+
+            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, "planted_c4");
+        }
+
+        private static CCSPlayerController? GetReplicaOwner(uint replicaIndex)
+        {
+            var ownerIndex = EntityManager.GetEntityOwner(replicaIndex);
+            if (ownerIndex == null) return null;
+
+            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex.Value);
+            return owner != null && owner.IsValid ? owner : null;
         }
 
         public class PlayerSkillInfo

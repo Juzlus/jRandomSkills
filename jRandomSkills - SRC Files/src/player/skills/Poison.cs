@@ -11,6 +11,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.Poison;
         private static readonly ConcurrentDictionary<uint, byte> poisonedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
+        private static readonly ConcurrentDictionary<uint, uint> targetToPlayer = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -23,7 +24,10 @@ namespace src.player.skills
             lock (setLock)
             {
                 poisonedPlayers.TryRemove(playerIndex, out _);
-                playersToTarget.TryRemove(playerIndex, out _);
+                targetToPlayer.TryRemove(playerIndex, out _);
+
+                if (playersToTarget.TryRemove(playerIndex, out uint ownTarget))
+                    targetToPlayer.TryRemove(ownTarget, out _);
 
                 foreach (var kvp in playersToTarget)
                     if (kvp.Value == playerIndex)
@@ -37,6 +41,7 @@ namespace src.player.skills
             {
                 poisonedPlayers.Clear();
                 playersToTarget.Clear();
+                targetToPlayer.Clear();
             }
         }
 
@@ -59,7 +64,8 @@ namespace src.player.skills
                     if (Jester.IsActiveJester(playerIndex)) continue;
 
                     if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
-                    SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"));
+
+                    SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), "planted_c4");
 
                     if (Server.TickCount % cooldown2 == 0)
                         PlayerManager.GetPlayerFromEvent(player)?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
@@ -69,10 +75,11 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (!SkillUtils.HasMenu(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (!SkillUtils.HasMenu(player)) continue;
+
                 var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
@@ -113,6 +120,7 @@ namespace src.player.skills
 
             poisonedPlayers.TryAdd(enemy.Index, 0);
             playersToTarget[player.Index] = enemy.Index;
+            targetToPlayer[enemy.Index] = player.Index;
             playerInfo.SkillUsed = true;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
@@ -141,11 +149,22 @@ namespace src.player.skills
                 playerEvent.PrintToChat($" {ChatColors.Red}{player.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
         }
 
+        private static CCSPlayerController? GetSkillOwner(uint targetIndex)
+        {
+            if (!targetToPlayer.TryGetValue(targetIndex, out uint ownerIndex)) return null;
+
+            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            return owner != null && owner.IsValid ? owner : null;
+        }
+
         public static void DisableSkill(CCSPlayerController player)
         {
+            targetToPlayer.TryRemove(player.Index, out _);
+
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
             {
                 poisonedPlayers.TryRemove(targetIndex, out _);
+                targetToPlayer.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
@@ -161,6 +180,8 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             poisonedPlayers.TryRemove(player.Index, out _);
+            targetToPlayer.TryRemove(player.Index, out _);
+
             SkillUtils.CloseMenu(player);
         }
 

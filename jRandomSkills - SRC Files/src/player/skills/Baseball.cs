@@ -20,8 +20,20 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            decoys.Clear();
+            KillAllDecoys();
             playersWithSkill.Clear();
+        }
+
+        private static void KillAllDecoys()
+        {
+            foreach (var decoyIndex in decoys.Keys.ToArray())
+            {
+                var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>((int)decoyIndex);
+                if (decoy != null && decoy.IsValid && decoy.DesignerName == "decoy_projectile")
+                    decoy.AddEntityIOEvent("Kill", decoy, delay: 0.1f);
+            }
+
+            decoys.Clear();
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
@@ -45,7 +57,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (attackerInfo?.Skill != skillName) return;
 
-            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"));
+            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"), attacker, "decoy");
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -94,6 +106,7 @@ namespace src.player.skills
             if (Server.TickCount % 8 != 0) return;
 
             var keys = decoys.Keys.ToArray();
+            if (keys.Length == 0) return;
 
             foreach (var decoyIndex in keys)
             {

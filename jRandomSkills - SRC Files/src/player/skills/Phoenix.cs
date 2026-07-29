@@ -19,6 +19,22 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
         }
 
+        public static void NewRound()
+        {
+            phoenixTicks.Clear();
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+            phoenixTicks.TryRemove(player.Index, out _);
+        }
+
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            phoenixTicks.TryRemove(playerIndex, out _);
+        }
+
         public static void OnTakeDamage(DynamicHook h)
         {
             var victimEntity = h.GetParam<CEntityInstance>(0);

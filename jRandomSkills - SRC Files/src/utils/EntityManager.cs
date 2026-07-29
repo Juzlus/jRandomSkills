@@ -65,6 +65,12 @@ namespace src.utils
 
         public static int GetTrackedCount(uint playerIndex) => GetPlayerEntities(playerIndex).Count;
 
+        public static uint? GetEntityOwner(uint entityIndex)
+        {
+            if (!trackedEntities.TryGetValue(entityIndex, out var data)) return null;
+            return data.PlayerIndex == SystemOwnerIndex ? null : data.PlayerIndex;
+        }
+
         public static (int totalTracked, int ownerCount) GetStatistics()
         {
             return (trackedEntities.Count, trackedEntities.Values.Select(e => e.PlayerIndex).Distinct().Count());

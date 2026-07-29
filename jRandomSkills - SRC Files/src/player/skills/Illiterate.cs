@@ -13,6 +13,9 @@ namespace src.player.skills
         private static int lastChange = 0;
         private static readonly object offsetLock = new();
 
+        private static int holdersTick = int.MinValue;
+        private static readonly HashSet<uint> holders = [];
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -49,17 +52,28 @@ namespace src.player.skills
             if (!isActive || player == null || !player.IsValid) return false;
             if (player.Team == CsTeam.Spectator) return false;
 
-            var playersWithSkill = jRandomSkills.Instance.SkillPlayer.Where(p => p.Skill == skillName).Select(p => p.PlayerIndex).ToHashSet();
-            if (playersWithSkill.Count == 0) return false;
+            int tick = Server.TickCount;
+            if (tick != holdersTick)
+            {
+                holdersTick = tick;
+                holders.Clear();
+                foreach (var p in jRandomSkills.Instance.SkillPlayer)
+                    if (p.Skill == skillName) holders.Add(p.PlayerIndex);
+            }
 
-            return PlayerManager.GetTickPlayers().Any(
-                p => p != null &&
-                     p.IsValid &&
-                     p.Pawn?.Value != null &&
-                     p.PlayerPawn?.Value != null &&
-                     p.PlayerPawn.Value.Health > 0 &&
-                     p.Team != player.Team &&
-                     playersWithSkill.Contains(p.Index));
+            if (holders.Count == 0) return false;
+
+            foreach (var p in PlayerManager.GetTickPlayers())
+            {
+                if (p == null || !p.IsValid) continue;
+                if (p.Team == player.Team || !holders.Contains(p.Index)) continue;
+                if (p.Pawn?.Value == null) continue;
+
+                var pawn = p.PlayerPawn?.Value;
+                if (pawn != null && pawn.Health > 0) return true;
+            }
+
+            return false;
         }
 
         public static string? GetRandomText(string? input)

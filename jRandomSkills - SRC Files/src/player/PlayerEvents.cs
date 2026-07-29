@@ -47,8 +47,10 @@ namespace src.player
             Instance.RegisterEventHandler<EventRoundStart>(RoundStart);
             Instance.RegisterEventHandler<EventRoundEnd>(RoundEnd);
 
+            Instance.RegisterEventHandler<EventPlayerDeath>(PlayerDeathPre, HookMode.Pre);
             Instance.RegisterEventHandler<EventPlayerDeath>(PlayerDeath);
             Instance.RegisterEventHandler<EventPlayerBlind>(PlayerBlind);
+            Instance.RegisterEventHandler<EventPlayerHurt>(PlayerHurtPre, HookMode.Pre);
             Instance.RegisterEventHandler<EventPlayerHurt>(PlayerHurt);
             Instance.RegisterEventHandler<EventPlayerJump>(PlayerJump);
             Instance.RegisterEventHandler<EventBotTakeover>(BotTakeover);
@@ -87,6 +89,22 @@ namespace src.player
             // Disabled after CS2 updates started crashing Linux servers on player join.
             // The hooked native signature is only used to block weapon drops for Iana clones.
             // Keeping the plugin alive is safer than installing a stale global hook at load time.
+        }
+
+        public static void Unload()
+        {
+            TryUnhook(() => VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Pre));
+            TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
+            TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
+            TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
+            TryUnhook(() => Instance.UnhookUserMessage(208, PlayerMakeSound));
+            TryUnhook(() => Instance.RemoveListener<CheckTransmit>(CheckTransmit));
+        }
+
+        private static void TryUnhook(Action unhook)
+        {
+            try { unhook(); }
+            catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] unhook failed: {ex.Message}"); }
         }
 
         private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
@@ -180,12 +198,53 @@ namespace src.player
                     continue;
                 }
 
-                InvokeSkill(p.Skill, "OnTakeDamage", args);
+                InvokeOnTakeDamage(p.Skill, h, args);
             }
 
             if (deferred == null) return;
             foreach (var skill in deferred)
+                InvokeOnTakeDamage(skill, h, args);
+        }
+
+        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args)
+        {
+            if (Config.LoadedConfig.DebugMode != true)
+            {
                 InvokeSkill(skill, "OnTakeDamage", args);
+                return;
+            }
+
+            var info = h.GetParam<CTakeDamageInfo>(1);
+            float before = info == null ? 0f : info.Damage;
+
+            InvokeSkill(skill, "OnTakeDamage", args);
+
+            float after = info == null ? 0f : info.Damage;
+            if (Math.Abs(before - after) > 0.01f)
+                Debug.WriteToDebug($"[DMG] {skill} changed damage {before:0.#} -> {after:0.#}{DescribeDamageTarget(h)}");
+        }
+
+        private static string DescribeDamageTarget(DynamicHook h)
+        {
+            try
+            {
+                var victimEntity = h.GetParam<CEntityInstance>(0);
+                if (victimEntity == null || !victimEntity.IsValid) return string.Empty;
+
+                var pawn = victimEntity.As<CCSPlayerPawn>();
+                if (pawn == null || !pawn.IsValid || pawn.DesignerName != "player") return string.Empty;
+
+                var controller = pawn.Controller.Value?.As<CCSPlayerController>();
+                if (controller == null || !controller.IsValid) return string.Empty;
+
+                uint routedIndex = PlayerManager.GetPlayerEvent(controller)?.Index ?? controller.Index;
+                return $" on {controller.PlayerName} [idx={controller.Index} skill={PlayerManager.GetPlayerByIndex(controller.Index)?.Skill}" +
+                    $" routedIdx={routedIndex} routedSkill={PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}]";
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         private static HookResult PlayerMakeSound(UserMessage um)
@@ -312,6 +371,63 @@ namespace src.player
                 DispatchToActiveSkills("SmokegrenadeExpired", @event);
                 return HookResult.Continue;
             }
+        }
+
+        private static HookResult PlayerHurtPre(EventPlayerHurt @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                try
+                {
+                    if (@event.DmgHealth <= 0 && @event.DmgArmor <= 0) return HookResult.Continue;
+
+                    var victim = PlayerManager.GetPlayerEvent(@event.Userid);
+                    if (victim == null || !victim.IsValid) return HookResult.Continue;
+
+                    var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+                    if (victimInfo == null || victimInfo.IsDrawing) return HookResult.Continue;
+
+                    bool suppressed = AskSkillSuppressesHit(victimInfo.Skill, @event);
+
+                    if (!suppressed)
+                    {
+                        var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+                        if (attacker != null && attacker.IsValid && attacker.Index != victim.Index)
+                        {
+                            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+                            if (attackerInfo != null && !attackerInfo.IsDrawing && attackerInfo.Skill != victimInfo.Skill)
+                                suppressed = AskSkillSuppressesHit(attackerInfo.Skill, @event);
+                        }
+                    }
+
+                    if (!suppressed) return HookResult.Continue;
+
+                    if (@event.DmgArmor > 0)
+                    {
+                        var pawn = victim.PlayerPawn?.Value;
+                        if (pawn != null && pawn.IsValid)
+                        {
+                            pawn.ArmorValue += @event.DmgArmor;
+                            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
+                        }
+                    }
+
+                    @event.DmgHealth = 0;
+                    @event.DmgArmor = 0;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteToDebug($"PlayerHurtPre failed: {ex.Message}");
+                }
+
+                return HookResult.Continue;
+            }
+        }
+
+        private static bool AskSkillSuppressesHit(Skills skill, EventPlayerHurt @event)
+        {
+            if (skill == Skills.None) return false;
+            return (bool?)Instance.SkillAction(skill.ToString(), "PlayerHurtPre", [@event]) == true;
         }
 
         private static HookResult PlayerHurt(EventPlayerHurt @event, GameEventInfo info)
@@ -546,6 +662,9 @@ namespace src.player
                     DisplayHUD = true,
                     SkillUsed = false,
                 };
+
+                UpdateSkillHudExpired(playerInfo, Skills.None);
+
                 PlayerManager.Register(playerInfo);
             }
         }
@@ -609,14 +728,7 @@ namespace src.player
             var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
             if (skillPlayer == null) return HookResult.Continue;
 
-            var temp = skillPlayer.SkillHudExpired;
-            skillPlayer.SkillHudExpired = DateTime.MinValue;
-
-            Instance.AddTimer(5f, () =>
-            {
-                if (skillPlayer.SkillHudExpired == DateTime.MinValue)
-                    skillPlayer.SkillHudExpired = temp;
-            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+            skillPlayer.HudSuppressedUntil = DateTime.Now.AddSeconds(5);
 
             return HookResult.Continue;
         }
@@ -653,6 +765,7 @@ namespace src.player
             {
                 bool isWarmup = Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true;
                 isTransmitRegistered = false;
+                SkillUtils.ClearKillCredits();
                 Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
@@ -785,6 +898,7 @@ namespace src.player
         private static HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
             Illiterate.Disable();
+            DispatchToActiveSkills("RoundEnd");
 
             lock (setLock)
             {
@@ -831,6 +945,40 @@ namespace src.player
                 }
                 return HookResult.Continue;
             }
+        }
+
+        private static HookResult PlayerDeathPre(EventPlayerDeath @event, GameEventInfo info)
+        {
+            try
+            {
+                var victim = @event.Userid;
+                if (victim == null || !victim.IsValid) return HookResult.Continue;
+
+                if (!SkillUtils.TryConsumeKillCredit(victim.Index, out uint attackerIndex, out string? weapon))
+                    return HookResult.Continue;
+
+                var attacker = Utilities.GetPlayerFromIndex((int)attackerIndex);
+                if (attacker == null || !attacker.IsValid || attacker.Index == victim.Index)
+                    return HookResult.Continue;
+
+                @event.Attacker = attacker;
+
+                if (!string.IsNullOrEmpty(weapon))
+                    @event.Weapon = weapon;
+
+                var matchStats = attacker.ActionTrackingServices?.MatchStats;
+                if (matchStats != null)
+                {
+                    matchStats.Kills++;
+                    Utilities.SetStateChanged(attacker, "CCSPlayerController", "m_pActionTrackingServices");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteToDebug($"PlayerDeathPre kill credit failed: {ex.Message}");
+            }
+
+            return HookResult.Continue;
         }
 
         private static HookResult PlayerDeath(EventPlayerDeath @event, GameEventInfo info)
@@ -955,26 +1103,65 @@ namespace src.player
 
         private static readonly Dictionary<uint, jSkill_SkillInfo> nextRoundPicks = [];
 
-        private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, List<CCSPlayerController> validPlayers, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
+        private sealed class PickContext
         {
-            List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-            skillList.RemoveAll(s => s?.Skill == Skills.None);
-            if (!player.IsBot)
-                skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+            public required List<jSkill_SkillInfo> BaseList { get; init; }
+            public required Dictionary<Skills, string> RequiredPermissions { get; init; }
+            public required HashSet<Skills> NeedsTeammates { get; init; }
+            public required HashSet<Skills> CtOnly { get; init; }
+            public required HashSet<Skills> TOnly { get; init; }
+            public required int TerroristCount { get; init; }
+            public required int CounterTerroristCount { get; init; }
+        }
+
+        private static PickContext BuildPickContext(List<CCSPlayerController> validPlayers)
+        {
+            Dictionary<Skills, string> perms = [];
+            foreach (var s in SkillData.Skills)
+            {
+                if (s == null || s.Skill == Skills.None) continue;
+                string perm = SkillsInfo.GetValue<string>(s.Skill, "requiredPermission");
+                if (!string.IsNullOrEmpty(perm)) perms[s.Skill] = perm;
+            }
+
+            return new PickContext
+            {
+                BaseList = [.. SkillData.Skills.Where(s => s != null && s.Skill != Skills.None)],
+                RequiredPermissions = perms,
+                NeedsTeammates = ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).Select(s => s.Name)),
+                CtOnly = ToSkillSet(counterterroristSkills.Select(s => s.Name)),
+                TOnly = ToSkillSet(terroristSkills.Select(s => s.Name)),
+                TerroristCount = validPlayers.Count(p => p.Team == CsTeam.Terrorist),
+                CounterTerroristCount = validPlayers.Count(p => p.Team == CsTeam.CounterTerrorist),
+            };
+        }
+
+        private static HashSet<Skills> ToSkillSet(IEnumerable<string> names)
+        {
+            HashSet<Skills> set = [];
+            foreach (var name in names)
+                if (Enum.TryParse<Skills>(name, out var skill)) set.Add(skill);
+            return set;
+        }
+
+        private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, PickContext ctx, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
+        {
+            List<jSkill_SkillInfo> skillList = [.. ctx.BaseList];
+
+            if (!player.IsBot && ctx.RequiredPermissions.Count != 0)
+                skillList.RemoveAll(s => ctx.RequiredPermissions.TryGetValue(s.Skill, out var perm) && !AdminManager.PlayerHasPermissions(player, perm));
 
             if (gameMode != Config.GameModes.FullRandom)
                 skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
-            if (validPlayers.Count(p => p.Team == player.Team) == 1)
-            {
-                SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = [.. SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates)];
-                skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
-            }
+            int teamCount = player.Team == CsTeam.Terrorist ? ctx.TerroristCount : ctx.CounterTerroristCount;
+            if (teamCount == 1)
+                skillList.RemoveAll(s => ctx.NeedsTeammates.Contains(s.Skill));
 
             if (player.Team == CsTeam.Terrorist)
-                skillList.RemoveAll(s => counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                skillList.RemoveAll(s => ctx.CtOnly.Contains(s.Skill));
             else
-                skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                skillList.RemoveAll(s => ctx.TOnly.Contains(s.Skill));
 
             if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
             {
@@ -1029,13 +1216,15 @@ namespace src.player
                     .Where(p => p != null && p.IsValid && !p.IsHLTV)
                     .Where(p => { try { return p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; } catch { return false; } }).ToList();
 
+                var ctx = BuildPickContext(validPlayers);
+
                 Dictionary<Skills, int> assignmentCounts = [];
                 foreach (var player in validPlayers)
                 {
                     var skillPlayer = PlayerManager.GetPlayerByIndex(player.Index);
                     if (skillPlayer == null) continue;
 
-                    var pick = PickSkillForPlayer(player, skillPlayer, validPlayers, assignmentCounts, gameMode);
+                    var pick = PickSkillForPlayer(player, skillPlayer, ctx, assignmentCounts, gameMode);
                     nextRoundPicks[player.Index] = pick;
 
                     if (pick.Skill != Skills.None)
@@ -1116,6 +1305,8 @@ namespace src.player
                     else assignmentCounts[sp.Skill] = 1;
                 }
 
+                PickContext? pickContext = null;
+
                 foreach (var player in validPlayers)
                 {
                     if (player == null) continue;
@@ -1126,6 +1317,7 @@ namespace src.player
                     if (skillPlayer == null) continue;
 
                     skillPlayer.IsDrawing = false;
+                    skillPlayer.HudOnDeathBlocked = null;
                     if (player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
                     {
                         skillPlayer.Skill = Skills.None;
@@ -1142,7 +1334,10 @@ namespace src.player
                         if (nextRoundPicks.TryGetValue(player.Index, out var pre) && IsPickStillValid(pre, player, validPlayers, assignmentCounts))
                             randomSkill = pre;
                         else
-                            randomSkill = PickSkillForPlayer(player, skillPlayer, validPlayers, assignmentCounts, gameMode);
+                        {
+                            pickContext ??= BuildPickContext(validPlayers);
+                            randomSkill = PickSkillForPlayer(player, skillPlayer, pickContext, assignmentCounts, gameMode);
+                        }
                     }
                     else if (gameMode == Config.GameModes.TeamSkills)
                         randomSkill = player.Team == CsTeam.Terrorist ? tSkill : ctSkill;

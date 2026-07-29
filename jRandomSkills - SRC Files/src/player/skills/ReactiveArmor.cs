@@ -34,26 +34,25 @@ namespace src.player.skills
             }
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
             var victim = @event.Userid;
-            if (victim == null || !victim.IsValid) return;
+            if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
 
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+            if (attacker == null || !attacker.IsValid) return false;
+
             var victimEvent = PlayerManager.GetPlayerEvent(victim);
+            if (victimEvent == null || !victimEvent.IsValid) return false;
 
-            if (attacker == null || !attacker.IsValid) return;
-            if (victimEvent == null || !victimEvent.IsValid || !victim.PawnIsAlive) return;
+            if (PlayerManager.GetPlayerByIndex(victimEvent.Index)?.Skill != skillName) return false;
 
-            if (PlayerManager.GetPlayerByIndex(victimEvent!.Index)?.Skill != skillName) return;
+            if (!SkillPlayerInfo.TryGetValue(victimEvent.Index, out var skillInfo) || !skillInfo.CanUse) return false;
 
-            if (SkillPlayerInfo.TryGetValue(victimEvent!.Index, out var skillInfo))
-            {
-                if (!skillInfo.CanUse) return;
-                skillInfo.CanUse = false;
-                skillInfo.Cooldown = DateTime.Now;
-                SkillUtils.RestoreHealth(victimEvent);
-            }
+            skillInfo.CanUse = false;
+            skillInfo.Cooldown = DateTime.Now;
+            SkillUtils.RestoreHealth(victimEvent);
+            return true;
         }
 
         public static void EnableSkill(CCSPlayerController player)

@@ -20,11 +20,13 @@ namespace src.player.skills
             "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
             "weapon_negev", "weapon_sg556"
         ];
+        private const string chickenModelPath = "models/chicken/chicken.vmdl";
         private static readonly ConcurrentDictionary<uint, uint> chickens = [];
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            jRandomSkills.Instance.AddToManifest(chickenModelPath);
         }
 
         public static void NewRound()
@@ -127,7 +129,7 @@ namespace src.player.skills
                 return;
             
             chickenModel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(chickenModel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            chickenModel.SetModel("models/chicken/chicken.vmdl");
+            chickenModel.SetModel(chickenModelPath);
             chickenModel.Render = Color.FromArgb(255, 255, 255, 255);
             chickenModel.Teleport(playerPawn.AbsOrigin, playerPawn.AbsRotation, null);
             chickenModel.DispatchSpawn();

@@ -46,17 +46,25 @@ namespace src.player.skills
 
             plantingPlayers.TryAdd(player!.Index, Server.CurrentTime);
 
-            var anyChillOut = PlayerManager.GetAllPlayers().FirstOrDefault(p => p.Skill == skillName);
-            if (anyChillOut != null)
+            if (!IsAnyOwnerAlive()) return;
+
+            var bomb = PlayerManager.GetTickBomb();
+            if (bomb == null || !bomb.IsValid) return;
+
+            bomb.ArmedTime = Server.CurrentTime + SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
+        }
+
+        private static bool IsAnyOwnerAlive()
+        {
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-                if (bombEntities.Count != 0)
-                {
-                    var bomb = bombEntities.FirstOrDefault();
-                    if (bomb != null)
-                        bomb.ArmedTime = Server.CurrentTime + SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
-                }
+                if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
+
+                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+                if (playerInfo?.Skill == skillName) return true;
             }
+
+            return false;
         }
 
         public static void BombPlanted(EventBombPlanted @event)
@@ -70,6 +78,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (plantingPlayers.IsEmpty) return;
+
             float currentTime = Server.CurrentTime;
             float extraTime = SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
 

@@ -59,10 +59,11 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (!SkillUtils.HasMenu(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (!SkillUtils.HasMenu(player)) continue;
+
                 var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
@@ -111,7 +112,7 @@ namespace src.player.skills
             SetCrosshair(enemyEvent, false);
             playerInfo.SkillUsed = true;
 
-            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("jammer_player_info", player.PlayerName));
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("jammer_player_info", enemy.PlayerName));
             enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("jammer_enemy_info"));
         }
 

@@ -80,10 +80,11 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (!SkillUtils.HasMenu(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (!SkillUtils.HasMenu(player)) continue;
+
                 var enemies = PlayerManager.GetTickPlayers().Where(p =>
                     p != null &&
                     p.IsValid)

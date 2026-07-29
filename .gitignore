@@ -31,6 +31,8 @@ project.fragment.lock.json
 
 # Logs, caches, temp
 *.log
+debug_*.txt
+perf_*.txt
 *.cache
 *.tmp
 *.temp

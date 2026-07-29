@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 
@@ -7,32 +8,48 @@ namespace src.player.skills
     public class Assassin : ISkill
     {
         private const Skills skillName = Skills.Assassin;
-        private static readonly string[] nades = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade"];
+        private static readonly string[] nadeWeapons =
+        [
+            "weapon_inferno", "weapon_molotov", "weapon_incgrenade", "weapon_flashbang",
+            "weapon_smokegrenade", "weapon_decoy", "weapon_hegrenade"
+        ];
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static void OnTakeDamage(DynamicHook h)
         {
-            var damage = @event.DmgHealth;
-            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-            var weapon = @event.Weapon;
+            CEntityInstance param = h.GetParam<CEntityInstance>(0);
+            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
 
-            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return;
-            if (string.IsNullOrEmpty(weapon) || nades.Contains(weapon)) return;
+            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+                return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(param.Handle);
+
+            if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
+                return;
+
+            if (attackerPawn.Controller?.Value == null || victimPawn.Controller?.Value == null)
+                return;
+
+            var attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>());
+            var victim = PlayerManager.GetPlayerEvent(victimPawn.Controller.Value.As<CCSPlayerController>());
+            if (attacker == null || !attacker.IsValid || victim == null || !victim.IsValid) return;
+            if (attacker.Index == victim.Index) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo?.Skill != skillName) return;
 
+            var weapon = param2.Ability?.Value;
+            if (weapon == null || !weapon.IsValid) return;
+            if (nadeWeapons.Contains(weapon.DesignerName)) return;
+
             if (IsBehind(attacker, victim))
-            {
-                var victimPawn = victim.PlayerPawn.Value;
-                if (victimPawn != null && victimPawn.IsValid)
-                    SkillUtils.TakeHealth(victimPawn, (int)(damage * (SkillsInfo.GetValue<float>(skillName, "damageMultiplier") - 1)));
-            }
+                param2.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");
         }
 
         private static bool IsBehind(CCSPlayerController attacker, CCSPlayerController victim)

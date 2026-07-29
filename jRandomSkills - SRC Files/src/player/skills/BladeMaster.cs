@@ -45,20 +45,19 @@ namespace src.player.skills
             }
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
-            var damage = @event.DmgHealth;
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             var weapon = @event.Weapon;
             int hitgroup = @event.Hitgroup;
 
-            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return;
+            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return false;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.Skill != skillName) return false;
 
-            if (string.IsNullOrEmpty(weapon) || noReflectionWeapon.Contains(weapon)) return;
+            if (string.IsNullOrEmpty(weapon) || noReflectionWeapon.Contains(weapon)) return false;
 
             float chance = (hitgroup == (int)HitGroup_t.HITGROUP_LEFTLEG || hitgroup == (int)HitGroup_t.HITGROUP_RIGHTLEG)
                 ? SkillsInfo.GetValue<float>(skillName, "legReflectionChance")
@@ -66,10 +65,10 @@ namespace src.player.skills
 
             var victimPawn = victim.PlayerPawn?.Value;
             if (victimPawn == null || !victimPawn.IsValid || Instance.Random.NextDouble() > chance)
-                return;
+                return false;
 
             var weaponServices = victimPawn.WeaponServices;
-            if (weaponServices == null) return;
+            if (weaponServices == null) return false;
 
             if (weaponServices.ActiveWeapon == null
                 || !weaponServices.ActiveWeapon.IsValid
@@ -77,9 +76,10 @@ namespace src.player.skills
                 || !weaponServices.ActiveWeapon.Value.IsValid
                 || (weaponServices.ActiveWeapon.Value.DesignerName != "weapon_knife"
                     && weaponServices.ActiveWeapon.Value.DesignerName != "weapon_bayonet"))
-                return;
+                return false;
 
             SkillUtils.RestoreHealth(victim);
+            return true;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float torseReflectionChance = .95f, float legReflectionChance = .70f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

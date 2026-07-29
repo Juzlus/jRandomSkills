@@ -11,6 +11,16 @@ namespace src.player.skills
         private const Skills skillName = Skills.BunnyHop;
         private static readonly ConcurrentDictionary<uint, int> playersLastJump = [];
 
+        public static void NewRound()
+        {
+            playersLastJump.Clear();
+        }
+
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            playersLastJump.TryRemove(playerIndex, out _);
+        }
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));

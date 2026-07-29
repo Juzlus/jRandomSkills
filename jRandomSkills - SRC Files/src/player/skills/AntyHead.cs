@@ -13,17 +13,17 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            int hitgroup = @event.Hitgroup;
 
-            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return;
+            if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return false;
+            if (@event.Hitgroup != (int)HitGroup_t.HITGROUP_HEAD) return false;
+            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return false;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
-            if (playerInfo?.Skill == skillName && hitgroup == (int)HitGroup_t.HITGROUP_HEAD)
-                SkillUtils.RestoreHealth(victim);
+            SkillUtils.RestoreHealth(victim);
+            return true;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8B4513", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

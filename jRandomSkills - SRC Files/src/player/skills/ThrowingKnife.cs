@@ -24,7 +24,21 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        private static bool roundEnded;
+
         public static void NewRound()
+        {
+            roundEnded = false;
+            KillAllKnives();
+        }
+
+        public static void RoundEnd()
+        {
+            roundEnded = true;
+            KillAllKnives();
+        }
+
+        private static void KillAllKnives()
         {
             foreach (var knifeInfo in knivesInfo.Values.ToArray())
                 DisableKnifeSkill(knifeInfo);
@@ -83,14 +97,16 @@ namespace src.player.skills
             if (knifeInfo.Timer != null)
                 knifeInfo.Timer?.Kill();
 
+            uint knifeIndex = knife.Index;
             knifeInfo.Timer = Instance.AddTimer(3f, () =>
             {
-                if (knife == null || !knife.IsValid) return;
+                var droppedKnife = Utilities.GetEntityFromIndex<CBaseEntity>((int)knifeIndex);
+                if (droppedKnife == null || !droppedKnife.IsValid) return;
 
                 var player = Utilities.GetPlayerFromIndex((int)knifeInfo.PlayerIndex);
                 if (player != null && player.IsValid && CheckHasKnife(player)) return;
 
-                knife.AcceptInput("ClearParent");
+                droppedKnife.AcceptInput("ClearParent");
             }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
@@ -109,7 +125,10 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return false;
 
-            if (knivesInfo.TryGetValue(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null && knifeInfo.KnifeId == econItem.ItemID)
+            if (!knivesInfo.TryGetValue(player.Index, out KnifeInfo? knifeInfo) || knifeInfo == null)
+                return false;
+
+            if (knifeInfo.KnifeId == econItem.ItemID)
             {
                 knifeInfo.IsDropped = false;
                 if (knifeInfo.Timer != null)
@@ -120,6 +139,8 @@ namespace src.player.skills
 
                 return false;
             }
+
+            if (!knifeInfo.IsDropped) return false;
 
             hook.SetReturn(AcquireResult.InvalidItem);
             return true;
@@ -162,11 +183,19 @@ namespace src.player.skills
             SkillUtils.SafeKillEntity<CTriggerMultiple>(trigger);
             SkillUtils.SafeKillEntity<CBaseEntity>(glow);
             SkillUtils.SafeKillEntity<CBaseEntity>(relay);
+
+            if (knifeInfo.IsDropped)
+            {
+                knifeInfo.IsDropped = false;
+                EntityManager.DestroyEntity(knifeInfo.KnifeIndex, 0.25f);
+            }
         }
 
         public static void UseSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
+
+            if (roundEnded) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
@@ -183,7 +212,7 @@ namespace src.player.skills
 
             Instance.AddTickTimer(8, () =>
             {
-                if (player == null || !player.IsValid) return;
+                if (player == null || !player.IsValid || roundEnded) return;
 
                 var pawn = player.PlayerPawn?.Value;
                 if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return;
@@ -194,7 +223,7 @@ namespace src.player.skills
                 player.DropActiveWeapon();
                 Server.NextFrame(() =>
                 {
-                    if (player == null || !player.IsValid) return;
+                    if (player == null || !player.IsValid || roundEnded) return;
                     if (weapon == null || !weapon.IsValid) return;
                     ThrowKnife(player, weapon);
                 });
@@ -331,7 +360,7 @@ namespace src.player.skills
 
                 if (CheckHasKnife(thrower!)) return;
 
-                SkillUtils.TakeHealth(victimPawn, SkillsInfo.GetValue<int>(skillName, "damage"));
+                SkillUtils.TakeHealth(victimPawn, SkillsInfo.GetValue<int>(skillName, "damage"), thrower, "weapon_knife");
             }
         }
 

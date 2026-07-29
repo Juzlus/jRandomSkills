@@ -39,6 +39,8 @@ namespace src.player.skills
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
+            if (smokes.IsEmpty || playersWithSkill.IsEmpty) return;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;

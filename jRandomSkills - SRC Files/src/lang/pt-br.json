@@ -129,6 +129,16 @@
   "enemyspawn": "Spawn Inimigo",
   "enemyspawn_desc": "Clique em [css_useSkill] para se teletransportar para a base inimiga",
 
+  "expensiveammo": "expensiveammo",
+  "expensiveammo_desc": "expensiveammo_desc",
+  "expensiveammo_disable_info": "expensiveammo_disable_info",
+  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
+  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
+  "expensiveammo_select_info": "expensiveammo_select_info",
+
+  "explodingbarrel": "explodingbarrel",
+  "explodingbarrel_desc": "explodingbarrel_desc",
+  
   "explosiveshot": "Tiro Explosivo",
   "explosiveshot_desc": "Chance aleatória de disparar uma bala explosiva enquanto atira",
   "explosiveshot_desc2": "Sua chance de disparar uma bala explosiva: {0}%",
@@ -165,6 +175,14 @@
   "ghost": "Fantasma",
   "ghost_desc": "Você é completamente invisível",
 
+  "giant": "giant",
+  "giant_desc": "giant_desc",
+  "giant_desc2": "giant_desc2: {0}x",
+  "giant_disable_info": "giant_disable_info",
+  "giant_enemy_info": "giant_enemy_info: {0}x",
+  "giant_player_info": "giant_player_info: {0} {1}",
+  "giant_select_info": "giant_select_info",
+  
   "glaz": "Smoke Transparente",
   "glaz_desc": "Smokes tornam-se transparentes para você",
 
@@ -241,11 +259,21 @@
   "jumpban_player_info": "O jogador '{0}' não pode mais pular.",
   "jumpban_select_info": "Banir pulo do jogador:",
 
+  "jumpcurse": "jumpcurse",
+  "jumpcurse_desc": "jumpcurse_desc",
+  "jumpcurse_disable_info": "jumpcurse_disable_info",
+  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
+  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
+  "jumpcurse_select_info": "jumpcurse_select_info",
+
   "jumpingjack": "Pula-Pula",
   "jumpingjack_desc": "Pular restaura vida",
 
   "killerflash": "Flash Mortal",
   "killerflash_desc": "Qualquer pessoa cega pela sua flash morre (incluindo você)",
+
+  "knockback": "knockback",
+  "knockback_desc": "knockback_desc",
 
   "lifeswap": "Troca de Vida",
   "lifeswap_desc": "Escolha um jogador para trocar de vida",
@@ -287,6 +315,13 @@
   "deathbomb": "Bomba mortal",
   "deathbomb_desc": "Você explode ao morrer, matando os jogadores próximos",
   "deathbomb_explosion": "Kaboom!",
+
+  "nightmare": "nightmare",
+  "nightmare_desc": "nightmare_desc",
+  "nightmare_disable_info": "nightmare_disable_info",
+  "nightmare_enemy_info": "nightmare_enemy_info",
+  "nightmare_player_info": "nightmare_player_info: {0}",
+  "nightmare_select_info": "nightmare_select_info",
 
   "ninja": "Ninja",
   "ninja_desc": "Ficar parado aumenta sua invisibilidade em 33%, agachar em 33%, e segurar uma faca em 33%",
@@ -449,6 +484,13 @@
 
   "toxicsmoke": "Smoke Tóxica",
   "toxicsmoke_desc": "Suas smokes causam dano",
+
+  "tripwire": "tripwire",
+  "tripwire_desc": "tripwire_desc",
+  "tripwire_limit_info": "tripwire_limit_info: {0}",
+  "tripwire_no_wall_info": "tripwire_no_wall_info",
+  "tripwire_placed_info": "tripwire_placed_info",
+  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Você pode ver inimigos através das paredes",

@@ -120,8 +120,24 @@ namespace src.player.skills
                 SetPlayerColor(victimPawn, false);
                 SkillUtils.SetHealth(victimPawn, zombieHealth, zombieHealth);
                 victim.ExecuteClientCommand("slot3");
+
+                ApplyTurnTint(victim);
                 return true;
             }
+        }
+
+        private static void ApplyTurnTint(CCSPlayerController victim)
+        {
+            int alpha = SkillsInfo.GetValue<int>(skillName, "A");
+            if (alpha <= 0) return;
+
+            SkillUtils.ApplyScreenColor(victim,
+                r: SkillsInfo.GetValue<int>(skillName, "R"),
+                g: SkillsInfo.GetValue<int>(skillName, "G"),
+                b: SkillsInfo.GetValue<int>(skillName, "B"),
+                a: alpha,
+                duration: 200,
+                holdTime: 600);
         }
 
         private static float GetHeadshotMultiplier(CTakeDamageInfo info)
@@ -188,9 +204,13 @@ namespace src.player.skills
             Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int zombieHealth = 500) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int zombieHealth = 500, int r = 255, int g = 0, int b = 0, int a = 60) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int ZombieHealth { get; set; } = zombieHealth;
+            public int R { get; set; } = r;
+            public int G { get; set; } = g;
+            public int B { get; set; } = b;
+            public int A { get; set; } = a;
         }
     }
 }

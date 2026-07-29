@@ -129,6 +129,16 @@
   "enemyspawn": "Base Baskını",
   "enemyspawn_desc": "[css_useSkill] tuşuna basarak düşman doğma noktasına ışınlan",
 
+  "expensiveammo": "Pahalı Mermi",
+  "expensiveammo_desc": "Seçtiğin rakip her ateş ettiğinde para kaybeder",
+  "expensiveammo_disable_info": "Mermilerin yeniden bedava.",
+  "expensiveammo_enemy_info": "Artık her atışın sana {0}$ mal oluyor.",
+  "expensiveammo_player_info": "'{0}' artık her mermisinin parasını ödüyor.",
+  "expensiveammo_select_info": "Mermisi pahalanacak oyuncu:",
+
+  "explodingbarrel": "Patlayan Varil",
+  "explodingbarrel_desc": "[css_useSkill] ile vurulunca patlayan bir varil koyarsın",
+  
   "explosiveshot": "Patlayıcı Mermi",
   "explosiveshot_desc": "Ateş ederken rastgele mermilerin patlayabilir",
   "explosiveshot_desc2": "Patlayan mermi şansı: %{0}",
@@ -159,12 +169,20 @@
   "gambler": "Kumarbaz",
   "gambler_desc": "Sunulan listeden bir yetenek seç.",
   "gambler_select_info": "Yeteneğini seç:",
-  "gambler_more": "#00FF00|${0} karşılığında yeni yetenekler",
+  "gambler_more": "#00FF00|${0} yenile",
   "gambler_no_money": "Yeterli para yok.",
 
   "ghost": "Hayalet",
   "ghost_desc": "Tamamen görünmezsin",
 
+  "giant": "Dev",
+  "giant_desc": "Seçtiğin bir rakibi büyütür",
+  "giant_desc2": "Seçtiğin bir rakibi {0}x büyütür",
+  "giant_disable_info": "Normal boyutuna geri döndün.",
+  "giant_enemy_info": "{0}x boyutuna büyütüldün.",
+  "giant_player_info": "'{0}' oyuncusunu {1}x büyüttün.",
+  "giant_select_info": "Büyütülecek oyuncu:",
+  
   "glaz": "Glaz",
   "glaz_desc": "Sis bombalarının içini görebilirsin",
 
@@ -241,11 +259,21 @@
   "jumpban_player_info": "'{0}' artık zıplayamaz.",
   "jumpban_select_info": "Zıplaması yasaklanacak oyuncu:",
 
+  "jumpcurse": "Zıplama Laneti",
+  "jumpcurse_desc": "Seçtiğin rakip, takım arkadaşları her zıpladığında zıplar",
+  "jumpcurse_disable_info": "Bacakların yeniden senin.",
+  "jumpcurse_enemy_info": "Artık takım arkadaşların zıpladıkça sen de zıplıyorsun.",
+  "jumpcurse_player_info": "'{0}' artık takımıyla birlikte zıplıyor.",
+  "jumpcurse_select_info": "Zıplama laneti verilecek oyuncu:",
+
   "jumpingjack": "Zıpzıp Jack",
   "jumpingjack_desc": "Zıplamak canını yeniler",
 
   "killerflash": "Ölümcül Flaş",
   "killerflash_desc": "Flaşına tamamen kör olan herkes ölür (sen dahil)",
+
+  "knockback": "Savurma",
+  "knockback_desc": "Havadayken ateş etmek seni geriye savurur",
 
   "lifeswap": "Can Takası",
   "lifeswap_desc": "Can değerlerini takas etmek için bir oyuncu seç",
@@ -287,6 +315,13 @@
   "deathbomb": "Canlı Bomba",
   "deathbomb_desc": "Öldüğünde patlayarak etraftaki oyuncuları öldürürsün",
   "deathbomb_explosion": "BOOM!!!",
+
+  "nightmare": "Kabus",
+  "nightmare_desc": "Seçtiğin bir rakibe kabus görüntüsü verir",
+  "nightmare_disable_info": "Kabus sona erdi.",
+  "nightmare_enemy_info": "Gözlerini bir kabus bürüdü.",
+  "nightmare_player_info": "'{0}' oyuncusuna kabus gördürdün.",
+  "nightmare_select_info": "Kabus görecek oyuncu:",
 
   "ninja": "Ninja",
   "ninja_desc": "Görünmezliğini sabit durmak %33, eğilmek %33 ve bıçak tutmak %33 artırır",
@@ -449,6 +484,13 @@
 
   "toxicsmoke": "Zehirli Sis",
   "toxicsmoke_desc": "Sis bombaların hasar verir",
+
+  "tripwire": "Tel Tuzağı",
+  "tripwire_desc": "[css_useSkill] ile iki duvar arasına tel gerersin",
+  "tripwire_limit_info": "Aynı anda en fazla {0} tel gerebilirsin.",
+  "tripwire_no_wall_info": "İki yanında da yeterince yakın duvar yok.",
+  "tripwire_placed_info": "Tel gerildi.",
+  "tripwire_triggered_info": "'{0}' teline takıldı.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Düşmanları duvarların arkasından görebilirsin",

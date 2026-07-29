@@ -15,18 +15,19 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        private static readonly HashSet<string> blockedWeapons =
+            ["hegrenade", "inferno", "decoy", "flashbang", "smokegrenade", "molotov"];
+
+        public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
-            var damage = @event.DmgHealth;
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
-            var weapon = @event.Weapon;
+            if (!Instance.IsPlayerValid(player)) return false;
 
-            if (!Instance.IsPlayerValid(player)) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (!blockedWeapons.Contains(@event.Weapon)) return false;
+            if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != skillName) return false;
 
-            if (weapon == "hegrenade" || weapon == "inferno" || weapon == "decoy" || weapon == "flashbang" || weapon == "smokegrenade" || weapon == "molotov")
-                SkillUtils.RestoreHealth(player);
+            SkillUtils.RestoreHealth(player);
+            return true;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a38c1a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

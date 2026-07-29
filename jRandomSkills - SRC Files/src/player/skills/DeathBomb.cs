@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -12,7 +13,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.DeathBomb;
         private static readonly QAngle angle = new(10, -5, 9);
-        private static readonly ConcurrentDictionary<int, byte> nades = [];
+        private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
 
         public static void LoadSkill()
         {
@@ -63,7 +64,7 @@ namespace src.player.skills
             var randomFile = fileNames[new Random().Next(fileNames.Length)];
             player.ExecuteClientCommand($"play vo/agents/balkan/{randomFile}.vsnd");
 
-            nades.AddOrUpdate(Server.TickCount, player.TeamNum, (_, _) => player.TeamNum);
+            nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Index), (_, _) => (player.TeamNum, player.Index));
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -86,8 +87,8 @@ namespace src.player.skills
                 heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
                 heProjectile.DetonateTime = 0;
 
-                if (nades.TryRemove(lastTick, out byte teamNum))
-                    heProjectile.Globalname = $"deathbomb_team_{teamNum}_{heProjectile.Index}";
+                if (nades.TryRemove(lastTick, out var source))
+                    heProjectile.Globalname = $"deathbomb_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
             });
         }
 
@@ -104,16 +105,48 @@ namespace src.player.skills
             if (nade.DesignerName != "hegrenade_projectile") return;
             if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("deathbomb_team_")) return;
 
-            if (!int.TryParse(nade.Globalname.Split('_')[2], out int nadeTeam)) return;
+            var parts = nade.Globalname.Split('_');
+            if (parts.Length < 4) return;
+            if (!int.TryParse(parts[2], out int nadeTeam)) return;
+            if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
 
             CCSPlayerPawn victimPawn = new(param.Handle);
 
             if (victimPawn.DesignerName != "player") return;
-            if (victimPawn == null || victimPawn.Controller?.Value == null) return;
-            if (victimPawn.TeamNum != nadeTeam) return;
+            if (victimPawn.Controller?.Value == null) return;
 
-            float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
-            param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
+            var victim = victimPawn.Controller.Value.As<CCSPlayerController>();
+            if (victim == null || !victim.IsValid || victim.Index == ownerIndex) return;
+
+            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            if (owner != null && !owner.IsValid) owner = null;
+
+            if (victimPawn.TeamNum == nadeTeam)
+            {
+                float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
+                param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
+
+                if (IsFriendlyFireOff())
+                {
+                    int teamDamage = (int)param2.Damage;
+                    param2.Damage = 0;
+
+                    if (teamDamage > 0)
+                        SkillUtils.TakeHealth(victimPawn, teamDamage, owner, "hegrenade");
+
+                    return;
+                }
+            }
+
+            if (owner != null && param2.Damage >= victimPawn.Health)
+                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, "hegrenade");
+        }
+
+        private static bool IsFriendlyFireOff()
+        {
+            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
+            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            return !ff && !tae;
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
@@ -123,7 +156,7 @@ namespace src.player.skills
             return player != null && player.IsValid && player.PlayerPawn?.Value != null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;

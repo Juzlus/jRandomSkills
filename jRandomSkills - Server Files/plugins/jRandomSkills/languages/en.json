@@ -129,6 +129,16 @@
   "enemyspawn": "Enemy Spawn",
   "enemyspawn_desc": "Click [css_useSkill] to teleport to the enemy spawn",
 
+  "expensiveammo": "Expensive Ammo",
+  "expensiveammo_desc": "A chosen enemy loses money with every shot",
+  "expensiveammo_disable_info": "Your bullets are free again.",
+  "expensiveammo_enemy_info": "Every shot you fire now costs you {0}$.",
+  "expensiveammo_player_info": "Player '{0}' now pays for every bullet.",
+  "expensiveammo_select_info": "Select player whose ammo becomes expensive:",
+
+  "explodingbarrel": "Exploding Barrel",
+  "explodingbarrel_desc": "Click [css_useSkill] to place a barrel that explodes when shot",
+
   "explosiveshot": "Explosive Shot",
   "explosiveshot_desc": "Random chance to fire an explosive bullet while shooting",
   "explosiveshot_desc2": "Your chance to fire an explosive bullet: {0}%",
@@ -165,6 +175,14 @@
   "ghost": "Ghost",
   "ghost_desc": "You are completely invisible",
 
+  "giant": "Giant",
+  "giant_desc": "Enlarge an enemy of your choice",
+  "giant_desc2": "Enlarge an enemy of your choice to {0}x",
+  "giant_disable_info": "You are back to your normal size.",
+  "giant_enemy_info": "You have been enlarged to {0}x.",
+  "giant_player_info": "You enlarged player '{0}' to {1}x.",
+  "giant_select_info": "Enlarge player:",
+  
   "glaz": "Glaz",
   "glaz_desc": "You can see through smoke grenades",
 
@@ -241,11 +259,21 @@
   "jumpban_player_info": "Player '{0}' can no longer jump.",
   "jumpban_select_info": "Ban player from jumping:",
 
+  "jumpcurse": "Jump Curse",
+  "jumpcurse_desc": "A chosen enemy jumps whenever their teammates jump",
+  "jumpcurse_disable_info": "Your legs are your own again.",
+  "jumpcurse_enemy_info": "You now jump whenever your teammates jump.",
+  "jumpcurse_player_info": "Player '{0}' now jumps with their team.",
+  "jumpcurse_select_info": "Select player for the jump curse:",
+
   "jumpingjack": "Jumping Jack",
   "jumpingjack_desc": "Jumping restores health",
 
   "killerflash": "Killer Flash",
   "killerflash_desc": "Anyone fully blinded by your flashbang dies (including you)",
+
+  "knockback": "Knockback",
+  "knockback_desc": "Firing while airborne pushes you backwards",
 
   "lifeswap": "Life Swap",
   "lifeswap_desc": "Choose a player to swap health with",
@@ -287,6 +315,13 @@
   "deathbomb": "Death Bomb",
   "deathbomb_desc": "You explode upon death, killing nearby players",
   "deathbomb_explosion": "Kaboom!",
+
+  "nightmare": "Nightmare",
+  "nightmare_desc": "Give a chosen enemy a nightmarish vision",
+  "nightmare_disable_info": "The nightmare has faded.",
+  "nightmare_enemy_info": "A nightmare clouds your vision.",
+  "nightmare_player_info": "You cast a nightmare on player '{0}'.",
+  "nightmare_select_info": "Select player for the nightmare:",
 
   "ninja": "Ninja",
   "ninja_desc": "Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%",
@@ -449,6 +484,13 @@
 
   "toxicsmoke": "Toxic Smoke",
   "toxicsmoke_desc": "Your smoke grenades deal damage",
+
+  "tripwire": "Tripwire",
+  "tripwire_desc": "Click [css_useSkill] to string a tripwire between two walls",
+  "tripwire_limit_info": "You can only have {0} tripwires at a time.",
+  "tripwire_no_wall_info": "No walls close enough on both sides.",
+  "tripwire_placed_info": "Tripwire placed.",
+  "tripwire_triggered_info": "'{0}' tripped your wire.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "You can see enemies through walls",

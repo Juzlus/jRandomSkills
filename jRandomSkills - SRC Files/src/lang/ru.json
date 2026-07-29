@@ -129,6 +129,16 @@
   "enemyspawn": "Спавн врагов",
   "enemyspawn_desc": "Нажмите [css_useSkill], чтобы телепортироваться на спавн врагов",
 
+  "expensiveammo": "expensiveammo",
+  "expensiveammo_desc": "expensiveammo_desc",
+  "expensiveammo_disable_info": "expensiveammo_disable_info",
+  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
+  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
+  "expensiveammo_select_info": "expensiveammo_select_info",
+
+  "explodingbarrel": "explodingbarrel",
+  "explodingbarrel_desc": "explodingbarrel_desc",
+
   "explosiveshot": "Взрывной выстрел",
   "explosiveshot_desc": "Случайный шанс выстрелить взрывной пулей при стрельбе",
   "explosiveshot_desc2": "Ваш шанс выстрелить взрывной пулей: {0}%",
@@ -165,6 +175,14 @@
   "ghost": "Призрак",
   "ghost_desc": "Вы полностью невидимы",
 
+  "giant": "giant",
+  "giant_desc": "giant_desc",
+  "giant_desc2": "giant_desc2: {0}x",
+  "giant_disable_info": "giant_disable_info",
+  "giant_enemy_info": "giant_enemy_info: {0}x",
+  "giant_player_info": "giant_player_info: {0} {1}",
+  "giant_select_info": "giant_select_info",
+  
   "glaz": "Глаз",
   "glaz_desc": "Вы видите сквозь дымовые гранаты",
 
@@ -241,11 +259,21 @@
   "jumpban_player_info": "Игрок '{0}' больше не может прыгать.",
   "jumpban_select_info": "Запретить прыжки игроку:",
 
+  "jumpcurse": "jumpcurse",
+  "jumpcurse_desc": "jumpcurse_desc",
+  "jumpcurse_disable_info": "jumpcurse_disable_info",
+  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
+  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
+  "jumpcurse_select_info": "jumpcurse_select_info",
+
   "jumpingjack": "Прыгающий Джек",
   "jumpingjack_desc": "Прыжки восстанавливают здоровье",
 
   "killerflash": "Смертельная флешка",
   "killerflash_desc": "Любой, полностью ослеплённый вашей флешкой, погибает (включая вас)",
+
+  "knockback": "knockback",
+  "knockback_desc": "knockback_desc",
 
   "lifeswap": "Обмен жизнями",
   "lifeswap_desc": "Выберите игрока для обмена здоровьем",
@@ -287,6 +315,13 @@
   "deathbomb": "Смертельная бомба",
   "deathbomb_desc": "Вы взрываетесь при смерти, убивая ближайших игроков",
   "deathbomb_explosion": "АЛЛАХУ АКБАР!!!",
+
+  "nightmare": "nightmare",
+  "nightmare_desc": "nightmare_desc",
+  "nightmare_disable_info": "nightmare_disable_info",
+  "nightmare_enemy_info": "nightmare_enemy_info",
+  "nightmare_player_info": "nightmare_player_info: {0}",
+  "nightmare_select_info": "nightmare_select_info",
 
   "ninja": "Ниндзя",
   "ninja_desc": "Стоя на месте, ваша невидимость увеличивается на 33%, в приседе на 33%, с ножом на 33%",
@@ -450,6 +485,13 @@
   "toxicsmoke": "Токсичный дым",
   "toxicsmoke_desc": "Ваши дымовые гранаты наносят урон",
 
+  "tripwire": "tripwire",
+  "tripwire_desc": "tripwire_desc",
+  "tripwire_limit_info": "tripwire_limit_info: {0}",
+  "tripwire_no_wall_info": "tripwire_no_wall_info",
+  "tripwire_placed_info": "tripwire_placed_info",
+  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
+  
   "wallhack": "Воллхак",
   "wallhack_desc": "Вы видите врагов сквозь стены",
 

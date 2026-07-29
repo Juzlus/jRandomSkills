@@ -106,6 +106,24 @@ namespace src.player
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
         }
 
+        public static void Unload()
+        {
+            try { VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Pre); }
+            catch { }
+
+            lock (_writeLock) { _writer?.Dispose(); _writer = null; }
+        }
+
+        private static string DescribeIdentitySplit(CCSPlayerController victim)
+        {
+            var routed = PlayerManager.GetPlayerEvent(victim);
+            uint routedIndex = routed?.Index ?? victim.Index;
+            if (routedIndex == victim.Index) return string.Empty;
+
+            return $" SPLIT(idx {victim.Index}->{routedIndex}, skill {PlayerManager.GetPlayerByIndex(victim.Index)?.Skill}" +
+                $"->{PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}, controllingBot={victim.ControllingBot})";
+        }
+
         private static HookResult OnTakeDamage(DynamicHook h)
         {
             CEntityInstance param = h.GetParam<CEntityInstance>(0);
@@ -129,7 +147,10 @@ namespace src.player
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo == null) return HookResult.Continue;
 
-            WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}.");
+            WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}. " +
+                $"[dmg={param2.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={SkillUtils.GetHitGroup(param2)} " +
+                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}" +
+                $"{DescribeIdentitySplit(victim)}]");
             return HookResult.Continue;
         }
 

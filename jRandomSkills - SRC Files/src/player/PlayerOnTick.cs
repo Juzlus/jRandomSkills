@@ -27,10 +27,11 @@ namespace src.player
                 long perfStart = PerfLog.Start();
                 // Shared per-tick controller snapshot: the skill OnTick loop already scans the
                 // player list this frame, so reuse that native scan instead of running a second one.
+                var now = DateTime.Now;
                 foreach (var player in PlayerManager.GetTickPlayers())
                 {
                     if (player != null && player.IsValid)
-                        UpdatePlayerHud(player);
+                        UpdatePlayerHud(player, now);
                 }
                 PerfLog.Sample("OnTick(hud)", perfStart);
             });
@@ -70,7 +71,7 @@ namespace src.player
                 Instance.GameRules.GameRestart = Instance.GameRules.RestartRoundTime < Server.CurrentTime;
         }
 
-        private static void UpdatePlayerHud(CCSPlayerController player)
+        private static void UpdatePlayerHud(CCSPlayerController player, DateTime now)
         {
             if (player == null || !player.IsValid || player.IsBot) return;
 
@@ -81,9 +82,11 @@ namespace src.player
             var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
 
-            var now = DateTime.Now;
+            if (skillPlayer.HudSuppressedUntil > now) return;
 
-            if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now) return;
+            if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now && string.IsNullOrEmpty(skillPlayer.PrintHTML)) return;
+
+            if (SkillUtils.HasMenu(player)) return;
 
             string infoLine = string.Empty;
             string skillLine = string.Empty;
@@ -135,9 +138,11 @@ namespace src.player
                 }
                 else
                 {
-                    if ((player.Team is CsTeam.Spectator or CsTeam.None && Config.LoadedConfig.DisableSpectateHUD)
-                        || AdminManager.PlayerHasPermissions(player, Config.LoadedConfig.DisableHUDOnDeathPermission))
+                    if (player.Team is CsTeam.Spectator or CsTeam.None && Config.LoadedConfig.DisableSpectateHUD)
                         return;
+
+                    skillPlayer.HudOnDeathBlocked ??= AdminManager.PlayerHasPermissions(player, Config.LoadedConfig.DisableHUDOnDeathPermission);
+                    if (skillPlayer.HudOnDeathBlocked == true) return;
 
                     var pawn = player.Pawn.Value;
                     if (pawn?.ObserverServices == null) return;
@@ -145,7 +150,7 @@ namespace src.player
                     var observerTarget = pawn.ObserverServices.ObserverTarget?.Value;
                     if (observerTarget == null || !observerTarget.IsValid) return;
 
-                    var observedPlayer = Utilities.GetPlayers().FirstOrDefault(p =>
+                    var observedPlayer = PlayerManager.GetTickPlayers().FirstOrDefault(p =>
                         p != null && p.IsValid && p.Pawn?.Value?.Handle == observerTarget.Handle);
 
                     if (observedPlayer == null) return;
@@ -185,7 +190,6 @@ namespace src.player
             }
 
             if (string.IsNullOrEmpty(skillLine)) return;
-            if (SkillUtils.HasMenu(player)) return;
 
             Event.UpdateSkillHUD(player, infoLine, skillLine, remainingLine, isDescription);
         }

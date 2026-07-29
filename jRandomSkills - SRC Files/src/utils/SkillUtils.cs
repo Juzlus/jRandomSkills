@@ -322,7 +322,31 @@ namespace src.utils
             return !ff && !tae; // same team + FF off -> engine will zero this damage
         }
 
-        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage)
+        private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
+
+        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, string? weapon = null)
+        {
+            pendingKillCredits[victimIndex] = (attackerIndex, weapon, Server.TickCount + 64);
+        }
+
+        public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon)
+        {
+            attackerIndex = 0;
+            weapon = null;
+            if (!pendingKillCredits.TryRemove(victimIndex, out var credit)) return false;
+            if (credit.ExpiryTick < Server.TickCount) return false;
+
+            attackerIndex = credit.AttackerIndex;
+            weapon = credit.Weapon;
+            return true;
+        }
+
+        public static void ClearKillCredits()
+        {
+            pendingKillCredits.Clear();
+        }
+
+        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, string? damageWeapon = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return false;
@@ -363,6 +387,10 @@ namespace src.utils
 
             if (pawn.Health <= 0)
             {
+                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid
+                    && damageAttacker.Index != victim.Index)
+                    RegisterKillCredit(victim.Index, damageAttacker.Index, damageWeapon);
+
                 Server.NextFrame(() =>
                 {
                     if (pawn == null || !pawn.IsValid) return;
@@ -372,6 +400,29 @@ namespace src.utils
             }
 
             return true;
+        }
+
+        public static void HideCarriedEntities(CCheckTransmitInfo info, CCSPlayerPawn? pawn)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+
+            var weaponServices = pawn.WeaponServices;
+            if (weaponServices == null) return;
+
+            var activeWeapon = weaponServices.ActiveWeapon?.Value;
+            if (activeWeapon != null && activeWeapon.IsValid && info.TransmitEntities.Contains(activeWeapon.Index))
+                info.TransmitEntities.Remove(activeWeapon.Index);
+
+            if (weaponServices.MyWeapons == null) return;
+
+            foreach (var handle in weaponServices.MyWeapons)
+            {
+                var weapon = handle?.Value;
+                if (weapon == null || !weapon.IsValid) continue;
+
+                if (info.TransmitEntities.Contains(weapon.Index))
+                    info.TransmitEntities.Remove(weapon.Index);
+            }
         }
 
         public static void ResetPrintHTML(CCSPlayerController? player)
