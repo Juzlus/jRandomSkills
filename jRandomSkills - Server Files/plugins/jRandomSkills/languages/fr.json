@@ -486,7 +486,6 @@
 
   "tripwire": "tripwire",
   "tripwire_desc": "tripwire_desc",
-  "tripwire_limit_info": "tripwire_limit_info: {0}",
   "tripwire_no_wall_info": "tripwire_no_wall_info",
   "tripwire_placed_info": "tripwire_placed_info",
   "tripwire_triggered_info": "tripwire_triggered_info: {0}",
@@ -532,6 +531,7 @@
   "duplicate_player": "Plus d’un joueur trouvé avec le même nom.",
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
+  "curse_limit_info": "curse_limit_info",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",
   "player_not_found_setskill": "Aucun CHATCOLORS.REDjoueur trouvé",

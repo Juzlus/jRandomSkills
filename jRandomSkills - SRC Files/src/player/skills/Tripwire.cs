@@ -14,9 +14,12 @@ namespace src.player.skills
         private const Skills skillName = Skills.Tripwire;
 
         private static readonly ConcurrentDictionary<uint, WireInfo> wires = [];
-        private static readonly ConcurrentDictionary<uint, int> wireCount = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<(uint Owner, uint Target), (int Slot, int ExpiryTick)> revealed = [];
         private static readonly object setLock = new();
+
+        private static readonly Color terroristWire = Color.FromArgb(255, 255, 64, 64);
+        private static readonly Color counterTerroristWire = Color.FromArgb(255, 64, 128, 255);
 
         public static void LoadSkill()
         {
@@ -31,9 +34,20 @@ namespace src.player.skills
                     DestroyWire(wire.BeamIndex);
 
                 wires.Clear();
-                wireCount.Clear();
+                SkillPlayerInfo.Clear();
                 revealed.Clear();
             }
+        }
+
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            SkillPlayerInfo[player.Index] = new PlayerSkillInfo
+            {
+                CanUse = true,
+                Cooldown = DateTime.MinValue,
+            };
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -43,15 +57,32 @@ namespace src.player.skills
             foreach (var key in revealed.Keys)
                 if (key.Owner == playerIndex || key.Target == playerIndex)
                     revealed.TryRemove(key, out _);
+
+            SkillPlayerInfo.TryRemove(playerIndex, out _);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            RemovePlayerWires(player.Index);
+            ClearOwner(player.Index);
+            SkillUtils.ResetPrintHTML(player);
+        }
+
+        public static void PlayerDeath(EventPlayerDeath @event)
+        {
+            var player = @event.Userid;
+            if (player == null || !player.IsValid) return;
+
+            ClearOwner(player.Index);
+            SkillUtils.ResetPrintHTML(player);
+        }
+
+        private static void ClearOwner(uint ownerIndex)
+        {
+            RemovePlayerWires(ownerIndex);
 
             foreach (var key in revealed.Keys)
-                if (key.Owner == player.Index)
+                if (key.Owner == ownerIndex)
                     revealed.TryRemove(key, out _);
         }
 
@@ -65,7 +96,7 @@ namespace src.player.skills
                 wires.TryRemove(kvp.Key, out _);
             }
 
-            wireCount.TryRemove(ownerIndex, out _);
+            SkillPlayerInfo.TryRemove(ownerIndex, out _);
         }
 
         private static void DestroyWire(uint beamIndex)
@@ -92,12 +123,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            int maxWires = SkillsInfo.GetValue<int>(skillName, "maxWires");
-            if (wireCount.TryGetValue(player.Index, out int placed) && placed >= maxWires)
-            {
-                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("tripwire_limit_info", maxWires));
-                return;
-            }
+            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo) || !skillInfo.CanUse) return;
 
             if (!TryPlaceWire(player))
             {
@@ -105,8 +131,27 @@ namespace src.player.skills
                 return;
             }
 
-            wireCount.AddOrUpdate(player.Index, 1, (_, v) => v + 1);
+            skillInfo.CanUse = false;
+            skillInfo.Cooldown = DateTime.Now;
+
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("tripwire_placed_info"));
+        }
+
+        private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
+        {
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float cooldown = Math.Max(time, 0);
+
+            if (cooldown == 0 && !skillInfo.CanUse)
+                skillInfo.CanUse = true;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo == null) return;
+
+            if (cooldown == 0)
+                playerInfo.PrintHTML = null;
+            else
+                playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
         }
 
         private static bool TryPlaceWire(CCSPlayerController player)
@@ -138,7 +183,9 @@ namespace src.player.skills
 
             if (EntityManager.OverBudget()) return false;
 
-            var beam = EntityManager.CreateTrackedBeam(player.Index, start, end, Color.FromArgb(255, 255, 40, 40));
+            Color wireColor = player.Team == CsTeam.Terrorist ? terroristWire : counterTerroristWire;
+
+            var beam = EntityManager.CreateTrackedBeam(player.Index, start, end, wireColor);
             if (beam == null || !beam.IsValid) return false;
 
             beam.Width = SkillsInfo.GetValue<float>(skillName, "wireWidth");
@@ -156,6 +203,18 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (!SkillPlayerInfo.IsEmpty && Server.TickCount % 8 == 0)
+            {
+                foreach (var player in PlayerManager.GetTickPlayers())
+                {
+                    if (player == null || !player.IsValid) continue;
+                    if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
+
+                    if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName)
+                        UpdateHUD(player, skillInfo);
+                }
+            }
+
             if (revealed.IsEmpty && wires.IsEmpty) return;
 
             int tick = Server.TickCount;
@@ -243,14 +302,20 @@ namespace src.player.skills
             public required Vector End { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 1.5f, float maxWallDistance = 400f, int maxWires = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class PlayerSkillInfo
+        {
+            public bool CanUse { get; set; }
+            public DateTime Cooldown { get; set; }
+        }
+
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 1.5f, float maxWallDistance = 400f, float cooldown = 20f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float RadarDuration { get; set; } = radarDuration;
             public float TriggerRadius { get; set; } = triggerRadius;
             public float WireHeight { get; set; } = wireHeight;
             public float WireWidth { get; set; } = wireWidth;
             public float MaxWallDistance { get; set; } = maxWallDistance;
-            public int MaxWires { get; set; } = maxWires;
+            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
             if (playerInfo?.Skill != skillName) return;
+            if (!SkillUtils.FiresBullets(@event.Weapon)) return;
 
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.Health <= 0) return;

@@ -92,6 +92,23 @@ namespace src
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
 
+        private static bool TryClaimCurseTarget(object[]? param)
+        {
+            if (param == null || param.Length < 2) return true;
+            if (param[0] is not CCSPlayerController curser || !curser.IsValid) return true;
+            if (param[1] is not string[] commands || commands.Length < 1) return true;
+            if (!uint.TryParse(commands[0], out uint victimIndex)) return true;
+
+            var victim = Utilities.GetPlayerFromIndex((int)victimIndex);
+            if (victim == null || !victim.IsValid) return true;
+
+            if (SkillUtils.TryClaimCurse(curser.Index, victimIndex)) return true;
+
+            var curserEvent = PlayerManager.GetPlayerFromEvent(curser);
+            curserEvent?.PrintToChat($" {ChatColors.Red}{curserEvent.GetTranslation("curse_limit_info", victim.PlayerName)}");
+            return false;
+        }
+
         private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
 
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
@@ -103,6 +120,15 @@ namespace src
             {
                 ActiveSkillsThisRound.TryAdd(skill, 0);
                 SkillsUsedThisMap.TryAdd(skill, 0);
+            }
+
+            if (Enum.TryParse<Skills>(skill, out var parsedSkill) && SkillUtils.IsCurseSkill(parsedSkill))
+            {
+                if (methodName == "DisableSkill" && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
+                    SkillUtils.ReleaseCurse(curser.Index);
+
+                if (methodName == "TypeSkill" && !TryClaimCurseTarget(param))
+                    return null;
             }
 
             var method = _skillMethodCache.GetOrAdd((skill, methodName), key =>

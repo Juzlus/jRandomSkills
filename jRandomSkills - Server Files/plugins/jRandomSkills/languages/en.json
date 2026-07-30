@@ -486,8 +486,7 @@
   "toxicsmoke_desc": "Your smoke grenades deal damage",
 
   "tripwire": "Tripwire",
-  "tripwire_desc": "Click [css_useSkill] to string a tripwire between two walls",
-  "tripwire_limit_info": "You can only have {0} tripwires at a time.",
+  "tripwire_desc": "Click [css_useSkill] to string a wire between two walls. Enemies touching it show on your radar",
   "tripwire_no_wall_info": "No walls close enough on both sides.",
   "tripwire_placed_info": "Tripwire placed.",
   "tripwire_triggered_info": "'{0}' tripped your wire.",
@@ -533,6 +532,7 @@
   "duplicate_player": "More than one player found with the same name.",
   "selectplayerskill_command": "Type /t",
   "selectplayerskill_incorrect_enemy_index": "No players were found to select.",
+  "curse_limit_info": "The curse limit for {0} has been reached",
 
   "skill_not_found_setskill": "No such CHATCOLORS.REDskill found",
   "player_not_found_setskill": "No such CHATCOLORS.REDplayer found",

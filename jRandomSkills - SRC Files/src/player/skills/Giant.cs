@@ -175,14 +175,8 @@ namespace src.player.skills
 
         private static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player)
         {
-            return [.. PlayerManager.GetTickPlayers()
-                .Where(p => p != null && p.IsValid)
-                .Select(PlayerManager.GetPlayerEvent)
-                .Where(p => p != null && p.IsValid && p.Team != player.Team && !p.IsHLTV
-                    && p.Team != CsTeam.Spectator && p.Team != CsTeam.None
-                    && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
-                    && PlayerManager.GetPlayerByIndex(p.Index)?.Skill != Skills.Chicken)
-                .Cast<CCSPlayerController>()];
+            return [.. SkillUtils.GetSelectableEnemies(player, true)
+                .Where(p => PlayerManager.GetPlayerByIndex(p.Index)?.Skill != Skills.Chicken)];
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8ad3ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float minScale = 1.1f, float maxScale = 1.4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

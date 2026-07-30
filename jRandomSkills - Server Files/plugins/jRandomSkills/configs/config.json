@@ -20,6 +20,7 @@
   "TraceRayBeam": false,
   "DisableHUDOnDeathPermission": "@jRandomSkills/death",
   "DisableSkillsOnRoundEnd": false,
+  "CurseSkillPerPlayer": null,
   "LanguageSystem": {
     "DefaultLangCode": "en",
     "DisableGeoLite": false,

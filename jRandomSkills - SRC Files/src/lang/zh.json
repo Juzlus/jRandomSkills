@@ -484,7 +484,6 @@
 
   "tripwire": "tripwire",
   "tripwire_desc": "tripwire_desc",
-  "tripwire_limit_info": "tripwire_limit_info: {0}",
   "tripwire_no_wall_info": "tripwire_no_wall_info",
   "tripwire_placed_info": "tripwire_placed_info",
   "tripwire_triggered_info": "tripwire_triggered_info: {0}",
@@ -530,6 +529,7 @@
   "duplicate_player": "找到多个同名玩家。",
   "selectplayerskill_command": "输入 /t",
   "selectplayerskill_incorrect_enemy_index": "未找到可供选择的玩家。",
+  "curse_limit_info": "curse_limit_info",
 
   "skill_not_found_setskill": "未找到 CHATCOLORS.RED 技能",
   "player_not_found_setskill": "未找到 CHATCOLORS.RED 玩家",

@@ -87,7 +87,7 @@
     "WireHeight": 30.0,
     "WireWidth": 1.5,
     "MaxWallDistance": 400.0,
-    "MaxWires": 2,
+    "Cooldown": 20.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,

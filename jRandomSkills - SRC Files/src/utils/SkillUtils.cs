@@ -346,6 +346,105 @@ namespace src.utils
             pendingKillCredits.Clear();
         }
 
+        private static readonly HashSet<string> bulletWeapons = new(StringComparer.Ordinal)
+        {
+            "deagle", "revolver", "glock", "usp_silencer", "cz75a",
+            "fiveseven", "p250", "tec9", "elite", "hkp2000",
+            "mp9", "mac10", "bizon", "mp7", "ump45", "p90", "mp5sd",
+            "famas", "galilar", "m4a1", "m4a1_silencer", "ak47", "aug", "sg553",
+            "ssg08", "awp", "scar20", "g3sg1",
+            "nova", "xm1014", "mag7", "sawedoff",
+            "m249", "negev"
+        };
+
+        public static bool FiresBullets(string? weapon)
+        {
+            if (string.IsNullOrEmpty(weapon)) return false;
+
+            if (weapon.StartsWith("weapon_", StringComparison.Ordinal))
+                weapon = weapon["weapon_".Length..];
+
+            return bulletWeapons.Contains(weapon);
+        }
+
+        private static readonly HashSet<Skills> curseSkills =
+        [
+            Skills.Bankrupt, Skills.CarefulBullets, Skills.Darkness, Skills.Deactivator,
+            Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
+            Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
+            Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
+            Skills.PrimaryBan, Skills.WildThrow
+        ];
+
+        private static readonly Dictionary<uint, int> curseCounts = [];
+        private static readonly Dictionary<uint, uint> curserToVictim = [];
+        private static readonly object curseLock = new();
+
+        public static bool IsCurseSkill(Skills skill) => curseSkills.Contains(skill);
+
+        public static void ClearCurses()
+        {
+            lock (curseLock)
+            {
+                curseCounts.Clear();
+                curserToVictim.Clear();
+            }
+        }
+
+        public static bool CanCurse(uint victimIndex)
+        {
+            int? limit = Config.LoadedConfig.CurseSkillPerPlayer;
+            if (limit == null || limit <= 0) return true;
+
+            lock (curseLock)
+                return !curseCounts.TryGetValue(victimIndex, out int used) || used < limit;
+        }
+
+        public static bool TryClaimCurse(uint curserIndex, uint victimIndex)
+        {
+            int? limit = Config.LoadedConfig.CurseSkillPerPlayer;
+
+            lock (curseLock)
+            {
+                ReleaseCurseLocked(curserIndex);
+
+                curseCounts.TryGetValue(victimIndex, out int used);
+                if (limit != null && limit > 0 && used >= limit) return false;
+
+                curseCounts[victimIndex] = used + 1;
+                curserToVictim[curserIndex] = victimIndex;
+                return true;
+            }
+        }
+
+        public static void ReleaseCurse(uint curserIndex)
+        {
+            lock (curseLock) ReleaseCurseLocked(curserIndex);
+        }
+
+        private static void ReleaseCurseLocked(uint curserIndex)
+        {
+            if (!curserToVictim.Remove(curserIndex, out uint victimIndex)) return;
+            if (!curseCounts.TryGetValue(victimIndex, out int used)) return;
+
+            if (used <= 1) curseCounts.Remove(victimIndex);
+            else curseCounts[victimIndex] = used - 1;
+        }
+
+        public static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player, bool respectCurseLimit = false)
+        {
+            if (player == null || !player.IsValid) return [];
+
+            return [.. PlayerManager.GetTickPlayers()
+                .Where(p => p != null && p.IsValid)
+                .Select(PlayerManager.GetPlayerEvent)
+                .Where(p => p != null && p.IsValid && p.Team != player.Team
+                    && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
+                    && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None
+                    && (!respectCurseLimit || CanCurse(p.Index)))
+                .Cast<CCSPlayerController>()];
+        }
+
         public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, string? damageWeapon = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)

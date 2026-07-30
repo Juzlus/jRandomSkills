@@ -103,17 +103,6 @@ namespace src.utils
             return playersByIndex.Values.Count(p => p.Skill == skills);
         }
 
-        public static bool UpdatePlayerSkill(uint playerIndex, Skills skill, Skills specialSkill = Skills.None)
-        {
-            if (playersByIndex.TryGetValue(playerIndex, out var playerInfo))
-            {
-                playerInfo.Skill = skill;
-                playerInfo.SpecialSkill = specialSkill;
-                return true;
-            }
-            return false;
-        }
-
         public static void Clear()
         {
             playersByIndex.Clear();

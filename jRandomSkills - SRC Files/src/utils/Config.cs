@@ -90,6 +90,7 @@ namespace src.utils
             public bool TraceRayBeam { get; set; }
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
+            public int? CurseSkillPerPlayer { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
             public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
             public ChatMessage ChatMessage { get; set; }
@@ -119,6 +120,7 @@ namespace src.utils
                 DisableSpectateHUD = false;
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
+                CurseSkillPerPlayer = null;
 
                 LanguageSystem = new LanguageSystem
                 {

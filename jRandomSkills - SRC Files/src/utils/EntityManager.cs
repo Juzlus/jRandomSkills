@@ -123,44 +123,6 @@ namespace src.utils
             return CreateTrackedDynamicProp(playerIndex, "prop_dynamic_override");
         }
 
-        public static CEnvShake? CreateTrackedEnvShake(uint playerIndex)
-        {
-            try
-            {
-                if (OverBudget()) return null;
-                var shake = Utilities.CreateEntityByName<CEnvShake>("env_shake");
-                if (shake == null || !shake.IsValid) return null;
-
-                shake.DispatchSpawn();
-                RegisterEntity(shake.Index, playerIndex, "env_shake");
-                return shake;
-            }
-            catch (Exception ex)
-            {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedEnvShake: {ex.Message}");
-                return null;
-            }
-        }
-
-        public static CChicken? CreateTrackedChicken(uint playerIndex)
-        {
-            try
-            {
-                if (OverBudget()) return null;
-                var chicken = Utilities.CreateEntityByName<CChicken>("chicken");
-                if (chicken == null || !chicken.IsValid) return null;
-
-                chicken.DispatchSpawn();
-                RegisterEntity(chicken.Index, playerIndex, "chicken");
-                return chicken;
-            }
-            catch (Exception ex)
-            {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedChicken: {ex.Message}");
-                return null;
-            }
-        }
-
         public static CPhysicsPropMultiplayer? CreateTrackedPhysicsProp(uint playerIndex)
         {
             try

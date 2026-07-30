@@ -487,7 +487,6 @@
 
   "tripwire": "Tel Tuzağı",
   "tripwire_desc": "[css_useSkill] ile iki duvar arasına tel ger. Tele değen düşman radarında görünür",
-  "tripwire_limit_info": "Aynı anda en fazla {0} tel gerebilirsin.",
   "tripwire_no_wall_info": "İki yanında da yeterince yakın duvar yok.",
   "tripwire_placed_info": "Tel gerildi.",
   "tripwire_triggered_info": "'{0}' teline takıldı.",
@@ -533,6 +532,7 @@
   "duplicate_player": "Aynı isimde birden fazla oyuncu bulundu.",
   "selectplayerskill_command": "Sohbete /t yazın",
   "selectplayerskill_incorrect_enemy_index": "Seçilecek oyuncu yok.",
+  "curse_limit_info": "'{0}' üzerindeki lanet sınırı doldu, başka bir oyuncu seç",
 
   "skill_not_found_setskill": "Böyle bir yetenek yok",
   "player_not_found_setskill": "Böyle bir oyuncu yok",

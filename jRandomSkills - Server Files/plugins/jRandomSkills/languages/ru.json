@@ -487,7 +487,6 @@
 
   "tripwire": "tripwire",
   "tripwire_desc": "tripwire_desc",
-  "tripwire_limit_info": "tripwire_limit_info: {0}",
   "tripwire_no_wall_info": "tripwire_no_wall_info",
   "tripwire_placed_info": "tripwire_placed_info",
   "tripwire_triggered_info": "tripwire_triggered_info: {0}",
@@ -533,6 +532,7 @@
   "duplicate_player": "Найдено несколько игроков с таким именем.",
   "selectplayerskill_command": "Введите /t",
   "selectplayerskill_incorrect_enemy_index": "Игроки для выбора не найдены.",
+  "curse_limit_info": "curse_limit_info",
 
   "skill_not_found_setskill": "Навык не найден",
   "player_not_found_setskill": "Игрок не найден",

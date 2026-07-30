@@ -487,7 +487,6 @@
 
   "tripwire": "tripwire",
   "tripwire_desc": "tripwire_desc",
-  "tripwire_limit_info": "tripwire_limit_info: {0}",
   "tripwire_no_wall_info": "tripwire_no_wall_info",
   "tripwire_placed_info": "tripwire_placed_info",
   "tripwire_triggered_info": "tripwire_triggered_info: {0}",
@@ -533,6 +532,7 @@
   "duplicate_player": "Mehr als ein Spieler mit demselben Namen gefunden.",
   "selectplayerskill_command": "Gib /t ein",
   "selectplayerskill_incorrect_enemy_index": "Es wurden keine Spieler gefunden, die ausgewählt werden können.",
+  "curse_limit_info": "curse_limit_info",
 
   "skill_not_found_setskill": "Keine solche CHATCOLORS.REDskill gefunden",
   "player_not_found_setskill": "Kein solcher CHATCOLORS.REDplayer gefunden",

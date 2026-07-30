@@ -76,7 +76,7 @@ namespace src.player.skills
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
-                var enemies = GetSelectableEnemies(player);
+                var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -134,7 +134,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var enemies = GetSelectableEnemies(player);
+            var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
@@ -167,15 +167,6 @@ namespace src.player.skills
 
             cursedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
-        }
-
-        private static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player)
-        {
-            return [.. PlayerManager.GetTickPlayers()
-                .Where(p => p != null && p.IsValid)
-                .Select(PlayerManager.GetPlayerEvent)
-                .Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
-                .Cast<CCSPlayerController>()];
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7ad1c4", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 301f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
