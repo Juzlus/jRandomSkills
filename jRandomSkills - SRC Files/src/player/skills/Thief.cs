@@ -25,21 +25,7 @@ namespace src.player.skills
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) continue;
 
-                var enemies = PlayerManager.GetTickPlayers().Where(p =>
-                    p != null &&
-                    p.IsValid)
-                .Select(p => PlayerManager.GetPlayerEvent(p))
-                .Where(p =>
-                    p != null &&
-                    p.IsValid &&
-                    p.Team != player.Team &&
-                    p.PlayerPawn?.Value != null &&
-                    p.PlayerPawn.Value.IsValid &&
-                    p.PlayerPawn.Value.Health > 0 &&
-                    !p.IsHLTV &&
-                    p.Team != CsTeam.Spectator
-                    && p.Team != CsTeam.None
-                ).ToArray();
+                var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
@@ -106,14 +92,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var enemies = PlayerManager.GetTickPlayers()
-                .Where(p => p != null
-                    && p.IsValid
-                    && p.Team != player.Team
-                    && p.PlayerPawn?.Value?.Health > 0
-                    && p.Team != CsTeam.Spectator
-                    && p.Team != CsTeam.None)
-                .ToArray();
+            var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
             if (enemies.Length > 0)
             {

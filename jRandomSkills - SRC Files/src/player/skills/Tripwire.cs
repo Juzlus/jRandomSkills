@@ -21,6 +21,8 @@ namespace src.player.skills
         private static readonly Color terroristWire = Color.FromArgb(255, 255, 64, 64);
         private static readonly Color counterTerroristWire = Color.FromArgb(255, 64, 128, 255);
 
+        private const double attemptCooldown = .5;
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -124,6 +126,9 @@ namespace src.player.skills
             if (playerEvent == null || !playerEvent.IsValid) return;
 
             if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo) || !skillInfo.CanUse) return;
+
+            if ((DateTime.Now - skillInfo.LastAttempt).TotalSeconds < attemptCooldown) return;
+            skillInfo.LastAttempt = DateTime.Now;
 
             if (!TryPlaceWire(player))
             {
@@ -306,6 +311,7 @@ namespace src.player.skills
         {
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
+            public DateTime LastAttempt { get; set; }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 1.5f, float maxWallDistance = 400f, float cooldown = 20f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

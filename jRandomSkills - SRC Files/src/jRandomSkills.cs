@@ -104,6 +104,9 @@ namespace src
 
             if (SkillUtils.TryClaimCurse(curser.Index, victimIndex)) return true;
 
+            if (!SkillUtils.AnyCurseCapacity(curser))
+                return SkillUtils.TryClaimCurse(curser.Index, victimIndex, true);
+
             var curserEvent = PlayerManager.GetPlayerFromEvent(curser);
             curserEvent?.PrintToChat($" {ChatColors.Red}{curserEvent.GetTranslation("curse_limit_info", victim.PlayerName)}");
             return false;
@@ -122,7 +125,7 @@ namespace src
                 SkillsUsedThisMap.TryAdd(skill, 0);
             }
 
-            if (Enum.TryParse<Skills>(skill, out var parsedSkill) && SkillUtils.IsCurseSkill(parsedSkill))
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill))
             {
                 if (methodName == "DisableSkill" && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
                     SkillUtils.ReleaseCurse(curser.Index);

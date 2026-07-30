@@ -478,6 +478,8 @@ namespace src.player
                 foreach (var skill in SkillData.Skills)
                     Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingIndex]);
 
+                SkillUtils.ClearCursesFor(leavingIndex);
+
                 PlayerManager.UnregisterPlayer(player.Index);
                 EntityManager.DestroyPlayerEntities(player.Index);
 

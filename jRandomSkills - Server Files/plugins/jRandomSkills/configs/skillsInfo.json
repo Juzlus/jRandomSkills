@@ -206,6 +206,7 @@
   },
   {
     "Distance": 100.0,
+    "UseCooldown": 0.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1708,7 +1709,7 @@
     "HudDuration": null,
     "DescriptionHudDuration": null,
     "RequiredPermission": "",
-    "MaxPerServer": -1,
+    "MaxPerServer": 1,
     "Rarity": "Uncommon"
   },
   {

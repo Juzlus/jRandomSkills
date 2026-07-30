@@ -373,17 +373,35 @@ namespace src.utils
             Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
             Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
-            Skills.PrimaryBan, Skills.WildThrow
+            Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
         ];
+
+        private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
 
         private static readonly Dictionary<uint, int> curseCounts = [];
         private static readonly Dictionary<uint, uint> curserToVictim = [];
         private static readonly object curseLock = new();
 
+        private static readonly Config.GameModes[] sharedSkillModes =
+            [Config.GameModes.TeamSkills, Config.GameModes.SameSkills, Config.GameModes.Debug];
+
+        public static bool CurseLimitEnabled
+        {
+            get
+            {
+                if (Config.LoadedConfig.CurseSkillPerPlayer is not int limit || limit <= 0) return false;
+                return Array.IndexOf(sharedSkillModes, (Config.GameModes)Config.LoadedConfig.GameMode) < 0;
+            }
+        }
+
         public static bool IsCurseSkill(Skills skill) => curseSkills.Contains(skill);
+
+        public static bool IsCurseSkill(string skill) => curseSkillNames.Contains(skill);
 
         public static void ClearCurses()
         {
+            if (!CurseLimitEnabled) return;
+
             lock (curseLock)
             {
                 curseCounts.Clear();
@@ -393,23 +411,24 @@ namespace src.utils
 
         public static bool CanCurse(uint victimIndex)
         {
-            int? limit = Config.LoadedConfig.CurseSkillPerPlayer;
-            if (limit == null || limit <= 0) return true;
+            if (!CurseLimitEnabled) return true;
+            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
 
             lock (curseLock)
                 return !curseCounts.TryGetValue(victimIndex, out int used) || used < limit;
         }
 
-        public static bool TryClaimCurse(uint curserIndex, uint victimIndex)
+        public static bool TryClaimCurse(uint curserIndex, uint victimIndex, bool force = false)
         {
-            int? limit = Config.LoadedConfig.CurseSkillPerPlayer;
+            if (!CurseLimitEnabled) return true;
+            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
 
             lock (curseLock)
             {
                 ReleaseCurseLocked(curserIndex);
 
                 curseCounts.TryGetValue(victimIndex, out int used);
-                if (limit != null && limit > 0 && used >= limit) return false;
+                if (!force && used >= limit) return false;
 
                 curseCounts[victimIndex] = used + 1;
                 curserToVictim[curserIndex] = victimIndex;
@@ -419,7 +438,23 @@ namespace src.utils
 
         public static void ReleaseCurse(uint curserIndex)
         {
+            if (!CurseLimitEnabled) return;
+
             lock (curseLock) ReleaseCurseLocked(curserIndex);
+        }
+
+        public static void ClearCursesFor(uint playerIndex)
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock)
+            {
+                ReleaseCurseLocked(playerIndex);
+                curseCounts.Remove(playerIndex);
+
+                foreach (var curser in curserToVictim.Where(kvp => kvp.Value == playerIndex).Select(kvp => kvp.Key).ToList())
+                    curserToVictim.Remove(curser);
+            }
         }
 
         private static void ReleaseCurseLocked(uint curserIndex)
@@ -435,13 +470,29 @@ namespace src.utils
         {
             if (player == null || !player.IsValid) return [];
 
+            var enemies = GetAliveEnemies(player);
+            if (!respectCurseLimit || !CurseLimitEnabled || enemies.Length == 0) return enemies;
+
+            var withCapacity = enemies.Where(p => CanCurse(p.Index)).ToArray();
+            return withCapacity.Length > 0 ? withCapacity : enemies;
+        }
+
+        public static bool AnyCurseCapacity(CCSPlayerController player)
+        {
+            if (!CurseLimitEnabled) return true;
+            if (player == null || !player.IsValid) return true;
+
+            return GetAliveEnemies(player).Any(p => CanCurse(p.Index));
+        }
+
+        private static CCSPlayerController[] GetAliveEnemies(CCSPlayerController player)
+        {
             return [.. PlayerManager.GetTickPlayers()
                 .Where(p => p != null && p.IsValid)
                 .Select(PlayerManager.GetPlayerEvent)
                 .Where(p => p != null && p.IsValid && p.Team != player.Team
                     && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
-                    && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None
-                    && (!respectCurseLimit || CanCurse(p.Index)))
+                    && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
                 .Cast<CCSPlayerController>()];
         }
 
