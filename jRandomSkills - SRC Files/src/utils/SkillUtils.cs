@@ -32,6 +32,8 @@ namespace src.utils
             LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("HEGrenadeProjectile_CreateFunc", s => new(s));
         private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>?> SmokeGrenadeProjectile_CreateFunc =
             LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>>("SmokeGrenadeProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> CMolotovProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("CMolotovProjectile_CreateFunc", s => new(s));
         private static readonly Lazy<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>?> TerminateRoundFunc =
             LazySig<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>>("CCSGameRules_TerminateRound", s => new(s));
         private static readonly Lazy<MemoryFunctionVoid<CBasePlayerPawn, QAngle>?> SnapViewAngles =
@@ -310,6 +312,11 @@ namespace src.utils
             SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
         }
 
+        public static void CreateMolotovProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
+        {
+            CMolotovProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
+        }
+
         // True when this hit would be nullified by the server's friendly-fire rules (same-team hit,
         // mp_friendlyfire 0 and mp_teammates_are_enemies 0). The TakeDamage pre-hook still sees the raw
         // damage, so lethal victim-side skills (SecondLife/Phoenix) must skip it — otherwise they "revive"
@@ -333,9 +340,9 @@ namespace src.utils
 
         private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
 
-        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, string? weapon = null)
+        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null)
         {
-            pendingKillCredits[victimIndex] = (attackerIndex, weapon, Server.TickCount + 64);
+            pendingKillCredits[victimIndex] = (attackerIndex, killfeedIcon == null ? null : KillfeedIconsExtensions.ToIcon((KillfeedIcons)killfeedIcon), Server.TickCount + 64);
         }
 
         public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon)
@@ -505,7 +512,7 @@ namespace src.utils
                 .Cast<CCSPlayerController>()];
         }
 
-        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, string? damageWeapon = null)
+        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, KillfeedIcons? killfeedIcon = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return false;
@@ -546,9 +553,8 @@ namespace src.utils
 
             if (pawn.Health <= 0)
             {
-                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid
-                    && damageAttacker.Index != victim.Index)
-                    RegisterKillCredit(victim.Index, damageAttacker.Index, damageWeapon);
+                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid && damageAttacker.Index != victim.Index)
+                    RegisterKillCredit(victim.Index, damageAttacker.Index, killfeedIcon);
 
                 Server.NextFrame(() =>
                 {
@@ -752,6 +758,7 @@ namespace src.utils
                 ("weapon_m4a1", 60) => "weapon_m4a1_silencer",
                 ("weapon_hkp2000", 61) => "weapon_usp_silencer",
                 ("weapon_deagle", 64) => "weapon_revolver",
+                ("weapon_mp7", 23) => "weapon_mp5sd",
                 _ => designerName
             };
 

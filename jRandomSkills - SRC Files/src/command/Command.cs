@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
@@ -49,6 +50,7 @@ namespace src.command
                     { SplitCommands(config.NormalCommands.ChangeLanguageCommand.Alias), ("Change language", Command_ChangeLanguage) },
                     { SplitCommands(config.NormalCommands.ReloadCommand.Alias), ("Reaload configs", Command_Reload) },
                     { SplitCommands(config.NormalCommands.NextCommand.Alias), ("Next skill", Command_Next) },
+                    { SplitCommands(config.NormalCommands.CheckEntityCommand.Alias), ("Check entity", Command_CheckEntity) },
 
                     { SplitCommands(config.VotingCommands.ChangeMapCommand.Alias), ("Change map", Command_ChangeMap) },
                     { SplitCommands(config.VotingCommands.StartGameCommand.Alias), ("Start game", Command_StartGame) },
@@ -182,6 +184,35 @@ namespace src.command
             if (player == null) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.SkillsListCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SkillsListCommand.Permissions)) return;
             Menu.DisplaySkillsList(player);
+        }
+
+        [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        private static void Command_CheckEntity(CCSPlayerController? player, CommandInfo command)
+        {
+            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_entity {command.ArgString} command.");
+
+            if (player != null && player.IsValid)
+                if (!string.IsNullOrEmpty(config.NormalCommands.CheckEntityCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.CheckEntityCommand.Permissions))
+                        return;
+
+            int.TryParse(command.GetArg(1), out int index);
+            if (index == -1)
+            {
+                if (player == null)
+                {
+                    Server.PrintToConsole("Invalid entity index!");
+                    return;
+                }
+                player.PrintToChat("Invalid entity index!");
+                return;
+            }
+
+            var entity = Utilities.GetAllEntities().FirstOrDefault(e => e != null && e.IsValid && (e.Index == index || e.Handle == (nint)index));
+            
+            if (player == null)
+                Server.PrintToConsole(entity != null ? $"Entity {entity?.DesignerName} exists!" : "Entity does not exist!");
+            else
+                player.PrintToChat(entity != null ? $"Entity {entity?.DesignerName} exists!" : "Entity does not exist!");
         }
 
         [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]

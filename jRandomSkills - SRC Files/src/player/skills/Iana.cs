@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -353,7 +354,10 @@ namespace src.player.skills
 
                 var playerPawn = player.PlayerPawn.Value;
                 if (playerPawn != null)
-                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage, GetShooter(param2), param2.Ability?.Value?.DesignerName);
+                {
+                    KillfeedIcons? killfeed = KillfeedIconsExtensions.FromWeaponName(param2.Ability?.Value?.DesignerName);
+                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage, GetShooter(param2), killfeed ?? KillfeedIcons.Leg);
+                }
             }
         }
 

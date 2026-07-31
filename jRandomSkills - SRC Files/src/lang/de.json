@@ -51,8 +51,14 @@
   "behind_desc": "Du hast eine zufällige Chance, einen Feind um 180 Grad zu drehen, wenn du ihn triffst",
   "behind_desc2": "Deine Chance, einen Feind bei einem Treffer zu drehen, beträgt: {0} %",
 
+  "berserker": "Berserker",
+  "berserker_desc": "Du verursachst mehr Schaden und bewegst dich schneller, je weniger Gesundheit du hast",
+
   "blademaster": "Schwertmeister",
   "blademaster_desc": "Wenn du ein Messer hältst, hast du eine hohe Chance, einen Schuss abzuwehren",
+
+  "blastshot": "Explosivschuss",
+  "blastshot_desc": "Drücke Attack2 mit der MP5, um eine HE-Granate abzufeuern",
 
   "bunnyhop": "Hase",
   "bunnyhop_desc": "Du erhältst automatisch bunnyhop",
@@ -104,6 +110,13 @@
   "deaf_player_info": "Der Ton für den Spieler ‚{0}‘ wurde deaktiviert.",
   "deaf_select_info": "Alle Töne für den Spieler stummschalten:",
 
+  "deathbomb": "Todesbombe",
+  "deathbomb_desc": "Du explodierst beim Tod und tötest Spieler in deiner Nähe",
+  "deathbomb_explosion": "Kaboom!",
+
+  "demoneye": "Dämonenauge",
+  "demoneye_desc": "Du verursachst allen Gegnern Schaden, die du ansiehst",
+
   "disarmament": "Entwaffnung",
   "disarmament_desc": "Du hast eine zufällige Chance, einen Gegner bei einem Treffer seine Waffe fallen zu lassen.",
   "disarmament_desc2": "Ihre Chance, einen Gegner zu entwaffnen, beträgt: {0} %",
@@ -129,15 +142,15 @@
   "enemyspawn": "Feindes-Spawn",
   "enemyspawn_desc": "Klicke auf [css_useSkill], um zum Feindes-Spawn zu teleportieren",
 
-  "expensiveammo": "expensiveammo",
-  "expensiveammo_desc": "expensiveammo_desc",
-  "expensiveammo_disable_info": "expensiveammo_disable_info",
-  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
-  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
-  "expensiveammo_select_info": "expensiveammo_select_info",
+  "expensiveammo": "Teure Munition",
+  "expensiveammo_desc": "Ein ausgewählter Gegner muss für jeden Schuss bezahlen",
+  "expensiveammo_disable_info": "Deine Kugeln sind wieder kostenlos.",
+  "expensiveammo_enemy_info": "Jeder Schuss kostet dich jetzt {0}$.",
+  "expensiveammo_player_info": "Spieler '{0}' muss jetzt für jede Kugel bezahlen.",
+  "expensiveammo_select_info": "Wähle einen Spieler, dessen Munition teuer wird:",
 
-  "explodingbarrel": "explodingbarrel",
-  "explodingbarrel_desc": "explodingbarrel_desc",
+  "explodingbarrel": "Explosives Fass",
+  "explodingbarrel_desc": "Klicke auf [css_useSkill], um ein Fass zu platzieren, das beim Beschuss explodiert",
 
   "explosiveshot": "Explosiver Schuss",
   "explosiveshot_desc": "Zufällige Chance, beim Schießen eine explosive Kugel abzufeuern",
@@ -149,9 +162,15 @@
   "fastreload": "Schnellnachladen",
   "fastreload_desc": "Klicke auf [css_useSkill], um die Waffe, die du gerade hältst, nachzuladen",
 
+  "firerain": "Feuerregen",
+  "firerain_desc": "Wirf einen Köder, um einen Regen aus Molotows auszulösen",
+
   "flash": "Blitz",
   "flash_desc": "Zufällige Spielergeschwindigkeit zu Beginn der Runde",
   "flash_desc2": "Dein Geschwindigkeitsmultiplikator beträgt: {0}x",
+
+  "flashlight": "Taschenlampe",
+  "flashlight_desc": "Klicke auf [css_useSkill], um die Taschenlampe ein- oder auszuschalten. Ihr Licht kann Gegner blenden",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "Klicke auf [css_useSkill], um eine zerstörbare Barrikade zu erstellen",
@@ -175,14 +194,14 @@
   "ghost": "Geist",
   "ghost_desc": "Du bist vollständig unsichtbar",
 
-  "giant": "giant",
-  "giant_desc": "giant_desc",
-  "giant_desc2": "giant_desc2: {0}x",
-  "giant_disable_info": "giant_disable_info",
-  "giant_enemy_info": "giant_enemy_info: {0}x",
-  "giant_player_info": "giant_player_info: {0} {1}",
-  "giant_select_info": "giant_select_info",
-  
+  "giant": "Riese",
+  "giant_desc": "Vergrößere einen Gegner deiner Wahl",
+  "giant_desc2": "Vergrößere einen Gegner deiner Wahl auf das {0}-Fache seiner normalen Größe",
+  "giant_disable_info": "Du hast wieder deine normale Größe.",
+  "giant_enemy_info": "Du wurdest auf das {0}-Fache deiner normalen Größe vergrößert.",
+  "giant_player_info": "Du hast Spieler '{0}' auf das {1}-Fache seiner normalen Größe vergrößert.",
+  "giant_select_info": "Wähle einen Spieler zum Vergrößern:",
+
   "glaz": "Glaz",
   "glaz_desc": "Du kannst durch Rauchgranaten hindurchsehen",
 
@@ -206,6 +225,9 @@
 
   "healingsmoke": "Heilender Rauch",
   "healingsmoke_desc": "Deine Rauchgranaten heilen",
+
+  "healingchicken": "Heilendes Huhn",
+  "healingchicken_desc": "Deine Hühner heilen dich, solange du in ihrer Nähe bist",
 
   "hermit": "Einsiedler",
   "hermit_desc": "Durch das Töten von Gegnern werden Munition und ein Teil der Gesundheit wiederhergestellt",
@@ -252,6 +274,12 @@
   "jester_on": "EIN",
   "jester_off": "AUS",
 
+  "jetkick": "Jetkick",
+  "jetkick_desc": "Wähle einen Spieler für einen Jetkick",
+  "jetkick_player_info": "Spieler '{0}' wurde wegge-kickt.",
+  "jetkick_enemy_info": "Jeder Schuss stößt dich nach hinten",
+  "jetkick_disable_info": "Dein Rückstoß ist wieder normal.",
+
   "jumpban": "Beinlos",
   "jumpban_desc": "Wähle einen Spieler, der nicht springen kann",
   "jumpban_enemy_info": "Jemand hat dir die Beine abgeschnitten.",
@@ -259,12 +287,12 @@
   "jumpban_player_info": "Der Spieler ‚{0}‘ kann nicht mehr springen.",
   "jumpban_select_info": "Spieler vom Springen ausschließen:",
 
-  "jumpcurse": "jumpcurse",
-  "jumpcurse_desc": "jumpcurse_desc",
-  "jumpcurse_disable_info": "jumpcurse_disable_info",
-  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
-  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
-  "jumpcurse_select_info": "jumpcurse_select_info",
+  "jumpcurse": "Sprungfluch",
+  "jumpcurse_desc": "Ein ausgewählter Gegner springt jedes Mal, wenn einer seiner Teamkollegen springt",
+  "jumpcurse_disable_info": "Du kannst deine Sprünge wieder selbst kontrollieren.",
+  "jumpcurse_enemy_info": "Du springst jetzt jedes Mal, wenn einer deiner Teamkollegen springt.",
+  "jumpcurse_player_info": "Spieler '{0}' springt jetzt jedes Mal, wenn seine Teamkollegen springen.",
+  "jumpcurse_select_info": "Wähle einen Spieler für den Fluch:",
 
   "jumpingjack": "Jumping Jack",
   "jumpingjack_desc": "Durch Springen wird die Gesundheit wiederhergestellt",
@@ -272,8 +300,11 @@
   "killerflash": "Killer Flash",
   "killerflash_desc": "Jeder, der durch deine Blendgranate vollständig geblendet wird, stirbt (einschließlich dir selbst)",
 
-  "knockback": "knockback",
-  "knockback_desc": "knockback_desc",
+  "knockback": "Rückstoß",
+  "knockback_desc": "Schießen in der Luft stößt dich nach hinten",
+
+  "lastgasp": "Letzter Atemzug",
+  "lastgasp_desc": "Nach deinem Tod fügst du dem Gegner, der dich getötet hat, Schaden zu",
 
   "lifeswap": "Lebensaustausch",
   "lifeswap_desc": "Wähle einen Spieler aus, mit dem du deine Gesundheit austauschen möchtest",
@@ -312,16 +343,12 @@
   "bankrupt_player_info": "Der Spieler ‚{0}‘ ist bankrott.",
   "bankrupt_select_info": "Wähle einen Spieler aus, der bankrott gehen soll:",
 
-  "deathbomb": "Todesbombe",
-  "deathbomb_desc": "Du explodierst beim Tod und tötest Spieler in deiner Nähe",
-  "deathbomb_explosion": "Kaboom!",
-
-  "nightmare": "nightmare",
-  "nightmare_desc": "nightmare_desc",
-  "nightmare_disable_info": "nightmare_disable_info",
-  "nightmare_enemy_info": "nightmare_enemy_info",
-  "nightmare_player_info": "nightmare_player_info: {0}",
-  "nightmare_select_info": "nightmare_select_info",
+  "nightmare": "Albtraum",
+  "nightmare_desc": "Lass einen ausgewählten Gegner eine schreckliche Vision erleben",
+  "nightmare_disable_info": "Der Albtraum ist vorbei.",
+  "nightmare_enemy_info": "Ein Albtraum trübt deine Sicht.",
+  "nightmare_player_info": "Du hast Spieler '{0}' einen Albtraum verpasst.",
+  "nightmare_select_info": "Wähle einen Spieler für den Albtraum:",
 
   "ninja": "Ninja",
   "ninja_desc": "Wenn du stillstehst, erhöht sich deine Unsichtbarkeit um 33 %, wenn du dich duckst um 33 % und wenn du ein Messer hältst um 33 %",
@@ -462,6 +489,17 @@
   "swapposition": "Positionstausch",
   "swapposition_desc": "Klicke auf [css_useSkill], um mit einem zufälligen Gegner die Plätze zu tauschen",
 
+  "takeammo": "Munition nehmen",
+  "takeammo_desc": "Klicke auf [css_useSkill], um das Magazin der aktiven Waffe eines zufälligen Gegners zu nehmen",
+  "takeammo_hud_info1": "Kein Spieler mit einem aktiven Magazin gefunden.",
+  "takeammo_hud_info2": "Der Gegner hat keine Magazine.",
+  "takeammo_enemy_info": "Du hast etwas Munition verloren.",
+
+  "teamteleport": "Team-Teleport",
+  "teamteleport_desc": "Drücke [css_useSkill], um dich zu dem anvisierten Teammitglied zu teleportieren",
+  "teamteleport_noenemy": "Kein Teammitglied gefunden",
+  "teamteleport_hud_info": "Gefunden: {0}",
+
   "teleporter": "Teleporter",
   "teleporter_desc": "Du hast die Chance, die Plätze mit einem getroffenen Gegner zu tauschen",
   "teleporter_desc2": "Deine Chance auf Platztausch nach einem Treffer: {0}%",
@@ -485,11 +523,11 @@
   "toxicsmoke": "Giftiger Rauch",
   "toxicsmoke_desc": "Deine Rauchgranaten verursachen Schaden",
 
-  "tripwire": "tripwire",
-  "tripwire_desc": "tripwire_desc",
-  "tripwire_no_wall_info": "tripwire_no_wall_info",
-  "tripwire_placed_info": "tripwire_placed_info",
-  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
+  "tripwire": "Stolperdraht",
+  "tripwire_desc": "Klicke auf [css_useSkill], um einen Draht zwischen zwei Wänden zu spannen. Gegner, die ihn berühren, werden auf deinem Radar angezeigt",
+  "tripwire_no_wall_info": "Auf beiden Seiten sind keine Wände nah genug.",
+  "tripwire_placed_info": "Stolperdraht platziert.",
+  "tripwire_triggered_info": "'{0}' hat deinen Stolperdraht ausgelöst.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Du kannst Feinde durch Wände hindurch sehen",
@@ -569,6 +607,6 @@
   "summary": "Zusammenfassung der letzten runde",
 
   "menu_controlls_scroll": "W/S – Scrollen",
-  "menu_controlls_padding": "   |   ",
+  "menu_controlls_padding": "    |    ",
   "menu_controlls_select": "E – Auswählen"
 }

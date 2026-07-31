@@ -14,6 +14,7 @@ public interface ISkill
     public static void TypeSkill(CCSPlayerController _, string[] __) { }
 
     public static void OnTakeDamage(DynamicHook _) { }
+    public static void OnTakeDamagePost(DynamicHook _) { }
     public static void OnEntitySpawned(CEntityInstance _) { }
     public static void OnTick() { }
     public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList _) { }
@@ -70,8 +71,10 @@ public enum Skills
     Bankrupt,
     Baseball,
     Behind,
+    Berserker,
     BladeMaster,
     BunnyHop,
+    BlastShot,
     C4Camouflage,
     CarefulBullets,
     Catapult,
@@ -83,6 +86,7 @@ public enum Skills
     Deactivator,
     Deaf,
     DeathBomb,
+    DemonEye,
     Disarmament,
     Distancer,
     Dash,
@@ -95,7 +99,9 @@ public enum Skills
     ExplosiveShot,
     FalconEye,
     FastReload,
+    FireRain,
     Flash,
+    Flashlight,
     Fortnite,
     FragileBomb,
     FriendlyFire,
@@ -108,6 +114,7 @@ public enum Skills
     Glue,
     GodMode,
     Grenadier,
+    HealingChicken,
     HealingSmoke,
     Hermit,
     HolyHandGrenade,
@@ -121,11 +128,13 @@ public enum Skills
     Jackal,
     Jammer,
     Jester,
+    JetKick,
     JumpBan,
     JumpCurse,
     JumpingJack,
     KillerFlash,
     Knockback,
+    LastGasp,
     LifeSwap,
     LongKnife,
     LongZeus,
@@ -176,6 +185,8 @@ public enum Skills
     SoundMaker,
     Spectator,
     SwapPosition,
+    TakeAmmo,
+    TeamTeleport,
     Teleporter,
     Thief,
     ThirdEye,

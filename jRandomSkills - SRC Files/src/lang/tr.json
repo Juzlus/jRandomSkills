@@ -51,8 +51,14 @@
   "behind_desc": "Vurduğunda düşmanı 180 derece döndürme şansın olur",
   "behind_desc2": "Baş döndürme şansın: %{0}",
 
+  "berserker": "Berserker",
+  "berserker_desc": "Canın azaldıkça daha fazla hasar verir ve daha hızlı hareket edersin",
+
   "blademaster": "Kılıç Ustası",
   "blademaster_desc": "Bıçak tutarken mermileri sektirme şansın artar",
+
+  "blastshot": "Patlama Atışı",
+  "blastshot_desc": "MP5 ile Attack2 tuşuna basarak bir HE bombası ateşle",
 
   "bunnyhop": "Tavşan",
   "bunnyhop_desc": "Otomatik \"BunnyHop\" yaparsın",
@@ -138,7 +144,7 @@
 
   "explodingbarrel": "Patlayan Varil",
   "explodingbarrel_desc": "[css_useSkill] ile vurulunca patlayan bir varil koyarsın",
-  
+
   "explosiveshot": "Patlayıcı Mermi",
   "explosiveshot_desc": "Ateş ederken rastgele mermilerin patlayabilir",
   "explosiveshot_desc2": "Patlayan mermi şansı: %{0}",
@@ -149,9 +155,15 @@
   "fastreload": "Şipşak Şarjör",
   "fastreload_desc": "[css_useSkill] tuşuna basarak şarjörünü hızlıca değiştir",
 
+  "firerain": "Ateş Yağmuru",
+  "firerain_desc": "Molotof yağmuru çağırmak için bir yem at",
+
   "flash": "Flash",
   "flash_desc": "Raund başında rastgele oyuncu hızı",
   "flash_desc2": "Hızın: {0}x",
+
+  "flashlight": "El Feneri",
+  "flashlight_desc": "El fenerini açıp kapatmak için [css_useSkill] tuşuna tıkla. Işığı düşmanları kör edebilir",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "[css_useSkill] tuşuna basarak barikat kur",
@@ -182,7 +194,7 @@
   "giant_enemy_info": "{0}x boyutuna büyütüldün.",
   "giant_player_info": "'{0}' oyuncusunu {1}x büyüttün.",
   "giant_select_info": "Büyütülecek oyuncu:",
-  
+
   "glaz": "Glaz",
   "glaz_desc": "Sis bombalarının içini görebilirsin",
 
@@ -203,6 +215,9 @@
 
   "grenadier": "Bombacı",
   "grenadier_desc": "Sınırsız el bombasına sahipsin",
+
+  "healingchicken": "Şifacı Tavuk",
+  "healingchicken_desc": "Yakınındayken tavukların seni iyileştirir",
 
   "healingsmoke": "Şifalı Sis",
   "healingsmoke_desc": "Sis bombaların iyileştirir",
@@ -252,6 +267,12 @@
   "jester_on": "AÇIK",
   "jester_off": "KAPALI",
 
+  "jetkick": "Jet Tekmesi",
+  "jetkick_desc": "Jet tekmesi yapmak için bir oyuncu seç",
+  "jetkick_player_info": "'{0}' adlı oyuncuya jet tekmesi yapıldı.",
+  "jetkick_enemy_info": "Her atış seni geriye doğru iter",
+  "jetkick_disable_info": "Geri tepmen normale döndü.",
+
   "jumpban": "Bacaksız",
   "jumpban_desc": "Zıplayamayacak bir oyuncu seç",
   "jumpban_enemy_info": "Bacakların kesildi",
@@ -274,6 +295,9 @@
 
   "knockback": "Savurma",
   "knockback_desc": "Havadayken ateş etmek seni geriye savurur",
+
+  "lastgasp": "Son Nefes",
+  "lastgasp_desc": "Öldükten sonra seni öldüren düşmana hasar verirsin",
 
   "lifeswap": "Can Takası",
   "lifeswap_desc": "Can değerlerini takas etmek için bir oyuncu seç",
@@ -315,6 +339,9 @@
   "deathbomb": "Canlı Bomba",
   "deathbomb_desc": "Öldüğünde patlayarak etraftaki oyuncuları öldürürsün",
   "deathbomb_explosion": "BOOM!!!",
+
+  "demoneye": "Şeytan Gözü",
+  "demoneye_desc": "Baktığın tüm düşmanlara hasar verirsin",
 
   "nightmare": "Kabus",
   "nightmare_desc": "Seçtiğin bir rakibe kabus görüntüsü verir",
@@ -461,6 +488,17 @@
 
   "swapposition": "Yer Değiştirme",
   "swapposition_desc": "[css_useSkill] tuşuna basarak vurduğun düşmanla yer değiştir",
+
+  "takeammo": "Mühimmat Al",
+  "takeammo_desc": "Rastgele bir düşmanın aktif silahının şarjörünü almak için [css_useSkill] tuşuna tıkla",
+  "takeammo_hud_info1": "Aktif şarjörü olan bir oyuncu bulunamadı.",
+  "takeammo_hud_info2": "Düşmanın şarjörü yok.",
+  "takeammo_enemy_info": "Bir miktar mühimmat kaybettin.",
+
+  "teamteleport": "Takıma Işınlanma",
+  "teamteleport_desc": "Baktığın takım arkadaşına ışınlanmak için [css_useSkill] tuşuna bas",
+  "teamteleport_noenemy": "Takım arkadaşı bulunamadı",
+  "teamteleport_hud_info": "Bulundu: {0}",
 
   "teleporter": "Işınlayıcı",
   "teleporter_desc": "Vurulan bir düşmanla yer değiştirme şansınız var",

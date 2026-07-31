@@ -1,20 +1,12 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
-using CounterStrikeSharp.API.Modules.Admin;
-using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CounterStrikeSharp.API.Modules.UserMessages;
-using CounterStrikeSharp.API.Modules.Utils;
-using RayTraceAPI;
 using src.player.skills;
 using src.utils;
-using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
-using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player
 {
@@ -106,6 +98,15 @@ namespace src.player
             }
         }
 
+        private static HookResult OnTakeDamagePost(DynamicHook h)
+        {
+            lock (setLock)
+            {
+                DispatchOnTakeDamage(h, true);
+                return HookResult.Continue;
+            }
+        }
+
         private static HookResult OnTriggerEnter(DynamicHook hook)
         {
             lock (setLock)
@@ -168,33 +169,6 @@ namespace src.player
                     }
                 }
 
-                return block ? HookResult.Handled : HookResult.Continue;
-            }
-        }
-
-        private static HookResult WeaponDrop(DynamicHook hook)
-        {
-            lock (setLock)
-            {
-                CCSPlayerController player = hook.GetParam<CCSPlayerController>(0);
-                if (player == null || !player.IsValid)
-                    return HookResult.Continue;
-
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                bool block = false;
-                foreach (string skillName in activeSkills)
-                {
-                    bool? result = (bool?)Instance.SkillAction(skillName, "WeaponDrop", [hook, player]);
-                    if (result == true)
-                    {
-                        block = true;
-                        break;
-                    }
-                }
                 return block ? HookResult.Handled : HookResult.Continue;
             }
         }

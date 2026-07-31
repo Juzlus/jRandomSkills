@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -360,7 +361,7 @@ namespace src.player.skills
 
                 if (CheckHasKnife(thrower!)) return;
 
-                SkillUtils.TakeHealth(victimPawn, SkillsInfo.GetValue<int>(skillName, "damage"), thrower, "weapon_knife");
+                SkillUtils.TakeHealth(victimPawn, SkillsInfo.GetValue<int>(skillName, "damage"), thrower, KillfeedIcons.Knife);
             }
         }
 

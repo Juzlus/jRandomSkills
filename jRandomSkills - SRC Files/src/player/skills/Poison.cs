@@ -1,8 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using System.Collections.Concurrent;
+using jRandomSkills.src.utils;
 using src.utils;
+using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
@@ -65,7 +66,7 @@ namespace src.player.skills
 
                     if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
 
-                    SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), "planted_c4");
+                    SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), KillfeedIcons.Spray);
 
                     if (Server.TickCount % cooldown2 == 0)
                         PlayerManager.GetPlayerFromEvent(player)?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");

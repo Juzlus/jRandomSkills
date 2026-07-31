@@ -187,6 +187,7 @@ namespace src.utils
                     ChangeLanguageCommand = new NormalCommand("lang, language, changelang, change_lang, jezyk, język", ""),
                     ReloadCommand = new NormalCommand("reload, refresh", "@jRandomSkills/admin"),
                     NextCommand = new NormalCommand("next_skill", "@jRandomSkills/admin"),
+                    CheckEntityCommand = new NormalCommand("ent, entity, checkentity, check_entity, sprawdzencje, checkent, check_ent, 检查实体, 检查实体", "@jRandomSkills/owner"),
                 };
 
                 VotingCommands = new VotingCommands
@@ -267,6 +268,7 @@ namespace src.utils
             public required NormalCommand ChangeLanguageCommand { get; set; }
             public required NormalCommand ReloadCommand { get; set; }
             public required NormalCommand NextCommand { get; set; }
+            public required NormalCommand CheckEntityCommand { get; set; }
         }
 
         public class VotingCommand(bool enableVoting, string alias, string permissions, float timeToVote, float percentagesToSuccess, float timeToNextVoting, float timeToNextSameVoting, int minimumPlayersToStartVoting) : NormalCommand(alias, permissions)

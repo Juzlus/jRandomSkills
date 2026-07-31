@@ -51,8 +51,14 @@
   "behind_desc": "Masz losową szansę na obrócenie wroga o 180 stopni po trafieniu go",
   "behind_desc2": "Twoje szanse na obrócenie wroga po trafieniu to: {0}%",
 
+  "berserker": "Berserker",
+  "berserker_desc": "Zadajesz więcej obrażeń i poruszasz się szybciej, gdy masz mniej zdrowia",
+
   "blademaster": "Mistrz Ostrza",
   "blademaster_desc": "Trzymając nóż, masz duże szanse na odparcie strzału",
+
+  "blastshot": "Mocne Uderzenie",
+  "blastshot_desc": "Naciśnij Attack2 na MP5, aby wystrzelić granat HE",
 
   "bunnyhop": "Królik",
   "bunnyhop_desc": "Otrzymujesz auto \"BunnyHopa\"",
@@ -104,6 +110,13 @@
   "deaf_player_info": "Dźwięk został wyłączony dla gracza '{0}'.",
   "deaf_select_info": "Wycisz dźwięki gracza:",
 
+  "deathbomb": "Ludzka bomba",
+  "deathbomb_desc": "Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu",
+  "deathbomb_explosion": "Kaboom!",
+
+  "demoneye": "Oko Demona",
+  "demoneye_desc": "Zadajesz obrażenia wszystkim przeciwnikom, na których patrzysz",
+
   "disarmament": "Rozbrojenie",
   "disarmament_desc": "Masz losową szanse na wyrzucenie broni wroga po trafieniu",
   "disarmament_desc2": "Twoje szanse na wyrzucenie broni wroga to: {0}%",
@@ -129,16 +142,16 @@
   "enemyspawn": "Resp Wroga",
   "enemyspawn_desc": "Kliknij [css_useSkill], aby teleportować się na resp wroga",
 
-  "expensiveammo": "expensiveammo",
-  "expensiveammo_desc": "expensiveammo_desc",
-  "expensiveammo_disable_info": "expensiveammo_disable_info",
-  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
-  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
-  "expensiveammo_select_info": "expensiveammo_select_info",
+  "expensiveammo": "Droga Amunicja",
+  "expensiveammo_desc": "Wybrany przeciwnik musi płacić za każdy oddany strzał",
+  "expensiveammo_disable_info": "Twoje pociski znów są darmowe.",
+  "expensiveammo_enemy_info": "Każdy Twój strzał kosztuje teraz {0}$.",
+  "expensiveammo_player_info": "Gracz '{0}' musi teraz płacić za każdy pocisk.",
+  "expensiveammo_select_info": "Wybierz gracza, którego amunicja stanie się droga:",
 
-  "explodingbarrel": "explodingbarrel",
-  "explodingbarrel_desc": "explodingbarrel_desc",
-  
+  "explodingbarrel": "Wybuchowa Beczka",
+  "explodingbarrel_desc": "Kliknij [css_useSkill], aby postawić beczkę, która wybucha po trafieniu",
+
   "explosiveshot": "Strzał Wybuchowy",
   "explosiveshot_desc": "Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania",
   "explosiveshot_desc2": "Twoja szansa na wystrzelenie pocisku wybuchowego: {0}%",
@@ -149,9 +162,15 @@
   "fastreload": "Szybkie Rączki",
   "fastreload_desc": "Kliknij [css_useSkill], aby przeładować broń, którą obecnie trzymasz",
 
+  "firerain": "Deszcz Ognia",
+  "firerain_desc": "Rzuć wabik, aby przywołać deszcz koktajli Mołotowa",
+
   "flash": "Flash",
   "flash_desc": "Losowa prędkośc postaci na początku rundy",
   "flash_desc2": "Twój mnożnik prędkości to {0}x",
+
+  "flashlight": "Latarka",
+  "flashlight_desc": "Kliknij [css_useSkill], aby włączyć lub wyłączyć latarkę. Jej światło może oślepić przeciwników",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "Kliknij [css_useSkill], aby stworzyć barykadę, którą można zniszczyć",
@@ -175,14 +194,14 @@
   "ghost": "Duszek",
   "ghost_desc": "Jesteś całkowicie niewidzialny",
 
-  "giant": "giant",
-  "giant_desc": "giant_desc",
-  "giant_desc2": "giant_desc2: {0}x",
-  "giant_disable_info": "giant_disable_info",
-  "giant_enemy_info": "giant_enemy_info: {0}x",
-  "giant_player_info": "giant_player_info: {0} {1}",
-  "giant_select_info": "giant_select_info",
-  
+  "giant": "Olbrzym",
+  "giant_desc": "Powiększ wybranego przeciwnika",
+  "giant_desc2": "Powiększ wybranego przeciwnika do {0}x normalnego rozmiaru",
+  "giant_disable_info": "Wróciłeś do normalnego rozmiaru.",
+  "giant_enemy_info": "Zostałeś powiększony do {0}x normalnego rozmiaru.",
+  "giant_player_info": "Powiększyłeś gracza '{0}' do {1}x normalnego rozmiaru.",
+  "giant_select_info": "Wybierz gracza do powiększenia:",
+
   "glaz": "Glaz",
   "glaz_desc": "Nie widzisz granatów dymnych",
 
@@ -206,6 +225,9 @@
 
   "healingsmoke": "Leczący Dym",
   "healingsmoke_desc": "Twoje granaty dymne leczą",
+
+  "healingchicken": "Lecząca Kura",
+  "healingchicken_desc": "Twoje kury leczą Cię, gdy jesteś w pobliżu",
 
   "hermit": "Pustelnik",
   "hermit_desc": "Zabijanie przywraca amunicję i część zdrowia",
@@ -252,6 +274,12 @@
   "jester_on": "WŁ.",
   "jester_off": "WYŁ.",
 
+  "jetkick": "Odrzutowy Kop",
+  "jetkick_desc": "Wybierz gracza, aby użyć na nim odrzutowego kopa",
+  "jetkick_player_info": "Gracz '{0}' został odrzucony kopem.",
+  "jetkick_enemy_info": "Każdy strzał mocno odrzuca Cię do tyłu",
+  "jetkick_disable_info": "Twój odrzut wrócił do normy.",
+
   "jumpban": "Beznogi",
   "jumpban_desc": "Wybierasz gracza, który nie będzie mógł skakać",
   "jumpban_enemy_info": "Ktoś odciął ci nogi.",
@@ -259,12 +287,12 @@
   "jumpban_player_info": "Gracz '{0}' nie może teraz skakać.",
   "jumpban_select_info": "Zablokuj skok dla gracza:",
 
-  "jumpcurse": "jumpcurse",
-  "jumpcurse_desc": "jumpcurse_desc",
-  "jumpcurse_disable_info": "jumpcurse_disable_info",
-  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
-  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
-  "jumpcurse_select_info": "jumpcurse_select_info",
+  "jumpcurse": "Klątwa Skakania",
+  "jumpcurse_desc": "Wybrany przeciwnik skacze za każdym razem, gdy skacze jeden z jego sojuszników",
+  "jumpcurse_disable_info": "Znów możesz kontrolować swoje skoki.",
+  "jumpcurse_enemy_info": "Teraz skaczesz za każdym razem, gdy skacze jeden z Twoich sojuszników.",
+  "jumpcurse_player_info": "Gracz '{0}' skacze teraz za każdym razem, gdy robią to jego sojusznicy.",
+  "jumpcurse_select_info": "Wybierz gracza do przeklęcia:",
 
   "jumpingjack": "Pajacyk",
   "jumpingjack_desc": "Skakanie przywraca zdrowie",
@@ -272,8 +300,12 @@
   "killerflash": "Zabójczy Flash",
   "killerflash_desc": "Każdy całkowicie oślepiony twoim granatem umiera (również ty)",
 
-  "knockback": "knockback",
-  "knockback_desc": "knockback_desc",
+  "knockback": "Odrzut",
+  "knockback_desc": "Strzelanie w powietrzu odpycha Cię do tyłu",
+
+  "lastgasp": "Ostatnie Tchnienie",
+  "lastgasp_desc": "Po śmierci zadajesz obrażenia przeciwnikowi, który Cię zabił",
+
   "lifeswap": "Zamiana Żyć",
   "lifeswap_desc": "Wybierasz gracza, z którym chcesz wymienić się zdrowiem",
   "lifeswap_enemy_info": "Ktoś pożyczył sobie twoje zdrowie.",
@@ -311,16 +343,12 @@
   "moneyswap_player_info": "Wymieniłeś swoje pieniądze z graczem '{0}'.",
   "moneyswap_select_info": "Zamień się kasą z graczem:",
 
-  "deathbomb": "Ludzka bomba",
-  "deathbomb_desc": "Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu",
-  "deathbomb_explosion": "Kaboom!",
-
-  "nightmare": "nightmare",
-  "nightmare_desc": "nightmare_desc",
-  "nightmare_disable_info": "nightmare_disable_info",
-  "nightmare_enemy_info": "nightmare_enemy_info",
-  "nightmare_player_info": "nightmare_player_info: {0}",
-  "nightmare_select_info": "nightmare_select_info",
+  "nightmare": "Koszmar",
+  "nightmare_desc": "Wywołaj u wybranego przeciwnika przerażającą wizję",
+  "nightmare_disable_info": "Koszmar minął.",
+  "nightmare_enemy_info": "Koszmar przesłania Ci wzrok.",
+  "nightmare_player_info": "Rzuciłeś koszmar na gracza '{0}'.",
+  "nightmare_select_info": "Wybierz gracza do nałożenia koszmaru:",
 
   "ninja": "Ninja",
   "ninja_desc": "Stojąc nieruchomo zwiększasz swoją niewidzialność o 33%, kucając o 33%, a trzymając nóż o 33%",
@@ -461,6 +489,17 @@
   "swapposition": "Zamiana Miejsc",
   "swapposition_desc": "Kliknij [css_useSkill], aby zamienić się miejscami z losowym przeciwnikiem",
 
+  "takeammo": "Zabierz Amunicję",
+  "takeammo_desc": "Kliknij [css_useSkill], aby zabrać magazynek aktywnej broni losowego przeciwnika",
+  "takeammo_hud_info1": "Nie znaleziono gracza z aktywnym magazynkiem.",
+  "takeammo_hud_info2": "Przeciwnik nie ma magazynków.",
+  "takeammo_enemy_info": "Straciłeś trochę amunicji.",
+
+  "teamteleport": "Teleport do drużyny",
+  "teamteleport_desc": "Naciśnij [css_useSkill], aby teleportować się do członka drużyny, na którego patrzysz",
+  "teamteleport_noenemy": "Nie znaleziono członka drużyny",
+  "teamteleport_hud_info": "Znaleziono: {0}",
+
   "teleporter": "Teleporter",
   "teleporter_desc": "Masz szansę na zamianę miejsc z trafionym wrogiem",
   "teleporter_desc2": "Szansa na zamianę miejsc po trafieniu: {0}%",
@@ -484,11 +523,11 @@
   "toxicsmoke": "Toksyczny Dym",
   "toxicsmoke_desc": "Twoje granaty dymny zadają obrażenia",
 
-  "tripwire": "tripwire",
-  "tripwire_desc": "tripwire_desc",
-  "tripwire_no_wall_info": "tripwire_no_wall_info",
-  "tripwire_placed_info": "tripwire_placed_info",
-  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
+  "tripwire": "Linka z Drutu",
+  "tripwire_desc": "Kliknij [css_useSkill], aby rozciągnąć drut między dwiema ścianami. Wrogowie, którzy go dotkną, pojawią się na Twoim radarze",
+  "tripwire_no_wall_info": "Po obu stronach nie ma wystarczająco blisko położonych ścian.",
+  "tripwire_placed_info": "Linka została rozstawiona.",
+  "tripwire_triggered_info": "'{0}' uruchomił Twoją linkę.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Widzisz wrogów przez ściany",
@@ -568,6 +607,6 @@
   "summary": "Podsumowanie z ostatniej rundy",
 
   "menu_controlls_scroll": "W/S – Przewijanie",
-  "menu_controlls_padding": "   |   ",
+  "menu_controlls_padding": "    |    ",
   "menu_controlls_select": "E - Wybierz"
 }

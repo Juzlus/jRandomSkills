@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -57,7 +58,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (attackerInfo?.Skill != skillName) return;
 
-            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"), attacker, "decoy");
+            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"), attacker, KillfeedIcons.Decoy);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)

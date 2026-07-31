@@ -38,11 +38,11 @@
   "astronaut_desc": "В начале раунда вам выдаётся случайное значение гравитации",
   "astronaut_desc2": "Ваша случайная гравитация: {0}x",
 
-  "moneyswap": "Налоговик",
-  "moneyswap_desc": "Выберите игрока для обмена деньгами",
-  "moneyswap_enemy_info": "Налоговая служба добралась до вас.",
-  "moneyswap_player_info": "Вы обменялись деньгами с игроком '{0}'.",
-  "moneyswap_select_info": "Обменять деньги с игроком:",
+  "bankrupt": "Банкрот",
+  "bankrupt_desc": "Выберите игрока, который потеряет все свои деньги",
+  "bankrupt_enemy_info": "Вы обанкротились.",
+  "bankrupt_player_info": "Игрок '{0}' обанкротился.",
+  "bankrupt_select_info": "Выберите игрока для банкротства:",
 
   "baseball": "Бейсболист",
   "baseball_desc": "Ваша ложная граната отскакивает от стен и мгновенно убивает врага при попадании",
@@ -51,8 +51,14 @@
   "behind_desc": "Есть шанс развернуть врага на 180° при попадании",
   "behind_desc2": "Ваш шанс развернуть врага при попадании: {0}%",
 
+  "berserker": "Берсерк",
+  "berserker_desc": "Чем меньше у вас здоровья, тем больше урона вы наносите и тем быстрее двигаетесь",
+
   "blademaster": "Мастер клинка",
   "blademaster_desc": "С ножом в руках у вас высокий шанс отразить выстрел",
+
+  "blastshot": "Взрывной выстрел",
+  "blastshot_desc": "Нажмите Attack2 на MP5, чтобы выстрелить гранатой HE",
 
   "bunnyhop": "Заяц",
   "bunnyhop_desc": "Вы получаете автоматический «БанниХоп»",
@@ -104,6 +110,13 @@
   "deaf_player_info": "Звук отключён для игрока '{0}'.",
   "deaf_select_info": "Отключить звук для игрока:",
 
+  "deathbomb": "Смертельная бомба",
+  "deathbomb_desc": "Вы взрываетесь при смерти, убивая ближайших игроков",
+  "deathbomb_explosion": "АЛЛАХУ АКБАР!!!",
+
+  "demoneye": "Око демона",
+  "demoneye_desc": "Вы наносите урон каждому врагу, на которого смотрите",
+
   "disarmament": "Разоружение",
   "disarmament_desc": "Есть шанс заставить врага выронить оружие при попадании",
   "disarmament_desc2": "Ваш шанс разоружить врага: {0}%",
@@ -129,15 +142,15 @@
   "enemyspawn": "Спавн врагов",
   "enemyspawn_desc": "Нажмите [css_useSkill], чтобы телепортироваться на спавн врагов",
 
-  "expensiveammo": "expensiveammo",
-  "expensiveammo_desc": "expensiveammo_desc",
-  "expensiveammo_disable_info": "expensiveammo_disable_info",
-  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
-  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
-  "expensiveammo_select_info": "expensiveammo_select_info",
+  "expensiveammo": "Дорогие патроны",
+  "expensiveammo_desc": "Выбранный противник платит за каждый выстрел",
+  "expensiveammo_disable_info": "Теперь ваши патроны снова бесплатны.",
+  "expensiveammo_enemy_info": "Теперь каждый ваш выстрел стоит {0}$.",
+  "expensiveammo_player_info": "Игрок '{0}' теперь должен платить за каждый патрон.",
+  "expensiveammo_select_info": "Выберите игрока, для которого патроны станут дорогими:",
 
-  "explodingbarrel": "explodingbarrel",
-  "explodingbarrel_desc": "explodingbarrel_desc",
+  "explodingbarrel": "Взрывающаяся бочка",
+  "explodingbarrel_desc": "Нажмите [css_useSkill], чтобы установить бочку, которая взрывается при попадании",
 
   "explosiveshot": "Взрывной выстрел",
   "explosiveshot_desc": "Случайный шанс выстрелить взрывной пулей при стрельбе",
@@ -149,9 +162,15 @@
   "fastreload": "Быстрая перезарядка",
   "fastreload_desc": "Нажмите [css_useSkill], чтобы перезарядить текущее оружие",
 
+  "firerain": "Огненный дождь",
+  "firerain_desc": "Бросьте приманку, чтобы вызвать дождь из коктейлей Молотова",
+
   "flash": "Флеш",
   "flash_desc": "Случайная скорость игрока в начале раунда",
   "flash_desc2": "Ваш множитель скорости: {0}x",
+
+  "flashlight": "Фонарик",
+  "flashlight_desc": "Нажмите [css_useSkill], чтобы включить или выключить фонарик. Его свет может ослеплять врагов",
 
   "fortnite": "Фортнайт",
   "fortnite_desc": "Нажмите [css_useSkill], чтобы создать разрушаемую баррикаду",
@@ -175,14 +194,14 @@
   "ghost": "Призрак",
   "ghost_desc": "Вы полностью невидимы",
 
-  "giant": "giant",
-  "giant_desc": "giant_desc",
-  "giant_desc2": "giant_desc2: {0}x",
-  "giant_disable_info": "giant_disable_info",
-  "giant_enemy_info": "giant_enemy_info: {0}x",
-  "giant_player_info": "giant_player_info: {0} {1}",
-  "giant_select_info": "giant_select_info",
-  
+  "giant": "Гигант",
+  "giant_desc": "Увеличьте выбранного противника",
+  "giant_desc2": "Увеличьте выбранного противника до {0}-кратного размера",
+  "giant_disable_info": "Вы снова обычного размера.",
+  "giant_enemy_info": "Ваш размер увеличен до {0}-кратного.",
+  "giant_player_info": "Вы увеличили игрока '{0}' до {1}-кратного размера.",
+  "giant_select_info": "Выберите игрока для увеличения:",
+
   "glaz": "Глаз",
   "glaz_desc": "Вы видите сквозь дымовые гранаты",
 
@@ -203,6 +222,9 @@
 
   "grenadier": "Гренадёр",
   "grenadier_desc": "У вас бесконечные осколочные гранаты",
+
+  "healingchicken": "Лечащая курица",
+  "healingchicken_desc": "Ваши куры лечат вас, пока вы находитесь рядом",
 
   "healingsmoke": "Лечащий дым",
   "healingsmoke_desc": "Ваши дымовые гранаты лечат",
@@ -252,6 +274,12 @@
   "jester_on": "ВКЛ",
   "jester_off": "ВЫКЛ",
 
+  "jetkick": "Реактивный удар",
+  "jetkick_desc": "Выберите игрока для реактивного удара",
+  "jetkick_player_info": "Игрок '{0}' получил реактивный удар.",
+  "jetkick_enemy_info": "Каждый выстрел отбрасывает вас назад",
+  "jetkick_disable_info": "Ваша отдача вернулась к норме.",
+
   "jumpban": "Безногий",
   "jumpban_desc": "Выберите игрока, который не сможет прыгать",
   "jumpban_enemy_info": "Кто-то отрезал вам ноги.",
@@ -259,12 +287,12 @@
   "jumpban_player_info": "Игрок '{0}' больше не может прыгать.",
   "jumpban_select_info": "Запретить прыжки игроку:",
 
-  "jumpcurse": "jumpcurse",
-  "jumpcurse_desc": "jumpcurse_desc",
-  "jumpcurse_disable_info": "jumpcurse_disable_info",
-  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
-  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
-  "jumpcurse_select_info": "jumpcurse_select_info",
+  "jumpcurse": "Проклятие прыжка",
+  "jumpcurse_desc": "Выбранный противник прыгает каждый раз, когда прыгает кто-либо из его союзников",
+  "jumpcurse_disable_info": "Теперь вы снова можете контролировать свои прыжки.",
+  "jumpcurse_enemy_info": "Теперь вы будете прыгать каждый раз, когда прыгает кто-либо из ваших союзников.",
+  "jumpcurse_player_info": "Игрок '{0}' теперь прыгает вместе со своими союзниками.",
+  "jumpcurse_select_info": "Выберите игрока для проклятия:",
 
   "jumpingjack": "Прыгающий Джек",
   "jumpingjack_desc": "Прыжки восстанавливают здоровье",
@@ -272,8 +300,11 @@
   "killerflash": "Смертельная флешка",
   "killerflash_desc": "Любой, полностью ослеплённый вашей флешкой, погибает (включая вас)",
 
-  "knockback": "knockback",
-  "knockback_desc": "knockback_desc",
+  "knockback": "Отдача",
+  "knockback_desc": "Стрельба в воздухе отталкивает вас назад",
+
+  "lastgasp": "Последний вздох",
+  "lastgasp_desc": "После смерти вы наносите урон врагу, который вас убил",
 
   "lifeswap": "Обмен жизнями",
   "lifeswap_desc": "Выберите игрока для обмена здоровьем",
@@ -306,22 +337,18 @@
   "miner": "Минёр",
   "miner_desc": "Ваша осколочная граната взрывается только когда рядом есть враг",
 
-  "bankrupt": "Банкрот",
-  "bankrupt_desc": "Выберите игрока, который потеряет все свои деньги",
-  "bankrupt_enemy_info": "Вы обанкротились.",
-  "bankrupt_player_info": "Игрок '{0}' обанкротился.",
-  "bankrupt_select_info": "Выберите игрока для банкротства:",
+  "moneyswap": "Налоговик",
+  "moneyswap_desc": "Выберите игрока для обмена деньгами",
+  "moneyswap_enemy_info": "Налоговая служба добралась до вас.",
+  "moneyswap_player_info": "Вы обменялись деньгами с игроком '{0}'.",
+  "moneyswap_select_info": "Обменять деньги с игроком:",
 
-  "deathbomb": "Смертельная бомба",
-  "deathbomb_desc": "Вы взрываетесь при смерти, убивая ближайших игроков",
-  "deathbomb_explosion": "АЛЛАХУ АКБАР!!!",
-
-  "nightmare": "nightmare",
-  "nightmare_desc": "nightmare_desc",
-  "nightmare_disable_info": "nightmare_disable_info",
-  "nightmare_enemy_info": "nightmare_enemy_info",
-  "nightmare_player_info": "nightmare_player_info: {0}",
-  "nightmare_select_info": "nightmare_select_info",
+  "nightmare": "Кошмар",
+  "nightmare_desc": "Заставьте выбранного противника увидеть кошмарное видение",
+  "nightmare_disable_info": "Кошмар рассеялся.",
+  "nightmare_enemy_info": "Кошмар затуманивает ваше зрение.",
+  "nightmare_player_info": "Вы наложили кошмар на игрока '{0}'.",
+  "nightmare_select_info": "Выберите игрока для кошмара:",
 
   "ninja": "Ниндзя",
   "ninja_desc": "Стоя на месте, ваша невидимость увеличивается на 33%, в приседе на 33%, с ножом на 33%",
@@ -462,6 +489,17 @@
   "swapposition": "Обмен позициями",
   "swapposition_desc": "Нажмите [css_useSkill], чтобы поменяться местами со случайным врагом",
 
+  "takeammo": "Забрать патроны",
+  "takeammo_desc": "Нажмите [css_useSkill], чтобы забрать магазин активного оружия случайного противника",
+  "takeammo_hud_info1": "Не найден игрок с активным магазином.",
+  "takeammo_hud_info2": "У противника нет магазинов.",
+  "takeammo_enemy_info": "Вы потеряли немного боеприпасов.",
+
+  "teamteleport": "Телепортация к союзнику",
+  "teamteleport_desc": "Нажмите [css_useSkill], чтобы телепортироваться к союзнику, на которого вы смотрите",
+  "teamteleport_noenemy": "Союзник не найден",
+  "teamteleport_hud_info": "Найден: {0}",
+
   "teleporter": "Телепортер",
   "teleporter_desc": "Есть шанс поменяться местами с врагом при попадании",
   "teleporter_desc2": "Ваш шанс обмена местами после попадания: {0}%",
@@ -485,12 +523,12 @@
   "toxicsmoke": "Токсичный дым",
   "toxicsmoke_desc": "Ваши дымовые гранаты наносят урон",
 
-  "tripwire": "tripwire",
-  "tripwire_desc": "tripwire_desc",
-  "tripwire_no_wall_info": "tripwire_no_wall_info",
-  "tripwire_placed_info": "tripwire_placed_info",
-  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
-  
+  "tripwire": "Растяжка",
+  "tripwire_desc": "Нажмите [css_useSkill], чтобы натянуть трос между двумя стенами. Враги, задевшие его, отображаются на вашем радаре",
+  "tripwire_no_wall_info": "С обеих сторон нет достаточно близких стен.",
+  "tripwire_placed_info": "Растяжка установлена.",
+  "tripwire_triggered_info": "'{0}' задел вашу растяжку.",
+
   "wallhack": "Воллхак",
   "wallhack_desc": "Вы видите врагов сквозь стены",
 
@@ -569,6 +607,6 @@
   "summary": "Итоги прошедшего раунда",
 
   "menu_controlls_scroll": "W/S — Прокрутка",
-  "menu_controlls_padding": "   |   ",
+  "menu_controlls_padding": "    |    ",
   "menu_controlls_select": "E — Выбрать"
 }

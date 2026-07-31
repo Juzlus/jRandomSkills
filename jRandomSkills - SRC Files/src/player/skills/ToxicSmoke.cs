@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -95,7 +96,7 @@ namespace src.player.skills
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
 
                     if (SkillUtils.GetDistance(smoke.Key, pawn.AbsOrigin) <= smokeRadius)
-                        if (SkillUtils.TakeHealth(pawn, smokeDamage, thrower, "smokegrenade"))
+                        if (SkillUtils.TakeHealth(pawn, smokeDamage, thrower, KillfeedIcons.Smokegrenade))
                             player.EmitSound("Player.DamageBody.Onlooker");
                 }
             }

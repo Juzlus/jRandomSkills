@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
@@ -10,11 +11,13 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
-    public class DeathBomb : ISkill
+    public class BlastShot : ISkill
     {
-        private const Skills skillName = Skills.DeathBomb;
-        private static readonly QAngle angle = new(10, -5, 9);
+        private const Skills skillName = Skills.BlastShot;
+        private static readonly QAngle angle = new(13, -5, 5);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
+        private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
+        private static readonly string[] allowedWeapons = ["weapon_mp5sd"];
 
         public static void LoadSkill()
         {
@@ -23,28 +26,79 @@ namespace src.player.skills
 
         public static void NewRound()
         {
+            SkillPlayerInfo.Clear();
             nades.Clear();
         }
 
-        public static void PlayerDeath(EventPlayerDeath @event)
+        public static void EnableSkill(CCSPlayerController player)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (!IsDeadPlayerValid(player)) return;
-
-            CsTeam lastTeam = player!.Team;
-
-            Server.NextWorldUpdate(() =>
+            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
-
-                if (player == null || !player.IsValid || player.Team != lastTeam) return;
-
-                var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
-
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
-                    SpawnExplosion(player!);
+                SteamID = player.Index,
+                CanUse = true,
+                Cooldown = DateTime.MinValue,
             });
+            SkillUtils.TryGiveWeapon(player, CsItem.MP5SD);
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+            SkillPlayerInfo.TryRemove(player.Index, out _);
+        }
+
+        public static void OnTick()
+        {
+            float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
+
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                if (playerInfo?.Skill != skillName) continue;
+
+                var playerPawn = player.PlayerPawn?.Value;
+                if (playerPawn == null || !playerPawn.IsValid) continue;
+
+                if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
+
+                var buttons = player.Buttons;
+                bool isAttack2 = (buttons & PlayerButtons.Attack2) != 0;
+
+                if (skillInfo.CanUse && isAttack2)
+                {
+                    var weapon = playerPawn.WeaponServices?.ActiveWeapon?.Value;
+                    
+                    if (weapon == null || !weapon.IsValid) continue;
+                    if (!allowedWeapons.Contains(SkillUtils.GetDesignerName(weapon))) continue;
+
+                    skillInfo.CanUse = false;
+                    skillInfo.Cooldown = DateTime.Now;
+                    SpawnExplosion(player);
+                }
+
+                UpdateHUD(player, skillInfo, cooldown);
+            }
+        }
+
+        private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo, float cooldownSkill)
+        {
+            float cooldown = 0;
+            if (skillInfo != null)
+            {
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(cooldownSkill) - DateTime.Now).TotalSeconds);
+                cooldown = Math.Max(time, 0);
+
+                if (cooldown == 0 && skillInfo?.CanUse == false)
+                    skillInfo.CanUse = true;
+            }
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo == null) return;
+
+            if (cooldown == 0)
+                playerInfo.PrintHTML = null;
+            else
+                playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
         }
 
         private static void SpawnExplosion(CCSPlayerController player)
@@ -52,19 +106,12 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z);
-            pos.Z += 10;
+            float force = SkillsInfo.GetValue<float>(skillName, "force");
 
-            SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), player.TeamNum);
+            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
+            Vector vel = SkillUtils.GetForwardVector(pawn.EyeAngles) * force;
 
-            foreach (var _p in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
-                SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}\u202A{player.PlayerName}\u202C: {ChatColors.Lime}{_p.GetTranslation("deathbomb_explosion")}",
-                    border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
-
-            var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
-            var randomFile = fileNames[new Random().Next(fileNames.Length)];
-            player.ExecuteClientCommand($"play vo/agents/balkan/{randomFile}.vsnd");
-
+            SkillUtils.CreateHEGrenadeProjectile(pos, angle, vel, player.TeamNum);
             nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Index), (_, _) => (player.TeamNum, player.Index));
         }
 
@@ -86,7 +133,6 @@ namespace src.player.skills
                 heProjectile.TicksAtZeroVelocity = 100;
                 heProjectile.Damage = SkillsInfo.GetValue<int>(skillName, "explosionDamage");
                 heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
-                heProjectile.DetonateTime = 0;
 
                 if (nades.TryRemove(lastTick, out var source))
                     heProjectile.Globalname = $"deathbomb_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
@@ -152,17 +198,20 @@ namespace src.player.skills
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
 
-        private static bool IsDeadPlayerValid(CCSPlayerController? player)
+        public class PlayerSkillInfo
         {
-            return player != null && player.IsValid && player.PlayerPawn?.Value != null;
+            public ulong SteamID { get; set; }
+            public bool CanUse { get; set; }
+            public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7740c9", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 400.0f, int explosionDamage = 60, float dmgReductionForTeamates = 0.5f, float cooldown = 10f, float force = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
-
+            public float Cooldown { get; set; } = cooldown;
+            public float Force { get; set; } = force;
         }
     }
 }

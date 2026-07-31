@@ -79,6 +79,7 @@ namespace src.player
 
             Instance.HookUserMessage(208, PlayerMakeSound);
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
+            VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamagePost, HookMode.Post);
 
             Instance.RegisterEventHandler<EventBulletImpact>(BulletImpact);
 
@@ -94,6 +95,7 @@ namespace src.player
         public static void Unload()
         {
             TryUnhook(() => VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Pre));
+            TryUnhook(() => VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamagePost, HookMode.Post));
             TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
             TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
             TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
@@ -133,7 +135,7 @@ namespace src.player
             }
         }
 
-        private static void DispatchOnTakeDamage(DynamicHook h)
+        private static void DispatchOnTakeDamage(DynamicHook h, bool post = false)
         {
             object[] args = [h];
             var seen = new HashSet<Skills>();
@@ -149,26 +151,26 @@ namespace src.player
                     continue;
                 }
 
-                InvokeOnTakeDamage(p.Skill, h, args);
+                InvokeOnTakeDamage(p.Skill, h, args, post);
             }
 
             if (deferred == null) return;
             foreach (var skill in deferred)
-                InvokeOnTakeDamage(skill, h, args);
+                InvokeOnTakeDamage(skill, h, args, post);
         }
 
-        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args)
+        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args, bool post)
         {
             if (Config.LoadedConfig.DebugMode != true)
             {
-                InvokeSkill(skill, "OnTakeDamage", args);
+                InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
                 return;
             }
 
             var info = h.GetParam<CTakeDamageInfo>(1);
             float before = info == null ? 0f : info.Damage;
 
-            InvokeSkill(skill, "OnTakeDamage", args);
+            InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
 
             float after = info == null ? 0f : info.Damage;
             if (Math.Abs(before - after) > 0.01f)
@@ -342,6 +344,33 @@ namespace src.player
             {
                 DispatchToActiveSkills("PlayerBlind", @event);
                 return HookResult.Continue;
+            }
+        }
+
+        private static HookResult WeaponDrop(DynamicHook hook)
+        {
+            lock (setLock)
+            {
+                CCSPlayerController player = hook.GetParam<CCSPlayerController>(0);
+                if (player == null || !player.IsValid)
+                    return HookResult.Continue;
+
+                var activeSkills = Instance.SkillPlayer
+                    .Where(p => !p.IsDrawing)
+                    .Select(p => p.Skill.ToString())
+                    .Distinct();
+
+                bool block = false;
+                foreach (string skillName in activeSkills)
+                {
+                    bool? result = (bool?)Instance.SkillAction(skillName, "WeaponDrop", [hook, player]);
+                    if (result == true)
+                    {
+                        block = true;
+                        break;
+                    }
+                }
+                return block ? HookResult.Handled : HookResult.Continue;
             }
         }
 

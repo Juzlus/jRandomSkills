@@ -2,6 +2,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 using static src.jRandomSkills;
@@ -30,7 +31,7 @@ namespace src.player.skills
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player!.Team == attacker!.Team) return;
 
             if (attackerInfo?.Skill == skillName && playerInfo?.Skill != Skills.AntyFlash && player!.PlayerPawn.Value!.FlashDuration >= SkillsInfo.GetValue<float>(skillName, "flashDuration"))
-                SkillUtils.TakeHealth(player.PlayerPawn.Value, 9999, attacker, "weapon_flashbang");
+                SkillUtils.TakeHealth(player.PlayerPawn.Value, 9999, attacker, KillfeedIcons.Flashbang);
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)

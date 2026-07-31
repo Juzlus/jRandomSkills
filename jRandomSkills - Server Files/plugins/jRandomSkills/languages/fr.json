@@ -19,7 +19,7 @@
 
   "areareaper": "Faucheur de Zone",
   "areareaper_desc": "Vous pouvez choisir un site de bombe à désactiver",
-  "areareaper_incorrect_site": "Aucun site de bombe trouvé.",
+  "areareaper_incorrect_site": "Aucun site de bombe trouvé",
   "areareaper_no_site": "Aucun site de bombe disponible.",
   "areareaper_select_info": "Sélectionnez un site à désactiver :",
   "areareaper_site_disabled": "Le site de bombe {0} a été désactivé – aucune bombe ne peut y être posée !",
@@ -51,8 +51,14 @@
   "behind_desc": "Vous avez une chance aléatoire de retourner un ennemi à 180° en le touchant",
   "behind_desc2": "Votre chance de retourner un ennemi à l’impact est : {0}%",
 
+  "berserker": "Berserker",
+  "berserker_desc": "Vous infligez plus de dégâts et vous déplacez plus vite à mesure que votre santé diminue",
+
   "blademaster": "Maître de Lame",
   "blademaster_desc": "En tenant un couteau, vous avez une forte chance de dévier un tir",
+
+  "blastshot": "Tir explosif",
+  "blastshot_desc": "Appuyez sur Attack2 avec le MP5 pour tirer une grenade HE",
 
   "bunnyhop": "Lapin",
   "bunnyhop_desc": "Vous obtenez l’auto « BunnyHop »",
@@ -104,6 +110,13 @@
   "deaf_player_info": "Le son a été désactivé pour le joueur « {0} ».",
   "deaf_select_info": "Couper tous les sons du joueur :",
 
+  "deathbomb": "Bombe",
+  "deathbomb_desc": "Vous explosez à votre mort, tuant les joueurs proches",
+  "deathbomb_explosion": "Kaboom!",
+
+  "demoneye": "Œil démoniaque",
+  "demoneye_desc": "Vous infligez des dégâts à tous les ennemis que vous regardez",
+
   "disarmament": "Désarmement",
   "disarmament_desc": "Vous avez une chance aléatoire de faire lâcher son arme à un ennemi en le touchant",
   "disarmament_desc2": "Votre chance de désarmer un ennemi est : {0}%",
@@ -129,15 +142,15 @@
   "enemyspawn": "Spawn Ennemi",
   "enemyspawn_desc": "Appuyez sur [css_useSkill] pour vous téléporter au spawn ennemi",
 
-  "expensiveammo": "expensiveammo",
-  "expensiveammo_desc": "expensiveammo_desc",
-  "expensiveammo_disable_info": "expensiveammo_disable_info",
-  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
-  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
-  "expensiveammo_select_info": "expensiveammo_select_info",
+  "expensiveammo": "Munitions coûteuses",
+  "expensiveammo_desc": "Un ennemi choisi doit payer pour chaque tir",
+  "expensiveammo_disable_info": "Vos balles sont à nouveau gratuites.",
+  "expensiveammo_enemy_info": "Chaque tir que vous effectuez vous coûte maintenant {0}$.",
+  "expensiveammo_player_info": "Le joueur '{0}' doit maintenant payer pour chaque balle.",
+  "expensiveammo_select_info": "Sélectionnez un joueur dont les munitions deviendront coûteuses :",
 
-  "explodingbarrel": "explodingbarrel",
-  "explodingbarrel_desc": "explodingbarrel_desc",
+  "explodingbarrel": "Baril explosif",
+  "explodingbarrel_desc": "Cliquez sur [css_useSkill] pour placer un baril qui explose lorsqu'il est touché",
 
   "explosiveshot": "Tir Explosif",
   "explosiveshot_desc": "Chance aléatoire de tirer une balle explosive en tirant",
@@ -149,9 +162,15 @@
   "fastreload": "Recharge Rapide",
   "fastreload_desc": "Appuyez sur [css_useSkill] pour recharger l’arme que vous tenez",
 
+  "firerain": "Pluie de feu",
+  "firerain_desc": "Lancez un leurre pour déclencher une pluie de cocktails Molotov",
+
   "flash": "Flash",
   "flash_desc": "Vitesse de joueur aléatoire au début du round",
   "flash_desc2": "Votre multiplicateur de vitesse est : {0}x",
+
+  "flashlight": "Lampe torche",
+  "flashlight_desc": "Cliquez sur [css_useSkill] pour allumer ou éteindre la lampe torche. Sa lumière peut aveugler les ennemis",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "Appuyez sur [css_useSkill] pour créer une barricade destructible",
@@ -175,14 +194,14 @@
   "ghost": "Fantôme",
   "ghost_desc": "Vous êtes complètement invisible",
 
-  "giant": "giant",
-  "giant_desc": "giant_desc",
-  "giant_desc2": "giant_desc2: {0}x",
-  "giant_disable_info": "giant_disable_info",
-  "giant_enemy_info": "giant_enemy_info: {0}x",
-  "giant_player_info": "giant_player_info: {0} {1}",
-  "giant_select_info": "giant_select_info",
-  
+  "giant": "Géant",
+  "giant_desc": "Agrandissez un ennemi de votre choix",
+  "giant_desc2": "Agrandissez un ennemi de votre choix jusqu'à {0}x sa taille normale",
+  "giant_disable_info": "Vous avez retrouvé votre taille normale.",
+  "giant_enemy_info": "Vous avez été agrandi à {0}x votre taille normale.",
+  "giant_player_info": "Vous avez agrandi le joueur '{0}' jusqu'à {1}x sa taille normale.",
+  "giant_select_info": "Sélectionnez un joueur à agrandir :",
+
   "glaz": "Glaz",
   "glaz_desc": "Vous pouvez voir à travers les fumigènes",
 
@@ -206,6 +225,9 @@
 
   "healingsmoke": "Fumigène Soin",
   "healingsmoke_desc": "Vos fumigènes soignent",
+
+  "healingchicken": "Poulet guérisseur",
+  "healingchicken_desc": "Vos poulets vous soignent lorsque vous êtes à proximité",
 
   "hermit": "Ermite",
   "hermit_desc": "Tuer restaure des munitions et une partie de vos PV",
@@ -252,6 +274,12 @@
   "jester_on": "ACTIVÉ",
   "jester_off": "DÉSACTIVÉ",
 
+  "jetkick": "Coup de pied propulsé",
+  "jetkick_desc": "Sélectionnez un joueur pour lui donner un coup de pied propulsé",
+  "jetkick_player_info": "Le joueur '{0}' a reçu un coup de pied propulsé.",
+  "jetkick_enemy_info": "Chaque tir vous repousse vers l'arrière",
+  "jetkick_disable_info": "Votre recul est revenu à la normale.",
+
   "jumpban": "Sans Jambes",
   "jumpban_desc": "Choisissez un joueur qui ne pourra plus sauter",
   "jumpban_enemy_info": "Quelqu’un vous a coupé les jambes.",
@@ -259,12 +287,12 @@
   "jumpban_player_info": "Le joueur « {0} » ne peut plus sauter.",
   "jumpban_select_info": "Interdire de sauter au joueur :",
 
-  "jumpcurse": "jumpcurse",
-  "jumpcurse_desc": "jumpcurse_desc",
-  "jumpcurse_disable_info": "jumpcurse_disable_info",
-  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
-  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
-  "jumpcurse_select_info": "jumpcurse_select_info",
+  "jumpcurse": "Malédiction du saut",
+  "jumpcurse_desc": "Un ennemi choisi saute chaque fois que l'un de ses coéquipiers saute",
+  "jumpcurse_disable_info": "Vous pouvez à nouveau contrôler vos sauts.",
+  "jumpcurse_enemy_info": "Vous sautez maintenant chaque fois que l'un de vos coéquipiers saute.",
+  "jumpcurse_player_info": "Le joueur '{0}' saute maintenant chaque fois que ses coéquipiers sautent.",
+  "jumpcurse_select_info": "Sélectionnez un joueur à maudire :",
 
   "jumpingjack": "Sauteur",
   "jumpingjack_desc": "Sauter vous rend de la vie",
@@ -272,8 +300,12 @@
   "killerflash": "Flash Mortel",
   "killerflash_desc": "Toute personne totalement aveuglée par votre flashbang meurt (y compris vous)",
 
-  "knockback": "knockback",
-  "knockback_desc": "knockback_desc",
+  "knockback": "Repoussement",
+  "knockback_desc": "Tirer dans les airs vous repousse vers l'arrière",
+
+  "lastgasp": "Dernier souffle",
+  "lastgasp_desc": "Après votre mort, vous infligez des dégâts à l'ennemi qui vous a tué",
+
   "lifeswap": "Échange de Vie",
   "lifeswap_desc": "Choisissez un joueur avec qui échanger votre santé",
   "lifeswap_enemy_info": "Quelqu’un a emprunté votre santé.",
@@ -311,16 +343,12 @@
   "bankrupt_player_info": "Le joueur « {0} » est en faillite.",
   "bankrupt_select_info": "Mettre un joueur en faillite :",
 
-  "deathbomb": "Bombe",
-  "deathbomb_desc": "Vous explosez à votre mort, tuant les joueurs proches",
-  "deathbomb_explosion": "Kaboom!",
-
-  "nightmare": "nightmare",
-  "nightmare_desc": "nightmare_desc",
-  "nightmare_disable_info": "nightmare_disable_info",
-  "nightmare_enemy_info": "nightmare_enemy_info",
-  "nightmare_player_info": "nightmare_player_info: {0}",
-  "nightmare_select_info": "nightmare_select_info",
+  "nightmare": "Cauchemar",
+  "nightmare_desc": "Faites subir une vision terrifiante à un ennemi choisi",
+  "nightmare_disable_info": "Le cauchemar s'est dissipé.",
+  "nightmare_enemy_info": "Un cauchemar obscurcit votre vision.",
+  "nightmare_player_info": "Vous avez lancé un cauchemar sur le joueur '{0}'.",
+  "nightmare_select_info": "Sélectionnez un joueur pour le cauchemar :",
 
   "ninja": "Ninja",
   "ninja_desc": "Rester immobile augmente votre invisibilité de 33%, s’accroupir de 33%, et tenir un couteau de 33%",
@@ -461,6 +489,17 @@
   "swapposition": "Échange de Position",
   "swapposition_desc": "Appuyez sur [css_useSkill] pour échanger de place avec un ennemi aléatoire",
 
+  "takeammo": "Prendre des munitions",
+  "takeammo_desc": "Cliquez sur [css_useSkill] pour prendre le chargeur de l'arme active d'un ennemi aléatoire",
+  "takeammo_hud_info1": "Aucun joueur avec un chargeur actif n'a été trouvé.",
+  "takeammo_hud_info2": "L'ennemi n'a pas de chargeur.",
+  "takeammo_enemy_info": "Vous avez perdu des munitions.",
+
+  "teamteleport": "Téléportation d'équipe",
+  "teamteleport_desc": "Appuyez sur [css_useSkill] pour vous téléporter vers le coéquipier que vous regardez",
+  "teamteleport_noenemy": "Aucun coéquipier trouvé",
+  "teamteleport_hud_info": "Trouvé : {0}",
+
   "teleporter": "Téléporteur",
   "teleporter_desc": "Vous avez une chance d'échanger votre place avec un ennemi touché",
   "teleporter_desc2": "Vos chances d'échanger votre place après un coup : {0}%",
@@ -484,12 +523,12 @@
   "toxicsmoke": "Fumée Toxique",
   "toxicsmoke_desc": "Vos grenades fumigènes infligent des dégâts",
 
-  "tripwire": "tripwire",
-  "tripwire_desc": "tripwire_desc",
-  "tripwire_no_wall_info": "tripwire_no_wall_info",
-  "tripwire_placed_info": "tripwire_placed_info",
-  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
-  
+  "tripwire": "Fil-piège",
+  "tripwire_desc": "Cliquez sur [css_useSkill] pour tendre un fil entre deux murs. Les ennemis qui le touchent apparaissent sur votre radar",
+  "tripwire_no_wall_info": "Aucun mur n'est suffisamment proche des deux côtés.",
+  "tripwire_placed_info": "Fil-piège placé.",
+  "tripwire_triggered_info": "'{0}' a déclenché votre fil-piège.",
+
   "wallhack": "Wallhack",
   "wallhack_desc": "Vous pouvez voir les ennemis à travers les murs",
 
@@ -568,6 +607,6 @@
   "summary": "Résumé du dernier round",
 
   "menu_controlls_scroll": "W/S - Défilement",
-  "menu_controlls_padding": "   |   ",
+  "menu_controlls_padding": "    |    ",
   "menu_controlls_select": "E - Sélectionner"
 }

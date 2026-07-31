@@ -143,6 +143,10 @@
     "NextCommand": {
       "Alias": "next_skill",
       "Permissions": "@jRandomSkills/admin"
+    },
+    "CheckEntityCommand": {
+      "Alias": "ent, entity, checkentity, check_entity, sprawdzencje, checkent, check_ent, 检查实体, 检查实体",
+      "Permissions": "@jRandomSkills/owner"
     }
   },
   "VotingCommands": {

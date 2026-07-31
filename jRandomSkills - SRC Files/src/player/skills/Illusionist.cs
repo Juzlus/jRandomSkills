@@ -1,11 +1,12 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CounterStrikeSharp.API.Modules.Utils;
-using static src.jRandomSkills;
-using System.Collections.Concurrent;
-using src.utils;
 using CounterStrikeSharp.API.Modules.Timers;
+using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
+using src.utils;
+using System.Collections.Concurrent;
+using static src.jRandomSkills;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
@@ -209,7 +210,7 @@ namespace src.player.skills
             var attackerTeam = attackerPawn.TeamNum;
             var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
 
-            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, "planted_c4");
+            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, KillfeedIcons.Player);
         }
 
         private static CCSPlayerController? GetReplicaOwner(uint replicaIndex)

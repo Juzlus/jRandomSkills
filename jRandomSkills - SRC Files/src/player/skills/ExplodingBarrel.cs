@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -238,14 +239,14 @@ namespace src.player.skills
                     param2.Damage = 0;
 
                     if (teamDamage > 0)
-                        SkillUtils.TakeHealth(victimPawn, teamDamage, owner, "planted_c4");
+                        SkillUtils.TakeHealth(victimPawn, teamDamage, owner, KillfeedIcons.Explosion);
 
                     return;
                 }
             }
 
             if (owner != null && param2.Damage >= victimPawn.Health)
-                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, "planted_c4");
+                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 
         private static bool IsFriendlyFireOff()

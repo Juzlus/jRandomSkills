@@ -51,8 +51,14 @@
   "behind_desc": "You have a random chance to turn an enemy 180 degrees when hitting them",
   "behind_desc2": "Your chance to turn an enemy on hit is: {0}%",
 
+  "berserker": "Berserker",
+  "berserker_desc": "You deal more damage and move faster as your health gets lower",
+
   "blademaster": "Blademaster",
   "blademaster_desc": "While holding a knife, you have a high chance to deflect a shot",
+
+  "blastshot": "Blast Shot",
+  "blastshot_desc": "Press Attack2 with the MP5 to fire an HE grenade",
 
   "bunnyhop": "Bunny",
   "bunnyhop_desc": "You get auto \"BunnyHop\"",
@@ -130,11 +136,11 @@
   "enemyspawn_desc": "Click [css_useSkill] to teleport to the enemy spawn",
 
   "expensiveammo": "Expensive Ammo",
-  "expensiveammo_desc": "A chosen enemy loses money with every shot",
+  "expensiveammo_desc": "A chosen enemy has to pay for every shot",
   "expensiveammo_disable_info": "Your bullets are free again.",
   "expensiveammo_enemy_info": "Every shot you fire now costs you {0}$.",
-  "expensiveammo_player_info": "Player '{0}' now pays for every bullet.",
-  "expensiveammo_select_info": "Select player whose ammo becomes expensive:",
+  "expensiveammo_player_info": "Player '{0}' now has to pay for every bullet.",
+  "expensiveammo_select_info": "Select a player whose ammo will become expensive:",
 
   "explodingbarrel": "Exploding Barrel",
   "explodingbarrel_desc": "Click [css_useSkill] to place a barrel that explodes when shot",
@@ -149,9 +155,15 @@
   "fastreload": "Fastreload",
   "fastreload_desc": "Click [css_useSkill] to reload the weapon you are currently holding",
 
+  "firerain": "Fire Rain",
+  "firerain_desc": "Throw a decoy to call down a rain of Molotovs",
+
   "flash": "Flash",
   "flash_desc": "Random player speed at the beginning of the round",
   "flash_desc2": "Your speed multiplier is: {0}x",
+
+  "flashlight": "Flashlight",
+  "flashlight_desc": "Click [css_useSkill] to turn the flashlight on or off. Its light can blind enemies",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "Click [css_useSkill] to create a destructible barricade",
@@ -177,12 +189,12 @@
 
   "giant": "Giant",
   "giant_desc": "Enlarge an enemy of your choice",
-  "giant_desc2": "Enlarge an enemy of your choice to {0}x",
+  "giant_desc2": "Enlarge an enemy of your choice to {0}x their normal size",
   "giant_disable_info": "You are back to your normal size.",
-  "giant_enemy_info": "You have been enlarged to {0}x.",
-  "giant_player_info": "You enlarged player '{0}' to {1}x.",
-  "giant_select_info": "Enlarge player:",
-  
+  "giant_enemy_info": "You have been enlarged to {0}x your normal size.",
+  "giant_player_info": "You enlarged player '{0}' to {1}x their normal size.",
+  "giant_select_info": "Select a player to enlarge:",
+
   "glaz": "Glaz",
   "glaz_desc": "You can see through smoke grenades",
 
@@ -203,6 +215,9 @@
 
   "grenadier": "Grenadier",
   "grenadier_desc": "You have infinite hegrenade",
+
+  "healingchicken": "Healing Chicken",
+  "healingchicken_desc": "Your chickens heal you while you are nearby",
 
   "healingsmoke": "Healing Smoke",
   "healingsmoke_desc": "Your smoke grenades heal",
@@ -252,6 +267,12 @@
   "jester_on": "ON",
   "jester_off": "OFF",
 
+  "jetkick": "Jetkick",
+  "jetkick_desc": "Select a player to jetkick",
+  "jetkick_player_info": "Player '{0}' has been jetkicked.",
+  "jetkick_enemy_info": "Every shot knocks you backwards",
+  "jetkick_disable_info": "Your recoil is back to normal.",
+
   "jumpban": "Legless",
   "jumpban_desc": "Choose a player who cannot jump",
   "jumpban_enemy_info": "Someone cut off your legs.",
@@ -260,11 +281,11 @@
   "jumpban_select_info": "Ban player from jumping:",
 
   "jumpcurse": "Jump Curse",
-  "jumpcurse_desc": "A chosen enemy jumps whenever their teammates jump",
-  "jumpcurse_disable_info": "Your legs are your own again.",
-  "jumpcurse_enemy_info": "You now jump whenever your teammates jump.",
-  "jumpcurse_player_info": "Player '{0}' now jumps with their team.",
-  "jumpcurse_select_info": "Select player for the jump curse:",
+  "jumpcurse_desc": "A chosen enemy jumps whenever one of their teammates jumps",
+  "jumpcurse_disable_info": "You can control your jumps again.",
+  "jumpcurse_enemy_info": "You now jump whenever one of your teammates jumps.",
+  "jumpcurse_player_info": "Player '{0}' now jumps whenever their teammates do.",
+  "jumpcurse_select_info": "Select a player to curse:",
 
   "jumpingjack": "Jumping Jack",
   "jumpingjack_desc": "Jumping restores health",
@@ -274,6 +295,9 @@
 
   "knockback": "Knockback",
   "knockback_desc": "Firing while airborne pushes you backwards",
+
+  "lastgasp": "Last Gasp",
+  "lastgasp_desc": "After you die, you deal damage to the enemy who killed you",
 
   "lifeswap": "Life Swap",
   "lifeswap_desc": "Choose a player to swap health with",
@@ -316,12 +340,15 @@
   "deathbomb_desc": "You explode upon death, killing nearby players",
   "deathbomb_explosion": "Kaboom!",
 
+  "demoneye": "Demon Eye",
+  "demoneye_desc": "You deal damage to every enemy you are looking at",
+
   "nightmare": "Nightmare",
-  "nightmare_desc": "Give a chosen enemy a nightmarish vision",
+  "nightmare_desc": "Force a chosen enemy to experience a terrifying vision",
   "nightmare_disable_info": "The nightmare has faded.",
-  "nightmare_enemy_info": "A nightmare clouds your vision.",
+  "nightmare_enemy_info": "A nightmare is clouding your vision.",
   "nightmare_player_info": "You cast a nightmare on player '{0}'.",
-  "nightmare_select_info": "Select player for the nightmare:",
+  "nightmare_select_info": "Select a player to inflict with a nightmare:",
 
   "ninja": "Ninja",
   "ninja_desc": "Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%",
@@ -462,6 +489,17 @@
   "swapposition": "Position Swap",
   "swapposition_desc": "Click [css_useSkill] to swap places with a random enemy",
 
+  "takeammo": "Take Ammo",
+  "takeammo_desc": "Click [css_useSkill] to take the active weapon's magazine from a random enemy",
+  "takeammo_hud_info1": "No player with an active magazine was found.",
+  "takeammo_hud_info2": "The enemy has no magazines.",
+  "takeammo_enemy_info": "You lost some ammo.",
+
+  "teamteleport": "Team Teleport",
+  "teamteleport_desc": "Press [css_useSkill] to teleport to the teammate you're looking at",
+  "teamteleport_noenemy": "No teammate found",
+  "teamteleport_hud_info": "Found: {0}",
+
   "teleporter": "Teleporter",
   "teleporter_desc": "You have the chance to swap places with a hit enemy",
   "teleporter_desc2": "Your chances of swapping places after a hit: {0}%",
@@ -486,10 +524,10 @@
   "toxicsmoke_desc": "Your smoke grenades deal damage",
 
   "tripwire": "Tripwire",
-  "tripwire_desc": "Click [css_useSkill] to string a wire between two walls. Enemies touching it show on your radar",
-  "tripwire_no_wall_info": "No walls close enough on both sides.",
+  "tripwire_desc": "Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar",
+  "tripwire_no_wall_info": "There are no walls close enough on both sides.",
   "tripwire_placed_info": "Tripwire placed.",
-  "tripwire_triggered_info": "'{0}' tripped your wire.",
+  "tripwire_triggered_info": "'{0}' triggered your tripwire.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "You can see enemies through walls",

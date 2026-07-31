@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 using static src.jRandomSkills;
@@ -154,7 +155,7 @@ namespace src.player.skills
                         {
                             eventPlayer.ExecuteClientCommand($"play player/player_damagebody_0{Instance.Random.Next(4, 8)}");
 
-                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"), GetSkillOwner(playerIndex), "planted_c4");
+                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"), GetSkillOwner(playerIndex), KillfeedIcons.Fist);
                         }
                         lastShot.TryRemove(playerIndex, out _);
                     });

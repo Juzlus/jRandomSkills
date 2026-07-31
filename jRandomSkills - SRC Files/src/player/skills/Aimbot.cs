@@ -10,6 +10,7 @@ namespace src.player.skills
     public class Aimbot : ISkill
     {
         private const Skills skillName = Skills.Aimbot;
+        private static readonly ThreadLocal<Stack<(nint Address, HitGroup_t OldValue)>> _restoreStack = new(() => new Stack<(nint, HitGroup_t)>());
 
         public static void LoadSkill()
         {
@@ -50,7 +51,33 @@ namespace src.player.skills
             nint hitGroupData = Marshal.ReadIntPtr(hitGroupPointer, 16);
             if (hitGroupData == nint.Zero) return;
 
-            Marshal.WriteInt32(hitGroupData, 56, (int)HitGroup_t.HITGROUP_HEAD);
+            nint address = hitGroupData + 56;
+            HitGroup_t oldValue = (HitGroup_t)Marshal.ReadInt32(address);
+
+            if (oldValue == HitGroup_t.HITGROUP_HEAD || oldValue == HitGroup_t.HITGROUP_INVALID) return;
+
+            _restoreStack.Value!.Push((address, oldValue));
+            Marshal.WriteInt32(address, (int)HitGroup_t.HITGROUP_HEAD);
+        }
+
+        public static void OnTakeDamagePost(DynamicHook h)
+        {
+            var info = h.GetParam<CTakeDamageInfo>(1);
+
+            if (info == null || info.Handle == nint.Zero)
+                return;
+
+            if (!SkillUtils.IsBulletDamage(info)) return;
+
+            if (_restoreStack.Value!.Count > 0)
+            {
+                var (address, oldValue) = _restoreStack.Value.Pop();
+
+                if (address == nint.Zero)
+                    return;
+
+                Marshal.WriteInt32(address, (int)oldValue);
+            }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

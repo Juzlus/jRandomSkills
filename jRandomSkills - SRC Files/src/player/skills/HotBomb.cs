@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -39,7 +40,7 @@ namespace src.player.skills
                 bool hasC4 = pawn.WeaponServices.MyWeapons.Any(w => w.Value?.DesignerName == "weapon_c4");
                 if (!hasC4) continue;
 
-                SkillUtils.TakeHealth(pawn, damage, owner, "planted_c4");
+                SkillUtils.TakeHealth(pawn, damage, owner, KillfeedIcons.C4);
                 playerEvent?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
             }
         }

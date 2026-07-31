@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 using static src.jRandomSkills;
 
@@ -39,7 +40,7 @@ namespace src.player.skills
             if (target.Handle == player.Handle) return;
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
 
-            SkillUtils.TakeHealth(target.PlayerPawn.Value, 9999, player, "weapon_taser");
+            SkillUtils.TakeHealth(target.PlayerPawn.Value, 9999, player, KillfeedIcons.Taser);
         }
 
         public static void EnableSkill(CCSPlayerController player)

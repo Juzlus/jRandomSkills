@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
 
 namespace src.player.skills
@@ -38,7 +39,7 @@ namespace src.player.skills
                 int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));
                 damage = Math.Min(damage, SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));
 
-                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage, victimEvent, "planted_c4");
+                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage, victimEvent, KillfeedIcons.Armor);
                 attackerEvent.EmitSound("Player.DamageBody.Onlooker");
             }
         }

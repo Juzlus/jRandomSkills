@@ -195,7 +195,6 @@ namespace src.player.skills
 
             itemServices.HasHelmet = gear.HasHelmet;
             itemServices.HasDefuser = gear.HasDefuser;
-            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_pItemServices");
         }
 
         private static (WeaponInfo[]?, bool) GetWeapons(CCSPlayerController player)
@@ -272,7 +271,7 @@ namespace src.player.skills
 
         private static CCSPlayerController? GetRandomEnemy(CCSPlayerController player)
         {
-            CCSPlayerController[] enemies = [.. PlayerManager.GetTickPlayers().FindAll(e => e.Team != player.Team && e.PawnIsAlive)];
+            CCSPlayerController[] enemies = [.. PlayerManager.GetTickPlayers().FindAll(e => e.Team != player.Team && e.PlayerPawn?.Value?.Health > 0)];
             if (enemies.Length == 0) return null;
             return enemies[Instance.Random.Next(enemies.Length)];
         }
