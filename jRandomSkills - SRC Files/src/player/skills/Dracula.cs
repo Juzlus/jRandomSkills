@@ -27,18 +27,41 @@ namespace src.player.skills
                 HealAttacker(attacker!, @event.DmgHealth);
         }
 
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            pawn.MaxHealth = 100;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+
+            if (pawn.Health > 100)
+            {
+                pawn.Health = 100;
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            }
+        }
+
         private static void HealAttacker(CCSPlayerController attacker, float damage)
         {
-            var attackerPawn = attacker.PlayerPawn.Value;
-            if (attackerPawn == null) return;
+            var attackerPawn = attacker.PlayerPawn?.Value;
+            if (attackerPawn == null || !attackerPawn.IsValid) return;
 
-            int newHealth = (int)(attackerPawn.Health + (damage * SkillsInfo.GetValue<float>(skillName, "healthRegainScale")));
+            if (attackerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || attackerPawn.Health <= 0) return;
 
-            attackerPawn.MaxHealth = Math.Max(newHealth, 100);
-            Utilities.SetStateChanged(attackerPawn, "CBaseEntity", "m_iMaxHealth");
+            int extraHealth = (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthRegainScale"));
+            if (extraHealth <= 0) return;
 
-            attackerPawn.Health = newHealth;
+            attackerPawn.Health += extraHealth;
             Utilities.SetStateChanged(attackerPawn, "CBaseEntity", "m_iHealth");
+
+            if (attackerPawn.MaxHealth < attackerPawn.Health)
+            {
+                attackerPawn.MaxHealth = attackerPawn.Health;
+                Utilities.SetStateChanged(attackerPawn, "CBaseEntity", "m_iMaxHealth");
+            }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FA050D", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthRegainScale = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

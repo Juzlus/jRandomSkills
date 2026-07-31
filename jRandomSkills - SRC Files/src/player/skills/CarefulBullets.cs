@@ -15,6 +15,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, bool> lastShot = [];
         private static readonly ConcurrentDictionary<uint, int> hitPlayer = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
+        private static readonly ConcurrentDictionary<uint, uint> targetToPlayer = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -36,6 +37,7 @@ namespace src.player.skills
                 lastShot.Clear();
                 hitPlayer.Clear();
                 playersToTarget.Clear();
+                targetToPlayer.Clear();
             }
         }
 
@@ -44,11 +46,12 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (!SkillUtils.HasMenu(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                if (!SkillUtils.HasMenu(player)) continue;
+
+                var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -88,6 +91,7 @@ namespace src.player.skills
 
             targetPlayers.TryAdd(enemy.Index, 0);
             playersToTarget[player.Index] = enemy.Index;
+            targetToPlayer[enemy.Index] = player.Index;
             playerInfo.SkillUsed = true;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
@@ -106,7 +110,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
@@ -131,13 +135,14 @@ namespace src.player.skills
                 return;
 
             uint playerIndex = player.Index;
+            int impactTick = Server.TickCount;
 
             Server.NextFrame(() =>
             {
                 if (player == null || !player.IsValid) return;
                 if (playerPawn == null || !playerPawn.IsValid) return;
 
-                bool ishitPlayer = hitPlayer.TryGetValue(playerIndex, out int tick) && tick + 10 >= Server.TickCount;
+                bool ishitPlayer = hitPlayer.TryGetValue(playerIndex, out int tick) && tick + 1 >= impactTick;
 
                 if (!lastShot.ContainsKey(playerIndex))
                 {
@@ -148,7 +153,8 @@ namespace src.player.skills
                         if (lastShot.TryRemove(playerIndex, out bool didHit) && !didHit)
                         {
                             eventPlayer.ExecuteClientCommand($"play player/player_damagebody_0{Instance.Random.Next(4, 8)}");
-                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"));
+
+                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"), GetSkillOwner(playerIndex), "planted_c4");
                         }
                         lastShot.TryRemove(playerIndex, out _);
                     });
@@ -156,6 +162,14 @@ namespace src.player.skills
                 else if (ishitPlayer)
                     lastShot.TryUpdate(playerIndex, true, false);
             });
+        }
+
+        private static CCSPlayerController? GetSkillOwner(uint targetIndex)
+        {
+            if (!targetToPlayer.TryGetValue(targetIndex, out uint ownerIndex)) return null;
+
+            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            return owner != null && owner.IsValid ? owner : null;
         }
 
         public static void OnTakeDamage(DynamicHook h)
@@ -188,12 +202,14 @@ namespace src.player.skills
             targetPlayers.TryRemove(player.Index, out _);
             lastShot.TryRemove(player.Index, out _);
             hitPlayer.TryRemove(player.Index, out _);
+            targetToPlayer.TryRemove(player.Index, out _);
 
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
             {
                 targetPlayers.TryRemove(targetIndex, out _);
                 lastShot.TryRemove(targetIndex, out _);
                 hitPlayer.TryRemove(targetIndex, out _);
+                targetToPlayer.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
@@ -211,6 +227,8 @@ namespace src.player.skills
             targetPlayers.TryRemove(player.Index, out _);
             lastShot.TryRemove(player.Index, out _);
             hitPlayer.TryRemove(player.Index, out _);
+
+            targetToPlayer.TryRemove(player.Index, out _);
 
             SkillUtils.CloseMenu(player);
         }

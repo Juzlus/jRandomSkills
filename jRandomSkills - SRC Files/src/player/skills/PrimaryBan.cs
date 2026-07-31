@@ -70,11 +70,12 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (!SkillUtils.HasMenu(player)) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
-                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                if (!SkillUtils.HasMenu(player)) continue;
+
+                var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
@@ -133,7 +134,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+            var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));

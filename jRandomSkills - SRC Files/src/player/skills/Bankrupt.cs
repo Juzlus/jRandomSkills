@@ -30,12 +30,13 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (player == null || !player.IsValid || !SkillUtils.HasMenu(player)) continue;
+                if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (!SkillUtils.HasMenu(player)) continue;
 
-                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Team != player.Team && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = SkillUtils.GetSelectableEnemies(player, true);
                 ConcurrentBag<(string, string)> menuItems = [];
 
                 foreach (var e in enemies)

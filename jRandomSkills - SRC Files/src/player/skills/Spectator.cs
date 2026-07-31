@@ -11,11 +11,14 @@ namespace src.player.skills
     public class Spectator : ISkill
     {
         private const Skills skillName = Skills.Spectator;
+        private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint, uint)> cameras = [];
+        private static readonly ConcurrentDictionary<uint, DateTime> lastUse = [];
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            Instance.AddToManifest(cameraViewModel);
         }
 
         public static void NewRound()
@@ -24,6 +27,15 @@ namespace src.player.skills
                 EntityManager.DestroyEntity(info.Value.Item2);
 
             cameras.Clear();
+            lastUse.Clear();
+        }
+
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            if (cameras.TryRemove(playerIndex, out var cameraInfo) && cameraInfo.Item2 != 0)
+                EntityManager.DestroyEntity(cameraInfo.Item2);
+
+            lastUse.TryRemove(playerIndex, out _);
         }
 
         public static void WeaponPickup(EventItemPickup @event)
@@ -43,6 +55,11 @@ namespace src.player.skills
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
+
+            float cooldown = SkillsInfo.GetValue<float>(skillName, "useCooldown");
+            if (lastUse.TryGetValue(player.Index, out var last) && (DateTime.Now - last).TotalSeconds < cooldown) return;
+            lastUse[player.Index] = DateTime.Now;
+
             ChangeCamera(player);
         }
 
@@ -52,6 +69,7 @@ namespace src.player.skills
             ChangeCamera(player, true);
             EntityManager.DestroyPlayerEntities(player.Index);
             cameras.TryRemove(player.Index, out _);
+            lastUse.TryRemove(player.Index, out _);
         }
 
         public static void OnTick()
@@ -139,12 +157,19 @@ namespace src.player.skills
                 p.PlayerPawn.Value.Health > 0).ToList();
 
             if (enemies.Count == 0)
+            {
+                EntityManager.DestroyEntity(camera.Index);
                 return 0;
+            }
 
             var enemy = enemies[Instance.Random.Next(enemies.Count)];
 
             var pawn = enemy.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid || pawn.CameraServices == null || pawn.AbsOrigin == null) return 0;
+            if (pawn == null || !pawn.IsValid || pawn.CameraServices == null || pawn.AbsOrigin == null)
+            {
+                EntityManager.DestroyEntity(camera.Index);
+                return 0;
+            }
 
             QAngle angle = new(0, pawn.EyeAngles.Y, 0);
 
@@ -159,7 +184,7 @@ namespace src.player.skills
                 if (camNode != null)
                     camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
 
-                camera.SetModel("models/sprays/spray_plane.vmdl");
+                camera.SetModel(cameraViewModel);
                 camera.Render = Color.FromArgb(1, 255, 255, 255);
                 camera.Teleport(pos, angle);
                 camera.DispatchSpawn();
@@ -202,9 +227,10 @@ namespace src.player.skills
                 }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5da", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5da", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 100f, float useCooldown = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Distance { get; set; } = distance;
+            public float UseCooldown { get; set; } = useCooldown;
         }
     }
 }

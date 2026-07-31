@@ -26,6 +26,8 @@ namespace src.player.skills
             if (players.IsEmpty || jRandomSkills.Instance.GameRules?.FreezePeriod == true) return;
             int damage = SkillsInfo.GetValue<int>(skillName, "damage");
 
+            var owner = GetSkillOwner();
+
             foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
             {
                 var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -37,9 +39,20 @@ namespace src.player.skills
                 bool hasC4 = pawn.WeaponServices.MyWeapons.Any(w => w.Value?.DesignerName == "weapon_c4");
                 if (!hasC4) continue;
 
-                SkillUtils.TakeHealth(pawn, damage);
+                SkillUtils.TakeHealth(pawn, damage, owner, "planted_c4");
                 playerEvent?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
             }
+        }
+
+        private static CCSPlayerController? GetSkillOwner()
+        {
+            foreach (var ownerIndex in players.Keys)
+            {
+                var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+                if (owner != null && owner.IsValid) return owner;
+            }
+
+            return null;
         }
 
         public static void WeaponPickup(EventItemPickup @event)
@@ -49,7 +62,7 @@ namespace src.player.skills
 
             // Gate on the bomb being hot (red), not on `players`: the fresh round's C4 is
             // handed out before NewRound clears `players`, but a new C4 spawns white, so colour is race-free.
-            var bomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            var bomb = PlayerManager.GetTickBomb();
             if (bomb == null || !bomb.IsValid) return;
             if (bomb.Render.R != 255 || bomb.Render.G != 0 || bomb.Render.B != 0) return;
 
@@ -63,11 +76,8 @@ namespace src.player.skills
         {
             Server.NextFrame(() =>
             {
-                var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").ToList();
-                if (bombEntities.Count == 0) return;
-
-                var bomb = bombEntities.FirstOrDefault();
-                if (bomb == null) return;
+                var bomb = PlayerManager.GetTickBomb();
+                if (bomb == null || !bomb.IsValid) return;
 
                 bomb.Render = color;
                 Utilities.SetStateChanged(bomb, "CBaseModelEntity", "m_clrRender");

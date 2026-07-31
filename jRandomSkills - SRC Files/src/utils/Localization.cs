@@ -22,10 +22,33 @@ namespace src.utils
 
         private static string defaultLangCode = "en";
 
+        private static readonly Dictionary<Skills, string> skillKeys = BuildSkillKeys("");
+        private static readonly Dictionary<Skills, string> skillDescKeys = BuildSkillKeys("_desc");
+        private static readonly Dictionary<Skills, string> skillDesc2Keys = BuildSkillKeys("_desc2");
+
+        private static Dictionary<Skills, string> BuildSkillKeys(string suffix)
+        {
+            var map = new Dictionary<Skills, string>();
+            foreach (Skills skill in Enum.GetValues<Skills>())
+                map[skill] = skill.ToString().ToLowerInvariant() + suffix;
+            return map;
+        }
+
+        private static string SkillKey(Skills skill) => skillKeys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant();
+        private static string SkillDescKey(Skills skill) => skillDescKeys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant() + "_desc";
+        private static string SkillDesc2Key(Skills skill) => skillDesc2Keys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant() + "_desc2";
+
+        private static readonly ConcurrentDictionary<(Skills Skill, string Lang, double Chance), string> _skillNameCache = [];
+        private static readonly ConcurrentDictionary<(Skills Skill, string Lang, double Chance), string> _skillDescCache = [];
+
+        private const double NoChance = double.NegativeInfinity;
+
         public static void Load()
         {
             _translations.Clear();
             _playersLanguage.Clear();
+            _skillNameCache.Clear();
+            _skillDescCache.Clear();
             SetLangCode();
             LoadAllLanguages();
             LoadPlayersLanguage();
@@ -77,9 +100,26 @@ namespace src.utils
         public static string GetSkillName(this CCSPlayerController player, Skills skill, float? chance = null)
         {
             string langCode = GetLangCode(player);
+
+            bool cacheable = !Illiterate.CheckIlliterateSkill(player);
+            var cacheKey = (skill, langCode, chance == null ? NoChance : Math.Round((double)chance, 2));
+
+            if (cacheable && _skillNameCache.TryGetValue(cacheKey, out var cached))
+                return cached;
+
+            string result = BuildSkillName(player, skill, chance, langCode);
+
+            if (cacheable)
+                _skillNameCache[cacheKey] = result;
+
+            return result;
+        }
+
+        private static string BuildSkillName(CCSPlayerController player, Skills skill, float? chance, string langCode)
+        {
             if (chance == null)
             {
-                var translation = GetTranslation(skill.ToString().ToLowerInvariant(), langCode);
+                var translation = GetTranslation(SkillKey(skill), langCode);
                 if (!translation.Contains("{0}"))
                     return translation;
 
@@ -92,7 +132,7 @@ namespace src.utils
             }
 
             var value = Math.Round((double)(chance ?? 1), 2);
-            var skillNameText = GetTranslation(skill.ToString().ToLowerInvariant(), langCode, player, value);
+            var skillNameText = GetTranslation(SkillKey(skill), langCode, player, value);
             if (skillNameText.Contains('%')) skillNameText = skillNameText.Replace(value.ToString(), Math.Round(value * 100, 0).ToString());
             return skillNameText;
         }
@@ -100,9 +140,26 @@ namespace src.utils
         public static string GetSkillDescription(this CCSPlayerController player, Skills skill, float? chance = null)
         {
             string langCode = GetLangCode(player);
+
+            bool cacheable = !Illiterate.CheckIlliterateSkill(player);
+            var cacheKey = (skill, langCode, chance == null ? NoChance : Math.Round((double)chance, 2));
+
+            if (cacheable && _skillDescCache.TryGetValue(cacheKey, out var cached))
+                return cached;
+
+            string result = BuildSkillDescription(player, skill, chance, langCode);
+
+            if (cacheable)
+                _skillDescCache[cacheKey] = result;
+
+            return result;
+        }
+
+        private static string BuildSkillDescription(CCSPlayerController player, Skills skill, float? chance, string langCode)
+        {
             if (chance == null)
             {
-                var translation = GetTranslation($"{skill.ToString().ToLowerInvariant()}_desc", langCode);
+                var translation = GetTranslation(SkillDescKey(skill), langCode);
                 if (!translation.Contains("{0}"))
                     return translation;
 
@@ -114,12 +171,12 @@ namespace src.utils
                 return string.Join(' ', filtered);
             }
 
-            var skillName = $"{skill.ToString().ToLowerInvariant()}_desc2";
+            var skillName = SkillDesc2Key(skill);
             var value = Math.Round((double)(chance ?? 1), 2);
             var desc2 = GetTranslation(skillName, langCode, player, value);
 
             var skilLDescription = desc2 == skillName
-                ? player.GetTranslation($"{skill.ToString().ToLowerInvariant()}_desc")
+                ? player.GetTranslation(SkillDescKey(skill))
                 : desc2.Contains('%') ? desc2.Replace(value.ToString(), Math.Round(value * 100, 0).ToString()) : desc2;
             return skilLDescription;
         }

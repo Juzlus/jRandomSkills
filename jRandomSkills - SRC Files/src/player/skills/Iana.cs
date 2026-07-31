@@ -14,6 +14,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Iana;
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = [];
+        private static readonly ConcurrentDictionary<uint, byte> consumedClones = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -27,7 +28,10 @@ namespace src.player.skills
                 KillClone(playerSkill);
 
             lock (setLock)
+            {
                 playersInfo.Clear();
+                consumedClones.Clear();
+            }
         }
 
         public static void WeaponPickup(EventItemPickup @event)
@@ -68,7 +72,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            if (player.PlayerPawn.Value == null || player.PlayerPawn.Value.CameraServices == null) return;
+            if (player == null || !player.IsValid) return;
             playersInfo.TryAdd(player.Index, new PlayerSkill
             {
                 PlayerIndex = player.Index,
@@ -203,6 +207,8 @@ namespace src.player.skills
                 playerSkill.NextUse = Server.TickCount + 64000;
                 playerSkill.CloneProp = clone.Index;
 
+                consumedClones.TryRemove(clone.Index, out _);
+
                 jRandomSkills.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () =>
                 {
                     if (playerSkill.CloneProp != null)
@@ -283,6 +289,19 @@ namespace src.player.skills
             return calculatedDamage;
         }
 
+        private static CCSPlayerController? GetShooter(CTakeDamageInfo info)
+        {
+            var attackerEnt = info.Attacker?.Value;
+            if (attackerEnt == null || !attackerEnt.IsValid) return null;
+
+            var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
+            if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return null;
+            if (attackerPawn.Controller?.Value == null) return null;
+
+            var shooter = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>());
+            return shooter != null && shooter.IsValid ? shooter : null;
+        }
+
         public static void OnTakeDamage(DynamicHook h)
         {
             CEntityInstance param = h.GetParam<CEntityInstance>(0);
@@ -327,11 +346,14 @@ namespace src.player.skills
                         dealDamage = CalculateDamage(player, weapon, damage, isHead);
                 }
 
+                if (playerSkill.CloneProp != null && !consumedClones.TryAdd(playerSkill.CloneProp.Value, 0))
+                    return;
+
                 KillClone(playerSkill);
 
                 var playerPawn = player.PlayerPawn.Value;
                 if (playerPawn != null)
-                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage);
+                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage, GetShooter(param2), param2.Ability?.Value?.DesignerName);
             }
         }
 
@@ -408,9 +430,8 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return false;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
-                if (playerSkill.CloneProp == null || playerSkill.Weapons.Contains(econItem.ItemID))
-                    return false;
+            if (!playersInfo.TryGetValue(player.Index, out var playerSkill)) return false;
+            if (playerSkill.CloneProp == null || playerSkill.Weapons.Contains(econItem.ItemID)) return false;
 
             hook.SetReturn(AcquireResult.InvalidItem);
             return true;

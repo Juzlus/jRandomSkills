@@ -48,7 +48,7 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
 
-## ✨ Current Skills (124)
+## ✨ Current Skills (131)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -86,6 +86,8 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Duplicator | Choose a player to copy their skill | - |
 | Dwarf | Random character size at the start of the round | (60 - 95)% |
 | Enemy Spawn | Click [css_useSkill] to teleport to the enemy spawn | 15 s |
+| Expensive Ammo | A chosen enemy loses money with every shot | - |
+| Exploding Barrel | Place a barrel that explodes when shot | - |
 | Explosive Shot | Random chance to fire an explosive bullet while shooting | (15 - 30)% |
 | Falcon Eye | Click [css_useSkill] to activate a bird's-eye view camera| - |
 | Fastreload | Click [css_useSkill] to reload the weapon you are currently holding | - |
@@ -96,6 +98,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Freezing Decoy | Your decoy freezes all nearby players | - |
 | Gambler | Select a skill from the list provided | - |
 | Ghost | You are completely invisible | - |
+| Giant | Enlarges a chosen enemy | (110 - 140)% |
 | Glaz | You can see through smoke grenades | - |
 | Glitch | Disables the radar for a chosen enemy | - |
 | Glue | Your grenades stick to walls | - |
@@ -115,8 +118,10 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Jammer | Choose a player to disable their crosshair | - |
 | Jester | In jester mode, you cannot get or take any damage. This mode changes every few seconds | (10 - 25) s |
 | Legless | Choose a player who cannot jump | - |
+| Jump Curse | A chosen enemy jumps whenever their teammates jump | - |
 | Jumping Jack | Jumping restores health | - |
 | Killer Flash | Anyone fully blinded by your flashbang dies (including you) | - |
+| Knockback | Firing while airborne pushes you backwards | - |
 | Life Swap | Choose a player to swap health with | - |
 | Long Knife | A primary knife attack deals damage regardless of distance | - |
 | Long Zeus | Zeus deals damage regardless of distance | - |
@@ -126,6 +131,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Medic | Click [css_useSkill] to use a healing charge that restores 50 health | 1 s |
 | Bomb Miner | Your HE grenade only explode when there is an enemy nearby | - |
 | Taxman | Choose a player to swap money with | - |
+| Nightmare | Gives a chosen enemy a nightmarish vision | - |
 | Ninja | Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33% | - |
 | No-Nades | Grenades deal no damage to you | - |
 | Focus | No recoil while shooting | - |
@@ -172,6 +178,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Thorns | Your opponent will receive a portion of the damage that they inflicted on you | - |
 | Throwing Knife | Click [css_useSkill] to throw a knife. But watch out for others | - |
 | Toxic Smoke | Your smoke grenades deal damage | - |
+| Tripwire | String a wire between two walls; enemies touching it show on your radar | - |
 | Wallhack | You can see enemies through walls | - |
 | Watchmaker | Every grenade throw alters the round time | - |
 | Weapon Swap | Click [css_useSkill] to swap weapons with a random enemy | 30 s |

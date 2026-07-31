@@ -12,6 +12,8 @@ namespace src.utils
 
         private static int cachedTick = int.MinValue;
         private static List<CCSPlayerController> cachedControllers = [];
+
+        private static int cachedBombTick = int.MinValue;
         private static CC4? cachedBomb;
 
         private static void EnsureTickCache()
@@ -20,7 +22,6 @@ namespace src.utils
             if (tick == cachedTick) return;
             cachedTick = tick;
             cachedControllers = Utilities.GetPlayers();
-            cachedBomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
         }
 
         public static List<CCSPlayerController> GetTickPlayers()
@@ -31,7 +32,13 @@ namespace src.utils
 
         public static CC4? GetTickBomb()
         {
-            EnsureTickCache();
+            int tick = Server.TickCount;
+            if (tick != cachedBombTick)
+            {
+                cachedBombTick = tick;
+                cachedBomb = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4").FirstOrDefault();
+            }
+
             return cachedBomb != null && cachedBomb.IsValid ? cachedBomb : null;
         }
 
@@ -62,7 +69,7 @@ namespace src.utils
             if (!player.ControllingBot)
                 return player;
 
-            return Utilities.GetPlayers().FirstOrDefault(p =>
+            return GetTickPlayers().FirstOrDefault(p =>
                 p != null &&
                 p.IsValid &&
                 p.IsBot &&
@@ -78,7 +85,7 @@ namespace src.utils
             if (!player.IsBot)
                 return player;
 
-            return Utilities.GetPlayers().FirstOrDefault(p =>
+            return GetTickPlayers().FirstOrDefault(p =>
                 p != null &&
                 p.IsValid &&
                 !p.IsBot &&
@@ -91,57 +98,9 @@ namespace src.utils
             return playersByIndex.Values;
         }
 
-        public static IEnumerable<jSkill_PlayerInfo> GetAlivePlayers()
-        {
-            return playersByIndex.Values.Where(p =>
-            {
-                try
-                {
-                    var controller = Utilities.GetPlayerFromIndex((int)p.PlayerIndex);
-                    return controller != null && controller.IsValid && controller.PawnIsAlive;
-                }
-                catch
-                {
-                    return false;
-                }
-            });
-        }
-
-        public static IEnumerable<jSkill_PlayerInfo> GetPlayersByTeam(CsTeam team)
-        {
-            return playersByIndex.Values.Where(p =>
-            {
-                try
-                {
-                    var controller = Utilities.GetPlayerFromIndex((int)p.PlayerIndex);
-                    return controller != null && controller.IsValid && controller.Team == team;
-                }
-                catch
-                {
-                    return false;
-                }
-            });
-        }
-
-        public static int GetTeamPlayerCount(CsTeam team)
-        {
-            return GetPlayersByTeam(team).Count();
-        }
-
         public static int GetPlayerCountBySkill(Skills skills)
         {
             return playersByIndex.Values.Count(p => p.Skill == skills);
-        }
-
-        public static bool UpdatePlayerSkill(uint playerIndex, Skills skill, Skills specialSkill = Skills.None)
-        {
-            if (playersByIndex.TryGetValue(playerIndex, out var playerInfo))
-            {
-                playerInfo.Skill = skill;
-                playerInfo.SpecialSkill = specialSkill;
-                return true;
-            }
-            return false;
         }
 
         public static void Clear()

@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b1";
+        public override string ModuleVersion => "1.2.3.b2";
 
         public override void Load(bool hotReload)
         {
@@ -61,6 +61,10 @@ namespace src
         {
             src.player.PerfLog.Info("===== PLUGIN UNLOAD (clean shutdown/reload) =====");
             Debug.WriteToDebug("===== PLUGIN UNLOAD (clean shutdown/reload) =====");
+
+            Event.Unload();
+            Debug.Unload();
+
             base.Unload(hotReload);
         }
 
@@ -88,6 +92,26 @@ namespace src
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
 
+        private static bool TryClaimCurseTarget(object[]? param)
+        {
+            if (param == null || param.Length < 2) return true;
+            if (param[0] is not CCSPlayerController curser || !curser.IsValid) return true;
+            if (param[1] is not string[] commands || commands.Length < 1) return true;
+            if (!uint.TryParse(commands[0], out uint victimIndex)) return true;
+
+            var victim = Utilities.GetPlayerFromIndex((int)victimIndex);
+            if (victim == null || !victim.IsValid) return true;
+
+            if (SkillUtils.TryClaimCurse(curser.Index, victimIndex)) return true;
+
+            if (!SkillUtils.AnyCurseCapacity(curser))
+                return SkillUtils.TryClaimCurse(curser.Index, victimIndex, true);
+
+            var curserEvent = PlayerManager.GetPlayerFromEvent(curser);
+            curserEvent?.PrintToChat($" {ChatColors.Red}{curserEvent.GetTranslation("curse_limit_info", victim.PlayerName)}");
+            return false;
+        }
+
         private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
 
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
@@ -99,6 +123,15 @@ namespace src
             {
                 ActiveSkillsThisRound.TryAdd(skill, 0);
                 SkillsUsedThisMap.TryAdd(skill, 0);
+            }
+
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill))
+            {
+                if (methodName == "DisableSkill" && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
+                    SkillUtils.ReleaseCurse(curser.Index);
+
+                if (methodName == "TypeSkill" && !TryClaimCurseTarget(param))
+                    return null;
             }
 
             var method = _skillMethodCache.GetOrAdd((skill, methodName), key =>
@@ -333,9 +366,11 @@ namespace src
         public bool IsDrawing { get; set; }
         public DateTime SkillHudExpired { get; set; }
         public DateTime SkillDescriptionHudExpired { get; set; }
+        public DateTime HudSuppressedUntil { get; set; }
         public string? PrintHTML { get; set; }
         public bool DisplayHUD { get; set; }
         public bool SkillUsed = false;
+        public bool? HudOnDeathBlocked { get; set; }
     }
 
     public class jSkill_SkillInfo(Skills skill, string color, bool display)

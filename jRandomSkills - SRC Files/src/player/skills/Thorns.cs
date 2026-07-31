@@ -38,7 +38,7 @@ namespace src.player.skills
                 int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));
                 damage = Math.Min(damage, SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));
 
-                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage);
+                SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage, victimEvent, "planted_c4");
                 attackerEvent.EmitSound("Player.DamageBody.Onlooker");
             }
         }

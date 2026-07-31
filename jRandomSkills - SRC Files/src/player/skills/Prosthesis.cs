@@ -14,19 +14,20 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        private static readonly HitGroup_t[] disabledHitbox =
+            [HitGroup_t.HITGROUP_LEFTARM, HitGroup_t.HITGROUP_RIGHTARM, HitGroup_t.HITGROUP_LEFTLEG, HitGroup_t.HITGROUP_RIGHTLEG];
+
+        public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            var hitgroup = (HitGroup_t)@event.Hitgroup;
 
-            if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return;
-            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+            if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return false;
+            if (Array.IndexOf(disabledHitbox, (HitGroup_t)@event.Hitgroup) < 0) return false;
+            if (PlayerManager.GetPlayerByIndex(victim!.Index)?.Skill != skillName) return false;
 
-            HitGroup_t[] disabledHitbox = [HitGroup_t.HITGROUP_LEFTARM, HitGroup_t.HITGROUP_RIGHTARM, HitGroup_t.HITGROUP_LEFTLEG, HitGroup_t.HITGROUP_RIGHTLEG];
-            if (disabledHitbox.Contains(hitgroup))
-                SkillUtils.RestoreHealth(victim);
+            SkillUtils.RestoreHealth(victim);
+            return true;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c9c9c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

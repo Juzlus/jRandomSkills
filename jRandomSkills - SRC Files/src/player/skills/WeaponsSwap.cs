@@ -137,15 +137,65 @@ namespace src.player.skills
                     {
                         if (player == null || !player.IsValid) return;
                         if (enemy == null || !enemy.IsValid) return;
+
+                        var playerGear = SnapshotGear(player);
+                        var enemyGear = SnapshotGear(enemy);
+
                         player.RemoveWeapons();
                         enemy.RemoveWeapons();
                         GiveWeapons(player, enemyWeapon, playerC4);
                         GiveWeapons(enemy, playerWeapon, (enemyWeapon != null && enemyC4));
+
+                        RestoreGear(player, playerGear);
+                        RestoreGear(enemy, enemyGear);
                     });
                 }
                 else
                     skillInfo.LastClick = DateTime.Now;
             }
+        }
+
+        private static GearInfo? SnapshotGear(CCSPlayerController player)
+        {
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return null;
+
+            var itemServices = pawn.ItemServices?.As<CCSPlayer_ItemServices>();
+
+            return new GearInfo
+            {
+                Armor = pawn.ArmorValue,
+                Health = pawn.Health,
+                HasHelmet = itemServices?.HasHelmet ?? false,
+                HasDefuser = itemServices?.HasDefuser ?? false,
+            };
+        }
+
+        private static void RestoreGear(CCSPlayerController player, GearInfo? gear)
+        {
+            if (gear == null) return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            if (pawn.ArmorValue != gear.Armor)
+            {
+                pawn.ArmorValue = gear.Armor;
+                Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
+            }
+
+            if (pawn.Health != gear.Health)
+            {
+                pawn.Health = gear.Health;
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            }
+
+            var itemServices = pawn.ItemServices?.As<CCSPlayer_ItemServices>();
+            if (itemServices == null) return;
+
+            itemServices.HasHelmet = gear.HasHelmet;
+            itemServices.HasDefuser = gear.HasDefuser;
+            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_pItemServices");
         }
 
         private static (WeaponInfo[]?, bool) GetWeapons(CCSPlayerController player)
@@ -245,6 +295,14 @@ namespace src.player.skills
             public DateTime LastClick { get; set; }
             public bool FindedEnemy { get; set; }
             public bool HaveWeapon { get; set; }
+        }
+
+        public class GearInfo
+        {
+            public required int Armor { get; set; }
+            public required int Health { get; set; }
+            public required bool HasHelmet { get; set; }
+            public required bool HasDefuser { get; set; }
         }
 
         public class WeaponInfo

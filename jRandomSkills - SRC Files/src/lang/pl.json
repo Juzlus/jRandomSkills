@@ -129,6 +129,16 @@
   "enemyspawn": "Resp Wroga",
   "enemyspawn_desc": "Kliknij [css_useSkill], aby teleportować się na resp wroga",
 
+  "expensiveammo": "expensiveammo",
+  "expensiveammo_desc": "expensiveammo_desc",
+  "expensiveammo_disable_info": "expensiveammo_disable_info",
+  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
+  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
+  "expensiveammo_select_info": "expensiveammo_select_info",
+
+  "explodingbarrel": "explodingbarrel",
+  "explodingbarrel_desc": "explodingbarrel_desc",
+  
   "explosiveshot": "Strzał Wybuchowy",
   "explosiveshot_desc": "Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania",
   "explosiveshot_desc2": "Twoja szansa na wystrzelenie pocisku wybuchowego: {0}%",
@@ -165,6 +175,14 @@
   "ghost": "Duszek",
   "ghost_desc": "Jesteś całkowicie niewidzialny",
 
+  "giant": "giant",
+  "giant_desc": "giant_desc",
+  "giant_desc2": "giant_desc2: {0}x",
+  "giant_disable_info": "giant_disable_info",
+  "giant_enemy_info": "giant_enemy_info: {0}x",
+  "giant_player_info": "giant_player_info: {0} {1}",
+  "giant_select_info": "giant_select_info",
+  
   "glaz": "Glaz",
   "glaz_desc": "Nie widzisz granatów dymnych",
 
@@ -241,12 +259,21 @@
   "jumpban_player_info": "Gracz '{0}' nie może teraz skakać.",
   "jumpban_select_info": "Zablokuj skok dla gracza:",
 
+  "jumpcurse": "jumpcurse",
+  "jumpcurse_desc": "jumpcurse_desc",
+  "jumpcurse_disable_info": "jumpcurse_disable_info",
+  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
+  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
+  "jumpcurse_select_info": "jumpcurse_select_info",
+
   "jumpingjack": "Pajacyk",
   "jumpingjack_desc": "Skakanie przywraca zdrowie",
 
   "killerflash": "Zabójczy Flash",
   "killerflash_desc": "Każdy całkowicie oślepiony twoim granatem umiera (również ty)",
 
+  "knockback": "knockback",
+  "knockback_desc": "knockback_desc",
   "lifeswap": "Zamiana Żyć",
   "lifeswap_desc": "Wybierasz gracza, z którym chcesz wymienić się zdrowiem",
   "lifeswap_enemy_info": "Ktoś pożyczył sobie twoje zdrowie.",
@@ -287,6 +314,13 @@
   "deathbomb": "Ludzka bomba",
   "deathbomb_desc": "Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu",
   "deathbomb_explosion": "Kaboom!",
+
+  "nightmare": "nightmare",
+  "nightmare_desc": "nightmare_desc",
+  "nightmare_disable_info": "nightmare_disable_info",
+  "nightmare_enemy_info": "nightmare_enemy_info",
+  "nightmare_player_info": "nightmare_player_info: {0}",
+  "nightmare_select_info": "nightmare_select_info",
 
   "ninja": "Ninja",
   "ninja_desc": "Stojąc nieruchomo zwiększasz swoją niewidzialność o 33%, kucając o 33%, a trzymając nóż o 33%",
@@ -450,6 +484,12 @@
   "toxicsmoke": "Toksyczny Dym",
   "toxicsmoke_desc": "Twoje granaty dymny zadają obrażenia",
 
+  "tripwire": "tripwire",
+  "tripwire_desc": "tripwire_desc",
+  "tripwire_no_wall_info": "tripwire_no_wall_info",
+  "tripwire_placed_info": "tripwire_placed_info",
+  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
+
   "wallhack": "Wallhack",
   "wallhack_desc": "Widzisz wrogów przez ściany",
 
@@ -491,6 +531,7 @@
   "duplicate_player": "Znaleziono więcej niż jednego gracza o tej samej nazwie.",
   "selectplayerskill_command": "Wpisz /t",
   "selectplayerskill_incorrect_enemy_index": "Nie znaleziono graczy do wyboru.",
+  "curse_limit_info": "curse_limit_info",
 
   "skill_not_found_setskill": "Nie znaleziono takiej CHATCOLORS.REDsupermocy",
   "player_not_found_setskill": "Nie znaleziono takiego CHATCOLORS.REDgracza",

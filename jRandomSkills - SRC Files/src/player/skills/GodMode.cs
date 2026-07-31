@@ -3,6 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
+using System.Drawing;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -53,12 +54,34 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Index, out var skillInfo);
             SkillUtils.ResetPrintHTML(player);
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn != null && playerPawn.IsValid)
+            {
                 playerPawn.TakesDamage = true;
+                RestoreRender(playerPawn, skillInfo?.OriginalRender);
+            }
+        }
+
+        private static void SetGodModeRender(CCSPlayerPawn pawn, PlayerSkillInfo skillInfo)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+
+            var current = pawn.Render;
+            skillInfo.OriginalRender ??= current;
+
+            pawn.Render = Color.FromArgb(current.A, 255, 255, 0);
+            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+        }
+
+        private static void RestoreRender(CCSPlayerPawn? pawn, Color? originalRender)
+        {
+            if (pawn == null || !pawn.IsValid || originalRender == null) return;
+
+            pawn.Render = originalRender.Value;
+            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
@@ -100,11 +123,17 @@ namespace src.player.skills
 
                     PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Green} {player.GetTranslation("godmode_on")}");
                     player.PlayerPawn.Value.TakesDamage = false;
+                    SetGodModeRender(player.PlayerPawn.Value, skillInfo);
 
                     Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () =>
                     {
+                        Color? originalRender = null;
                         if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
+                        {
                             skillInfo.HaveGodMode = false;
+                            originalRender = skillInfo.OriginalRender;
+                            skillInfo.OriginalRender = null;
+                        }
 
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (player != null && player.IsValid)
@@ -112,6 +141,7 @@ namespace src.player.skills
                             if (player.PlayerPawn == null || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
 
                             player.PlayerPawn.Value.TakesDamage = true;
+                            RestoreRender(player.PlayerPawn.Value, originalRender);
                             PlayerManager.GetPlayerFromEvent(player)?.PrintToChat($" {ChatColors.Red} {player.GetTranslation("godmode_off")}");
 
                             if (player.PlayerPawn.Value.Health <= 0)
@@ -128,6 +158,7 @@ namespace src.player.skills
             public bool CanUse { get; set; }
             public bool HaveGodMode { get; set; }
             public DateTime Cooldown { get; set; }
+            public Color? OriginalRender { get; set; }
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0d83a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f, float duration = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

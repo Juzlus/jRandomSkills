@@ -10,12 +10,14 @@ namespace src.player.skills
     public class ThirdEye : ISkill
     {
         private const Skills skillName = Skills.ThirdEye;
+        private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            jRandomSkills.Instance.AddToManifest(cameraViewModel);
         }
 
         public static void NewRound()
@@ -114,7 +116,7 @@ namespace src.player.skills
                 if (camNode != null)
                     camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
 
-                camera.SetModel("models/sprays/spray_plane.vmdl");
+                camera.SetModel(cameraViewModel);
                 camera.Render = Color.FromArgb(0, 255, 255, 255);
                 camera.Teleport(pawn.AbsOrigin, pawn.EyeAngles);
                 camera.DispatchSpawn();

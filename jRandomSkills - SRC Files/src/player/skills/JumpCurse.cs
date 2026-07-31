@@ -6,10 +6,10 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
-    public class Magnifier : ISkill
+    public class JumpCurse : ISkill
     {
-        private const Skills skillName = Skills.Magnifier;
-        private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
+        private const Skills skillName = Skills.JumpCurse;
+        private static readonly ConcurrentDictionary<uint, byte> cursedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
         public static void LoadSkill()
@@ -19,7 +19,7 @@ namespace src.player.skills
 
         public static void PlayerDisconnect(uint playerIndex)
         {
-            playersFOV.TryRemove(playerIndex, out _);
+            cursedPlayers.TryRemove(playerIndex, out _);
             playersToTarget.TryRemove(playerIndex, out _);
 
             foreach (var kvp in playersToTarget)
@@ -29,18 +29,42 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var playerIndex in playersFOV.Keys)
-            {
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
-                if (player == null || !player.IsValid) continue;
-                DisableSkill(player);
-            }
-
-            playersFOV.Clear();
+            cursedPlayers.Clear();
             playersToTarget.Clear();
 
             foreach (var player in PlayerManager.GetTickPlayers())
                 SkillUtils.CloseMenu(player);
+        }
+
+        public static void PlayerJump(EventPlayerJump @event)
+        {
+            if (cursedPlayers.IsEmpty) return;
+
+            var jumper = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (jumper == null || !jumper.IsValid) return;
+            if (jumper.Team != CsTeam.Terrorist && jumper.Team != CsTeam.CounterTerrorist) return;
+
+            var jumperPawn = jumper.PlayerPawn?.Value;
+            if (jumperPawn == null || !jumperPawn.IsValid) return;
+            if (jumperPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || jumperPawn.Health <= 0) return;
+
+            float jumpVelocity = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+
+            foreach (var cursedIndex in cursedPlayers.Keys)
+            {
+                if (cursedIndex == jumper.Index) continue;
+
+                var cursed = PlayerManager.GetPlayerEvent(Utilities.GetPlayerFromIndex((int)cursedIndex));
+                if (cursed == null || !cursed.IsValid) continue;
+                if (cursed.Index == jumper.Index || cursed.Team != jumper.Team) continue;
+
+                var pawn = cursed.PlayerPawn?.Value;
+                if (pawn == null || !pawn.IsValid) continue;
+                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) continue;
+                if ((pawn.Flags & (uint)PlayerFlags.FL_ONGROUND) == 0) continue;
+
+                pawn.AbsVelocity.Z = jumpVelocity;
+            }
         }
 
         public static void OnTick()
@@ -49,13 +73,12 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
-                var enemies = PlayerManager.GetTickPlayers().Where(p => p.PawnIsAlive && p.Team != player.Team && p.IsValid && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -85,38 +108,21 @@ namespace src.player.skills
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
-            if (enemy == null)
+            if (enemy == null || !enemy.IsValid || enemy.PlayerPawn.Value == null || !enemy.PlayerPawn.Value.IsValid)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
-            playersFOV.AddOrUpdate(enemy.Index, enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
+            cursedPlayers.TryAdd(enemy.Index, 0);
             playersToTarget[player.Index] = enemy.Index;
+            playerInfo.SkillUsed = true;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-            enemyEvent.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
-            Utilities.SetStateChanged(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
-            playerInfo.SkillUsed = true;
-
-            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("magnifier_player_info", enemy.PlayerName));
-            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("magnifier_enemy_info"));
-        }
-
-        public static void BotTakeover(EventBotTakeover @event)
-        {
-            var bot = PlayerManager.GetPlayerEvent(@event.Botid);
-            if (bot == null || !bot.IsValid) return;
-
-            var player = @event.Userid;
-            if (player == null || !player.IsValid) return;
-
-            if (!playersFOV.ContainsKey(bot.Index)) return;
-
-            player.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
-            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("jumpcurse_player_info", enemy.PlayerName));
+            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("jumpcurse_enemy_info"));
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -131,7 +137,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -144,22 +150,14 @@ namespace src.player.skills
 
             if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
             {
-                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
-                if (target != null && target.IsValid)
-                {
-                    if (playersFOV.TryGetValue(targetIndex, out uint fov))
-                    {
-                        target.DesiredFOV = fov;
-                        Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
-                    }
+                cursedPlayers.TryRemove(targetIndex, out _);
 
-                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
-                        target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("magnifier_disable_info"));
-                }
-                playersFOV.TryRemove(targetIndex, out _);
+                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("jumpcurse_disable_info"));
             }
 
-            SkillUtils.ResetPrintHTML(player);
+            SkillUtils.CloseMenu(player);
         }
 
         public static void PlayerDeath(EventPlayerDeath @event)
@@ -167,14 +165,13 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            player.DesiredFOV = 0;
-            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
-            SkillUtils.ResetPrintHTML(player);
+            cursedPlayers.TryRemove(player.Index, out _);
+            SkillUtils.CloseMenu(player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9ba882", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, uint customFOV = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7ad1c4", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 301f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
-            public uint CustomFOV { get; set; } = customFOV;
+            public float JumpVelocity { get; set; } = jumpVelocity;
         }
     }
 }

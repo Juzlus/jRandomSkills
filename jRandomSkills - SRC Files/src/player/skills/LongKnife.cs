@@ -119,7 +119,7 @@ namespace src.player.skills
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
 
             target.PlayerPawn.Value.EmitSound("Player.DamageBody.Onlooker");
-            SkillUtils.TakeHealth(target.PlayerPawn.Value, heavyHit ? Instance.Random.Next(45, 55) : Instance.Random.Next(21, 34));
+            SkillUtils.TakeHealth(target.PlayerPawn.Value, heavyHit ? Instance.Random.Next(45, 55) : Instance.Random.Next(21, 34), player, "weapon_knife");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c9f8ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDistance = 4096f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

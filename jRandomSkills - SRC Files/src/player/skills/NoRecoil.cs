@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -14,9 +15,12 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, byte> holders = [];
         private static bool noSpreadActive;
 
+        private static bool defaultNoSpread;
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            defaultNoSpread = ConVar.Find("weapon_accuracy_nospread")?.GetPrimitiveValue<bool>() ?? false;
         }
 
         public static void NewRound()
@@ -47,7 +51,8 @@ namespace src.player.skills
             if (noSpreadActive == enabled) return;
 
             noSpreadActive = enabled;
-            Server.ExecuteCommand($"weapon_accuracy_nospread {(enabled ? 1 : 0)}");
+            bool value = enabled || defaultNoSpread;
+            Server.ExecuteCommand($"weapon_accuracy_nospread {(value ? 1 : 0)}");
         }
 
         public static void OnTick()

@@ -28,6 +28,8 @@ namespace src.player.skills
                     temporaryBlockList.TryRemove(kvp.Key, out _);
             }
 
+            if (glows.IsEmpty && temporaryBlockList.IsEmpty) return;
+
             // One pawn->info map per frame instead of a GetPlayers scan per client.
             var infoByPawnHandle = new Dictionary<nint, jSkill_PlayerInfo?>();
             foreach (var p in PlayerManager.GetTickPlayers())
@@ -35,6 +37,27 @@ namespace src.player.skills
                 var h = p?.Pawn?.Value?.Handle;
                 if (p != null && p.IsValid && h != null)
                     infoByPawnHandle[h.Value] = PlayerManager.GetPlayerByIndex(p.Index);
+            }
+
+            var glowStates = new List<(uint Relay, uint Glow, CsTeam Team, bool Showable, bool EntitiesValid)>(glows.Count);
+            foreach (var kvp in glows)
+            {
+                var glowInfo = kvp.Value;
+                var enemy = Utilities.GetPlayerFromIndex((int)kvp.Key);
+
+                bool showable = false;
+                if (enemy != null && enemy.IsValid)
+                {
+                    var enemyPawn = enemy.PlayerPawn?.Value;
+                    bool pawnValid = enemyPawn != null && enemyPawn.IsValid;
+                    showable = pawnValid && enemyPawn!.Health > 0 && enemyPawn!.Render.A != 102 && enemyPawn!.Render.A != 128;
+                }
+
+                var relayEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.RelayIndex);
+                var glowEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.GlowIndex);
+                bool entitiesValid = relayEntity != null && relayEntity.IsValid && glowEntity != null && glowEntity.IsValid;
+
+                glowStates.Add((glowInfo.RelayIndex, glowInfo.GlowIndex, glowInfo.Team, showable, entitiesValid));
             }
 
             foreach (var (info, player) in infoList)
@@ -47,40 +70,18 @@ namespace src.player.skills
                 if (targetHandle != nint.Zero)
                     infoByPawnHandle.TryGetValue(targetHandle, out observerInfo);
 
-                foreach (var kvp in glows)
+                bool seesGlows = playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName);
+
+                foreach (var glow in glowStates)
                 {
-                    var enemyIndex = kvp.Key;
-                    var glowInfo = kvp.Value;
-                    var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+                    if (glow.Showable && seesGlows && glow.Team != player.Team) continue;
+                    if (!glow.EntitiesValid) continue;
 
-                    bool hasSkill = playerInfo?.Skill == skillName;
-                    bool observerHasSkill = observerInfo != null && observerInfo?.Skill == skillName;
-                    bool differentTeam = glowInfo.Team != player.Team;
+                    if (info.TransmitEntities.Contains(glow.Relay))
+                        info.TransmitEntities.Remove(glow.Relay);
 
-                    if (enemy != null && enemy.IsValid)
-                    {
-                        var enemyPawn = enemy.PlayerPawn?.Value;
-                        bool pawnValid = enemyPawn != null && enemyPawn.IsValid;
-                        bool alive = pawnValid && enemyPawn!.Health > 0;
-                        bool notInvisible = pawnValid && enemyPawn!.Render.A != 102 && enemyPawn!.Render.A != 128;
-
-                        bool shouldShow = alive && notInvisible && differentTeam && (hasSkill || observerHasSkill);
-
-                        if (shouldShow)
-                            continue;
-                    }
-
-                    var glowEntity1 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.RelayIndex);
-                    if (glowEntity1 == null || !glowEntity1.IsValid) continue;
-
-                    var glowEntity2 = Utilities.GetEntityFromIndex<CBaseEntity>((int)glowInfo.GlowIndex);
-                    if (glowEntity2 == null || !glowEntity2.IsValid) continue;
-
-                    if (info.TransmitEntities.Contains(glowEntity1.Index))
-                        info.TransmitEntities.Remove(glowEntity1.Index);
-
-                    if (info.TransmitEntities.Contains(glowEntity2.Index))
-                        info.TransmitEntities.Remove(glowEntity2.Index);
+                    if (info.TransmitEntities.Contains(glow.Glow))
+                        info.TransmitEntities.Remove(glow.Glow);
                 }
 
                 foreach (var kvp in temporaryBlockList)
@@ -91,6 +92,8 @@ namespace src.player.skills
 
         public static void NewRound()
         {
+            buildInProgress = false;
+
             foreach (var kvp in glows)
             {
                 var relayIndex = kvp.Value.RelayIndex;
@@ -136,7 +139,7 @@ namespace src.player.skills
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Index, 0);
 
-            if (glows.IsEmpty)
+            if (glows.IsEmpty && !buildInProgress)
                 SetGlowEffectForAll();
 
             SkillUtils.ForceFullUpdateToAll();
@@ -153,6 +156,9 @@ namespace src.player.skills
             }
         }
 
+        private const int GlowsPerFrame = 4;
+        private static bool buildInProgress;
+
         private static void SetGlowEffectForAll()
         {
             var enemies = PlayerManager.GetTickPlayers().Where(p =>
@@ -163,60 +169,83 @@ namespace src.player.skills
                 p.PlayerPawn.Value.Health > 0 &&
             (p.Team == CsTeam.Terrorist || p.Team == CsTeam.CounterTerrorist)).ToList();
 
-            foreach (var enemy in enemies)
+            buildInProgress = true;
+            SpawnGlowChunk(enemies, 0);
+        }
+
+        private static void SpawnGlowChunk(List<CCSPlayerController> enemies, int start)
+        {
+            if (!buildInProgress) return;
+
+            if (start >= enemies.Count)
             {
-                var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
-                if (enemyInfo?.Skill == Skills.Ghost)
-                    continue;
-
-                var enemyPawn = enemy.PlayerPawn?.Value;
-                if (enemyPawn == null || !enemyPawn.IsValid) continue;
-
-                var skeleton = enemyPawn.CBodyComponent?.SceneNode?.GetSkeletonInstance();
-                var modelName = skeleton?.ModelState?.ModelName;
-                if (string.IsNullOrEmpty(modelName)) continue;
-
-                var modelGlow = EntityManager.CreateTrackedDynamicProp(enemy.Index);
-                var modelRelay = EntityManager.CreateTrackedDynamicProp(enemy.Index);
-
-                if (modelGlow == null || !modelGlow.IsValid || modelRelay == null || !modelRelay.IsValid)
-                    continue;
-
-                // Register before spawn so the glow is filtered from its first snapshot.
-                glows.TryAdd(enemy.Index, (modelRelay.Index, modelGlow.Index, enemy.Team));
-
-                var relayEntity = modelRelay.CBodyComponent?.SceneNode?.Owner?.Entity;
-                if (relayEntity != null)
-                    relayEntity.Flags = (uint)(relayEntity.Flags & ~(1 << 2));
-
-                modelRelay.SetModel(modelName);
-                modelRelay.Spawnflags = 256u;
-                modelRelay.RenderMode = RenderMode_t.kRenderNone;
-                modelRelay.DispatchSpawn();
-
-                var glowEntity = modelGlow.CBodyComponent?.SceneNode?.Owner?.Entity;
-                if (glowEntity != null)
-                    glowEntity.Flags = (uint)(glowEntity.Flags & ~(1 << 2));
-
-                modelGlow.SetModel(modelName);
-                modelGlow.Spawnflags = 256u;
-                modelGlow.Render = Color.FromArgb(1, 255, 255, 255);
-                modelGlow.DispatchSpawn();
-
-                try
-                {
-                    modelGlow.Glow.GlowColorOverride = enemy.Team == CsTeam.Terrorist ? Color.FromArgb(255, 255, 165, 0) : Color.FromArgb(255, 173, 216, 230);
-                    modelGlow.Glow.GlowRange = 5000;
-                    modelGlow.Glow.GlowTeam = -1;
-                    modelGlow.Glow.GlowType = 3;
-                    modelGlow.Glow.GlowRangeMin = 100;
-                }
-                catch
-                { }
-
-                modelRelay.AcceptInput("FollowEntity", enemyPawn, modelRelay, "!activator");
-                modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
+                buildInProgress = false;
+                return;
             }
+
+            int end = Math.Min(start + GlowsPerFrame, enemies.Count);
+            for (int i = start; i < end; i++)
+            {
+                var enemy = enemies[i];
+                if (enemy == null || !enemy.IsValid) continue;
+                SpawnGlowFor(enemy);
+            }
+
+            Server.NextFrame(() => SpawnGlowChunk(enemies, end));
+        }
+
+        private static void SpawnGlowFor(CCSPlayerController enemy)
+        {
+            var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+            if (enemyInfo?.Skill == Skills.Ghost)
+                return;
+
+            var enemyPawn = enemy.PlayerPawn?.Value;
+            if (enemyPawn == null || !enemyPawn.IsValid) return;
+
+            var skeleton = enemyPawn.CBodyComponent?.SceneNode?.GetSkeletonInstance();
+            var modelName = skeleton?.ModelState?.ModelName;
+            if (string.IsNullOrEmpty(modelName)) return;
+
+            var modelGlow = EntityManager.CreateTrackedDynamicProp(enemy.Index);
+            var modelRelay = EntityManager.CreateTrackedDynamicProp(enemy.Index);
+
+            if (modelGlow == null || !modelGlow.IsValid || modelRelay == null || !modelRelay.IsValid)
+                return;
+
+            glows.TryAdd(enemy.Index, (modelRelay.Index, modelGlow.Index, enemy.Team));
+
+            var relayEntity = modelRelay.CBodyComponent?.SceneNode?.Owner?.Entity;
+            if (relayEntity != null)
+                relayEntity.Flags = (uint)(relayEntity.Flags & ~(1 << 2));
+
+            modelRelay.SetModel(modelName);
+            modelRelay.Spawnflags = 256u;
+            modelRelay.RenderMode = RenderMode_t.kRenderNone;
+            modelRelay.DispatchSpawn();
+
+            var glowEntity = modelGlow.CBodyComponent?.SceneNode?.Owner?.Entity;
+            if (glowEntity != null)
+                glowEntity.Flags = (uint)(glowEntity.Flags & ~(1 << 2));
+
+            modelGlow.SetModel(modelName);
+            modelGlow.Spawnflags = 256u;
+            modelGlow.Render = Color.FromArgb(1, 255, 255, 255);
+            modelGlow.DispatchSpawn();
+
+            try
+            {
+                modelGlow.Glow.GlowColorOverride = enemy.Team == CsTeam.Terrorist ? Color.FromArgb(255, 255, 165, 0) : Color.FromArgb(255, 173, 216, 230);
+                modelGlow.Glow.GlowRange = 5000;
+                modelGlow.Glow.GlowTeam = -1;
+                modelGlow.Glow.GlowType = 3;
+                modelGlow.Glow.GlowRangeMin = 100;
+            }
+            catch
+            { }
+
+            modelRelay.AcceptInput("FollowEntity", enemyPawn, modelRelay, "!activator");
+            modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5d00ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Epic) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

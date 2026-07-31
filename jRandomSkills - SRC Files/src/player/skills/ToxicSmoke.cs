@@ -10,7 +10,7 @@ namespace src.player.skills
     public class ToxicSmoke : ISkill
     {
         private const Skills skillName = Skills.ToxicSmoke;
-        private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
+        private static readonly ConcurrentDictionary<Vector, uint> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -31,7 +31,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
+            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), player.Index);
         }
 
         public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
@@ -81,7 +81,11 @@ namespace src.player.skills
             float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
             int smokeDamage = SkillsInfo.GetValue<int>(skillName, "smokeDamage");
 
-            foreach (Vector smokePos in smokes.Keys)
+            foreach (var smoke in smokes)
+            {
+                var thrower = Utilities.GetPlayerFromIndex((int)smoke.Value);
+                if (thrower != null && !thrower.IsValid) thrower = null;
+
                 foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
                 {
                     var eventPlayer = PlayerManager.GetPlayerEvent(player);
@@ -90,10 +94,11 @@ namespace src.player.skills
                     var pawn = eventPlayer.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
 
-                    if (SkillUtils.GetDistance(smokePos, pawn.AbsOrigin) <= smokeRadius)
-                        if (SkillUtils.TakeHealth(pawn, smokeDamage))
+                    if (SkillUtils.GetDistance(smoke.Key, pawn.AbsOrigin) <= smokeRadius)
+                        if (SkillUtils.TakeHealth(pawn, smokeDamage, thrower, "smokegrenade"))
                             player.EmitSound("Player.DamageBody.Onlooker");
                 }
+            }
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)

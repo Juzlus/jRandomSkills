@@ -275,9 +275,18 @@ namespace src.utils
             return null;
         }
 
+        public static bool IsBulletDamage(CTakeDamageInfo? info)
+        {
+            var ability = info?.Ability?.Value;
+            if (ability == null || !ability.IsValid) return false;
+
+            return FiresBullets(ability.DesignerName);
+        }
+
         public static HitGroup_t GetHitGroup(CTakeDamageInfo? info)
         {
             if (info == null || info.Handle == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+            if (!IsBulletDamage(info)) return HitGroup_t.HITGROUP_GENERIC;
 
             int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
             if (offset <= 0) return HitGroup_t.HITGROUP_GENERIC;
@@ -322,7 +331,181 @@ namespace src.utils
             return !ff && !tae; // same team + FF off -> engine will zero this damage
         }
 
-        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage)
+        private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
+
+        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, string? weapon = null)
+        {
+            pendingKillCredits[victimIndex] = (attackerIndex, weapon, Server.TickCount + 64);
+        }
+
+        public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon)
+        {
+            attackerIndex = 0;
+            weapon = null;
+            if (!pendingKillCredits.TryRemove(victimIndex, out var credit)) return false;
+            if (credit.ExpiryTick < Server.TickCount) return false;
+
+            attackerIndex = credit.AttackerIndex;
+            weapon = credit.Weapon;
+            return true;
+        }
+
+        public static void ClearKillCredits()
+        {
+            pendingKillCredits.Clear();
+        }
+
+        private static readonly HashSet<string> bulletWeapons = new(StringComparer.Ordinal)
+        {
+            "deagle", "revolver", "glock", "usp_silencer", "cz75a",
+            "fiveseven", "p250", "tec9", "elite", "hkp2000",
+            "mp9", "mac10", "bizon", "mp7", "ump45", "p90", "mp5sd",
+            "famas", "galilar", "m4a1", "m4a1_silencer", "ak47", "aug", "sg553",
+            "ssg08", "awp", "scar20", "g3sg1",
+            "nova", "xm1014", "mag7", "sawedoff",
+            "m249", "negev"
+        };
+
+        public static bool FiresBullets(string? weapon)
+        {
+            if (string.IsNullOrEmpty(weapon)) return false;
+
+            if (weapon.StartsWith("weapon_", StringComparison.Ordinal))
+                weapon = weapon["weapon_".Length..];
+
+            return bulletWeapons.Contains(weapon);
+        }
+
+        private static readonly HashSet<Skills> curseSkills =
+        [
+            Skills.Bankrupt, Skills.CarefulBullets, Skills.Darkness, Skills.Deactivator,
+            Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
+            Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
+            Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
+            Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
+        ];
+
+        private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
+
+        private static readonly Dictionary<uint, int> curseCounts = [];
+        private static readonly Dictionary<uint, uint> curserToVictim = [];
+        private static readonly object curseLock = new();
+
+        private static readonly Config.GameModes[] sharedSkillModes =
+            [Config.GameModes.TeamSkills, Config.GameModes.SameSkills, Config.GameModes.Debug];
+
+        public static bool CurseLimitEnabled
+        {
+            get
+            {
+                if (Config.LoadedConfig.CurseSkillPerPlayer is not int limit || limit <= 0) return false;
+                return Array.IndexOf(sharedSkillModes, (Config.GameModes)Config.LoadedConfig.GameMode) < 0;
+            }
+        }
+
+        public static bool IsCurseSkill(Skills skill) => curseSkills.Contains(skill);
+
+        public static bool IsCurseSkill(string skill) => curseSkillNames.Contains(skill);
+
+        public static void ClearCurses()
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock)
+            {
+                curseCounts.Clear();
+                curserToVictim.Clear();
+            }
+        }
+
+        public static bool CanCurse(uint victimIndex)
+        {
+            if (!CurseLimitEnabled) return true;
+            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
+
+            lock (curseLock)
+                return !curseCounts.TryGetValue(victimIndex, out int used) || used < limit;
+        }
+
+        public static bool TryClaimCurse(uint curserIndex, uint victimIndex, bool force = false)
+        {
+            if (!CurseLimitEnabled) return true;
+            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
+
+            lock (curseLock)
+            {
+                ReleaseCurseLocked(curserIndex);
+
+                curseCounts.TryGetValue(victimIndex, out int used);
+                if (!force && used >= limit) return false;
+
+                curseCounts[victimIndex] = used + 1;
+                curserToVictim[curserIndex] = victimIndex;
+                return true;
+            }
+        }
+
+        public static void ReleaseCurse(uint curserIndex)
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock) ReleaseCurseLocked(curserIndex);
+        }
+
+        public static void ClearCursesFor(uint playerIndex)
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock)
+            {
+                ReleaseCurseLocked(playerIndex);
+                curseCounts.Remove(playerIndex);
+
+                foreach (var curser in curserToVictim.Where(kvp => kvp.Value == playerIndex).Select(kvp => kvp.Key).ToList())
+                    curserToVictim.Remove(curser);
+            }
+        }
+
+        private static void ReleaseCurseLocked(uint curserIndex)
+        {
+            if (!curserToVictim.Remove(curserIndex, out uint victimIndex)) return;
+            if (!curseCounts.TryGetValue(victimIndex, out int used)) return;
+
+            if (used <= 1) curseCounts.Remove(victimIndex);
+            else curseCounts[victimIndex] = used - 1;
+        }
+
+        public static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player, bool respectCurseLimit = false)
+        {
+            if (player == null || !player.IsValid) return [];
+
+            var enemies = GetAliveEnemies(player);
+            if (!respectCurseLimit || !CurseLimitEnabled || enemies.Length == 0) return enemies;
+
+            var withCapacity = enemies.Where(p => CanCurse(p.Index)).ToArray();
+            return withCapacity.Length > 0 ? withCapacity : enemies;
+        }
+
+        public static bool AnyCurseCapacity(CCSPlayerController player)
+        {
+            if (!CurseLimitEnabled) return true;
+            if (player == null || !player.IsValid) return true;
+
+            return GetAliveEnemies(player).Any(p => CanCurse(p.Index));
+        }
+
+        private static CCSPlayerController[] GetAliveEnemies(CCSPlayerController player)
+        {
+            return [.. PlayerManager.GetTickPlayers()
+                .Where(p => p != null && p.IsValid)
+                .Select(PlayerManager.GetPlayerEvent)
+                .Where(p => p != null && p.IsValid && p.Team != player.Team
+                    && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
+                    && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
+                .Cast<CCSPlayerController>()];
+        }
+
+        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, string? damageWeapon = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 return false;
@@ -363,6 +546,10 @@ namespace src.utils
 
             if (pawn.Health <= 0)
             {
+                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid
+                    && damageAttacker.Index != victim.Index)
+                    RegisterKillCredit(victim.Index, damageAttacker.Index, damageWeapon);
+
                 Server.NextFrame(() =>
                 {
                     if (pawn == null || !pawn.IsValid) return;
@@ -372,6 +559,29 @@ namespace src.utils
             }
 
             return true;
+        }
+
+        public static void HideCarriedEntities(CCheckTransmitInfo info, CCSPlayerPawn? pawn)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+
+            var weaponServices = pawn.WeaponServices;
+            if (weaponServices == null) return;
+
+            var activeWeapon = weaponServices.ActiveWeapon?.Value;
+            if (activeWeapon != null && activeWeapon.IsValid && info.TransmitEntities.Contains(activeWeapon.Index))
+                info.TransmitEntities.Remove(activeWeapon.Index);
+
+            if (weaponServices.MyWeapons == null) return;
+
+            foreach (var handle in weaponServices.MyWeapons)
+            {
+                var weapon = handle?.Value;
+                if (weapon == null || !weapon.IsValid) continue;
+
+                if (info.TransmitEntities.Contains(weapon.Index))
+                    info.TransmitEntities.Remove(weapon.Index);
+            }
         }
 
         public static void ResetPrintHTML(CCSPlayerController? player)

@@ -129,6 +129,16 @@
   "enemyspawn": "Spawn Ennemi",
   "enemyspawn_desc": "Appuyez sur [css_useSkill] pour vous téléporter au spawn ennemi",
 
+  "expensiveammo": "expensiveammo",
+  "expensiveammo_desc": "expensiveammo_desc",
+  "expensiveammo_disable_info": "expensiveammo_disable_info",
+  "expensiveammo_enemy_info": "expensiveammo_enemy_info: {0}",
+  "expensiveammo_player_info": "expensiveammo_player_info: {0}",
+  "expensiveammo_select_info": "expensiveammo_select_info",
+
+  "explodingbarrel": "explodingbarrel",
+  "explodingbarrel_desc": "explodingbarrel_desc",
+
   "explosiveshot": "Tir Explosif",
   "explosiveshot_desc": "Chance aléatoire de tirer une balle explosive en tirant",
   "explosiveshot_desc2": "Votre chance de tirer une balle explosive est : {0}%",
@@ -165,6 +175,14 @@
   "ghost": "Fantôme",
   "ghost_desc": "Vous êtes complètement invisible",
 
+  "giant": "giant",
+  "giant_desc": "giant_desc",
+  "giant_desc2": "giant_desc2: {0}x",
+  "giant_disable_info": "giant_disable_info",
+  "giant_enemy_info": "giant_enemy_info: {0}x",
+  "giant_player_info": "giant_player_info: {0} {1}",
+  "giant_select_info": "giant_select_info",
+  
   "glaz": "Glaz",
   "glaz_desc": "Vous pouvez voir à travers les fumigènes",
 
@@ -241,12 +259,21 @@
   "jumpban_player_info": "Le joueur « {0} » ne peut plus sauter.",
   "jumpban_select_info": "Interdire de sauter au joueur :",
 
+  "jumpcurse": "jumpcurse",
+  "jumpcurse_desc": "jumpcurse_desc",
+  "jumpcurse_disable_info": "jumpcurse_disable_info",
+  "jumpcurse_enemy_info": "jumpcurse_enemy_info",
+  "jumpcurse_player_info": "jumpcurse_player_info: {0}",
+  "jumpcurse_select_info": "jumpcurse_select_info",
+
   "jumpingjack": "Sauteur",
   "jumpingjack_desc": "Sauter vous rend de la vie",
 
   "killerflash": "Flash Mortel",
   "killerflash_desc": "Toute personne totalement aveuglée par votre flashbang meurt (y compris vous)",
 
+  "knockback": "knockback",
+  "knockback_desc": "knockback_desc",
   "lifeswap": "Échange de Vie",
   "lifeswap_desc": "Choisissez un joueur avec qui échanger votre santé",
   "lifeswap_enemy_info": "Quelqu’un a emprunté votre santé.",
@@ -287,6 +314,13 @@
   "deathbomb": "Bombe",
   "deathbomb_desc": "Vous explosez à votre mort, tuant les joueurs proches",
   "deathbomb_explosion": "Kaboom!",
+
+  "nightmare": "nightmare",
+  "nightmare_desc": "nightmare_desc",
+  "nightmare_disable_info": "nightmare_disable_info",
+  "nightmare_enemy_info": "nightmare_enemy_info",
+  "nightmare_player_info": "nightmare_player_info: {0}",
+  "nightmare_select_info": "nightmare_select_info",
 
   "ninja": "Ninja",
   "ninja_desc": "Rester immobile augmente votre invisibilité de 33%, s’accroupir de 33%, et tenir un couteau de 33%",
@@ -450,6 +484,12 @@
   "toxicsmoke": "Fumée Toxique",
   "toxicsmoke_desc": "Vos grenades fumigènes infligent des dégâts",
 
+  "tripwire": "tripwire",
+  "tripwire_desc": "tripwire_desc",
+  "tripwire_no_wall_info": "tripwire_no_wall_info",
+  "tripwire_placed_info": "tripwire_placed_info",
+  "tripwire_triggered_info": "tripwire_triggered_info: {0}",
+  
   "wallhack": "Wallhack",
   "wallhack_desc": "Vous pouvez voir les ennemis à travers les murs",
 
@@ -491,6 +531,7 @@
   "duplicate_player": "Plus d’un joueur trouvé avec le même nom.",
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
+  "curse_limit_info": "curse_limit_info",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",
   "player_not_found_setskill": "Aucun CHATCOLORS.REDjoueur trouvé",
