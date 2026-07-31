@@ -1520,7 +1520,7 @@
   },
   {
     "Cooldown": 20.0,
-    "ExplosionRadius": 210.0,
+    "ExplosionRadius": 600.0,
     "ExplosionDamage": 50,
     "PropModel": "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl",
     "DmgReductionForTeamates": 0.5,

@@ -265,7 +265,7 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c0392b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 20f, float explosionRadius = 210f, int explosionDamage = 50, string propModel = "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl", float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c0392b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 20f, float explosionRadius = 600f, int explosionDamage = 50, string propModel = "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl", float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
             public float ExplosionRadius { get; set; } = explosionRadius;
