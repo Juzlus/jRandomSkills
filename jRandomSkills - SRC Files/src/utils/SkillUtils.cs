@@ -275,9 +275,18 @@ namespace src.utils
             return null;
         }
 
+        public static bool IsBulletDamage(CTakeDamageInfo? info)
+        {
+            var ability = info?.Ability?.Value;
+            if (ability == null || !ability.IsValid) return false;
+
+            return FiresBullets(ability.DesignerName);
+        }
+
         public static HitGroup_t GetHitGroup(CTakeDamageInfo? info)
         {
             if (info == null || info.Handle == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+            if (!IsBulletDamage(info)) return HitGroup_t.HITGROUP_GENERIC;
 
             int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
             if (offset <= 0) return HitGroup_t.HITGROUP_GENERIC;

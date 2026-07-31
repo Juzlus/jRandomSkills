@@ -39,6 +39,8 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
+            if (!SkillUtils.IsBulletDamage(param2)) return;
+
             int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
             if (offset <= 0) return;
 
