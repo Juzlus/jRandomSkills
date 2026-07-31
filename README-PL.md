@@ -47,136 +47,154 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Aktualne Supermoce (124)
+## ✨ Aktualne Supermoce (141)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
-| Nazwa | Opis | Czas odnowienia / Zakres |
-| - | - | -|
-| Aimbot | Każdy twój trafiony pocisk liczy się jako strzał w głowę | - |
-| Aim Lock | Kliknij [css_useSkill], aby wycelować na najbliższego wroga | 20 s |
-| Anomalia | Kliknij [css_useSkill], aby cofnąć się o kilka sekund w czasie | 15 s |
-| Anty Flash | Posiadasz odporność na flash'e, a twoje flash'e trwają 7 sekund | - |
-| Żelazna Głowa | Nie otrzymujesz obrażeń w głowę | - |
-| Niszczyciel Stref | Możesz wybrać strefę detonacji, którą chcesz dezaktywować | - |
-| Gruby | Masz losowy mnożnik otrzymywanych obrażeń | (0.65 - 0.85)x |
-| Skrytobójca | Zadajesz podwójne obrażenia przeciwnikowi od tyłu | - |
-| Astronauta | Na początku rundy otrzymujesz losową wartość grawitacji | (0.1 - 0.7)x |
-| Bankrut | Wybierz gracza, który straci wszystkie swoje pieniądze | - |
-| Bejsbolista | Twój wabik odbija się od ścian i natychmiastowo zabija wroga po trafieniu | - |
-| Obrót Wroga | Masz losową szansę na obrócenie wroga o 180 stopni po trafieniu go | (20 - 40)% |
-| Mistrz Ostrza | Trzymając nóż, masz duże szanse na odparcie strzału | - |
-| Królik | Otrzymujesz auto "BunnyHopa" | - |
-| C4 Kamuflaż | Kiedy trzymasz bombę, jesteś niewidzialny | - |
-| Ostrożne pociski | Wybierz gracza, który otrzymuje obrażenia za każdy niecelny strzał | - |
-| Katapulta | Masz losową szanse na podrzucenie wroga | (20 - 40)% |
-| Kurczak | Otrzymujesz model kurczaka + jesteś o 10% szybszy - 50hp | - |
-| Wyluzowany | Podłożenie bomby zajmuje 10 sekund | - |
-| Scyzoryk | Natychmiastowe zabójstwo nożem | - |
-| Kamera | Kliknij [css_useSkill], aby utworzyć/przełączyć się na kamerę | 30 s |
-| Mrok | Nadaje efekt ciemności wybranemu przeciwnikowi | - |
-| Deaktywator | Wybierasz gracza, którego supermoc chcesz wyłączyć | - |
-| Głuchy | Wybierasz gracza, dla którego chcesz wyłączyć wszystkie dźwięki | - |
-| Ludzka bomba | Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu | - |
-| Rozbrojenie | Masz losową szanse na wyrzucenie broni wroga po trafieniu | (20 - 35)% |
-| Odległościomierz | Możesz zobaczyć odległość do najbliższego przeciwnika | - |
-| Doskok | Wykonaj drugi skok, aby wykonać doskok | - |
-| Drakula | Po trafieniu ofiary odzyskujesz zdrowie równe pewnemu procentowi zadanych obrażeń | - |
-| Duplikator | Wybierasz gracza, od którego chcesz skopiować supermoc | - |
-| Mini Majk | Losowa wielkość postaci na początku rundy | (60 - 95)% |
-| Resp Wroga | Kliknij [css_useSkill], aby teleportować się na resp wroga | 15 s |
-| Strzał Wybuchowy | Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania | (15 - 30)% |
-| Oko Sokoła | Kliknij [css_useSkill], aby aktywować kamerę z lotu ptaka | - |
-| Szybkie Rączki | Kliknij [css_useSkill], aby przeładować broń, którą obecnie trzymasz | - |
-| Flash | Losowa prędkość postaci na początku rundy | (1.2 - 3.0)x |
-| Fortnite | Kliknij [css_useSkill], aby stworzyć barykadę, którą można zniszczyć | 2 s |
-| Krucha Bomba | Strzelanie do bomby powoduje jej uszkodzenie | - |
-| Ogień Przyjacielski | Strzelanie do członków drużyny leczy ich | - |
-| Zamrażający Wabik | Twój decoy zamraża wszystkich graczy w pobliżu | - |
-| Hazardzista | Wybierz umiejętność z podanej listy | - |
-| Duszek | Jesteś całkowicie niewidzialny | - |
-| Glaz | Nie widzisz granatów dymnych | - |
-| Glitch | Wyłączasz radar wybranemu przeciwnikowi | - |
-| Klej | Twoje granaty przyklejają się do ścian | - |
-| Nieśmiertelność | Kliknij [css_useSkill], aby stać się nieśmiertelnym na krótką chwilę | 30 s |
-| Granatnik | Masz nieskończone granaty odłamkowe | - |
-| Leczący Dym | Twoje granaty dymne leczą | - |
-| Pustelnik | Zabijanie przywraca amunicję i część zdrowia | - |
-| Święty Granat Ręczny | Twoje granaty uderzeniowe zadają podwójne obrażenia i mają podwójny zasięg | - |
-| Naprowadzane Granaty | Twoje granaty (z wyjątkiem dymnych) są przyciągane do wrogów | - |
-| Gorąca Bomba | Dopóki żyjesz, bomba zadaje obrażenia osobie, która ją niesie | - |
-| Hologram | Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund | - |
-| Analfabeta | Dopóki żyjesz, Twoi wrogowie nie potrafią czytać | - |
-| Iluzjonista | Naciśnij [css_useSkill], aby wypuścić replikę idącą prosto przed siebie | 30 s |
-| Szpieg | Na początku rundy otrzymujesz model postaci przeciwnika | - |
-| Nieskończone Ammo | Otrzymujesz nieskończoną ilość amunicji do wszystkich broni | - |
-| Stópkarz | Wybierasz gracza, który pozostawi za sobą ślad | - |
-| Zakłócacz | Wybierasz gracza, dla którego chcesz wyłączyć celownik | - |
-| Błazen | W trybie błazna nie możesz zadawać ani otrzymywać obrażeń. Tryb zmienia się co kilka sekund | (10 - 25) s |
-| Beznogi | Wybierasz gracza, który nie będzie mógł skakać | - |
-| Pajacyk | Skakanie przywraca zdrowie | - |
-| Zabójczy Flash | Każdy całkowicie oślepiony twoim granatem umiera (również ty) | - |
-| Zamiana Żyć | Wybierasz gracza, z którym chcesz wymienić się zdrowiem | - |
-| Długi Nóż | Podstawowy atak nożem zadaje obrażenia niezależnie od odległości | - |
-| Długi Zeus | Zeus zadaje obrażenia niezależnie od odległości | - |
-| Magnetyczny Wabik | Twój wabik przyciąga pobliskich graczy do siebie | - |
-| Magneto | Wszystkie granaty wroga są odpychane od Ciebie | - |
-| Lupa | Przybiżasz ekran wybranemu przeciwnikowi | - |
-| Medyk | Kliknij [css_useSkill], aby użyć ładunku leczniczego, który przywraca 50 punktów zdrowia | 1 s |
-| Bomberman | Twoje granaty HE wybuchają tylko wtedy, gdy w pobliżu jest wróg | - |
-| Skarbówka | Wybierasz gracza, z którym chcesz zamienić się pieniędzmi | - |
-| Ninja | Stojąc nieruchomo zwiększasz swoją niewidzialność o 33%, kucając o 33%, a trzymając nóż o 33% | - |
-| Pancernik | Granaty nie zadają Ci obrażeń | - |
-| Skupienie | Brak odrzutu podczas strzelania | - |
-| NoClip | Kliknij [css_useSkill], aby włączyć noclip na krótki czas | 30 s |
-| Jednostrzałowiec | Po trafieniu natychmiast zabijasz przeciwnika | - |
-| Tylko Głowa | Otrzymujesz obrażenia tylko w głowę | - |
-| Pawel Jumper | Otrzymujesz dodatkowy skok | - |
-| Feniks | Masz losową szans na odrodzenie się po śmierci | (20 - 40)% |
-| Pilot | Latanie przez określony czas. Przytrzymaj [USE - E], aby latać | - |
-| Samowolka | Bombę można podłożyć w dowolnym miejscu, a czas detonacji wynosi 60 sekund | - |
-| Trutka | Wybierasz gracza, który co kilka sekund będzie otrzymywał obrażenia | - |
-| Brak Karabinów | Wybierasz gracza, który nie może używać karabinów | - |
-| Proteza | Ramiona i nogi są kuloodporne | - |
-| Zdalne Rozbrajanie | Kiedy jesteś blisko bomby, zaczynasz ją rozbrajać | 10 s |
-| Odpychacz | Masz losową szansę na odepchnięcie wroga po trafieniu go | 100% |
-| Pyro | Molotow przywraca zdrowie | - |
-| Szybkostrzelność | Wszystkie pociski są wystrzeliwane bardzo szybko | - |
-| Radarowiec | Na radarze widać wrogów | - |
-| Rambo | Na początku rundy otrzymujesz losową ilość zdrowia | +(50 - 501) HP |
-| Losowa Broń | Kliknij [css_useSkill], aby otrzymać losową broń | 15 s |
-| Pancerz Reaktywny | Pancerz pochłania pierwsze otrzymane obrażenia | 15 s |
-| Regeneracja | Co kilka sekund odnawiasz zdrowie | - |
-| Replikator | Kliknij [css_useSkill], aby stworzyć swoją replikę, która zadaje obrażenia po trafieniu | 15 s |
-| Odwrót | Kliknij [css_useSkill], aby powrócić na resp | 15 s |
-| Zwrot do Nadawcy | Pierwsze trafienie wroga powoduje, że wraca on na swój resp | - |
-| Re-Zombie | Po śmierci odradzasz się jako zombie z większym zdrowiem i bez broni | - |
-| Bogacz | Na początku rundy otrzymujesz losową kwotę gotówki | (5000 - 15000)$ |
-| Robin Hood | Zadanie obrażeń przeciwnikowi powoduje kradzież jego pieniędzy | - |
-| Gumowe Kule | Twoje pociski znacznie spowalniają graczy | - |
-| Saper | Możesz szybciej podłożyć bombę i ją rozbroić | - |
-| Druga Szansa | Po śmierci odradzasz się z taką samą ilością zdrowia | - |
-| Cień | Teleportujesz się za plecy trafionego wroga | - |
-| Krótka Bomba | Bomba wybucha znacznie szybciej | - |
-| Cichociemny | Twoje kroki i skoki są niesłyszalne dla INNYCH graczy | - |
-| Zadymiarz | Twoje granaty dymne nigdy się nie kończą | - |
-| Papito | Kliknij [css_useSkill], aby zamienić aktualną broń na AWP | 0 s |
-| Żołnierz | Masz losowy mnożnik obrażeń | (1.15 - 1.35)x |
-| Dźwiękowiec | Co jakiś czas słyszysz krzyki graczy | 2 s |
-| Obserwator | Kliknij [css_useSkill], aby obserwować losowego przeciwnika | 0 s |
-| Zamiana Miejsc | Kliknij [css_useSkill], aby zamienić się miejscami z losowym przeciwnikiem | 30 s |
-| Zamiana Broni | Kliknij [css_useSkill], aby zamienić się bronią z losowym przeciwnikiem | 30 s |
-| Teleporter | Zamieniasz się miejscami z trafionym przeciwnikiem | - |
-| Złodziej | Możesz ukraść supermoc wybranemu graczowi | - |
-| Trzecie Oko | Kliknij [css_useSkill], aby aktywować trzecią osobę | 0 s |
-| Ciernie | Twój przeciwnik otrzymuje część obrażeń, które zadał ci | - |
-| Nóż do Rzucania | Naciśnij [css_useSkill], aby rzucić nożem. Ale uważaj na innych | - |
-| Toksyczny Dym | Twoje granaty dymne zadają obrażenia | - |
-| Wallhack | Widzisz wrogów przez ściany | - |
-| Zegarmistrz | Każdy rzut granatem zmienia czas rundy o -10 lub +10 sekund | - |
-| Nieważkość | Twoje granaty nie podlegają grawitacji i lecą szybciej | - |
-| Dzikie Rzuty | Wybierz gracza, który będzie miał trudności z rzucaniem granatami | - |
-| Zeus | Zeus x27 natychmiastowo się odnawia | - |
+| Nazwa                | Opis                                                                                                              | Czas dnowienia  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------- |
+| Aim Lock             | Kliknij [css_useSkill], aby wycelować na najbliższego wroga                                                       | 20 s            |
+| Aimbot               | Każdy twój trafiony pocisk liczy się jako strzał w głowę                                                          | -               |
+| Analfabeta           | Dopóki żyjesz, Twoi wrogowie nie potrafią czytać                                                                  | -               |
+| Anomalia             | Kliknij [css_useSkill], aby cofnąć się o kilka sekund w czasie                                                    | 15 s            |
+| Anty Flash           | Posiadasz odporność na flash'e, a twoje flash'e trwają 7 sekund                                                   | -               |
+| Astronauta           | Na początku rundy otrzymujesz losową wartość grawitacji                                                           | (0.1 - 0.7)x    |
+| Bankrut              | Wybierz gracza, który straci wszystkie swoje pieniądze                                                            | -               |
+| Bejsbolista          | Twój wabik odbija się od ścian i natychmiast zabija wroga po trafieniu                                            | -               |
+| Berserker            | Zadajesz więcej obrażeń i poruszasz się szybciej, gdy masz mniej zdrowia                                          | -               |
+| Beznogi              | Wybierasz gracza, który nie będzie mógł skakać                                                                    | -               |
+| Bogacz               | Na początku rundy otrzymujesz losową kwotę gotówki                                                                | (5000 - 15000)$ |
+| Bomberman            | Twoje granaty HE wybuchają tylko wtedy, gdy w pobliżu jest wróg                                                   | -               |
+| Brak Karabinów       | Wybierasz gracza, który nie może używać karabinów                                                                 | -               |
+| Błazen               | W trybie błazna nie możesz zadawać ani otrzymywać obrażeń. Tryb zmienia się co kilka sekund                       | (10 - 25) s     |
+| C4 Kamuflaż          | Kiedy trzymasz bombę, jesteś niewidzialny                                                                         | -               |
+| Cichociemny          | Twoje kroki i skoki są niesłyszalne dla innych graczy                                                             | -               |
+| Ciernie              | Twój przeciwnik otrzymuje część obrażeń, które zadał Ci                                                           | -               |
+| Cień                 | Teleportujesz się za plecy trafionego wroga                                                                       | -               |
+| Deaktywator          | Wybierasz gracza, którego supermoc chcesz wyłączyć                                                                | -               |
+| Deszcz Ognia         | Rzuć wabik, aby przywołać deszcz koktajli Mołotowa                                                                | -               |
+| Doskok               | Wykonaj drugi skok, aby wykonać doskok                                                                            | -               |
+| Drakula              | Po trafieniu ofiary odzyskujesz zdrowie równe pewnemu procentowi zadanych obrażeń                                 | -               |
+| Droga Amunicja       | Wybrany przeciwnik musi płacić za każdy oddany strzał                                                             | -               |
+| Druga Szansa         | Po śmierci odradzasz się z taką samą ilością zdrowia                                                              | -               |
+| Duplikator           | Wybierasz gracza, od którego chcesz skopiować supermoc                                                            | -               |
+| Duszek               | Jesteś całkowicie niewidzialny                                                                                    | -               |
+| Dzikie Rzuty         | Wybierz gracza, który będzie miał trudności z rzucaniem granatami                                                 | -               |
+| Długi Nóż            | Podstawowy atak nożem zadaje obrażenia niezależnie od odległości                                                  | -               |
+| Długi Zeus           | Zeus zadaje obrażenia niezależnie od odległości                                                                   | -               |
+| Dźwiękowiec          | Co jakiś czas słyszysz krzyki graczy                                                                              | 2 s             |
+| Feniks               | Masz losową szansę na odrodzenie się po śmierci                                                                   | (20 - 40)%      |
+| Flash                | Losowa prędkość postaci na początku rundy                                                                         | (1.2 - 3.0)x    |
+| Fortnite             | Kliknij [css_useSkill], aby stworzyć barykadę, którą można zniszczyć                                              | 2 s             |
+| Glaz                 | Widzisz przez granaty dymne                                                                                       | -               |
+| Glitch               | Wyłączasz radar wybranemu przeciwnikowi                                                                           | -               |
+| Gorąca Bomba         | Dopóki żyjesz, bomba zadaje obrażenia osobie, która ją niesie                                                     | -               |
+| Granatnik            | Masz nieskończone granaty HE                                                                                      | -               |
+| Gruby                | Masz losowy mnożnik otrzymywanych obrażeń                                                                         | (0.65 - 0.85)x  |
+| Gumowe Kule          | Twoje pociski znacznie spowalniają graczy                                                                         | -               |
+| Głuchy               | Wybierasz gracza, dla którego chcesz wyłączyć wszystkie dźwięki                                                   | -               |
+| Hazardzista          | Wybierz umiejętność z podanej listy                                                                               | -               |
+| Hologram             | Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund                                                | 30 s            |
+| Iluzjonista          | Kliknij [css_useSkill], aby wypuścić replikę idącą prosto przed siebie                                            | 30 s            |
+| Jednostrzałowiec     | Po trafieniu natychmiast zabijasz przeciwnika                                                                     | -               |
+| Kamera               | Kliknij [css_useSkill], aby utworzyć lub przełączyć się na kamerę                                                 | 30 s            |
+| Katapulta            | Masz losową szansę na podrzucenie wroga                                                                           | (20 - 40)%      |
+| Klej                 | Twoje granaty przyklejają się do ścian                                                                            | -               |
+| Klątwa Skakania      | Wybrany przeciwnik skacze za każdym razem, gdy skaczą jego sojusznicy                                             | -               |
+| Koszmar              | Wywołaj u wybranego przeciwnika przerażającą wizję                                                                | -               |
+| Krucha Bomba         | Strzelanie do bomby powoduje jej uszkodzenie                                                                      | -               |
+| Królik               | Otrzymujesz auto "BunnyHopa"                                                                                      | -               |
+| Krótka Bomba         | Bomba wybucha znacznie szybciej                                                                                   | -               |
+| Kurczak              | Otrzymujesz model kurczaka, poruszasz się o 10% szybciej i masz 50 HP                                             | -               |
+| Latarka              | Kliknij [css_useSkill], aby włączyć lub wyłączyć latarkę. Jej światło może oślepić przeciwników                   | 2 s             |
+| Lecząca Kura         | Twoje kurczaki leczą Cię, gdy jesteś w pobliżu                                                                    | 1 s = 5 HP      |
+| Leczący Dym          | Twoje granaty dymne leczą                                                                                         | -               |
+| Linka z Drutu        | Kliknij [css_useSkill], aby rozciągnąć drut między dwiema ścianami. Wrogowie, którzy go dotkną, zostają ujawnieni | 20 s            |
+| Losowa Broń          | Kliknij [css_useSkill], aby otrzymać losową broń                                                                  | 15 s            |
+| Ludzka bomba         | Po śmierci eksplodujesz i zabijasz graczy znajdujących się w zasięgu                                              | -               |
+| Lupa                 | Przybliżasz ekran wybranemu przeciwnikowi, zmniejszając jego pole widzenia                                        | -               |
+| Magneto              | Wszystkie granaty wroga są odpychane od Ciebie                                                                    | -               |
+| Magnetyczny Wabik    | Twój wabik przyciąga pobliskich graczy do siebie                                                                  | -               |
+| Medyk                | Kliknij [css_useSkill], aby użyć ładunku leczniczego, który przywraca 50 punktów zdrowia                          | 1 s             |
+| Mini Majk            | Losowa wielkość postaci na początku rundy                                                                         | (60 - 95)%      |
+| Mistrz Ostrza        | Trzymając nóż, masz dużą szansę na odparcie strzału                                                               | -               |
+| Mrok                 | Nadaje efekt ciemności wybranemu przeciwnikowi                                                                    | -               |
+| Naprowadzane Granaty | Twoje granaty, z wyjątkiem dymnych, są przyciągane do wrogów                                                      | -               |
+| Nieskończone Ammo    | Otrzymujesz nieskończoną ilość amunicji do wszystkich broni                                                       | -               |
+| Nieważkość           | Twoje granaty nie podlegają grawitacji i lecą szybciej                                                            | -               |
+| Nieśmiertelność      | Kliknij [css_useSkill], aby stać się nieśmiertelnym na krótką chwilę                                              | 30 s            |
+| Ninja                | Stojąc nieruchomo zwiększasz swoją niewidzialność o 33%, kucając o 33%, a trzymając nóż o 33%                     | -               |
+| Niszczyciel Stref    | Możesz wybrać strefę detonacji, którą chcesz dezaktywować                                                         | -               |
+| NoClip               | Kliknij [css_useSkill], aby włączyć noclip na krótki czas                                                         | 30 s            |
+| Nóż do Rzucania      | Kliknij [css_useSkill], aby rzucić nożem. Ale uważaj na innych                                                    | -               |
+| Obrót Wroga          | Masz losową szansę na obrócenie wroga o 180 stopni po trafieniu go                                                | (20 - 40)%      |
+| Obserwator           | Kliknij [css_useSkill], aby obserwować losowego przeciwnika                                                       | 0 s             |
+| Odległościomierz     | Możesz zobaczyć odległość do najbliższego przeciwnika                                                             | -               |
+| Odpychacz            | Masz losową szansę na odepchnięcie wroga po trafieniu go                                                          | 100%            |
+| Odrzut               | Strzelanie w powietrzu odpycha Cię do tyłu                                                                        | -               |
+| Odrzutowy Kop        | Wybierz gracza, aby wykonać na nim odrzutowy kop                                                                  | -               |
+| Odwrót               | Kliknij [css_useSkill], aby powrócić na resp                                                                      | 15 s            |
+| Ogień Przyjacielski  | Strzelanie do członków drużyny leczy ich                                                                          | -               |
+| Oko Demona           | Zadajesz obrażenia każdemu przeciwnikowi, na którego patrzysz                                                     | 2 s             |
+| Oko Sokoła           | Kliknij [css_useSkill], aby aktywować kamerę z lotu ptaka                                                         | -               |
+| Olbrzym              | Powiększ wybranego przeciwnika                                                                                    | (110 - 140)%    |
+| Ostatnie Tchnienie   | Po śmierci zadajesz obrażenia przeciwnikowi, który Cię zabił                                                      | 30 HP           |
+| Ostrożne Pociski     | Wybierz gracza, który otrzymuje obrażenia za każdy niecelny strzał                                                | -               |
+| Pajacyk              | Skakanie przywraca zdrowie                                                                                        | -               |
+| Pancernik            | Granaty nie zadają Ci obrażeń                                                                                     | -               |
+| Pancerz Reaktywny    | Pancerz pochłania pierwsze otrzymane obrażenia                                                                    | 15 s            |
+| Papito               | Kliknij [css_useSkill], aby zamienić aktualną broń na AWP                                                         | 0 s             |
+| Pawel Jumper         | Otrzymujesz dodatkowy skok                                                                                        | -               |
+| Pilot                | Latanie przez określony czas. Przytrzymaj [USE - E], aby latać                                                    | -               |
+| Proteza              | Ramiona i nogi są kuloodporne                                                                                     | -               |
+| Pustelnik            | Zabijanie przywraca amunicję i część zdrowia                                                                      | -               |
+| Pyro                 | Molotow przywraca zdrowie                                                                                         | -               |
+| Radarowiec           | Na radarze widać wrogów                                                                                           | -               |
+| Rambo                | Na początku rundy otrzymujesz losową ilość zdrowia                                                                | +(50 - 501) HP  |
+| Re-Zombie            | Po śmierci odradzasz się jako zombie z większym zdrowiem i bez broni                                              | -               |
+| Regeneracja          | Co kilka sekund odnawiasz zdrowie                                                                                 | -               |
+| Replikator           | Kliknij [css_useSkill], aby stworzyć swoją replikę, która zadaje obrażenia po trafieniu                           | 15 s            |
+| Resp Wroga           | Kliknij [css_useSkill], aby teleportować się na resp wroga                                                        | 15 s            |
+| Robin Hood           | Zadanie obrażeń przeciwnikowi powoduje kradzież jego pieniędzy                                                    | -               |
+| Rozbrojenie          | Masz losową szansę na wyrzucenie broni wroga po trafieniu                                                         | (20 - 35)%      |
+| Samowolka            | Bombę można podłożyć w dowolnym miejscu, a czas detonacji wynosi 60 sekund                                        | -               |
+| Saper                | Możesz szybciej podłożyć bombę i ją rozbroić                                                                      | -               |
+| Scyzoryk             | Natychmiastowe zabójstwo nożem                                                                                    | -               |
+| Skarbówka            | Wybierasz gracza, z którym chcesz zamienić się pieniędzmi                                                         | -               |
+| Skrytobójca          | Zadajesz podwójne obrażenia przeciwnikowi od tyłu                                                                 | -               |
+| Skupienie            | Brak odrzutu podczas strzelania                                                                                   | -               |
+| Strzał Wybuchowy     | Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania                                                 | (15 - 30)%      |
+| Stópkarz             | Wybierasz gracza, który pozostawi za sobą ślad                                                                    | -               |
+| Szpieg               | Na początku rundy otrzymujesz model postaci przeciwnika                                                           | -               |
+| Szybkie Rączki       | Kliknij [css_useSkill], aby przeładować broń, którą obecnie trzymasz                                              | -               |
+| Szybkostrzelność     | Wszystkie pociski są wystrzeliwane bardzo szybko                                                                  | -               |
+| Teleport do drużyny  | Naciśnij [css_useSkill], aby teleportować się do członka drużyny, na którego patrzysz                             | 15 s            |
+| Teleporter           | Zamieniasz się miejscami z trafionym przeciwnikiem                                                                | -               |
+| Toksyczny Dym        | Twoje granaty dymne zadają obrażenia                                                                              | -               |
+| Trutka               | Wybierasz gracza, który co kilka sekund będzie otrzymywał obrażenia                                               | -               |
+| Trzecie Oko          | Kliknij [css_useSkill], aby aktywować widok z trzeciej osoby                                                      | 0 s             |
+| Tylko Głowa          | Otrzymujesz obrażenia tylko w głowę                                                                               | -               |
+| Wallhack             | Widzisz wrogów przez ściany                                                                                       | -               |
+| Wybuchowa Beczka     | Kliknij [css_useSkill], aby postawić beczkę, która wybucha po trafieniu                                           | 20 s            |
+| Mocne Uderzenie     | Naciśnij Attack2 na MP5, aby wystrzelić granat HE                                                                  | 10 s            |
+| Wyluzowany           | Podłożenie bomby zajmuje 10 sekund                                                                                | -               |
+| Zabierz Amunicję     | Kliknij [css_useSkill], aby zabrać magazynek aktywnej broni losowego przeciwnika                                  | -               |
+| Zabójczy Flash       | Każdy całkowicie oślepiony twoim granatem umiera, włącznie z Tobą                                                 | -               |
+| Zadymiarz            | Twoje granaty dymne nigdy się nie kończą                                                                          | -               |
+| Zakłócacz            | Wybierasz gracza, dla którego chcesz wyłączyć celownik                                                            | -               |
+| Zamiana Broni        | Kliknij [css_useSkill], aby zamienić się bronią z losowym przeciwnikiem                                           | 30 s            |
+| Zamiana Miejsc       | Kliknij [css_useSkill], aby zamienić się miejscami z losowym przeciwnikiem                                        | 30 s            |
+| Zamiana Żyć          | Wybierasz gracza, z którym chcesz wymienić się zdrowiem                                                           | -               |
+| Zamrażający Wabik    | Twój wabik zamraża wszystkich graczy w pobliżu                                                                    | -               |
+| Zdalne Rozbrajanie   | Kiedy jesteś blisko bomby, zaczynasz ją rozbrajać                                                                 | 10 s            |
+| Zegarmistrz          | Każdy rzut granatem zmienia czas rundy                                                                            | -               |
+| Zeus                 | Zeus x27 natychmiastowo się odnawia                                                                               | -               |
+| Zwrot do Nadawcy     | Pierwsze trafienie wroga powoduje, że wraca on na swój resp                                                       | -               |
+| Złodziej             | Możesz ukraść supermoc wybranemu graczowi                                                                         | -               |
+| Święty Granat Ręczny | Twoje granaty HE zadają podwójne obrażenia i mają podwójny zasięg                                                 | -               |
+| Żelazna Głowa        | Nie otrzymujesz obrażeń od strzałów w głowę                                                                       | -               |
+| Żołnierz             | Masz losowy mnożnik obrażeń                                                                                       | (1.15 - 1.35)x  |
+
 </details>
 
 ## 💻 Instalacja
@@ -225,6 +243,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | `!pause` | `!pause` | Wstrzymanie gry | `@jRandomSkills/admin` |
 | `!heal` | `!heal` | Przywrócenie 100 punktów zdrowia | `@jRandomSkills/admin` |
 | `!hud` | `!hud` | Włącz/Wyłącz HUD | - |
+| `!entity <index/handle>` | `!entity 429` | Sprawdzenie czy dana encja instnieje | `@jRandomSkills/owner` |
 | `!setscore <CT> <TT>` | `!setscore 10 7` | Ustawienie wyniku gry | `@jRandomSkills/owner` |
 | `!setstaticskill <playerName/steamID> <skill>` | `!setstaticskill Juzlus Aimbot` | Przypisanie supermocy do gracza na stałe | `@jRandomSkills/admin` |
 | `!setstaticskill <playerName/steamID> None` | `!setstaticskill Juzlus None` | Powrót do normalności | `@jRandomSkills/admin` |
@@ -355,6 +374,7 @@ Plugin korzysta z zawartości następujących projektów:
 - [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) autorstwa [Interesting-exe](https://github.com/Interesting-exe) - API do łatwego tworzenia menu za pomocą klawiszy WASD
 - [GeoLocationLanguageManagerPlugin](https://github.com/aprox2/GeoLocationLanguageManagerPlugin) autorstwa [aprox2](https://github.com/aprox2) - Zarządzenie geolokalizacją
 - [GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) autorstwa [MaxMind](https://www.maxmind.com/) - Dane geolokalizacyjne
+- [cs2-css-flashlight](https://github.com/creazy231/cs2-css-flashlight) autorstwa [creazy231](https://github.com/creazy231) - System tworzenia oświetlenia
 - [CServerSideClient](https://discord.com/channels/1160907911501991946/1508172390863994910/1508180670659166348) autorstwa [SLAYER](https://github.com/zakriamansoor47)
 
 ## ❤️ Szczególne podziękowania
@@ -380,6 +400,75 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.3.b2</b></summary>
+
+- #### Ogólne
+    - ###### Dodano komendę administracyjną `css_entity`, która pozwala sprawdzić, czy istnieje encja o podanym indeksie/uchwycie (nazwa projektanta jest wyświetlana na czacie lub w konsoli). [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Dodano post-hook `TakeDamage` (`OnTakeDamagePost`) obok istniejącego pre-hooka, dzięki czemu skille mogą teraz reagować po faktycznym zadaniu obrażeń, a nie tylko przed nimi. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Dodano `CreateMolotovProjectile` (nowa sygnatura `CMolotovProjectile_CreateFunc`) oraz helpery encji `CreateTrackedChicken`. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Dodano mapowanie zastępcze `weapon_mp7` → `weapon_mp5sd`. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Śmierci spowodowane przez skille są teraz przypisywane właścicielowi skilla (zamiast być liczone jako samobójstwa) i pojawiają się w killfeedzie z użytym skillem; dotyczy to DeathBomb, Exploding Barrel, Baseball, HotBomb, Poison, Iluzjonista, Replikator, Ostrożne pociski, Toxic Smoke oraz Hologram. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Dodano opcję konfiguracyjną `CurseSkillPerPlayer`, która ogranicza liczbę klątw, jakie mogą zostać nałożone na jednego gracza w ciągu rundy (domyślnie bez limitu). Limit jest egzekwowany centralnie w `SkillAction`. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Linka z Drutu korzysta teraz z cooldownu zamiast stałego limitu liczby rozstawień, a pozostały czas jest wyświetlany na HUD-ie. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Przewody Linka z Drutu są teraz kolorowane zależnie od drużyny: czerwone dla T i niebieskie dla CT. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `PlayerEvents.cs` podzielono na trzy pliki częściowe (`PlayerEvents`, `RoundEvents`, `EntityEvents`); działanie pozostało bez zmian. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### 28 zduplikowanych łańcuchów LINQ służących do wyszukiwania przeciwników zastąpiono jednym współdzielonym helperem używanym w 18 skillach. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Dodano cooldown użycia kamery Spectatora (domyślnie 0,5 s) oraz obsługę rozłączenia gracza. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Dodano helpery do zarządzania klątwami `ClearCursesFor` i `AnyCurseCapacity`; Thief został dodany do zestawu skillów klątw. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `CurseSkillPerPlayer` jest teraz ignorowane w trybach TeamSkills, SameSkills i Debug, a menu wyboru celu dla klątw nie będzie już puste, gdy każdy przeciwnik osiągnął limit. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `MaxPerServer` dla C4Camouflage zmniejszono z `-1` do `1`. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Wydajność:
+    - ###### `SkillUtils.HasMenu` zostało przeorganizowane tak, aby kosztowne sprawdzanie menu wykonywało się tylko dla graczy, których to dotyczy - w 17 skillach oraz na HUD-ie. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Nazwy i opisy skillów są teraz cache'owane dla każdego skilla/języka/losowania zamiast generowania ich co 2 ticki (Illiterate nadal otrzymuje świeżo zniekształcony tekst). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Sprawdzanie uprawnień administratora do HUD-u śmierci jest teraz cache'owane na całą rundę, a `DateTime.Now` jest odczytywane raz na tick zamiast raz na gracza. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wstępne obliczanie skillów na koniec rundy buduje teraz stałe tury w jednym przebiegu z wykorzystaniem operacji na zbiorach, zamiast wielokrotnych liniowych przeszukiwań. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Usunięto martwy kod: `Earthquake.cs` i `HealingChicken.cs` (niezarejestrowane skille), `EntityManager.CreateTrackedEnvShake`, `EntityManager.CreateTrackedChicken` oraz `PlayerManager.UpdatePlayerSkill`. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Poprawki mocy:
+    - ###### Aimbot:
+        - ###### Wymusza teraz hitgroup headshot tylko raz (pomija sytuację, gdy jest już ustawiony na głowę lub jest nieprawidłowy), a pierwotna wartość hitgroup jest teraz przywracana w nowym hooku po zadaniu obrażeń zamiast pozostawiania jej nadpisanej. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Linka z Drutu:
+        - ###### Zmniejszono domyślną szerokość przewodu z 1,5 do 0,7. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Przewody są teraz usuwane, gdy właściciel umrze lub straci skill, zamiast pozostawać do końca rundy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Hologram:
+        - ###### Naprawiono wywoływanie hooka umiejętności bez obecności klona w sytuacji, gdy zakupy zostały dokonane podczas czasu zamrożenia. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Nóż do Rzucania:
+        - ###### Naprawiono nieprawidłowe blokowanie noża przy rozpoczęciu kolejnej rundy; teraz blokada występuje tylko wtedy, gdy własny nóż gracza leży na ziemi. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Zakłócacz:
+        - ###### Naprawiono komunikat potwierdzający, który wyświetlał nazwę użytkownika zamiast nazwy wybranego celu. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Ostrożne pociski:
+        - ###### Pudła są teraz dopasowywane do dokładnego ticka trafienia zamiast wykorzystywania okna tolerancji wynoszącego 10 ticków. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Replikator / Iluzjonista / Hologram:
+        - ###### Naprawiono błąd, przez który pojedynczy strzał ze strzelby zadawał obrażenia klona wielokrotnie z powodu opóźnionego niszczenia encji. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Scyzoryk / Skrytobójca:
+        - ###### Obrażenia są teraz modyfikowane w hooku obrażeń zamiast poprzez zdarzenie `player_hurt` po zadaniu obrażeń. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Drakula:
+        - ###### Usunięto stały limit leczenia. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Skupienie:
+        - ###### `weapon_accuracy_nospread` jest teraz przywracane do wartości ustawionej przez sam serwer zamiast do wartości resetowanej na sztywno. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Nowe skille:
+    - ###### Berserker: Zadajesz większe obrażenia i poruszasz się szybciej, gdy masz mniej zdrowia. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Mocne Uderzenie: Naciśnij Attack2 z MP5, aby wystrzelić granat odłamkowy. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Oko Demona: Zadajesz obrażenia każdemu przeciwnikowi, na którego patrzysz. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Deszcz Ognia: Rzuć wabik (decoy), aby przywołać deszcz koktajli Mołotowa. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Latarka: Kliknij [css_useSkill], aby włączyć lub wyłączyć latarkę; jej światło może oślepiać przeciwników. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Lecząca Kura: Twoje kurczaki leczą cię, gdy znajdujesz się w ich pobliżu. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Odrzutowy Kop: Wybierz gracza, aby uruchomić Odrzutowy Kop - każdy jego wystrzelony pocisk odrzuca go do tyłu, dopóki umiejętność nie zostanie wyłączona. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Ostatnie Tchnienie: Po swojej śmierci zadajesz obrażenia przeciwnikowi, który cię zabił. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Zabierz Amunicję: Kliknij [css_useSkill], aby zabrać magazynek aktywnej broni losowemu przeciwnikowi. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Linka z Drutu: Rozciągnij przewód między dwiema ścHologrammi; przeciwnicy, którzy go dotkną, pojawią się na radarze właściciela aż do końca rundy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wybuchowa Beczka: Postaw beczkę, która eksploduje po zastrzeleniu. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Droga Amunicja: Wybierz przeciwnika, który będzie tracił pieniądze przy każdym strzale. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Klątwa Skakania: Wybierz przeciwnika, który będzie skakał za każdym razem, gdy skoczy żyjący członek jego drużyny. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Odrzut: Strzelanie w powietrzu odrzuca cię do tyłu. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Olbrzym: Powiększa wybranego przeciwnika. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Koszmar: Wywołuje u wybranego przeciwnika koszmarną wizję. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b1</b></summary>
