@@ -786,6 +786,13 @@ namespace src.utils
             return manager.HasMenu(player);
         }
 
+        public static bool SetMenuPaused(CCSPlayerController? player, bool pause)
+        {
+            var manager = GetMenuManager();
+            if (manager == null) return false;
+            return manager.SetMenuPaused(player, pause);
+        }
+
         private static string GetInvisibleSignature(string id)
         {
             if (string.IsNullOrEmpty(id)) return "";

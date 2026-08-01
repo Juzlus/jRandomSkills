@@ -60,6 +60,16 @@ public class WasdManager : IWasdMenuManager
         menuPlayer?.UpdateActiveMenu(list);
     }
 
+    public bool SetMenuPaused(CCSPlayerController? player, bool pause)
+    {
+        if (TryGetPlayer(player, out var menuPlayer) && menuPlayer != null)
+        {
+            menuPlayer.Paused = pause;
+            return true;
+        }
+        return false;
+    }
+
     private static bool TryGetPlayer(CCSPlayerController? player, out WasdMenuPlayer? menuPlayer)
     {
         menuPlayer = null!;

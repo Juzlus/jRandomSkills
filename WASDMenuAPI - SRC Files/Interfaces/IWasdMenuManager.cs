@@ -18,4 +18,5 @@ public interface IWasdMenuManager
     public IWasdMenu CreateMenu(string title, string itemText, string itemHoverText, string ControlText);
     public bool HasMenu(CCSPlayerController? player);
     public void UpdateActiveMenu(CCSPlayerController? player, Dictionary<string, Action<CCSPlayerController, IWasdMenuOption>> list);
+    public bool SetMenuPaused(CCSPlayerController? player, bool pause);
 }

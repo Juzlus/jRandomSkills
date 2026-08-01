@@ -15,6 +15,7 @@ public class WasdMenuPlayer
     public string CenterHtml = "";
     public int VisibleOptions = 3;
     public PlayerButtons Buttons { get; set; }
+    public bool Paused = false;
 
     public int scrollIndex = 0;
     public int maxLength = 21;
@@ -127,6 +128,8 @@ public class WasdMenuPlayer
         string itemHoverText = "";
         string endControl = "";
         LinkedListNode<IWasdMenuOption>? option = MenuStart;
+
+        builder.AppendLine("<jRS/>");
 
         if (!string.IsNullOrEmpty(option?.Value?.Parent?.Title))
             builder.AppendLine(option.Value.Parent?.Title ?? "");

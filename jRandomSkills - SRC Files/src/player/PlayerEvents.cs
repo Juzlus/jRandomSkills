@@ -241,7 +241,7 @@ namespace src.player
                     if (isOtherPlugin && playerInfo.HideHUD != int.MaxValue)
                     {
                         playerInfo.HideHUD = tickCount + 15;
-                        SkillUtils.CloseMenu(player);
+                        SkillUtils.SetMenuPaused(player, true);
                     }
                 }
 

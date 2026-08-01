@@ -2,7 +2,6 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.menu;
@@ -444,7 +443,7 @@ namespace src.command
             bool isDisplayHUD = playerInfo.HideHUD < tickCount;
 
             playerInfo.HideHUD = isDisplayHUD ? int.MaxValue : int.MinValue;
-            SkillUtils.CloseMenu(player);
+            SkillUtils.SetMenuPaused(player, isDisplayHUD);
             player.PrintToChat($" {(!isDisplayHUD ? ChatColors.Green : ChatColors.Red)}{player.GetTranslation(!isDisplayHUD ? "hud_on" : "hud_off")}");
         }
 

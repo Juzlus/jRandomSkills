@@ -47,18 +47,15 @@ public class WASDMenuAPI
     {
         foreach (var player in Players.Values.Where(p => p.MainMenu != null && p.Player?.IsValid == true))
         {
+            if (player.Paused)
+                return;
+
             if ((player.Buttons & PlayerButtons.Forward) == 0 && (player.Player.Buttons & PlayerButtons.Forward) != 0)
-            {
                 player.ScrollUp();
-            }
             else if((player.Buttons & PlayerButtons.Back) == 0 && (player.Player.Buttons & PlayerButtons.Back) != 0)
-            {
                 player.ScrollDown();
-            }
             else if((player.Buttons & PlayerButtons.Use) == 0 && (player.Player.Buttons & PlayerButtons.Use) != 0)
-            {
                 player.Choose();
-            }
             
             player.Buttons = player.Player.Buttons;
             if (!string.IsNullOrEmpty(player.CenterHtml))

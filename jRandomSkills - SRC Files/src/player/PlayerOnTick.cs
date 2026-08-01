@@ -86,7 +86,11 @@ namespace src.player
 
             if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now && string.IsNullOrEmpty(skillPlayer.PrintHTML)) return;
 
-            if (SkillUtils.HasMenu(player)) return;
+            if (SkillUtils.HasMenu(player))
+            {
+                SkillUtils.SetMenuPaused(player, false);
+                return;
+            }
 
             string infoLine = string.Empty;
             string skillLine = string.Empty;
