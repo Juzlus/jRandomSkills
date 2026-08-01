@@ -570,7 +570,7 @@
   "duplicate_player": "Mehr als ein Spieler mit demselben Namen gefunden.",
   "selectplayerskill_command": "Gib /t ein",
   "selectplayerskill_incorrect_enemy_index": "Es wurden keine Spieler gefunden, die ausgewählt werden können.",
-  "curse_limit_info": "curse_limit_info",
+  "curse_limit_info": "Das Fluchlimit für {0} wurde erreicht",
 
   "skill_not_found_setskill": "Keine solche CHATCOLORS.REDskill gefunden",
   "player_not_found_setskill": "Kein solcher CHATCOLORS.REDplayer gefunden",

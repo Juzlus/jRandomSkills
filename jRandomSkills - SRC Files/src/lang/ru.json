@@ -570,7 +570,7 @@
   "duplicate_player": "Найдено несколько игроков с таким именем.",
   "selectplayerskill_command": "Введите /t",
   "selectplayerskill_incorrect_enemy_index": "Игроки для выбора не найдены.",
-  "curse_limit_info": "curse_limit_info",
+  "curse_limit_info": "Достигнут лимит проклятий для {0}",
 
   "skill_not_found_setskill": "Навык не найден",
   "player_not_found_setskill": "Игрок не найден",

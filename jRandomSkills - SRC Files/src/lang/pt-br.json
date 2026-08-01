@@ -570,7 +570,7 @@
   "duplicate_player": "Mais de um jogador encontrado com o mesmo nome.",
   "selectplayerskill_command": "Digite /t",
   "selectplayerskill_incorrect_enemy_index": "Não foram encontrados jogadores para selecionar.",
-  "curse_limit_info": "curse_limit_info",
+  "curse_limit_info": "O limite de maldições para {0} foi atingido",
 
   "skill_not_found_setskill": "Nenhuma habilidade CHATCOLORS.RED encontrada",
   "player_not_found_setskill": "Nenhum jogador CHATCOLORS.RED encontrado",

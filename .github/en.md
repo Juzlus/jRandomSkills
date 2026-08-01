@@ -307,10 +307,12 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         "SkillDescriptionDuration": 7.0, // How long should the skill description be visible for?
         "DisplayAlwaysDescription":false,// Always display skill description (SkillDescriptionDuration = 9999)
         "DisableSpectateHUD": false,     // Disable HTML HUD when spectating
+        "HideHudForOtherPlugins": true,  // Automatically hides HUD when another plugin uses it
         "EnableFlashingHtmlHudFix": false,// Enable FlashingHtmlHudFix
         "TraceRayBeam": false,           // Enable trail visibility for 'Long Knife', 'Long Zeus'
         "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Disable the HUD after death for players with this permission
         "DisableSkillsOnRoundEnd": false,// Disable all skills at the end of the round (when the summary is visible)
+        "CurseSkillPerPlayer": null,     // Maximum number of effects per player
         
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Default language: en, pl, fr, pt-br, zh

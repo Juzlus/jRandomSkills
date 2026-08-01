@@ -306,10 +306,12 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
         "SkillDescriptionDuration": 7.0, // Jak długo opis umiejętności powinien być widoczny?
         "DisplayAlwaysDescription":false,// Zawsze wyświetlaj opis umiejętności
         "DisableSpectateHUD": false,     // Wyłącz HUD HTML bedąc martwym
+        "HideHudForOtherPlugins": true,  // Automatycznie ukrywa HUD gdy używa go inny plugin
         "EnableFlashingHtmlHudFix": false,// Włącz FlashingHtmlHudFix
         "TraceRayBeam": false,           // Włącz widoczność ścieżki dla 'Długi Nóż', 'Długi Zeus'
         "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Wyłącz HUD po śmierci dla graczy z tym uprawnieniem
         "DisableSkillsOnRoundEnd": false,// Wyłącz wszystkie umiejętności na koniec rundy (gdy widoczne jest podsumowanie)
+        "CurseSkillPerPlayer": null,     // Maksymalna liczba efektów na gracza
 
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Język domyślny: en, pl, fr, pt-br, zh
