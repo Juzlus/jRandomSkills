@@ -403,6 +403,14 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.3.b3</b></summary>
+
+- #### General
+    - ###### Added automatic HUD hiding to prevent conflicts with other plugins using the center HUD system (`HideHudForOtherPlugins` in `config.json`).
+
+</details>
+
+<details>
 <summary><b>v1.2.3.b2</b></summary>
 
 - #### General
