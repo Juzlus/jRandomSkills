@@ -570,7 +570,7 @@
   "duplicate_player": "Plus d’un joueur trouvé avec le même nom.",
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
-  "curse_limit_info": "curse_limit_info",
+  "curse_limit_info": "La limite de malédictions pour {0} a été atteinte",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",
   "player_not_found_setskill": "Aucun CHATCOLORS.REDjoueur trouvé",

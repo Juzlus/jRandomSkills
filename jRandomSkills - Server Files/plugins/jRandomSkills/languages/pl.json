@@ -570,7 +570,7 @@
   "duplicate_player": "Znaleziono więcej niż jednego gracza o tej samej nazwie.",
   "selectplayerskill_command": "Wpisz /t",
   "selectplayerskill_incorrect_enemy_index": "Nie znaleziono graczy do wyboru.",
-  "curse_limit_info": "curse_limit_info",
+  "curse_limit_info": "Osiągnięto limit klątw dla {0}",
 
   "skill_not_found_setskill": "Nie znaleziono takiej CHATCOLORS.REDsupermocy",
   "player_not_found_setskill": "Nie znaleziono takiego CHATCOLORS.REDgracza",
