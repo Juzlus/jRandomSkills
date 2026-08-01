@@ -1,7 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Attributes;
-using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -12,6 +10,7 @@ using RayTraceAPI;
 using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -78,6 +77,8 @@ namespace src.player
             Instance.RegisterListener<OnClientPutInServer>(OnPlayerConnectedBot);
 
             Instance.HookUserMessage(208, PlayerMakeSound);
+            Instance.HookUserMessage(207, GetPrintToCenterHtml);
+
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamagePost, HookMode.Post);
 
@@ -205,6 +206,45 @@ namespace src.player
             lock (setLock)
             {
                 DispatchToActiveSkills("PlayerMakeSound", um);
+                return HookResult.Continue;
+            }
+        }
+
+        private static HookResult GetPrintToCenterHtml(UserMessage um)
+        {
+            if (!Config.LoadedConfig.HideHudForOtherPlugins) return HookResult.Continue;
+
+            int tickCount = Server.TickCount;
+            if (tickCount % 10 != 0) return HookResult.Continue;
+            
+            lock (setLock)
+            {
+                if (um.ReadUInt("eventid") != 226)
+                    return HookResult.Continue;
+
+                var debug = um.DebugString;
+                var match = Regex.Match(debug, @"val_string:\s*""(.*?)""");
+
+                if (match.Success)
+                {
+                    var html = match.Groups[1].Value.Replace("\\'", "'");
+                    if (string.IsNullOrEmpty(html)) return HookResult.Continue;
+                    
+                    bool isOtherPlugin = !html.StartsWith("<jRS/>");
+
+                    var player = um.Recipients.FirstOrDefault();
+                    if (player == null || !player.IsValid) return HookResult.Continue;
+
+                    var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+                    if (playerInfo == null) return HookResult.Continue;
+
+                    if (isOtherPlugin && playerInfo.HideHUD != int.MaxValue)
+                    {
+                        playerInfo.HideHUD = tickCount + 15;
+                        SkillUtils.CloseMenu(player);
+                    }
+                }
+
                 return HookResult.Continue;
             }
         }
@@ -347,33 +387,6 @@ namespace src.player
             }
         }
 
-        private static HookResult WeaponDrop(DynamicHook hook)
-        {
-            lock (setLock)
-            {
-                CCSPlayerController player = hook.GetParam<CCSPlayerController>(0);
-                if (player == null || !player.IsValid)
-                    return HookResult.Continue;
-
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
-                bool block = false;
-                foreach (string skillName in activeSkills)
-                {
-                    bool? result = (bool?)Instance.SkillAction(skillName, "WeaponDrop", [hook, player]);
-                    if (result == true)
-                    {
-                        block = true;
-                        break;
-                    }
-                }
-                return block ? HookResult.Handled : HookResult.Continue;
-            }
-        }
-
         private static readonly Dictionary<Skills, string> _skillNames =
             Enum.GetValues<Skills>().ToDictionary(s => s, s => s.ToString());
         private static readonly HashSet<Skills> _activeSkillsSet = [];
@@ -460,7 +473,7 @@ namespace src.player
                     IsDrawing = false,
                     SkillChance = 1,
                     PrintHTML = null,
-                    DisplayHUD = true,
+                    HideHUD = int.MinValue,
                     SkillUsed = false,
                 };
 
@@ -514,26 +527,6 @@ namespace src.player
 
                 return HookResult.Continue;
             }
-        }
-
-        private static HookResult PlayerChat(EventPlayerChat @event, GameEventInfo info)
-        {
-            var userID = @event.Userid;
-            if (userID == 0 || string.IsNullOrEmpty(@event.Text)) return HookResult.Continue;
-
-            string text = @event.Text.Split(' ')[0].Trim();
-
-            string commandName = text.StartsWith('!') || text.StartsWith('/') ? text[1..] : text;
-
-            var player = Utilities.GetPlayerFromUserid(userID);
-            if (player == null || !player.IsValid) return HookResult.Continue;
-
-            var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (skillPlayer == null) return HookResult.Continue;
-
-            skillPlayer.HudSuppressedUntil = DateTime.Now.AddSeconds(5);
-
-            return HookResult.Continue;
         }
 
         private static HookResult PlayerSpawned(EventPlayerSpawned @event, GameEventInfo info)
@@ -719,7 +712,7 @@ namespace src.player
 
         private static readonly Dictionary<uint, jSkill_SkillInfo> nextRoundPicks = [];
 
-        public static void UpdateSkillHUD(CCSPlayerController? player, string? headerLine, string? centerLine, string? extraLine, bool isDescription)
+        public static void UpdateSkillHUD(CCSPlayerController? player, jSkill_PlayerInfo? skillPlayer, string? headerLine, string? centerLine, string? extraLine, bool isDescription)
         {
             lock (setLock)
             {
@@ -746,11 +739,9 @@ namespace src.player
                     ? ""
                     : $"<br>{emptySymbol}<font class='fontSize-{(isDescription ? config.SkillDescriptionLineSize : config.InfoLineSize)}' color='{(isDescription ? config.SkillDescriptionLineColor : config.InfoLineColor)}'>{extraLine}</font>{emptySymbol}";
 
-                var hudContent = infoLine + skillLine + remainingLine;
-
+                var hudContent = "<jRS/>" + infoLine + skillLine + remainingLine;
                 player.PrintToCenterHtml(hudContent);
             }
         }
-
     }
 }

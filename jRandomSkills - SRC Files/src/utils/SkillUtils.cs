@@ -834,7 +834,7 @@ namespace src.utils
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo == null || !playerInfo.DisplayHUD) return;
+            if (playerInfo == null || playerInfo.HideHUD >= Server.TickCount) return;
 
             if (player.IsBot)
             {
@@ -944,7 +944,6 @@ namespace src.utils
 
             UpdateServerTeamScores(ctScore, tScore);
             jRandomSkills.Instance.GameRules?.TerminateRound(5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed);
-            // TerminateRoundFunc.Invoke(jRandomSkills.Instance.GameRules.Handle, 5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed, 0, 0);
         }
 
         private static void UpdateServerTeamScores(short ctScore, short tScore)

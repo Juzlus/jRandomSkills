@@ -80,7 +80,7 @@ namespace src.player
             if (gameRules == null || gameRules.WarmupPeriod == true || gameRules.GamePhase >= 5) return;
 
             var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
-            if (skillPlayer == null || !skillPlayer.DisplayHUD) return;
+            if (skillPlayer == null || skillPlayer.HideHUD >= Server.TickCount) return;
 
             if (skillPlayer.HudSuppressedUntil > now) return;
 
@@ -191,7 +191,7 @@ namespace src.player
 
             if (string.IsNullOrEmpty(skillLine)) return;
 
-            Event.UpdateSkillHUD(player, infoLine, skillLine, remainingLine, isDescription);
+            Event.UpdateSkillHUD(player, skillPlayer, infoLine, skillLine, remainingLine, isDescription);
         }
     }
 }

@@ -1,8 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.menu;
@@ -440,9 +440,12 @@ namespace src.command
             var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (playerInfo == null) return;
 
-            playerInfo.DisplayHUD = !playerInfo.DisplayHUD;
+            int tickCount = Server.TickCount;
+            bool isDisplayHUD = playerInfo.HideHUD < tickCount;
+
+            playerInfo.HideHUD = isDisplayHUD ? int.MaxValue : int.MinValue;
             SkillUtils.CloseMenu(player);
-            player.PrintToChat($" {(playerInfo.DisplayHUD ? ChatColors.Green : ChatColors.Red)}{player.GetTranslation(playerInfo.DisplayHUD ? "hud_on" : "hud_off")}");
+            player.PrintToChat($" {(!isDisplayHUD ? ChatColors.Green : ChatColors.Red)}{player.GetTranslation(!isDisplayHUD ? "hud_on" : "hud_off")}");
         }
 
         [CommandHelper(minArgs: 2, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]

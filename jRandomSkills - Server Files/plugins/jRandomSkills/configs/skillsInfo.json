@@ -190,6 +190,22 @@
     "Rarity": "Common"
   },
   {
+    "Cooldown": 15.0,
+    "TeleportAngle": 10.0,
+    "TeleportDistance": 100.0,
+    "NeedsTeammates": true,
+    "DisableOnFreezeTime": true,
+    "OnlyTeam": 0,
+    "Color": "#bcf542",
+    "Active": true,
+    "Name": "TeamTeleport",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 2,
+    "Rarity": "Common"
+  },
+  {
     "Cooldown": 30.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,

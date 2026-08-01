@@ -16,6 +16,7 @@
   "SkillDescriptionDuration": 7.0,
   "DisplayAlwaysDescription": false,
   "DisableSpectateHUD": false,
+  "HideHudForOtherPlugins": true,
   "EnableFlashingHtmlHudFix": false,
   "TraceRayBeam": false,
   "DisableHUDOnDeathPermission": "@jRandomSkills/death",

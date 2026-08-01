@@ -385,6 +385,14 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.3.b3</b></summary>
+
+- #### Ogólne
+    - ###### Dodano automatyczne ukrywanie HUD-u, aby zapobiec konfliktom z innymi pluginami korzystającymi z centralnego systemu HUD (`HideHudForOtherPlugins` w `config.json`.
+
+</details>
+
+<details>
 <summary><b>v1.2.3.b2</b></summary>
 
 - #### Ogólne

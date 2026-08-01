@@ -86,6 +86,7 @@ namespace src.utils
             public float SkillDescriptionDuration { get; set; }
             public bool DisplayAlwaysDescription { get; set; }
             public bool DisableSpectateHUD { get; set; }
+            public bool HideHudForOtherPlugins { get; set; }
             public bool EnableFlashingHtmlHudFix { get; set; }
             public bool TraceRayBeam { get; set; }
             public string DisableHUDOnDeathPermission { get; set; }
@@ -118,6 +119,7 @@ namespace src.utils
                 EnableFlashingHtmlHudFix = false;
                 TraceRayBeam = false;
                 DisableSpectateHUD = false;
+                HideHudForOtherPlugins = true;
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
                 CurseSkillPerPlayer = null;
