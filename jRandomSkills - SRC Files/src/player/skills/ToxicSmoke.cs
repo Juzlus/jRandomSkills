@@ -95,9 +95,17 @@ namespace src.player.skills
                     var pawn = eventPlayer.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
 
-                    if (SkillUtils.GetDistance(smoke.Key, pawn.AbsOrigin) <= smokeRadius)
-                        if (SkillUtils.TakeHealth(pawn, smokeDamage, thrower, KillfeedIcons.Smokegrenade))
-                            player.EmitSound("Player.DamageBody.Onlooker");
+                    if (SkillUtils.GetDistance(smoke.Key, pawn.AbsOrigin) > smokeRadius) continue;
+
+                    int damage = smokeDamage;
+                    if (thrower != null && eventPlayer.Index != thrower.Index && pawn.TeamNum == thrower.TeamNum)
+                    {
+                        damage = (int)MathF.Round(smokeDamage * SkillUtils.GetTeamDamageMultiplier(skillName));
+                        if (damage <= 0) continue;
+                    }
+
+                    if (SkillUtils.TakeHealth(pawn, damage, thrower, KillfeedIcons.Smokegrenade))
+                        player.EmitSound("Player.DamageBody.Onlooker");
                 }
             }
         }
@@ -162,12 +170,13 @@ namespace src.player.skills
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17, int grenadeLimit = 1, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int SmokeDamage { get; set; } = smokeDamage;
             public float SmokeRadius { get; set; } = smokeRadius;
             public int TickCooldown { get; set; } = tickCooldown;
             public int GrenadeLimit { get; set; } = grenadeLimit;
+            public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
         }
     }
 }

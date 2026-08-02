@@ -1,4 +1,4 @@
-{
+﻿{
   "none": "Aucune",
   "none_desc": "Vous n’avez aucune compétence",
 
@@ -276,6 +276,7 @@
 
   "jetkick": "Coup de pied propulsé",
   "jetkick_desc": "Sélectionnez un joueur pour lui donner un coup de pied propulsé",
+  "jetkick_select_info": "Sélectionnez un joueur à propulser :",
   "jetkick_player_info": "Le joueur '{0}' a reçu un coup de pied propulsé.",
   "jetkick_enemy_info": "Chaque tir vous repousse vers l'arrière",
   "jetkick_disable_info": "Votre recul est revenu à la normale.",

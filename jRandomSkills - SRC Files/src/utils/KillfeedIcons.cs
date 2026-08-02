@@ -279,7 +279,6 @@ namespace jRandomSkills.src.utils
                 "weapon_p90" => KillfeedIcons.P90,
                 "weapon_mp5sd" => KillfeedIcons.Mp5,
                 "weapon_sg556" => KillfeedIcons.Sg556,
-                "weapon_sg553" => KillfeedIcons.Sg556,
                 "weapon_famas" => KillfeedIcons.Famas,
                 "weapon_galilar" => KillfeedIcons.Galilar,
                 "weapon_m4a4" => KillfeedIcons.M4A4,

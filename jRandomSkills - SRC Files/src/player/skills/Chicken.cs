@@ -13,12 +13,12 @@ namespace src.player.skills
         private static readonly HashSet<string> disabledWeapons =
         [
             "weapon_ak47", "weapon_m4a4", "weapon_m4a1", "weapon_m4a1_silencer",
-            "weapon_famas", "weapon_galilar", "weapon_aug", "weapon_sg553", 
+            "weapon_famas", "weapon_galilar", "weapon_aug", "weapon_sg556",
             "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7",
             "weapon_ump45", "weapon_p90", "weapon_mp5sd", "weapon_ssg08",
             "weapon_awp", "weapon_scar20", "weapon_g3sg1", "weapon_nova",
             "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
-            "weapon_negev", "weapon_sg556"
+            "weapon_negev"
         ];
         private const string chickenModelPath = "models/chicken/chicken.vmdl";
         private static readonly ConcurrentDictionary<uint, uint> chickens = [];
@@ -127,7 +127,7 @@ namespace src.player.skills
             var chickenModel = EntityManager.CreateTrackedDynamicProp(player.Index);
             if (chickenModel == null)
                 return;
-            
+
             chickenModel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(chickenModel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             chickenModel.SetModel(chickenModelPath);
             chickenModel.Render = Color.FromArgb(255, 255, 255, 255);
@@ -138,8 +138,9 @@ namespace src.player.skills
 
             chickenModel.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = 1;
             Utilities.SetStateChanged(chickenModel, "CBaseEntity", "m_CBodyComponent");
-            
-            Server.NextFrame(() => {
+
+            Server.NextFrame(() =>
+            {
                 if (chickenModel == null || !chickenModel.IsValid) return;
                 chickenModel.AcceptInput("SetScale", chickenModel, chickenModel, "1");
             });

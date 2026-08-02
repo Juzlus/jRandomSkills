@@ -1,4 +1,4 @@
-{
+﻿{
   "none": "Yok",
   "none_desc": "Hiçbir yeteneğin yok",
 
@@ -52,13 +52,13 @@
   "behind_desc2": "Baş döndürme şansın: %{0}",
 
   "berserker": "Berserker",
-  "berserker_desc": "Canın azaldıkça daha fazla hasar verir ve daha hızlı hareket edersin",
+  "berserker_desc": "Canın azaldıkça hasarın artar ve daha hızlanırsın",
 
   "blademaster": "Kılıç Ustası",
   "blademaster_desc": "Bıçak tutarken mermileri sektirme şansın artar",
 
   "blastshot": "Patlama Atışı",
-  "blastshot_desc": "MP5 ile Attack2 tuşuna basarak bir HE bombası ateşle",
+  "blastshot_desc": "MP5 ile Sağ Tık'a basarak El bombası fırlat",
 
   "bunnyhop": "Tavşan",
   "bunnyhop_desc": "Otomatik \"BunnyHop\" yaparsın",
@@ -156,14 +156,14 @@
   "fastreload_desc": "[css_useSkill] tuşuna basarak şarjörünü hızlıca değiştir",
 
   "firerain": "Ateş Yağmuru",
-  "firerain_desc": "Molotof yağmuru çağırmak için bir yem at",
+  "firerain_desc": "Molotof yağdırmak için bir decoy at",
 
   "flash": "Flash",
   "flash_desc": "Raund başında rastgele oyuncu hızı",
   "flash_desc2": "Hızın: {0}x",
 
   "flashlight": "El Feneri",
-  "flashlight_desc": "El fenerini açıp kapatmak için [css_useSkill] tuşuna tıkla. Işığı düşmanları kör edebilir",
+  "flashlight_desc": "[css_useSkill] tuşuna basarak El fenerini açarsın/kaparsın (Işığı düşmanları kör edebilir)",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "[css_useSkill] tuşuna basarak barikat kur",
@@ -223,7 +223,7 @@
   "healingsmoke_desc": "Sis bombaların iyileştirir",
 
   "hermit": "Münzevi",
-  "hermit_desc": "Öldürdüğünde mermi ve canın yenilenir",
+  "hermit_desc": "Birini öldürünce mermin ve canın yenilenir",
 
   "holyhandgrenade": "Kutsal El Bombası",
   "holyhandgrenade_desc": "El bomban iki kat hasara ve menzile sahip",
@@ -267,9 +267,10 @@
   "jester_on": "AÇIK",
   "jester_off": "KAPALI",
 
-  "jetkick": "Jet Tekmesi",
-  "jetkick_desc": "Jet tekmesi yapmak için bir oyuncu seç",
-  "jetkick_player_info": "'{0}' adlı oyuncuya jet tekmesi yapıldı.",
+  "jetkick": "Jetkick",
+  "jetkick_desc": "Seçtiğin bir rakibin her atışı onu geriye iter",
+  "jetkick_select_info": "Jetkick uygulanacak oyuncu:",
+  "jetkick_player_info": "'{0}' adlı oyuncuya jetkick uygulandı.",
   "jetkick_enemy_info": "Her atış seni geriye doğru iter",
   "jetkick_disable_info": "Geri tepmen normale döndü.",
 
@@ -297,7 +298,7 @@
   "knockback_desc": "Havadayken ateş etmek seni geriye savurur",
 
   "lastgasp": "Son Nefes",
-  "lastgasp_desc": "Öldükten sonra seni öldüren düşmana hasar verirsin",
+  "lastgasp_desc": "Öldükten sonra seni öldürene hasar verirsin",
 
   "lifeswap": "Can Takası",
   "lifeswap_desc": "Can değerlerini takas etmek için bir oyuncu seç",
@@ -340,7 +341,7 @@
   "deathbomb_desc": "Öldüğünde patlayarak etraftaki oyuncuları öldürürsün",
   "deathbomb_explosion": "BOOM!!!",
 
-  "demoneye": "Şeytan Gözü",
+  "demoneye": "Şeytani Göz",
   "demoneye_desc": "Baktığın tüm düşmanlara hasar verirsin",
 
   "nightmare": "Kabus",
@@ -489,14 +490,14 @@
   "swapposition": "Yer Değiştirme",
   "swapposition_desc": "[css_useSkill] tuşuna basarak vurduğun düşmanla yer değiştir",
 
-  "takeammo": "Mühimmat Al",
-  "takeammo_desc": "Rastgele bir düşmanın aktif silahının şarjörünü almak için [css_useSkill] tuşuna tıkla",
-  "takeammo_hud_info1": "Aktif şarjörü olan bir oyuncu bulunamadı.",
-  "takeammo_hud_info2": "Düşmanın şarjörü yok.",
-  "takeammo_enemy_info": "Bir miktar mühimmat kaybettin.",
+  "takeammo": "Cephane Hırsızı",
+  "takeammo_desc": "[css_useSkill] tuşuna basarak rastgele bir düşmanın silahının şarjörünü çalarsın",
+  "takeammo_hud_info1": "Cephanesi olan bir oyuncu bulunamadı.",
+  "takeammo_hud_info2": "Düşmanın cephanesi yok.",
+  "takeammo_enemy_info": "Birisi cephaneni çaldı.",
 
   "teamteleport": "Takıma Işınlanma",
-  "teamteleport_desc": "Baktığın takım arkadaşına ışınlanmak için [css_useSkill] tuşuna bas",
+  "teamteleport_desc": "[css_useSkill] tuşuna basarak baktığın takım arkadaşına ışınlanırsın",
   "teamteleport_noenemy": "Takım arkadaşı bulunamadı",
   "teamteleport_hud_info": "Bulundu: {0}",
 

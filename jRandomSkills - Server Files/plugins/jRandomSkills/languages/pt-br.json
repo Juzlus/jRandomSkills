@@ -1,4 +1,4 @@
-{
+﻿{
   "none": "Nenhuma",
   "none_desc": "Você não tem nenhuma habilidade",
 
@@ -276,6 +276,7 @@
 
   "jetkick": "Chute a Jato",
   "jetkick_desc": "Selecione um jogador para aplicar um chute a jato",
+  "jetkick_select_info": "Selecione um jogador para o chute a jato:",
   "jetkick_player_info": "O jogador '{0}' recebeu um chute a jato.",
   "jetkick_enemy_info": "Cada tiro empurra você para trás",
   "jetkick_disable_info": "Seu recuo voltou ao normal.",

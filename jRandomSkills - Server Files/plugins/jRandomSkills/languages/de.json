@@ -1,4 +1,4 @@
-{
+﻿{
   "none": "Keine",
   "none_desc": "Du hast keine Fertigkeit",
 
@@ -276,6 +276,7 @@
 
   "jetkick": "Jetkick",
   "jetkick_desc": "Wähle einen Spieler für einen Jetkick",
+  "jetkick_select_info": "Wähle einen Spieler für den Jetkick:",
   "jetkick_player_info": "Spieler '{0}' wurde wegge-kickt.",
   "jetkick_enemy_info": "Jeder Schuss stößt dich nach hinten",
   "jetkick_disable_info": "Dein Rückstoß ist wieder normal.",

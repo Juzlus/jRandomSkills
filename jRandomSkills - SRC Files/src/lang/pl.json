@@ -1,4 +1,4 @@
-{
+﻿{
   "none": "Brak",
   "none_desc": "Nie posiadasz żadnej supermocy",
 
@@ -276,6 +276,7 @@
 
   "jetkick": "Odrzutowy Kop",
   "jetkick_desc": "Wybierz gracza, aby użyć na nim odrzutowego kopa",
+  "jetkick_select_info": "Wybierz gracza do odrzutowego kopa:",
   "jetkick_player_info": "Gracz '{0}' został odrzucony kopem.",
   "jetkick_enemy_info": "Każdy strzał mocno odrzuca Cię do tyłu",
   "jetkick_disable_info": "Twój odrzut wrócił do normy.",

@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b3";
+        public override string ModuleVersion => "1.2.3.b4";
 
         public override void Load(bool hotReload)
         {
@@ -125,7 +125,7 @@ namespace src
                 SkillsUsedThisMap.TryAdd(skill, 0);
             }
 
-            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill))
+            if (SkillUtils.IsCurseSkill(skill))
             {
                 if (methodName == "DisableSkill" && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
                     SkillUtils.ReleaseCurse(curser.Index);

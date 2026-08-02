@@ -185,9 +185,11 @@ namespace src.player.skills
                     camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
 
                 camera.SetModel(cameraViewModel);
-                camera.Render = Color.FromArgb(1, 255, 255, 255);
                 camera.Teleport(pos, angle);
                 camera.DispatchSpawn();
+
+                camera.Render = Color.FromArgb(1, 255, 255, 255);
+                Utilities.SetStateChanged(camera, "CBaseModelEntity", "m_clrRender");
 
                 CBaseEntity? target = pawn != null && pawn.IsValid ? pawn : null;
                 var entities = EntityManager.GetPlayerEntities(enemy.Index, "empty_prop");
@@ -203,10 +205,11 @@ namespace src.player.skills
                 camera.AcceptInput("SetParent", target, target, "!activator");
             });
 
-            if (cameras.TryGetValue(player.Index, out var cameraInfo))
-                cameras.AddOrUpdate(player.Index, (cameraInfo.Item1, camera.Index, enemy.Index), (k, v) => (cameraInfo.Item1, camera.Index, enemy.Index));
-            else
-                cameras.AddOrUpdate(player.Index, (pawn.CameraServices.ViewEntity.Raw, camera.Index, enemy.Index), (k, v) => (pawn.CameraServices.ViewEntity.Raw, camera.Index, enemy.Index));
+            uint originalView = cameras.TryGetValue(player.Index, out var cameraInfo)
+                ? cameraInfo.Item1
+                : player.PlayerPawn?.Value?.CameraServices?.ViewEntity.Raw ?? 0;
+
+            cameras[player.Index] = (originalView, camera.Index, enemy.Index);
             return camera.EntityHandle.Raw;
         }
 

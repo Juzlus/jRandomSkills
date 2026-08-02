@@ -112,13 +112,31 @@ namespace src.player.skills
             box.Entity!.Name = box.Globalname = $"FortniteWall_{Server.TickCount}";
             box.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             box.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(box.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            box.DispatchSpawn();
+            box.Health = box.MaxHealth = 1_000_000;
+
+            var keys = new CEntityKeyValues();
+            try
+            {
+                keys.SetString("model", SkillsInfo.GetValue<string>(skillName, "propModel"));
+                keys.SetVector("origin", pos);
+                keys.SetBool("solid", true);
+                box.DispatchSpawn(keys);
+            }
+            finally
+            {
+                keys.Dispose();
+            }
+
+            if (!box.IsValid) return;
+            box.Teleport(pos, angle, null);
+
             barricades.TryAdd(box.Index, SkillsInfo.GetValue<int>(skillName, "barricadeHealth"));
+
             Server.NextFrame(() =>
             {
                 if (box == null || !box.IsValid) return;
-                box.SetModel(SkillsInfo.GetValue<string>(skillName, "propModel"));
                 box.Teleport(pos, angle, null);
+                Utilities.SetStateChanged(box, "CBaseEntity", "m_CBodyComponent");
             });
         }
 
