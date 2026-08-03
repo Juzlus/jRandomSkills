@@ -881,7 +881,7 @@ namespace src.utils
             var your_skill = player.GetTranslationWithoutIlliterate("your_skill");
             var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(your_skill) ? "l" : "ml")}'> </font>";
 
-            string infoLine = string.IsNullOrEmpty(your_skill)
+            string infoLine = string.IsNullOrEmpty(your_skill) || string.IsNullOrEmpty(config.HeaderLineSize)
                 ? ""
                 : $"<font class='fontWeight-Bold fontSize-{config.HeaderLineSize}' color='{config.HeaderLineColor}'>\u202A{your_skill}:\u202C</font><br>";
 
