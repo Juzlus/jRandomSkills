@@ -404,6 +404,36 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.3.b4</b></summary>
+
+- #### Ogólne:
+    - ###### Dodano powiadomienie o aktywacji umiejętności `Analfabeta`. [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### `Analfabeta` wpływa teraz tylko na wiadomości związane z umiejętnościami. [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### FOV jest teraz resetowany tylko wtedy, gdy umiejętność `Lupa` jest aktywna, a aktualny FOV gracza odpowiada wartości ustawionej przez Lupa. [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Klątwy są teraz cały czas śledzone i automatycznie usuwane po opuszczeniu serwera przez gracza, dzięki czemu nie przechodzą na kolejnego gracza używającego tego samego slotu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Naprawiono problem, przez który błąd podczas czyszczenia rundy mógł zatrzymać dalsze czyszczenie i pozostawić blokadę usuwania encji aktywną do końca mapy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Poprawki mocy:
+    - ###### Wallhack / Koszmar:
+        - ###### Naprawiono problem, przez który obie umiejętności były ujawniane całemu serwerowi podczas pokazywania umiejętności na początku rundy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Mocne Uderzenie / Ludzka Bomba / Wybuchowa Beczka / Strzał Wybuchowy / Toksyczny Dym:
+        - ###### Te umiejętności uwzględniają teraz redukcję obrażeń od przyjaznego ognia. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Deszcz Ognia:
+        - ###### Dodano tryb rozprysku, który jest automatycznie używany po wykryciu sufitu nad celem. [by: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Molotovy poprawnie zachowują teraz właściciela oraz drużynę, dzięki czemu zasady przyjaznego ognia działają poprawnie. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Lecząca Kura:
+        - ###### Dodano opcję konfiguracji zdrowia przywoływanych kurczaków. [by: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Sojusznicy nie mogą już zadawać obrażeń ani zabijać przywołanych kurczaków. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Zabierz Amunicję:
+        - ###### Naprawiono crash podczas zmiany mapy przy przywracaniu amunicji zapasowej broni. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fortnite:
+        - ###### Ściana pojawia się teraz z wysokim początkowym HP, dzięki czemu nie niszczy się natychmiast po postawieniu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Odrzutowy Kop / Ostrożne Pociski / Dzikie Rzuty:
+        - ###### Naprawiono pozostające efekty po rozłączeniu się gracza będącego celem tych umiejętności. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+</details>
+
+<details>
 <summary><b>v1.2.3.b3</b></summary>
 
 - #### Ogólne
