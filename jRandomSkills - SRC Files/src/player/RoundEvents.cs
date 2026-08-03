@@ -195,6 +195,7 @@ namespace src.player
                 SkillsUsedThisMap.Clear();
                 nextRoundPicks.Clear();
 
+                playersCustomFOV.Clear();
                 playersSkills.Clear();
                 staticSkills.Clear();
 
@@ -238,10 +239,10 @@ namespace src.player
 
                         if (string.IsNullOrEmpty(skillsText)) continue;
 
-                        SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("summary"), border: "t");
+                        SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslationWithoutIlliterate("summary"), border: "t");
                         foreach (string text in skillsText.Split("\n"))
                             if (!string.IsNullOrEmpty(text))
-                                SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
+                                SkillUtils.PrintToChat(player, text, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "");
                         SkillUtils.PrintToChat(player, string.Empty, border: "b");
                     }
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -578,11 +579,11 @@ namespace src.player
 
                             if (!string.IsNullOrEmpty(teammateSkills))
                             {
-                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("teammate_skills"), border: "t");
+                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "t");
                                 foreach (string text in teammateSkills.Split("\n"))
                                     if (!string.IsNullOrEmpty(text))
-                                        SkillUtils.PrintToChat(player, text, title: player.GetTranslation("teammate_skills"), border: "");
-                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslation("teammate_skills"), border: "b");
+                                        SkillUtils.PrintToChat(player, text, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "");
+                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "b");
                             }
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     }

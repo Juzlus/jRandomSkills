@@ -226,6 +226,7 @@
 
   "illiterate": "文盲",
   "illiterate_desc": "只要你还活着，你的敌人就无法阅读",
+  "illiterate_alert": "文盲已激活！在该技能的拥有者被消灭之前，你无法阅读消息。",
 
   "illusionist": "幻术师",
   "illusionist_desc": "点击 [css_useSkill] 部署一个直线行走的幻象",

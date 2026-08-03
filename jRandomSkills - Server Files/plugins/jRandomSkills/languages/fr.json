@@ -247,7 +247,8 @@
   "iana_desc": "Cliquez sur [css_useSkill] pour contrôler votre hologramme pendant quelques secondes",
 
   "illiterate": "Illettré",
-  "illiterate_desc": "Tant que vous êtes en vie, vos ennemis ne mogą pas lire",
+  "illiterate_desc": "Tant que vous êtes en vie, vos ennemis ne peuvent pas lire",
+  "illiterate_alert": "Illettré est actif ! Vous ne pouvez pas lire les messages tant que le propriétaire de cette compétence n'est pas éliminé",
 
   "illusionist": "Illusionniste",
   "illusionist_desc": "Cliquez sur [css_useSkill] pour déployer une réplique qui marche droit devant",

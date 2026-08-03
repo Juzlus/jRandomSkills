@@ -103,8 +103,8 @@ namespace src.player
 
             if (skills == null || skills.IsEmpty)
             {
-                infoLine = player.GetTranslation("your_skill");
-                skillLine = player.GetTranslation("none");
+                infoLine = player.GetTranslationWithoutIlliterate("your_skill");
+                skillLine = player.GetTranslationWithoutIlliterate("none");
             }
             else if (skillPlayer.IsDrawing && player.PawnIsAlive)
             {
@@ -115,7 +115,7 @@ namespace src.player
                     var skillsArray = skills.ToArray();
                     var randomSkill = skillsArray[Instance.Random.Next(skillCount)];
 
-                    infoLine = player.GetTranslation("drawing_skill");
+                    infoLine = player.GetTranslationWithoutIlliterate("drawing_skill");
                     skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
                 }
             }
@@ -127,7 +127,7 @@ namespace src.player
 
                     if (skillInfo != null)
                     {
-                        infoLine = player.GetTranslation("your_skill");
+                        infoLine = player.GetTranslationWithoutIlliterate("your_skill");
                         skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
 
                         if (skillInfo.Skill != Skills.None)
@@ -177,7 +177,7 @@ namespace src.player
                     if (pName.Length > 18)
                         pName = $"{pName[..17]}...";
 
-                    var observerSkill = player.GetTranslation("observer_skill");
+                    var observerSkill = player.GetTranslationWithoutIlliterate("observer_skill");
                     infoLine = string.IsNullOrEmpty(observerSkill) ? pName : $"{observerSkill} {pName}";
 
                     if (observedSkill.SpecialSkill == Skills.None || observedSpecialInfo == null)

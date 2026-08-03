@@ -241,6 +241,7 @@
 
   "illiterate": "Cahiliye",
   "illiterate_desc": "Yaşadığın sürece rakibin sohbeti (chat) veya oyun yazılarını okuyamaz",
+  "illiterate_alert": "Cahiliye aktif! Bu yeteneğin sahibi ortadan kalkana kadar mesajları okuyamazsınız.",
 
   "illusionist": "İllüzyonist",
   "illusionist_desc": "[css_useSkill] tuşuna basarak düz ilerleyen illüzyon oluştur",

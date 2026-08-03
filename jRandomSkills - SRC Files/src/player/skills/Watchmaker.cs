@@ -46,9 +46,9 @@ namespace src.player.skills
             Instance.GameRules.RoundTime += player.Team == CsTeam.Terrorist ? roundTime : -roundTime;
 
             if (player.Team == CsTeam.Terrorist)
-                Localization.PrintTranslationToChatAll($" {ChatColors.Orange}{{0}}", ["watchmaker_tt"], [roundTime]);
+                Localization.PrintTranslationToChatAll($" {ChatColors.Orange}{{0}}", ["watchmaker_tt"], true, [roundTime]);
             else
-                Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], [roundTime]);
+                Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], true, [roundTime]);
 
             player.EmitSound(SkillsInfo.GetValue<string>(skillName, "SoundEvent"));
 

@@ -248,6 +248,7 @@
 
   "illiterate": "Analphabet",
   "illiterate_desc": "Solange du am Leben bist, können deine Feinde nichts lesen",
+  "illiterate_alert": "Analphabet ist aktiv! Du kannst keine Nachrichten lesen, bis der Besitzer dieser Fähigkeit eliminiert ist",
 
   "illusionist": "Illusionist",
   "illusionist_desc": "Klicke [css_useSkill], um ein Abbild zu schicken, das geradeaus läuft",

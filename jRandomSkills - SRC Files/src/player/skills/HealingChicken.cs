@@ -20,11 +20,13 @@ namespace src.player.skills
         }
 
         private static readonly ConcurrentDictionary<uint, List<ChickenState>> activeChickens = new();
-        private static readonly ConcurrentDictionary<uint, uint> chickenOwners = new();
+        private static readonly ConcurrentDictionary<uint, (uint ownerIndex, int health)> chickenOwners = new();
+        private const string chickenParticle = "particles/critters/chicken/chicken_goop.vpcf";
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            jRandomSkills.Instance.AddToManifest(chickenParticle);
         }
 
         public static void NewRound()
@@ -39,7 +41,10 @@ namespace src.player.skills
             CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
 
             if (param == null || param2 == null) return;
-            if (!chickenOwners.TryGetValue(param.Index, out uint ownerIndex)) return;
+
+            if (!chickenOwners.TryGetValue(param.Index, out var ownerData)) return;
+            uint ownerIndex = ownerData.ownerIndex;
+            int health = ownerData.health;
 
             var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
             if (owner == null || !owner.IsValid) return;
@@ -50,9 +55,33 @@ namespace src.player.skills
             var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
             if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return;
 
-            if (attackerPawn.TeamNum != owner.TeamNum) return;
+            var ownerPawn = owner.PlayerPawn.Value;
+            if (ownerPawn == null || !ownerPawn.IsValid) return;
 
-            param2.Damage = 0;
+            if (attackerPawn.Index != ownerPawn.Index && attackerPawn.TeamNum == owner.TeamNum)
+            {
+                param2.Damage = 0;
+                return;
+            }
+
+            int newHealth = Math.Max(0, health - (int)param2.Damage);
+            chickenOwners[param.Index] = (ownerIndex, newHealth);
+
+            if (newHealth > 0)
+                CreateHitParticles(param.Index);
+        }
+
+        private static void CreateHitParticles(uint chickenIndex)
+        {
+            var chicken = Utilities.GetEntityFromIndex<CChicken>((int)chickenIndex);
+            if (chicken == null || !chicken.IsValid || chicken.AbsOrigin == null) return;
+
+            var particle = EntityManager.CreateTrackedParticleSystem(chicken.Index, chickenParticle, autoDestroySeconds: 3f);
+            if (particle == null) return;
+
+            Vector pos = new(chicken.AbsOrigin.X, chicken.AbsOrigin.Y, chicken.AbsOrigin.Z + 10);
+            particle.Teleport(pos);
+            particle.AcceptInput("Start");
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -79,6 +108,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
             int amount = SkillsInfo.GetValue<int>(skillName, "amount");
+            int health = SkillsInfo.GetValue<int>(skillName, "chickenHealth");
             var list = new List<ChickenState>();
 
             for (int i = 0; i < amount; i++)
@@ -87,7 +117,10 @@ namespace src.player.skills
                 if (chicken == null || !chicken.IsValid) continue;
 
                 chicken.Render = Color.LightGreen;
-                chickenOwners[chicken.Index] = player.Index;
+                chicken.MaxHealth = health;
+                chicken.Health = health;
+
+                chickenOwners[chicken.Index] = (player.Index, health);
 
                 Vector offset = new(
                     (float)(100 * Math.Cos(2 * Math.PI * i / amount)),
@@ -109,6 +142,8 @@ namespace src.player.skills
             int tickCooldown = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
             if (Server.TickCount % tickCooldown == 0) return;
 
+            float boostFactor = SkillsInfo.GetValue<float>(skillName, "boostFactor");
+
             var players = PlayerManager.GetTickPlayers().ToArray();
             int healAmount = SkillsInfo.GetValue<int>(skillName, "heal");
             float healRadius = SkillsInfo.GetValue<float>(skillName, "healRadius");
@@ -121,7 +156,7 @@ namespace src.player.skills
                 if (playerInfo?.Skill != skillName) continue;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.Health <= 0) continue;
 
                 if (!activeChickens.TryGetValue(player.Index, out var chickens)) continue;
 
@@ -149,7 +184,6 @@ namespace src.player.skills
 
                         if (dist2D > 0.05f && dist2D < 20.0f)
                         {
-                            float boostFactor = 2.5f;
                             Vector newPos = new(
                                 currentOrigin.X + (dx * boostFactor),
                                 currentOrigin.Y + (dy * boostFactor),
@@ -185,12 +219,14 @@ namespace src.player.skills
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f, int chickenHealth = 50, float boostFactor = 2.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int Amount { get; set; } = amount;
             public int Heal { get; set; } = heal;
             public int TickCooldown { get; set; } = tickCooldown;
             public float HealRadius { get; set; } = healRadius;
+            public int ChickenHealth { get; set; } = chickenHealth;
+            public float BoostFactor { get; set; } = boostFactor;
         }
     }
 }

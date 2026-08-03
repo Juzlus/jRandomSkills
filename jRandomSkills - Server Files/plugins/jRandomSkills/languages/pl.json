@@ -248,6 +248,7 @@
 
   "illiterate": "Analfabeta",
   "illiterate_desc": "Dopóki żyjesz, Twoi wrogowie nie potrafią czytać",
+  "illiterate_alert": "Analfabeta jest aktywny! Nie możesz czytać wiadomości, dopóki właściciel tej umiejętności nie zostanie wyeliminowany",
 
   "illusionist": "Iluzjonista",
   "illusionist_desc": "Naciśnij [css_useSkill], aby wypuścić replikę idącą prosto przed siebie",

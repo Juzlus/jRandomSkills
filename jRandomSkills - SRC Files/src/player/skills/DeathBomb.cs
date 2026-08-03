@@ -141,7 +141,6 @@ namespace src.player.skills
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
-
         }
     }
 }

@@ -10,7 +10,6 @@ namespace src.player.skills
     public class FireRain : ISkill
     {
         private const Skills skillName = Skills.FireRain;
-        private static readonly QAngle angle = new(10, -4, 13);
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
         private static int rainTick = -1;
         private static CCSPlayerPawn? rainThrower;
@@ -48,40 +47,156 @@ namespace src.player.skills
                 return;
 
             const int grenadeCount = 5;
-            const float maxSpawnHeight = 400.0f;
-            const float clusterRadius = 110.0f;
-            const float dropSpeed = 250.0f;
+            const int grenadeGroundCount = 2;
+
+            const float spawnHeight = 1500.0f;
+            const float approachDistance = 600.0f;
 
             rainTick = Server.TickCount;
             rainThrower = pawn;
             rainTeam = player.TeamNum;
 
-            Vector decoyGround = new(targetPos.X, targetPos.Y, targetPos.Z + 8f);
-            Vector dropVelocity = new(0, 0, -dropSpeed);
+            float startAngle = Random.Shared.NextSingle() * MathF.Tau;
+
+            Vector? skyCenter = null;
+            bool foundPosition = false;
+
+            for (int i = 0; i < 8; i++)
+            {
+                float approachAngle = startAngle + i * (MathF.Tau / 8);
+
+                float dirX = MathF.Cos(approachAngle);
+                float dirY = MathF.Sin(approachAngle);
+
+                Vector testCenter = new(
+                    targetPos.X + dirX * approachDistance,
+                    targetPos.Y + dirY * approachDistance,
+                    targetPos.Z + spawnHeight
+                );
+
+                var trace = RayTrace.TraceShape(player, targetPos, testCenter, null, 0);
+
+                if (!trace.HasValue || !trace.Value.DidHit)
+                {
+                    skyCenter = testCenter;
+                    foundPosition = true;
+                    break;
+                }
+            }
+
+            if (!foundPosition || skyCenter == null)
+            {
+                CreateMolotovSplash(targetPos, grenadeGroundCount, player.TeamNum);
+                return;
+            }
+
+            CreateMolotovRaid(targetPos, skyCenter, grenadeCount, player.TeamNum);
+        }
+
+        private static void CreateMolotovSplash(Vector targetPos, int grenadeCount, byte teamNum)
+        {
+            const float spreadSpeed = 100.0f;
+            const float upwardVelocity = 100.0f;
+
+            for (int i = 0; i < grenadeCount; i++)
+            {
+                float angle = Random.Shared.NextSingle() * MathF.Tau;
+                float speed = spreadSpeed * (0.7f + Random.Shared.NextSingle() * 0.6f);
+
+                float vx = MathF.Cos(angle) * speed;
+                float vy = MathF.Sin(angle) * speed;
+                float vz = upwardVelocity + Random.Shared.NextSingle() * 150.0f;
+
+                Vector velocity = new(vx, vy, vz);
+
+                Vector spawnPos = new(
+                    targetPos.X,
+                    targetPos.Y,
+                    targetPos.Z + 10.0f
+                );
+
+                float yaw = MathF.Atan2(vy, vx) * (180.0f / MathF.PI);
+                float horizontalSpeed = MathF.Sqrt(vx * vx + vy * vy);
+                float pitch = -MathF.Atan2(vz, horizontalSpeed) * (180.0f / MathF.PI);
+
+                QAngle launchAngle = new(pitch, yaw, 0.0f);
+                SkillUtils.CreateMolotovProjectile(spawnPos, launchAngle, velocity, teamNum);
+            }
+        }
+
+        private static void CreateMolotovRaid(Vector targetPos, Vector? skyCenter, int grenadeCount, byte teamNum)
+        {
+            if (skyCenter == null)
+                return;
+
+            const float clusterRadius = 130.0f;
+            const float flightTime = 1.2f;
+            const float gravity = 800.0f;
+            const float maxHorizontalVelocity = 700.0f;
+
+            Vector adjustedTarget = targetPos;
+            Vector direction = new(
+                skyCenter.X - targetPos.X,
+                skyCenter.Y - targetPos.Y,
+                0
+            );
+
+            float length = MathF.Sqrt(direction.X * direction.X + direction.Y * direction.Y);
+
+            if (length > 0)
+            {
+                direction.X /= length;
+                direction.Y /= length;
+
+                const float aimOffset = 150.0f;
+
+                adjustedTarget = new Vector(
+                    targetPos.X + direction.X * aimOffset,
+                    targetPos.Y + direction.Y * aimOffset,
+                    targetPos.Z
+                );
+            }
+
+            float dx = adjustedTarget.X - skyCenter.X;
+            float dy = adjustedTarget.Y - skyCenter.Y;
+            float dz = adjustedTarget.Z - skyCenter.Z;
+
+            float vx = dx / flightTime;
+            float vy = dy / flightTime;
+            float vz = (dz + 0.5f * gravity * flightTime * flightTime) / flightTime;
+
+            float horizontalSpeed = MathF.Sqrt(vx * vx + vy * vy);
+
+            if (horizontalSpeed > maxHorizontalVelocity)
+            {
+                float scale = maxHorizontalVelocity / horizontalSpeed;
+                vx *= scale;
+                vy *= scale;
+            }
+
+            Vector velocity = new(vx, vy, vz);
+
+            float yaw = MathF.Atan2(vy, vx) * (180.0f / MathF.PI);
+            float finalHorizontalSpeed = MathF.Sqrt(vx * vx + vy * vy);
+            float pitch = -MathF.Atan2(vz, finalHorizontalSpeed) * (180.0f / MathF.PI);
+
+            QAngle launchAngle = new(pitch, yaw, 0.0f);
 
             for (int i = 0; i < grenadeCount; i++)
             {
                 float offsetAngle = Random.Shared.NextSingle() * MathF.Tau;
                 float offsetDist = MathF.Sqrt(Random.Shared.NextSingle()) * clusterRadius;
 
-                Vector ground = new(
-                    decoyGround.X + MathF.Cos(offsetAngle) * offsetDist,
-                    decoyGround.Y + MathF.Sin(offsetAngle) * offsetDist,
-                    decoyGround.Z
+                float offsetX = MathF.Cos(offsetAngle) * offsetDist;
+                float offsetY = MathF.Sin(offsetAngle) * offsetDist;
+
+                Vector spawnPos = new(
+                    skyCenter.X + offsetX,
+                    skyCenter.Y + offsetY,
+                    skyCenter.Z
                 );
 
-                var reach = RayTrace.TraceShape(player, decoyGround, ground, null, 0);
-                if (reach.HasValue && reach.Value.DidHit)
-                    ground = decoyGround;
-
-                float height = maxSpawnHeight;
-                var ceiling = RayTrace.TraceShape(player, ground, new Vector(ground.X, ground.Y, ground.Z + maxSpawnHeight), null, 0);
-                if (ceiling.HasValue && ceiling.Value.DidHit)
-                    height = Math.Clamp(maxSpawnHeight * ceiling.Value.Fraction - 24f, 24f, maxSpawnHeight);
-
-                Vector spawnPos = new(ground.X, ground.Y, ground.Z + height);
-
-                SkillUtils.CreateMolotovProjectile(spawnPos, angle, dropVelocity, player.TeamNum);
+                SkillUtils.CreateMolotovProjectile(spawnPos, launchAngle, velocity, teamNum);
             }
         }
 
@@ -103,6 +218,14 @@ namespace src.player.skills
                 molotov.Thrower.Raw = thrower.EntityHandle.Raw;
                 molotov.OwnerEntity.Raw = thrower.EntityHandle.Raw;
                 rainMolotovs[molotov.Index] = (thrower.EntityHandle.Raw, rainTeam);
+
+                Server.NextWorldUpdate(() =>
+                {
+                    if (molotov == null || !molotov.IsValid) return;
+                    molotov.DetonateTime += 30f;
+                    Utilities.SetStateChanged(molotov, "CBaseGrenade", "m_flDetonateTime");
+                });
+
                 return;
             }
 

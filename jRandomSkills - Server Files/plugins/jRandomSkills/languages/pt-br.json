@@ -248,6 +248,7 @@
 
   "illiterate": "Analfabeto",
   "illiterate_desc": "Enquanto você estiver vivo, seus inimigos não conseguem ler",
+  "illiterate_alert": "Analfabeto está ativo! Você não pode ler mensagens até que o proprietário desta habilidade seja eliminado",
 
   "illusionist": "Ilusionista",
   "illusionist_desc": "Clique em [css_useSkill] para enviar uma réplica que caminha em frente",

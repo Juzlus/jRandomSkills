@@ -241,6 +241,7 @@
 
   "illiterate": "Illiterate",
   "illiterate_desc": "As long as you are alive, your enemies cannot read",
+  "illiterate_alert": "Illiterate is active! You cannot read messages until the owner of this skill is eliminated",
 
   "illusionist": "Illusionist",
   "illusionist_desc": "Click [css_useSkill] to deploy a replica that walks straight ahead",

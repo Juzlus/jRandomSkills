@@ -11,7 +11,7 @@ namespace src.menu
     {
         public static void DisplaySkillsList(CCSPlayerController player)
         {
-            CenterHtmlMenu menu = new($"[ ★ {player.GetTranslation("skills_menu")} ★ ]", Instance);
+            CenterHtmlMenu menu = new($"[ ★ {player.GetTranslationWithoutIlliterate("skills_menu")} ★ ]", Instance);
             
             foreach (var skillInfo in SkillData.Skills)
             {

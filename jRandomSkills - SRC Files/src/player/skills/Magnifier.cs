@@ -9,7 +9,7 @@ namespace src.player.skills
     public class Magnifier : ISkill
     {
         private const Skills skillName = Skills.Magnifier;
-        private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
+        private static readonly ConcurrentDictionary<uint, byte> playersWithFov = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
         public static void LoadSkill()
@@ -19,8 +19,9 @@ namespace src.player.skills
 
         public static void PlayerDisconnect(uint playerIndex)
         {
-            playersFOV.TryRemove(playerIndex, out _);
+            playersWithFov.TryRemove(playerIndex, out _);
             playersToTarget.TryRemove(playerIndex, out _);
+            Event.playersCustomFOV.TryRemove(playerIndex, out _);
 
             foreach (var kvp in playersToTarget)
                 if (kvp.Value == playerIndex)
@@ -29,14 +30,14 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            foreach (var playerIndex in playersFOV.Keys)
+            foreach (var playerIndex in playersWithFov.Keys)
             {
                 var player = Utilities.GetPlayerFromIndex((int)playerIndex);
                 if (player == null || !player.IsValid) continue;
                 DisableSkill(player);
             }
 
-            playersFOV.Clear();
+            playersWithFov.Clear();
             playersToTarget.Clear();
 
             foreach (var player in PlayerManager.GetTickPlayers())
@@ -91,13 +92,21 @@ namespace src.player.skills
                 return;
             }
 
-            playersFOV.AddOrUpdate(enemy.Index, enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
+            uint magnifierFov = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            playersWithFov.TryAdd(enemy.Index, 0);
+
+            uint enemyFOV = enemy.DesiredFOV;
+            if (enemyFOV == 0)
+                Event.playersCustomFOV.TryRemove(enemy.Index, out _);
+            else if (enemyFOV != magnifierFov)
+                Event.playersCustomFOV.AddOrUpdate(enemy.Index, enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
+
             playersToTarget[player.Index] = enemy.Index;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-            enemyEvent.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            enemyEvent.DesiredFOV = magnifierFov;
             Utilities.SetStateChanged(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
             playerInfo.SkillUsed = true;
 
@@ -113,9 +122,15 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            if (!playersFOV.ContainsKey(bot.Index)) return;
+            if (!playersWithFov.ContainsKey(bot.Index)) return;
 
-            player.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            uint magnifierFov = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            uint playerFOV = player.DesiredFOV;
+
+            if (playerFOV != 0 && playerFOV != magnifierFov)
+                Event.playersCustomFOV.AddOrUpdate(player.Index, player.DesiredFOV, (k, v) => player.DesiredFOV);
+
+            player.DesiredFOV = magnifierFov;
             Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
         }
 
@@ -147,16 +162,22 @@ namespace src.player.skills
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid)
                 {
-                    if (playersFOV.TryGetValue(targetIndex, out uint fov))
+                    if (target.DesiredFOV == SkillsInfo.GetValue<uint>(skillName, "customFOV"))
                     {
-                        target.DesiredFOV = fov;
+                        target.DesiredFOV = Event.playersCustomFOV.TryGetValue(target.Index, out uint fov) ? fov : 0;
                         Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
                     }
 
                     if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("magnifier_disable_info"));
                 }
-                playersFOV.TryRemove(targetIndex, out _);
+                playersWithFov.TryRemove(targetIndex, out _);
+            }
+
+            if (player.DesiredFOV != 0)
+            {
+                player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Index, out uint fov) ? fov : 0;
+                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
             }
 
             SkillUtils.ResetPrintHTML(player);
@@ -167,8 +188,12 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            player.DesiredFOV = 0;
-            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            if (player.DesiredFOV == SkillsInfo.GetValue<uint>(skillName, "customFOV"))
+            {
+                player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Index, out uint fov) ? fov : 0;
+                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            }
+
             SkillUtils.ResetPrintHTML(player);
         }
 

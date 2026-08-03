@@ -21,7 +21,7 @@ namespace src.command
 
                 vote.SetActive(false);
                 vote.TimeToNextSameVoting = vote.TimeToNextVoting;
-                Localization.PrintTranslationToChatAll($" {ChatColors.Red}{{0}}", ["vote_timeout"], [commandName]);
+                Localization.PrintTranslationToChatAll($" {ChatColors.Red}{{0}}", ["vote_timeout"], false, [commandName]);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
@@ -38,7 +38,7 @@ namespace src.command
             votes.TryAdd(vote, 0);
             string commandName = $"!{VoteTypeCommands.GetCommand(vote.Type)?.Replace("css_", "")}{(!string.IsNullOrEmpty(vote?.Args) ? $" {vote?.Args}" : "")}";
 
-            Localization.PrintTranslationToChatAll($" {ChatColors.Lime}{{0}}", ["vote_started"], [commandName]);
+            Localization.PrintTranslationToChatAll($" {ChatColors.Lime}{{0}}", ["vote_started"], false, [commandName]);
             foreach (var player in Utilities.GetPlayers())
                 player.EmitSound("UIPanorama.tab_mainmenu_news");
 
@@ -61,12 +61,12 @@ namespace src.command
             {
                 if (votes.Keys.Any(v => v.NextVoting() > DateTime.Now))
                 {
-                    player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("vote_wait")}");
+                    player.PrintToChat($" {ChatColors.Red}{player.GetTranslationWithoutIlliterate("vote_wait")}");
                     return;
                 }
                 else if (votes.Keys.Any(v => v.Type == voteType && v.NextSameVoting() > DateTime.Now))
                 {
-                    player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("vote_same_wait")}");
+                    player.PrintToChat($" {ChatColors.Red}{player.GetTranslationWithoutIlliterate("vote_same_wait")}");
                     return;
                 }
 
@@ -75,12 +75,12 @@ namespace src.command
 
             if (vote == null)
             {
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("vote_not_enough_players")}");
+                player.PrintToChat($" {ChatColors.Red}{player.GetTranslationWithoutIlliterate("vote_not_enough_players")}");
                 return;
             }
 
             if (!vote.PlayersVoted.TryAdd(player.SteamID, 0))
-                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("vote_alredy_voted")}");
+                player.PrintToChat($" {ChatColors.Red}{player.GetTranslationWithoutIlliterate("vote_alredy_voted")}");
             else CheckVote(vote);
         }
 
@@ -100,7 +100,7 @@ namespace src.command
             else
             {
                 StartVoteTimer(vote!, commandName);
-                Localization.PrintTranslationToChatAll($" {ChatColors.Yellow}{{0}} '': {ChatColors.Green}{voted}/{playersNeeded}", ["vote_vote"]);
+                Localization.PrintTranslationToChatAll($" {ChatColors.Yellow}{{0}} '': {ChatColors.Green}{voted}/{playersNeeded}", ["vote_vote"], false);
             }
         }
     }

@@ -42,7 +42,7 @@ namespace src.player.skills
             var skill = SkillData.Skills.FirstOrDefault(s => player.GetSkillName(s.Skill).Equals(commands[0], StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(commands[0], StringComparison.OrdinalIgnoreCase));
             if (skill == null)
             {
-                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("skill_not_found_setskill"));
+                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslationWithoutIlliterate("skill_not_found_setskill"));
                 return;
             }
 

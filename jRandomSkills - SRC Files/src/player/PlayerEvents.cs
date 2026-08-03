@@ -35,6 +35,7 @@ namespace src.player
 
         private static readonly ConcurrentDictionary<uint, ConcurrentBag<jSkill_SkillInfo>> playersSkills = [];
         public static readonly ConcurrentDictionary<uint, jSkill_SkillInfo> staticSkills = [];
+        public static readonly ConcurrentDictionary<uint, uint> playersCustomFOV = [];
         private static readonly object setLock = new();
 
         public static void Load()
@@ -525,7 +526,7 @@ namespace src.player
 
                 Localization.PreResolveLanguage(player);
 
-                string welcomeMsg = player.GetTranslation("welcome_message", "welcome");
+                string welcomeMsg = player.GetTranslationWithoutIlliterate("welcome_message", "welcome");
                 foreach (string line in welcomeMsg.Split("\n"))
                     player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}\u202A{player.PlayerName}\u202C{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{SERVER_NAME}", $" {ChatColors.Red}{ConVar.Find("hostname")?.StringValue ?? "Default Server"}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
@@ -603,8 +604,11 @@ namespace src.player
 
             player.ReplicateConVar("sv_disable_radar", "0");
 
-            player.DesiredFOV = 0;
-            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            if (SkillsInfo.GetValue<bool>(Skills.Magnifier, "active") && player.DesiredFOV == SkillsInfo.GetValue<uint>(Skills.Magnifier, "customFOV"))
+            {
+                player.DesiredFOV = playersCustomFOV.TryGetValue(player.Index, out uint fov) ? fov : 0;
+                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            }
         }
 
         private static HookResult PlayerDeathPre(EventPlayerDeath @event, GameEventInfo info)
@@ -678,7 +682,7 @@ namespace src.player
 
                         SkillUtils.PrintToChat(victim,
                             $"{ChatColors.DarkRed}{(attackerInfo.SpecialSkill == Skills.None ? victim.GetSkillName(skillData.Skill) : $"{victim.GetSkillName(specialSkillData.Skill)} -> {victim.GetSkillName(skillData.Skill)}")}{ChatColors.Lime} - {skillDesc}",
-                            title: $"{victim.GetTranslation("enemy_skill")} {ChatColors.DarkRed}\u202A{attacker.PlayerName}\u202C{ChatColors.Lime}");
+                            title: $"{victim.GetTranslationWithoutIlliterate("enemy_skill")} {ChatColors.DarkRed}\u202A{attacker.PlayerName}\u202C{ChatColors.Lime}");
                     }
                 }
                 return HookResult.Continue;
@@ -756,7 +760,6 @@ namespace src.player
 
                 if (Illiterate.CheckIlliterateSkill(player))
                 {
-                    headerLine = Illiterate.GetRandomText(headerLine);
                     centerLine = Illiterate.GetRandomText(centerLine);
                     extraLine = Illiterate.GetRandomText(extraLine);
                 }

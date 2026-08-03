@@ -35,6 +35,7 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController _)
         {
             isActive = true;
+            SendAlertToAll();
         }
 
         public static void Enable()
@@ -45,6 +46,15 @@ namespace src.player.skills
         public static void Disable()
         {
             isActive = false;
+        }
+
+        private static void SendAlertToAll()
+        {
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (!CheckIlliterateSkill(player)) continue;
+                player.PrintToCenterAlert(player.GetTranslationWithoutIlliterate("illiterate_alert"));
+            }   
         }
 
         public static bool CheckIlliterateSkill(CCSPlayerController? player)

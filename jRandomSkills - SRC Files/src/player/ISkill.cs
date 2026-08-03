@@ -21,6 +21,7 @@ public interface ISkill
 
     public static void NewRound() { }
     public static void RoundEnd() { }
+    public static void PlayerDisconnect(uint playerIndex) { }
     public static void PlayerMakeSound(UserMessage _) { }
     public static void PlayerBlind(EventPlayerBlind _) { }
     public static void PlayerHurt(EventPlayerHurt _) { }

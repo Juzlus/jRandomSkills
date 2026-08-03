@@ -132,7 +132,7 @@ namespace src.utils
             }
 
             var value = Math.Round((double)(chance ?? 1), 2);
-            var skillNameText = GetTranslation(SkillKey(skill), langCode, player, value);
+            var skillNameText = GetTranslation(SkillKey(skill), langCode, player, true, value);
             if (skillNameText.Contains('%')) skillNameText = skillNameText.Replace(value.ToString(), Math.Round(value * 100, 0).ToString());
             return skillNameText;
         }
@@ -173,7 +173,7 @@ namespace src.utils
 
             var skillName = SkillDesc2Key(skill);
             var value = Math.Round((double)(chance ?? 1), 2);
-            var desc2 = GetTranslation(skillName, langCode, player, value);
+            var desc2 = GetTranslation(skillName, langCode, player, true, value);
 
             var skilLDescription = desc2 == skillName
                 ? player.GetTranslation(SkillDescKey(skill))
@@ -181,7 +181,7 @@ namespace src.utils
             return skilLDescription;
         }
 
-        public static void PrintTranslationToChatAll(string message, string[]? key, params object[][]? args)
+        public static void PrintTranslationToChatAll(string message, string[]? key, bool useIlliterate = true, params object[][]? args)
         {
             foreach (var player in Utilities.GetPlayers().Where(p => !p.IsBot))
             {
@@ -196,7 +196,7 @@ namespace src.utils
                 for (int i = 0; i < key.Length; i++)
                 {
                     object[] currentArgs = args != null && i < args.Length ? args[i] : [];
-                    string translation = GetTranslation(key[i], langCode, null, currentArgs);
+                    string translation = GetTranslation(key[i], langCode, null, useIlliterate, currentArgs);
                     translations.Add(translation);
                 }
                 player.PrintToChat(string.Format(message, [.. translations]));
@@ -206,10 +206,21 @@ namespace src.utils
         public static string GetTranslation(this CCSPlayerController player, string key, params object[] args)
         {
             string langCode = GetLangCode(player);
-            return GetTranslation(key, langCode, player, args);
+            return GetTranslation(key, langCode, player, true, args);
         }
 
-        public static string GetTranslation(string key, string? langCode = null, CCSPlayerController? player = null, params object[] args)
+        public static string GetTranslationWithoutIlliterate(this CCSPlayerController player, string key, params object[] args)
+        {
+            string langCode = GetLangCode(player);
+            return GetTranslation(key, langCode, player, false, args);
+        }
+
+        public static string GetTranslationWithoutIlliterate(string key)
+        {
+            return GetTranslation(key, null, null, false);
+        }
+
+        public static string GetTranslation(string key, string? langCode = null, CCSPlayerController? player = null, bool useIlliterate = true, params object[] args)
         {
             langCode ??= defaultLangCode;
             if (_translations.TryGetValue(langCode, out var langDict) && langDict.TryGetValue(key, out var translation))
@@ -219,13 +230,13 @@ namespace src.utils
                 {
                     string output = args.Length == 0 ? translation : string.Format(translation, args);
 
-                    if (Illiterate.CheckIlliterateSkill(player))
+                    if (useIlliterate && Illiterate.CheckIlliterateSkill(player))
                         return Illiterate.GetRandomText(output)!;
                     return output;
                 }
 
             if (langCode != defaultLangCode)
-                return GetTranslation(key, null, player, args);
+                return GetTranslation(key, null, player, useIlliterate, args);
             return key;
         }
 

@@ -25,14 +25,14 @@ namespace src.utils
             if (targetresult.Players.Count == 0)
             {
                 if (!ignoreMessage && command.CallingPlayer != null)
-                    command.ReplyToCommand(command.CallingPlayer.GetTranslation("no_player"));
+                    command.ReplyToCommand(command.CallingPlayer.GetTranslationWithoutIlliterate("no_player"));
 
                 return (new List<CCSPlayerController>(), string.Empty);
             }
             else if (singletarget && targetresult.Players.Count > 1)
             {
                 if (command.CallingPlayer != null)
-                    command.ReplyToCommand(command.CallingPlayer.GetTranslation("duplicate_player"));
+                    command.ReplyToCommand(command.CallingPlayer.GetTranslationWithoutIlliterate("duplicate_player"));
                 return (new List<CCSPlayerController>(), string.Empty);
             }
 
