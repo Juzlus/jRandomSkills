@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
@@ -1259,6 +1259,8 @@
     "Heal": 2,
     "TickCooldown": 16,
     "HealRadius": 150.0,
+    "ChickenHealth": 50,
+    "BoostFactor": 2.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1859,9 +1861,9 @@
   {
     "ExplosionRadius": 400.0,
     "ExplosionDamage": 60,
+    "DmgReductionForTeamates": 0.5,
     "Cooldown": 10.0,
     "Force": 1000.0,
-    "DmgReductionForTeamates": 0.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
