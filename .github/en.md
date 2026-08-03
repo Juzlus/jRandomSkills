@@ -388,6 +388,36 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.3.b4</b></summary>
+
+- #### General:
+    - ###### Added an activation notification for the `Illiterate` skill. [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### `Illiterate` now only affects messages related to skills. [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### FOV is now reset only when the `Magnifier` skill is enabled and the player's current FOV matches the configured Magnifier FOV value. [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Curses are now tracked at all times and are automatically cleared when a player disconnects, preventing them from carrying over to a new player joining the same slot. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fixed an issue where a skill throwing an exception during round cleanup could stop the remaining cleanup and leave entity kill suppression enabled for the rest of the map. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+- #### Skill improvements:
+    - ###### Wallhack / Nightmare:
+        - ###### Fixed both skills being revealed to the entire server during the round start skill announcement. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Blast Shot / Death Bomb / Exploding Barrel / Explosive Shot / Toxic Smoke:
+        - ###### These skills now respect friendly fire damage reduction. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fire Rain:
+        - ###### Added a fallback splash mode that is automatically used when a ceiling is detected above the target. [by: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Molotovs now correctly retain their owner and team, allowing friendly fire rules to apply. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Healing Chicken:
+        - ###### Added a configuration option to customize the health of spawned chickens. [by: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Teammates can no longer damage or kill spawned chickens. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Take Ammo:
+        - ###### Fixed a crash during map changes while restoring weapon reserve ammo. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Fortnite:
+        - ###### The wall now spawns with high initial health to prevent it from breaking instantly. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### JetKick / Careful Bullets / Wild Throw:
+        - ###### Fixed the remaining effects when an affected player disconnects. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+
+</details>
+
+<details>
 <summary><b>v1.2.3.b3</b></summary>
 
 - #### General
