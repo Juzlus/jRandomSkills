@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -19,6 +20,7 @@ namespace src.player.skills
         }
 
         private static readonly ConcurrentDictionary<uint, List<ChickenState>> activeChickens = new();
+        private static readonly ConcurrentDictionary<uint, uint> chickenOwners = new();
 
         public static void LoadSkill()
         {
@@ -28,6 +30,29 @@ namespace src.player.skills
         public static void NewRound()
         {
             activeChickens.Clear();
+            chickenOwners.Clear();
+        }
+
+        public static void OnTakeDamage(DynamicHook h)
+        {
+            CEntityInstance param = h.GetParam<CEntityInstance>(0);
+            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+
+            if (param == null || param2 == null) return;
+            if (!chickenOwners.TryGetValue(param.Index, out uint ownerIndex)) return;
+
+            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            if (owner == null || !owner.IsValid) return;
+
+            var attackerEnt = param2.Attacker?.Value;
+            if (attackerEnt == null || !attackerEnt.IsValid) return;
+
+            var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
+            if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return;
+
+            if (attackerPawn.TeamNum != owner.TeamNum) return;
+
+            param2.Damage = 0;
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -40,7 +65,10 @@ namespace src.player.skills
             if (activeChickens.TryRemove(player.Index, out var chickens))
                 foreach (var state in chickens)
                     if (state.Chicken != null && state.Chicken.IsValid)
+                    {
+                        chickenOwners.TryRemove(state.Chicken.Index, out _);
                         state.Chicken.Remove();
+                    }
         }
 
         private static void SpawnChicken(CCSPlayerController player)
@@ -59,6 +87,7 @@ namespace src.player.skills
                 if (chicken == null || !chicken.IsValid) continue;
 
                 chicken.Render = Color.LightGreen;
+                chickenOwners[chicken.Index] = player.Index;
 
                 Vector offset = new(
                     (float)(100 * Math.Cos(2 * Math.PI * i / amount)),

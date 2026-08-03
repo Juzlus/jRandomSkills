@@ -106,7 +106,7 @@ namespace src.utils
 
             var exists = player.PlayerPawn.Value.WeaponServices.MyWeapons
                 .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString);
-            
+
             if (exists == null || !existValidator)
                 for (int i = 0; i < count; i++)
                     player.GiveNamedItem(item);
@@ -210,7 +210,7 @@ namespace src.utils
             collision.CollisionAttribute.CollisionGroup = collisionGroup;
             Utilities.SetStateChanged(pawn, "CCollisionProperty", "m_collisionAttribute");
 
-           // CollisionRulesChanged(pawn);
+            // CollisionRulesChanged(pawn);
         }
 
         //public static void CollisionRulesChanged(CBaseEntity? entity)
@@ -248,8 +248,9 @@ namespace src.utils
 
             skeleton.Scale = scale;
             playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
-            
-            Server.NextWorldUpdate(() => {
+
+            Server.NextWorldUpdate(() =>
+            {
                 if (playerPawn == null || !playerPawn.IsValid) return;
                 Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
             });
@@ -338,6 +339,12 @@ namespace src.utils
             return !ff && !tae; // same team + FF off -> engine will zero this damage
         }
 
+        public static float GetTeamDamageMultiplier(Skills skill)
+        {
+            float reduction = SkillsInfo.GetValue<float>(skill, "dmgReductionForTeamates");
+            return 1f - Math.Clamp(reduction, 0f, 1f);
+        }
+
         private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
 
         public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null)
@@ -367,7 +374,7 @@ namespace src.utils
             "deagle", "revolver", "glock", "usp_silencer", "cz75a",
             "fiveseven", "p250", "tec9", "elite", "hkp2000",
             "mp9", "mac10", "bizon", "mp7", "ump45", "p90", "mp5sd",
-            "famas", "galilar", "m4a1", "m4a1_silencer", "ak47", "aug", "sg553",
+            "famas", "galilar", "m4a1", "m4a1_silencer", "ak47", "aug", "sg556",
             "ssg08", "awp", "scar20", "g3sg1",
             "nova", "xm1014", "mag7", "sawedoff",
             "m249", "negev"
@@ -389,7 +396,7 @@ namespace src.utils
             Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
             Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
-            Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
+            Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
         ];
 
         private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
@@ -436,15 +443,14 @@ namespace src.utils
 
         public static bool TryClaimCurse(uint curserIndex, uint victimIndex, bool force = false)
         {
-            if (!CurseLimitEnabled) return true;
-            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
-
             lock (curseLock)
             {
                 ReleaseCurseLocked(curserIndex);
 
                 curseCounts.TryGetValue(victimIndex, out int used);
-                if (!force && used >= limit) return false;
+
+                if (CurseLimitEnabled && !force && used >= Config.LoadedConfig.CurseSkillPerPlayer!.Value)
+                    return false;
 
                 curseCounts[victimIndex] = used + 1;
                 curserToVictim[curserIndex] = victimIndex;
@@ -454,15 +460,17 @@ namespace src.utils
 
         public static void ReleaseCurse(uint curserIndex)
         {
-            if (!CurseLimitEnabled) return;
-
             lock (curseLock) ReleaseCurseLocked(curserIndex);
+        }
+
+        public static uint[] GetCursersOf(uint victimIndex)
+        {
+            lock (curseLock)
+                return [.. curserToVictim.Where(kvp => kvp.Value == victimIndex).Select(kvp => kvp.Key)];
         }
 
         public static void ClearCursesFor(uint playerIndex)
         {
-            if (!CurseLimitEnabled) return;
-
             lock (curseLock)
             {
                 ReleaseCurseLocked(playerIndex);
@@ -888,7 +896,7 @@ namespace src.utils
 
             var hudContent = infoLine + skillLine + remainingLine;
 
-            string controllsLine = 
+            string controllsLine =
                 $"{emptySymbol}<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor1}'>{player.GetTranslation($"menu_controlls_scroll")}</font>"
                 + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor2}'>{player.GetTranslation($"menu_controlls_padding")}</font>"
                 + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslation($"menu_controlls_select")}</font>{emptySymbol}";
@@ -1025,7 +1033,7 @@ namespace src.utils
                     if (roundsInOvertime % overtimeMaxRounds == 0)
                     {
                         int currentOvertime = roundsInOvertime / overtimeMaxRounds;
-                        if ( currentOvertime < overtimeLimit)
+                        if (currentOvertime < overtimeLimit)
                         {
                             gameRulesProxy.SwapTeamsOnRestart = true;
                             gameRulesProxy.SwitchingTeamsAtRoundReset = true;

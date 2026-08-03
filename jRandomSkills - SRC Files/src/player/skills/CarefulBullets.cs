@@ -234,6 +234,29 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            lock (setLock)
+            {
+                Forget(playerIndex);
+
+                if (playersToTarget.TryRemove(playerIndex, out uint targetIndex))
+                    Forget(targetIndex);
+
+                foreach (var kvp in playersToTarget)
+                    if (kvp.Value == playerIndex)
+                        playersToTarget.TryRemove(kvp.Key, out _);
+            }
+        }
+
+        private static void Forget(uint index)
+        {
+            targetPlayers.TryRemove(index, out _);
+            lastShot.TryRemove(index, out _);
+            hitPlayer.TryRemove(index, out _);
+            targetToPlayer.TryRemove(index, out _);
+        }
+
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#db6c35", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int damageAfterMiss = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int DamageAfterMiss { get; set; } = damageAfterMiss;

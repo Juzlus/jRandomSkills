@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
@@ -105,6 +105,7 @@
     "SmokeRadius": 180.0,
     "TickCooldown": 17,
     "GrenadeLimit": 1,
+    "DmgReductionForTeamates": 0.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1522,6 +1523,7 @@
     "DamageRadius": 210.0,
     "ChanceFrom": 0.15,
     "ChanceTo": 0.3,
+    "DmgReductionForTeamates": 0.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1857,9 +1859,9 @@
   {
     "ExplosionRadius": 400.0,
     "ExplosionDamage": 60,
-    "DmgReductionForTeamates": 0.5,
     "Cooldown": 10.0,
     "Force": 1000.0,
+    "DmgReductionForTeamates": 0.5,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,

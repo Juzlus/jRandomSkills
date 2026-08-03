@@ -136,6 +136,39 @@ namespace src.player
             }
         }
 
+        private static void ReleaseCursesTargeting(uint victimIndex)
+        {
+            foreach (uint curserIndex in SkillUtils.GetCursersOf(victimIndex))
+            {
+                if (curserIndex == victimIndex) continue;
+
+                var curser = Utilities.GetPlayerFromIndex((int)curserIndex);
+                if (curser == null || !curser.IsValid) continue;
+
+                if (PlayerManager.GetPlayerByIndex(curserIndex)?.Skill is not Skills curserSkill || curserSkill == Skills.None)
+                    continue;
+
+                try
+                {
+                    Instance.SkillAction(curserSkill.ToString(), "DisableSkill", [curser]);
+                }
+                catch (Exception ex)
+                {
+                    Server.PrintToConsole($"[jRandomSkills] {curserSkill}.DisableSkill failed while releasing curse on leaving player: {(ex.InnerException ?? ex).Message}");
+                }
+            }
+        }
+
+        private static void DispatchCheckTransmit(object[] args)
+        {
+            var seen = new HashSet<Skills>();
+            foreach (var p in Instance.SkillPlayer)
+            {
+                if (!seen.Add(p.Skill)) continue;
+                InvokeSkill(p.Skill, "CheckTransmit", args);
+            }
+        }
+
         private static void DispatchOnTakeDamage(DynamicHook h, bool post = false)
         {
             object[] args = [h];
@@ -517,6 +550,9 @@ namespace src.player
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
 
                 uint leavingIndex = player.Index;
+
+                ReleaseCursesTargeting(leavingIndex);
+
                 foreach (var skill in SkillData.Skills)
                     Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingIndex]);
 

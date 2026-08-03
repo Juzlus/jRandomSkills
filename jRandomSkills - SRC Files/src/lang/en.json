@@ -1,4 +1,4 @@
-{
+﻿{
   "none": "None",
   "none_desc": "You have no skill",
 
@@ -269,6 +269,7 @@
 
   "jetkick": "Jetkick",
   "jetkick_desc": "Select a player to jetkick",
+  "jetkick_select_info": "Select a player to jetkick:",
   "jetkick_player_info": "Player '{0}' has been jetkicked.",
   "jetkick_enemy_info": "Every shot knocks you backwards",
   "jetkick_disable_info": "Your recoil is back to normal.",

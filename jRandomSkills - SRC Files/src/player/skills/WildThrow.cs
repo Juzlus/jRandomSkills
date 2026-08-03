@@ -75,6 +75,21 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            lock (setLock)
+            {
+                infectedPlayers.TryRemove(playerIndex, out _);
+
+                if (playersToTarget.TryRemove(playerIndex, out uint targetIndex))
+                    infectedPlayers.TryRemove(targetIndex, out _);
+
+                foreach (var kvp in playersToTarget)
+                    if (kvp.Value == playerIndex)
+                        playersToTarget.TryRemove(kvp.Key, out _);
+            }
+        }
+
         public static void OnTick()
         {
             if (Server.TickCount % 32 != 0) return;

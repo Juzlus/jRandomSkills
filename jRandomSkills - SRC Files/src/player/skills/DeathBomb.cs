@@ -123,31 +123,10 @@ namespace src.player.skills
             if (owner != null && !owner.IsValid) owner = null;
 
             if (victimPawn.TeamNum == nadeTeam)
-            {
-                float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
-                param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
-
-                if (IsFriendlyFireOff())
-                {
-                    int teamDamage = (int)param2.Damage;
-                    param2.Damage = 0;
-
-                    if (teamDamage > 0)
-                        SkillUtils.TakeHealth(victimPawn, teamDamage, owner, KillfeedIcons.Explosion);
-
-                    return;
-                }
-            }
+                param2.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
 
             if (owner != null && param2.Damage >= victimPawn.Health)
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
-        }
-
-        private static bool IsFriendlyFireOff()
-        {
-            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
-            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
-            return !ff && !tae;
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;

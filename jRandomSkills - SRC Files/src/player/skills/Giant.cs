@@ -72,6 +72,8 @@ namespace src.player.skills
         {
             if (Server.TickCount % 32 != 0) return;
 
+            ReapplyScales();
+
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -152,6 +154,29 @@ namespace src.player.skills
                     ResetScale(targetIndex, notify: true);
 
                 SkillUtils.CloseMenu(player);
+            }
+        }
+
+        private static void ReapplyScales()
+        {
+            lock (setLock)
+            {
+                foreach (var kvp in enlargedEnemies)
+                {
+                    float expected = PlayerManager.GetPlayerByIndex(kvp.Key)?.SkillChance ?? 0f;
+                    if (expected <= 0f) continue;
+
+                    var target = Utilities.GetPlayerFromIndex((int)kvp.Value);
+                    if (target == null || !target.IsValid) continue;
+
+                    var pawn = target.PlayerPawn?.Value;
+                    if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
+
+                    var skeleton = pawn.CBodyComponent?.SceneNode?.GetSkeletonInstance();
+                    if (skeleton == null || Math.Abs(skeleton.Scale - expected) < 0.01f) continue;
+
+                    SkillUtils.ChangePlayerScale(target, expected);
+                }
             }
         }
 

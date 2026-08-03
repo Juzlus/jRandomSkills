@@ -206,7 +206,7 @@ namespace src.player
                     Server.PrintToConsole($"[jRandomSkills] CheckTransmit dying-filter failed: {ex.Message}");
                 }
 
-                DispatchToActiveSkills("CheckTransmit", infoList);
+                DispatchCheckTransmit([infoList]);
             }
             PerfLog.Sample("CheckTransmit", perfStart);
         }

@@ -1,7 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills.src.utils;
 using src.utils;
+using System.Collections.Concurrent;
 using static src.jRandomSkills;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
@@ -13,6 +16,13 @@ namespace src.player.skills
 
         private static readonly QAngle angle = new(5, 10, -4);
         private static int lastTick = 0;
+        private static byte pendingTeam = (byte)CsTeam.None;
+        private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
+
+        public static void NewRound()
+        {
+            nades.Clear();
+        }
 
         public static void LoadSkill()
         {
@@ -31,10 +41,12 @@ namespace src.player.skills
                 border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
-        private static void SpawnExplosion(Vector vector)
+        private static void SpawnExplosion(Vector vector, CCSPlayerController player)
         {
             lastTick = Server.TickCount;
-            SkillUtils.CreateHEGrenadeProjectile(vector, angle, new Vector(0, 0, 0), 0);
+            pendingTeam = player.TeamNum;
+            nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Index), (_, _) => (player.TeamNum, player.Index));
+            SkillUtils.CreateHEGrenadeProjectile(vector, angle, new Vector(0, 0, 0), player.TeamNum);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -44,6 +56,8 @@ namespace src.player.skills
             var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
             if (heProjectile == null || !heProjectile.IsValid || heProjectile.AbsRotation == null) return;
 
+            int spawnTick = Server.TickCount;
+
             Server.NextFrame(() =>
             {
                 if (heProjectile == null || !heProjectile.IsValid) return;
@@ -51,11 +65,50 @@ namespace src.player.skills
                     return;
 
                 heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.TeamNum = (byte)CsTeam.None;
+                heProjectile.TeamNum = pendingTeam;
                 heProjectile.Damage = SkillsInfo.GetValue<float>(skillName, "damage");
                 heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "damageRadius");
                 heProjectile.DetonateTime = 0;
+
+                if (nades.TryRemove(spawnTick, out var source))
+                    heProjectile.Globalname = $"explosiveshot_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
             });
+        }
+
+        public static void OnTakeDamage(DynamicHook h)
+        {
+            CEntityInstance param = h.GetParam<CEntityInstance>(0);
+            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+
+            if (param == null || param.Entity == null || param2 == null) return;
+
+            var nade = param2.Attacker?.Value;
+            if (nade == null || !nade.IsValid) return;
+
+            if (nade.DesignerName != "hegrenade_projectile") return;
+            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("explosiveshot_team_")) return;
+
+            var parts = nade.Globalname.Split('_');
+            if (parts.Length < 4) return;
+            if (!int.TryParse(parts[2], out int nadeTeam)) return;
+            if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
+
+            CCSPlayerPawn victimPawn = new(param.Handle);
+
+            if (victimPawn.DesignerName != "player") return;
+            if (victimPawn.Controller?.Value == null) return;
+
+            var victim = victimPawn.Controller.Value.As<CCSPlayerController>();
+            if (victim == null || !victim.IsValid || victim.Index == ownerIndex) return;
+
+            if (victimPawn.TeamNum == nadeTeam)
+                param2.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+
+            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            if (owner != null && !owner.IsValid) owner = null;
+
+            if (owner != null && param2.Damage >= victimPawn.Health)
+                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
@@ -73,15 +126,16 @@ namespace src.player.skills
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
             if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
-                SpawnExplosion(pos);
+                SpawnExplosion(pos, player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Damage { get; set; } = damage;
             public float DamageRadius { get; set; } = damageRadius;
             public float ChanceFrom { get; set; } = chanceFrom;
             public float ChanceTo { get; set; } = chanceTo;
+            public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
         }
     }
 }

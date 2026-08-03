@@ -29,9 +29,16 @@ namespace src.player.skills
 
             foreach (var kvp in OriginalWeaponMaxAmmo)
             {
-                var vdata = VirtualFunctions.GetCSWeaponDataFromKey(-1, kvp.Value.Item2);
-                if (vdata != null)
+                try
+                {
+                    var vdata = VirtualFunctions.GetCSWeaponDataFromKey(-1, kvp.Value.Item2);
+                    if (vdata == null || vdata.Handle == nint.Zero) continue;
                     vdata.PrimaryReserveAmmoMax = kvp.Value.Item1;
+                }
+                catch (Exception ex)
+                {
+                    Server.PrintToConsole($"[jRandomSkills] TakeAmmo could not restore ammo for {kvp.Value.Item2}: {ex.Message}");
+                }
             }
             OriginalWeaponMaxAmmo.Clear();
         }

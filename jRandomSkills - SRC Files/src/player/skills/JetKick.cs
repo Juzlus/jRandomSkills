@@ -33,6 +33,21 @@ namespace src.player.skills
             }
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            lock (setLock)
+            {
+                targetedPlayers.TryRemove(playerIndex, out _);
+
+                if (playersToTarget.TryRemove(playerIndex, out uint targetIndex))
+                    targetedPlayers.TryRemove(targetIndex, out _);
+
+                foreach (var kvp in playersToTarget)
+                    if (kvp.Value == playerIndex)
+                        playersToTarget.TryRemove(kvp.Key, out _);
+            }
+        }
+
         public static void OnTick()
         {
             if (Server.TickCount % 32 != 0) return;
@@ -75,7 +90,7 @@ namespace src.player.skills
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
-            if (enemy == null)
+            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
