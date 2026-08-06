@@ -47,7 +47,7 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Aktualne Supermoce (141)
+## ✨ Aktualne Supermoce (145)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
@@ -93,10 +93,12 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Gruby                | Masz losowy mnożnik otrzymywanych obrażeń                                                                         | (0.65 - 0.85)x  |
 | Gumowe Kule          | Twoje pociski znacznie spowalniają graczy                                                                         | -               |
 | Głuchy               | Wybierasz gracza, dla którego chcesz wyłączyć wszystkie dźwięki                                                   | -               |
+| Hak                  | Naciśnij [css_useSkill], aby wystrzelić hak w celowany punkt i przyciągnąć się do niego                           | 10 s            |
 | Hazardzista          | Wybierz umiejętność z podanej listy                                                                               | -               |
 | Hologram             | Kliknij [css_useSkill], aby sterować hologramem przez kilka sekund                                                | 30 s            |
 | Iluzjonista          | Kliknij [css_useSkill], aby wypuścić replikę idącą prosto przed siebie                                            | 30 s            |
 | Jednostrzałowiec     | Po trafieniu natychmiast zabijasz przeciwnika                                                                     | -               |
+| Kameleon             | Pierwszy zabity gracz oddaje ci swoją umiejętność                                                                 | -               |
 | Kamera               | Kliknij [css_useSkill], aby utworzyć lub przełączyć się na kamerę                                                 | 30 s            |
 | Katapulta            | Masz losową szansę na podrzucenie wroga                                                                           | (20 - 40)%      |
 | Klej                 | Twoje granaty przyklejają się do ścian                                                                            | -               |
@@ -157,12 +159,14 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Resp Wroga           | Kliknij [css_useSkill], aby teleportować się na resp wroga                                                        | 15 s            |
 | Robin Hood           | Zadanie obrażeń przeciwnikowi powoduje kradzież jego pieniędzy                                                    | -               |
 | Rozbrojenie          | Masz losową szansę na wyrzucenie broni wroga po trafieniu                                                         | (20 - 35)%      |
+| Rykoszet             | Twoje pociski odbijają się od ścian i nadal mogą trafić przeciwników                                              | -               |
 | Samowolka            | Bombę można podłożyć w dowolnym miejscu, a czas detonacji wynosi 60 sekund                                        | -               |
 | Saper                | Możesz szybciej podłożyć bombę i ją rozbroić                                                                      | -               |
 | Scyzoryk             | Natychmiastowe zabójstwo nożem                                                                                    | -               |
 | Skarbówka            | Wybierasz gracza, z którym chcesz zamienić się pieniędzmi                                                         | -               |
 | Skrytobójca          | Zadajesz podwójne obrażenia przeciwnikowi od tyłu                                                                 | -               |
 | Skupienie            | Brak odrzutu podczas strzelania                                                                                   | -               |
+| Spadek Rodzinny      | Gdy członek drużyny ginie, możesz przejąć jego umiejętność                                                        | -               |
 | Strzał Wybuchowy     | Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania                                                 | (15 - 30)%      |
 | Stópkarz             | Wybierasz gracza, który pozostawi za sobą ślad                                                                    | -               |
 | Szpieg               | Na początku rundy otrzymujesz model postaci przeciwnika                                                           | -               |
@@ -383,7 +387,7 @@ Plugin korzysta z zawartości następujących projektów:
 <div align="center">
 
 <table>
-  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
   <tr><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
 </table>
 
@@ -402,6 +406,50 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.3.b5</b></summary>
+
+- #### Ogólne:
+  - ###### Odświeżanie HUD-u dla wszystkich umiejętności działa teraz na jednej wspólnej pętli 16Hz zamiast osobnych cykli dla każdej umiejętności, co zmniejsza obciążenie serwera.
+  - ###### Lista umiejętności jest teraz cache'owana zamiast odbudowywana co klatkę, co zmniejsza narzut HUD-u.
+  - ###### Pełne aktualizacje sieciowe są teraz rozłożone na wiele klatek zamiast wysyłane jednorazowo, co eliminuje skoki lagów.
+  - ###### Poprawione tłumaczenia tureckie.
+
+- #### Poprawki:
+  - ###### Naprawiono błąd SoundMaker powodujący crash/błąd, gdy jego cooldown był ustawiony na 0.
+  - ###### Naprawiono Regeneration i RadarHack, które ignorowały część własnych ustawień konfiguracyjnych (zachowanie w czasie zamrożenia, uprawnienia, czas trwania HUD-u, rzadkość, maksymalna liczba na serwerze).
+  - ###### Naprawiono Falcon Eye blokujący strzelanie po podniesieniu broni, gdy gracz był z powrotem w normalnym widoku.
+  - ###### Naprawiono Spectator blokujący strzelanie, gdy jego kamera nie mogła się utworzyć z powodu braku żywego przeciwnika do obserwowania.
+
+- #### Poprawki mocy:
+  - ###### BlastShot / Cypher / Iana:
+    - ###### Nie zostawiają już nieaktualnej linii HUD-u po odebraniu umiejętności.
+  - ###### Wallhack:
+    - ###### Tworzenie poświaty i aktualizacja sieciowa uruchamiają się teraz po czasie zamrożenia i są rozłożone na klatki, co eliminuje skok lagów przy przyznaniu umiejętności.
+  - ###### Jackal:
+    - ###### Renderowanie śladu jest teraz obliczane raz na klatkę zamiast dla każdego widza osobno; usunięto nieużywany martwy kod.
+  - ###### Throwing Knife:
+    - ###### Poświata noża i wyszukiwanie widzów działają teraz raz na klatkę zamiast powtarzać się dla każdego noża/klienta.
+  - ###### Glaz:
+    - ###### Wyszukiwanie celu obserwatora jest pomijane dla właścicieli umiejętności i kończy się wcześniej, gdy nie ma żadnego celu.
+  - ###### RadarHack / QuickShot:
+    - ###### Gracze bez tej umiejętności są teraz od razu pomijani zamiast przechodzić pełną walidację.
+  - ###### Distancer / Healing Chicken / SoundMaker:
+    - ###### Te umiejętności kończą działanie natychmiast, gdy nikt ich nie posiada, zamiast przeszukiwać listę graczy co klatkę.
+
+- #### Debug:
+  - ###### Usunięto martwe/niepotrzebne sprawdzenia debugowe i ograniczono logi obrażeń do wypisywania tylko wtedy, gdy routing faktycznie się zmienia, co zmniejsza narzut przy każdym trafieniu.
+
+- #### Nowe moce:
+  - ###### Kameleon: Pierwszy zabity gracz oddaje ci swoją umiejętność.
+  - ###### Hak: Naciśnij **[css_useSkill]**, aby wystrzelić hak w celowany punkt i przyciągnąć się do niego.
+  - ###### Spadek Rodzinny: Gdy członek drużyny ginie, możesz przejąć jego umiejętność.
+  - ###### Rykoszet: Twoje pociski odbijają się od ścian i nadal mogą trafić przeciwników.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Dziękujemy ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b4</b></summary>
@@ -490,7 +538,7 @@ Plugin korzysta z zawartości następujących projektów:
     - ###### Skupienie:
         - ###### `weapon_accuracy_nospread` jest teraz przywracane do wartości ustawionej przez sam serwer zamiast do wartości resetowanej na sztywno. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
 
-- #### Nowe skille:
+- #### Nowe umiejętności:
     - ###### Berserker: Zadajesz większe obrażenia i poruszasz się szybciej, gdy masz mniej zdrowia. [autor: [@Juzlus](https://github.com/Juzlus)]
     - ###### Mocne Uderzenie: Naciśnij Attack2 z MP5, aby wystrzelić granat odłamkowy. [autor: [@Juzlus](https://github.com/Juzlus)]
     - ###### Oko Demona: Zadajesz obrażenia każdemu przeciwnikowi, na którego patrzysz. [autor: [@Juzlus](https://github.com/Juzlus)]
