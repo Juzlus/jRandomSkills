@@ -447,7 +447,7 @@ Plugin korzysta z zawartości następujących projektów:
   - ###### Spadek Rodzinny: Gdy członek drużyny ginie, możesz przejąć jego umiejętność.
   - ###### Rykoszet: Twoje pociski odbijają się od ścian i nadal mogą trafić przeciwników.
 
-**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Dziękujemy ByDexterTR!**
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#49](https://github.com/Juzlus/jRandomSkills/pull/49). Dziękujemy ByDexterTR!**
 
 </details>
 

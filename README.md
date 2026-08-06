@@ -448,7 +448,7 @@ This plugin uses content from the following projects:
   - ###### Inheritance: When a teammate dies you can take over their skill.
   - ###### Ricochet: Your bullets bounce off walls and can still hit enemies.
 
-**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Thanks to ByDexterTR!**
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#49](https://github.com/Juzlus/jRandomSkills/pull/49). Thanks to ByDexterTR!**
 
 </details>
 
