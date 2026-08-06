@@ -48,7 +48,7 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
 
-## ✨ Current Skills (141)
+## ✨ Current Skills (145)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -72,6 +72,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | C4 Camouflage     | You are invisible while holding the bomb                                                           | -                |
 | Careful Bullets   | Select a player who takes damage for every missed shot                                             | -                |
 | Catapult          | You have a random chance to launch an enemy upwards                                                | (20 - 40)%       |
+| Chameleon         | The first player you kill gives you their skill                                                    | -                |
 | Chicken           | You get a chicken model + 10% faster movement - 50 HP                                              | -                |
 | Chillout          | Planting the bomb takes significantly longer                                                       | -                |
 | Cutter            | Instant kill with a knife                                                                          | -                |
@@ -103,11 +104,12 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Freezing Decoy    | Your decoy freezes all nearby players                                                              | -                |
 | Gambler           | Select a skill from the list provided                                                              | -                |
 | Ghost             | You are completely invisible                                                                       | -                |
-| Giant             | Enlarge an enemy of your choice                                                                    | (110 - 140)%     |
+| Giant              | Enlarge an enemy of your choice                                                                   | (110 - 140)%     |
 | Glaz              | You can see through smoke grenades                                                                 | -                |
 | Glitch            | Disables the radar for a chosen enemy                                                              | -                |
 | Glue              | Your grenades stick to walls                                                                       | -                |
 | God Mode          | Click [css_useSkill] to become immortal for a short time                                           | 30 s             |
+| Grapple Hook      | Press [css_useSkill] to fire a hook at the point you're aiming at and pull yourself there          | 10 s             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |
@@ -120,6 +122,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Illusionist       | Click [css_useSkill] to deploy a replica that walks straight ahead                                 | 30 s             |
 | Impostor          | You start the round with an enemy player model                                                     | -                |
 | Infinite Ammo     | You receive infinite ammo for all your weapons                                                     | -                |
+| Inheritance       | When a teammate dies you can take over their skill                                                 | -                |
 | Tracker           | Choose a player who will leave a trail behind them                                                 | -                |
 | Jammer            | Choose a player to disable their crosshair                                                         | -                |
 | Jester            | In jester mode, you cannot get or take any damage. This mode changes every few seconds             | (10 - 25) s      |
@@ -167,6 +170,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Retreat           | Click [css_useSkill] to return to spawn                                                            | 15 s             |
 | Return to Sender  | The first hit on an enemy sends them back to their spawn                                           | -                |
 | Rich Boy          | You receive a random amount of money at the start of the round                                     | (5000 - 15000)$  |
+| Ricochet          | Your bullets bounce off walls and can still hit enemies                                            | -                |
 | Robin Hood        | Dealing damage to an enemy steals their money                                                      | -                |
 | Rubber Bullets    | Your bullets significantly slow down players                                                       | -                |
 | Sapper            | You can plant and defuse bombs faster                                                              | -                |

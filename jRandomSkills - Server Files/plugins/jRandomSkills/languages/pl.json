@@ -269,7 +269,7 @@
   "infiniteammo": "Nieskończone Ammo",
   "infiniteammo_desc": "Otrzymujesz nieskończoną ilość amunicji do wszystkich broni",
 
-  "inheritance": "Spadek",
+  "inheritance": "Spadek Rodzinny",
   "inheritance_desc": "Gdy członek drużyny ginie, możesz przejąć jego umiejętność",
   "inheritance_select_info": "Wybierz dziedziczoną umiejętność:",
   "inheritance_player_info": "Odziedziczyłeś umiejętność gracza '{0}'.",
