@@ -409,6 +409,50 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.3.b5</b></summary>
+
+- #### General:
+  - ###### HUD refresh for all skills now runs on one shared 16Hz update loop instead of separate per-skill ticks, cutting server load.
+  - ###### Skill list is now cached instead of rebuilt every frame, reducing HUD overhead.
+  - ###### Full network updates are now spread across multiple frames instead of firing all at once, avoiding lag spikes.
+  - ###### Improved Turkish translations.
+
+- #### Fixes:
+  - ###### Fixed SoundMaker crashing/erroring when its cooldown was set to 0.
+  - ###### Fixed Regeneration and RadarHack ignoring several of their own config settings (freeze-time behavior, permissions, HUD duration, rarity, max per server).
+  - ###### Fixed Falcon Eye blocking weapon fire after a pickup while back in normal view.
+  - ###### Fixed Spectator locking fire when its camera failed to spawn due to no living enemy to watch.
+
+- #### Skill improvements:
+  - ###### BlastShot / Cypher / Iana:
+    - ###### No longer leave a stale HUD line after the skill is removed.
+  - ###### Wallhack:
+    - ###### Glow setup and network update now run after freeze time and are spread across frames, removing a lag spike on grant.
+  - ###### Jackal:
+    - ###### Trail rendering now resolves once per frame instead of per viewer; removed unused leftover code.
+  - ###### Throwing Knife:
+    - ###### Knife glow and viewer lookups now run once per frame instead of repeating per knife/client.
+  - ###### Glaz:
+    - ###### Observer target lookup skipped for skill owners and exits early when there's no target.
+  - ###### RadarHack / QuickShot:
+    - ###### Players without the skill are now skipped immediately instead of running full validation first.
+  - ###### Distancer / Healing Chicken / SoundMaker:
+    - ###### These skills now exit instantly while unowned, instead of scanning the player list every tick.
+
+- #### Debug:
+  - ###### Removed dead/no-op debug checks and trimmed damage logs to only print when routing actually changes, lowering per-hit overhead.
+
+- #### New Skills:
+  - ###### Chameleon: The first player you kill gives you their skill.
+  - ###### Grapple Hook: Press **[css_useSkill]** to fire a hook and pull yourself to where you're aiming.
+  - ###### Inheritance: When a teammate dies you can take over their skill.
+  - ###### Ricochet: Your bullets bounce off walls and can still hit enemies.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#44](https://github.com/Juzlus/jRandomSkills/pull/44). Thanks to ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.3.b4</b></summary>
 
 - #### General:
