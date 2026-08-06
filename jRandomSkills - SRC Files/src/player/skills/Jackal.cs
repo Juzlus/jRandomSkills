@@ -38,9 +38,27 @@ namespace src.player.skills
             playersInAction.Clear();
         }
 
+        private static readonly List<(CsTeam OwnerTeam, uint RelayEntityIndex)> transmitTrails = [];
+
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
-            var snapshot = activeTrails.ToArray();
+            if (activeTrails.IsEmpty) return;
+
+            transmitTrails.Clear();
+            foreach (var (trackedPlayerIndex, relayIndex) in activeTrails)
+            {
+                if (relayIndex == null) continue;
+
+                var trailOwner = Utilities.GetPlayerFromIndex((int)trackedPlayerIndex);
+                if (trailOwner == null || !trailOwner.IsValid) continue;
+
+                var relayEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)relayIndex);
+                if (relayEntity == null || !relayEntity.IsValid) continue;
+
+                transmitTrails.Add((trailOwner.Team, relayEntity.Index));
+            }
+
+            if (transmitTrails.Count == 0) return;
 
             foreach (var (info, player) in infoList)
             {
@@ -65,19 +83,12 @@ namespace src.player.skills
                     }
                 }
 
-                foreach (var (trackedPlayerIndex, relayIndex) in snapshot)
+                var playerTeam = player.Team;
+                foreach (var (ownerTeam, relayEntityIndex) in transmitTrails)
                 {
-                    if (relayIndex == null) continue;
-
-                    var trailOwner = Utilities.GetPlayerFromIndex((int)trackedPlayerIndex);
-                    if (trailOwner == null || !trailOwner.IsValid) continue;
-
-                    var relayEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)relayIndex);
-                    if (relayEntity == null || !relayEntity.IsValid) continue;
-
-                    if (player.Team == trailOwner.Team || !isJackalOwner)
-                        if (info.TransmitEntities.Contains(relayEntity.Index))
-                            info.TransmitEntities.Remove(relayEntity.Index);
+                    if (playerTeam == ownerTeam || !isJackalOwner)
+                        if (info.TransmitEntities.Contains(relayEntityIndex))
+                            info.TransmitEntities.Remove(relayEntityIndex);
                 }
             }
         }
@@ -134,14 +145,6 @@ namespace src.player.skills
 
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Index, 0);
-
-            var opponents = PlayerManager.GetTickPlayers()
-                .Where(p => p != null
-                    && p.IsValid
-                    && p.Team != player.Team
-                    && p.PawnIsAlive
-                    && (p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
-                .ToArray();
 
             mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
                     CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);

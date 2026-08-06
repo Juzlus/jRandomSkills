@@ -1,4 +1,4 @@
-﻿{
+{
   "none": "Keine",
   "none_desc": "Du hast keine Fertigkeit",
 
@@ -76,6 +76,11 @@
   "catapult": "Katapult",
   "catapult_desc": "Du hast eine zufällige Chance, einen Gegner nach oben zu schleudern",
   "catapult_desc2": "Deine Chance, einen Gegner bei einem Treffer zu schleudern, beträgt: {0} %",
+
+  "chameleon": "Chamäleon",
+  "chameleon_desc": "Der erste Spieler, den du tötest, gibt dir seine Fähigkeit",
+  "chameleon_copied_info": "Fähigkeit kopiert: {0}",
+  "chameleon_wrong_team_info": "'{0}' hatte eine Fähigkeit, die dein Team nicht nutzen kann.",
 
   "chicken": "Huhn",
   "chicken_desc": "Du erhältst ein Huhn-Modell + 10 % schnellere Bewegung – 50 HP",
@@ -220,6 +225,11 @@
   "godmode_off": "Unsterblichkeit deaktiviert",
   "godmode_on": "Unsterblichkeit aktiviert",
 
+  "grapple": "Enterhaken",
+  "grapple_desc": "Drücke [css_useSkill], um einen Haken auf den anvisierten Punkt zu schießen und dich dorthin zu ziehen",
+  "grapple_no_anchor_info": "Keine Oberfläche zum Einhaken.",
+  "grapple_pulling_info": "ZUG",
+
   "grenadier": "Grenadier",
   "grenadier_desc": "Du hast unendlich viele Granaten",
 
@@ -258,6 +268,11 @@
 
   "infiniteammo": "Unendliche Munition",
   "infiniteammo_desc": "Du erhältst unendliche Munition für alle deine Waffen",
+
+  "inheritance": "Erbe",
+  "inheritance_desc": "Wenn ein Teamkollege stirbt, kannst du seine Fähigkeit übernehmen",
+  "inheritance_select_info": "Wähle die Fähigkeit, die du erbst:",
+  "inheritance_player_info": "Du hast die Fähigkeit von '{0}' geerbt.",
 
   "jackal": "Spürhund",
   "jackal_desc": "Jeder Gegner hinterlässt eine Spur",
@@ -447,6 +462,9 @@
 
   "richboy": "Rich Boy",
   "richboy_desc": "Du erhältst zu Beginn der Runde einen zufälligen Geldbetrag",
+
+  "ricochet": "Querschläger",
+  "ricochet_desc": "Deine Kugeln prallen von Wänden ab und können Gegner weiterhin treffen",
 
   "robinhood": "Robin Hood",
   "robinhood_desc": "Wenn du einem Gegner Schaden zufügst, stiehlst du ihm sein Geld",

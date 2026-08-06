@@ -1,4 +1,4 @@
-﻿{
+{
   "none": "None",
   "none_desc": "You have no skill",
 
@@ -76,6 +76,11 @@
   "catapult": "Catapult",
   "catapult_desc": "You have a random chance to launch an enemy upwards",
   "catapult_desc2": "Your chance to launch an enemy on hit is: {0}%",
+
+  "chameleon": "Chameleon",
+  "chameleon_desc": "The first player you kill gives you their skill",
+  "chameleon_copied_info": "You copied the skill: {0}",
+  "chameleon_wrong_team_info": "'{0}' had a skill your team cannot use.",
 
   "chicken": "Chicken",
   "chicken_desc": "You get a chicken model + 10% faster movement - 50 HP",
@@ -213,6 +218,11 @@
   "godmode_off": "Immortality disabled",
   "godmode_on": "Immortality enabled",
 
+  "grapple": "Grapple Hook",
+  "grapple_desc": "Press [css_useSkill] to fire a hook at the point you are aiming at and pull yourself there",
+  "grapple_no_anchor_info": "No surface to hook onto.",
+  "grapple_pulling_info": "PULLING",
+
   "grenadier": "Grenadier",
   "grenadier_desc": "You have infinite hegrenade",
 
@@ -251,6 +261,11 @@
 
   "infiniteammo": "Infinite Ammo",
   "infiniteammo_desc": "You receive infinite ammo for all your weapons",
+
+  "inheritance": "Inheritance",
+  "inheritance_desc": "When a teammate dies you can take over their skill",
+  "inheritance_select_info": "Choose the skill you inherit:",
+  "inheritance_player_info": "You inherited the skill of '{0}'.",
 
   "jackal": "Tracker",
   "jackal_desc": "Every opponent leaves a trail behind them",
@@ -447,6 +462,9 @@
 
   "richboy": "Rich Boy",
   "richboy_desc": "You receive a random amount of money at the start of the round",
+
+  "ricochet": "Ricochet",
+  "ricochet_desc": "Your bullets bounce off walls and can still hit enemies",
 
   "robinhood": "Robin Hood",
   "robinhood_desc": "Dealing damage to an enemy steals their money",

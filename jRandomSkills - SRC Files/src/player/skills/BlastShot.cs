@@ -45,6 +45,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
             SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillUtils.ResetPrintHTML(player);
         }
 
         public static void OnTick()

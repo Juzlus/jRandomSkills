@@ -1,4 +1,4 @@
-﻿{
+{
   "none": "Yok",
   "none_desc": "Hiçbir yeteneğin yok",
 
@@ -6,79 +6,84 @@
   "aimbot_desc": "Vurduğunda kafadan (HS) sayılır",
 
   "aimlock": "Kitlenme",
-  "aimlock_desc": "En yakın düşmana nişan almak için [css_useSkill] tuşuna basın",
+  "aimlock_desc": "[css_useSkill] tuşuna basarak en yakın düşmana kitlen",
 
   "anomaly": "Zaman Büken",
-  "anomaly_desc": "[css_useSkill] tuşuna basarak zamanı birkaç saniye geriye alırsın",
+  "anomaly_desc": "[css_useSkill] tuşuna basarak zamanı birkaç saniye geri al",
 
   "antyflash": "Anti-Flash",
-  "antyflash_desc": "Flaşa kör olmazsın ve flaşların 7 saniye sürer",
+  "antyflash_desc": "Kör olmazsın ve flaşın 7 saniye sürer",
 
   "antyhead": "Beton Kafa",
   "antyhead_desc": "Kafadan hasar almazsın",
 
   "areareaper": "Mekan Kapatan",
-  "areareaper_desc": "Haritadaki bir bomba alanını tamamen devre dışı bırakabilirsin",
+  "areareaper_desc": "Haritadaki bir bomba alanını devre dışı bırak",
   "areareaper_incorrect_site": "Böyle bir bomba alanı yok uydurma",
   "areareaper_no_site": "Haritada bomba alanı bulunamadı",
-  "areareaper_select_info": "Kapatılacak bomba alanını seç:",
-  "areareaper_site_disabled": "{0} Bölgesi kapandı - artık buraya bomba kurulamaz!",
-  "areareaper_used_info": "Yeteneğini zaten kullandın, açgözlülük yapma",
+  "areareaper_select_info": "Alan seçin:",
+  "areareaper_site_disabled": "{0} Bölgesi kapandı - artık buraya C4 kurulamaz!",
+  "areareaper_used_info": "Yeteneğini zaten kullandın!",
   "areareaper_teammates_info": "{0} Bölgesi bomba kurmaya kapatıldı.",
-  "areareaper_bombsite_disabled": "Bu bomba alanı kullanıma kapatıldı!",
+  "areareaper_bombsite_disabled": "Bu bomba alanı kullanıma kapatıldı.",
 
   "armored": "Zırhlı",
-  "armored_desc": "Rastgele hasar alma çarpanına sahip olursun",
+  "armored_desc": "Rastgele hasar alma çarpanın olur",
   "armored_desc2": "Hasar alma: {0}x",
 
   "assassin": "Suikastçı",
-  "assassin_desc": "Düşmanlara arkadan daha fazla hasar verirsin",
+  "assassin_desc": "Düşmana arkadan daha fazla hasar verirsin",
 
   "astronaut": "Astronot",
-  "astronaut_desc": "Rastgele bir yerçekimi değerine sahip olursun",
+  "astronaut_desc": "Rastgele bir yerçekimine sahipsin",
   "astronaut_desc2": "Yerçekimin: {0}x",
 
   "moneyswap": "Vergi Memuru",
   "moneyswap_desc": "Bir düşmanla paranı takasla",
-  "moneyswap_enemy_info": "Maliye kapına dayandı",
-  "moneyswap_player_info": "'{0}' isimli oyuncuyla paraları takas ettin",
-  "moneyswap_select_info": "Para takasla biriyle:",
+  "moneyswap_enemy_info": "Maliye kapına dayandı.",
+  "moneyswap_player_info": "'{0}' ile paranı takasladın.",
+  "moneyswap_select_info": "Birini seçin:",
 
   "baseball": "Beyzbolcu",
-  "baseball_desc": "Yanıltıcı bomban (decoy) duvarlardan seker ve çarptığı düşmanı öldürür",
+  "baseball_desc": "Yanıltıcı bomban duvarlardan seker ve çarptığı düşmanı öldürür",
 
   "behind": "Baş Döndüren",
   "behind_desc": "Vurduğunda düşmanı 180 derece döndürme şansın olur",
   "behind_desc2": "Baş döndürme şansın: %{0}",
 
   "berserker": "Berserker",
-  "berserker_desc": "Canın azaldıkça hasarın artar ve daha hızlanırsın",
+  "berserker_desc": "Canın azaldıkça hasarın ve hızın artar",
 
   "blademaster": "Kılıç Ustası",
-  "blademaster_desc": "Bıçak tutarken mermileri sektirme şansın artar",
+  "blademaster_desc": "Bıçak tutarken mermileri savuşturursun",
 
   "blastshot": "Patlama Atışı",
-  "blastshot_desc": "MP5 ile Sağ Tık'a basarak El bombası fırlat",
+  "blastshot_desc": "MP5 ile sağ tıklayarak el bombası fırlat",
 
   "bunnyhop": "Tavşan",
-  "bunnyhop_desc": "Otomatik \"BunnyHop\" yaparsın",
+  "bunnyhop_desc": "Otomatik BunnyHop yaparsın",
 
   "c4camouflage": "C4 Kamuflaj",
-  "c4camouflage_desc": "Elinde C4 varken tamamen görünmez olursun",
+  "c4camouflage_desc": "Elinde C4 varken görünmezsin",
 
   "carefulbullets": "Dikkatli Mermiler",
   "carefulbullets_desc": "Düşman mermi kaçırırsa hasar alır",
-  "carefulbullets_enemy_info": "Mermi kaçırmak canını yakacak",
+  "carefulbullets_enemy_info": "Mermi kaçırman can yakar.",
   "carefulbullets_disable_info": "Artık mermi kaçırmak can yakmayacak.",
-  "carefulbullets_player_info": "'{0}' artık mermi sıkarken iki kere düşünecek",
-  "carefulbullets_select_info": "İsabetsiz atışların hasar vereceği oyuncu:",
+  "carefulbullets_player_info": "'{0}' mermi sıkarken iki kere düşünecek.",
+  "carefulbullets_select_info": "Birini seçin:",
 
   "catapult": "Mancınık",
   "catapult_desc": "Vurduğun rakibi uzaya (yukarı doğru) fırlatma şansın var",
   "catapult_desc2": "Fırlatma şansın: %{0}",
 
+  "chameleon": "Bukalemun",
+  "chameleon_desc": "Öldürdüğün ilk oyuncunun yeteneği sana geçer",
+  "chameleon_copied_info": "Yeteneği kopyaladın: {0}",
+  "chameleon_wrong_team_info": "'{0}' takımının kullanamayacağı bir yeteneğe sahipti.",
+
   "chicken": "Tavuk",
-  "chicken_desc": "Tavuk modeli ve %10 daha hızlısın fakat 50 HP",
+  "chicken_desc": "Tavuk modeli, %10 daha hızlı ama 50 HP",
 
   "chillout": "Ağırdan Al",
   "chillout_desc": "Bombayı kurmak çok daha uzun sürer",
@@ -87,28 +92,28 @@
   "cutter_desc": "Bıçakla tek atarsın",
 
   "cypher": "Gözcü",
-  "cypher_desc": "Kamera oluşturmak/geçmek için [css_useSkill] tuşuna bas",
+  "cypher_desc": "[css_useSkill] tuşuna basarak kamera kur ve kameraya geç",
   "cypher_nospace": "Kamerayı duvara dik yerleştir",
 
   "darkness": "Karanlık",
-  "darkness_desc": "Bir düşmanın ekranını karart",
-  "darkness_enemy_info": "Işıklar sönsün",
+  "darkness_desc": "Düşmanın ekranını karart",
+  "darkness_enemy_info": "Işıklar sönsün.",
   "darkness_disable_info": "Işıklar geldi.",
-  "darkness_player_info": "'{0}' isimli oyuncunun dünyasını kararttın",
-  "darkness_select_info": "Karanlık bir oyuncuyu seç:",
+  "darkness_player_info": "'{0}' ışıkları söndü.",
+  "darkness_select_info": "Birini seçin:",
 
   "deactivator": "Silgi",
   "deactivator_desc": "Bir düşmanın yeteneğini sil",
-  "deactivator_enemy_info": "Yeteneğin silindi",
-  "deactivator_player_info": "'{0}' isimli oyuncunun yeteneği silindi",
-  "deactivator_select_info": "Yetenek silmek için oyuncu seç:",
+  "deactivator_enemy_info": "Yeteneğin silindi.",
+  "deactivator_player_info": "'{0}' isimli oyuncunun yeteneği silindi.",
+  "deactivator_select_info": "Birini seçin:",
 
   "deaf": "Sağır",
-  "deaf_desc": "Bir düşmanın kulağını kapat ve sesleri duymaz hale getir",
-  "deaf_enemy_info": "Kulaklıkların tıkandı",
+  "deaf_desc": "Bir düşmanı sağır et",
+  "deaf_enemy_info": "Kulaklıkların tıkandı.",
   "deaf_disable_info": "Kulakların açıldı.",
-  "deaf_player_info": "'{0}' isimli oyuncu için sesler kapatıldı.",
-  "deaf_select_info": "Sağır bir oyuncuyu seç:",
+  "deaf_player_info": "'{0}' sesleri kapatıldı.",
+  "deaf_select_info": "Birini seçin:",
 
   "disarmament": "Silahsızlandırma",
   "disarmament_desc": "Vurduğunda rakibin elindeki silahı yere düşürme şansın olur",
@@ -121,15 +126,15 @@
   "dash_desc": "Atılmak için ikinci kez zıpla",
 
   "dracula": "Drakula",
-  "dracula_desc": "Rakiplere verdiğin hasarın belirli bir yüzdesi kadar can alırsın",
+  "dracula_desc": "Rakibe verdiğin hasarın birazı kadar can alırsın",
 
   "duplicator": "Kopyacı",
-  "duplicator_desc": "Yeteneğini kopyalamak için bir oyuncu seç",
-  "duplicator_player_info": "'{0}' isimli oyuncunun yeteneği kopyalandı.",
-  "duplicator_select_info": "Yeteneği kopyalanacak oyuncu:",
+  "duplicator_desc": "Bir düşmanın yeteneğini kopyala",
+  "duplicator_player_info": "'{0}' yeteneği kopyalandı.",
+  "duplicator_select_info": "Birini seçin:",
 
   "dwarf": "Cüce",
-  "dwarf_desc": "Raund başında rastgele karakter boyutu",
+  "dwarf_desc": "Rastgele karakter boyutu",
   "dwarf_desc2": "Boyutun: {0}x",
 
   "enemyspawn": "Base Baskını",
@@ -137,16 +142,16 @@
 
   "expensiveammo": "Pahalı Mermi",
   "expensiveammo_desc": "Seçtiğin rakip her ateş ettiğinde para kaybeder",
-  "expensiveammo_disable_info": "Mermilerin yeniden bedava.",
-  "expensiveammo_enemy_info": "Artık her atışın sana {0}$ mal oluyor.",
-  "expensiveammo_player_info": "'{0}' artık her mermisinin parasını ödüyor.",
-  "expensiveammo_select_info": "Mermisi pahalanacak oyuncu:",
+  "expensiveammo_disable_info": "Mermi yeniden bedava.",
+  "expensiveammo_enemy_info": "Her atışın sana {0}$ mal oluyor.",
+  "expensiveammo_player_info": "'{0}' her mermisinin parasını ödüyor.",
+  "expensiveammo_select_info": "Birini seçin:",
 
   "explodingbarrel": "Patlayan Varil",
-  "explodingbarrel_desc": "[css_useSkill] ile vurulunca patlayan bir varil koyarsın",
+  "explodingbarrel_desc": "[css_useSkill] tuşuna basarak vurulunca patlayan varil koy",
 
   "explosiveshot": "Patlayıcı Mermi",
-  "explosiveshot_desc": "Ateş ederken rastgele mermilerin patlayabilir",
+  "explosiveshot_desc": "Ateş ederken mermin patlayabilir",
   "explosiveshot_desc2": "Patlayan mermi şansı: %{0}",
 
   "falconeye": "Şahin Gözü",
@@ -156,31 +161,31 @@
   "fastreload_desc": "[css_useSkill] tuşuna basarak şarjörünü hızlıca değiştir",
 
   "firerain": "Ateş Yağmuru",
-  "firerain_desc": "Molotof yağdırmak için bir decoy at",
+  "firerain_desc": "Molotof yağdırmak için yanıltıcı bomba at",
 
   "flash": "Flash",
-  "flash_desc": "Raund başında rastgele oyuncu hızı",
+  "flash_desc": "Rastgele oyuncu hızı",
   "flash_desc2": "Hızın: {0}x",
 
   "flashlight": "El Feneri",
-  "flashlight_desc": "[css_useSkill] tuşuna basarak El fenerini açarsın/kaparsın (Işığı düşmanları kör edebilir)",
+  "flashlight_desc": "[css_useSkill] tuşuna basarak el fenerini aç veya kapat, ışığı düşmanı kör eder",
 
   "fortnite": "Fortnite",
   "fortnite_desc": "[css_useSkill] tuşuna basarak barikat kur",
 
   "fragilebomb": "Hassas C4",
-  "fragilebomb_desc": "Kurulu C4'e ateş etmek C4'ün canını azaltır ve C4 imha edilir.",
+  "fragilebomb_desc": "Kurulu C4'e ateş etmek canını azaltır ve C4'ü imha eder",
   "fragilebomb_bomb_health": "Bombanın canı",
 
   "friendlyfire": "Dost Şifası",
-  "friendlyfire_desc": "Takım arkadaşlarına ateş etmek onları iyileştirir",
+  "friendlyfire_desc": "Takım arkadaşına ateş etmek onu iyileştirir",
 
   "frozendecoy": "Buz Kıran",
-  "frozendecoy_desc": "Yanıltıcı bomba (decoy) yakındaki tüm oyuncuları dondurur",
+  "frozendecoy_desc": "Yanıltıcı bomban yakındaki herkesi yavaşlatır",
 
   "gambler": "Kumarbaz",
   "gambler_desc": "Sunulan listeden bir yetenek seç.",
-  "gambler_select_info": "Yeteneğini seç:",
+  "gambler_select_info": "Birini seçin:",
   "gambler_more": "#00FF00|${0} yenile",
   "gambler_no_money": "Yeterli para yok.",
 
@@ -188,106 +193,116 @@
   "ghost_desc": "Tamamen görünmezsin",
 
   "giant": "Dev",
-  "giant_desc": "Seçtiğin bir rakibi büyütür",
-  "giant_desc2": "Seçtiğin bir rakibi {0}x büyütür",
-  "giant_disable_info": "Normal boyutuna geri döndün.",
-  "giant_enemy_info": "{0}x boyutuna büyütüldün.",
-  "giant_player_info": "'{0}' oyuncusunu {1}x büyüttün.",
-  "giant_select_info": "Büyütülecek oyuncu:",
+  "giant_desc": "Seçtiğin rakibi büyüt",
+  "giant_desc2": "Rakibin boyutu: {0}x",
+  "giant_disable_info": "Normal boyutuna döndün.",
+  "giant_enemy_info": "{0}x boyutuna büyüdün.",
+  "giant_player_info": "'{0}' boyutunu {1}x büyüttün.",
+  "giant_select_info": "Birini seçin:",
 
   "glaz": "Glaz",
-  "glaz_desc": "Sis bombalarının içini görebilirsin",
+  "glaz_desc": "Sis bombasının içini görürsün",
 
   "glitch": "Glitç",
-  "glitch_desc": "Seçilen bir düşmanın radarını kapatır",
-  "glitch_enemy_info": "Radarın kapandı",
-  "glitch_disable_info": "Radarın açıldı",
-  "glitch_player_info": "'{0}' isimli oyuncunun radarı devre dışı bırakıldı.",
-  "glitch_select_info": "Radarı kapatılacak oyuncuyu seç:",
+  "glitch_desc": "Bir düşmanın radarını kapat",
+  "glitch_enemy_info": "Radarın kapandı.",
+  "glitch_disable_info": "Radarın açıldı.",
+  "glitch_player_info": "'{0}' radarı kapandı.",
+  "glitch_select_info": "Birini seçin:",
 
   "glue": "Yapıştırıcı",
-  "glue_desc": "Bombaların duvarlara yapışır",
+  "glue_desc": "Bomban duvara yapışır",
 
   "godmode": "Ölümsüz",
   "godmode_desc": "[css_useSkill] tuşuna basarak kısa süreli ölümsüz ol",
   "godmode_off": "Ölümsüzlük kapandı",
   "godmode_on": "Ölümsüzlük açıldı",
 
+  "grapple": "Kanca",
+  "grapple_desc": "[css_useSkill] tuşuna basarak baktığın yere kanca at",
+  "grapple_no_anchor_info": "Kanca atılacak yüzey yok",
+  "grapple_pulling_info": "ÇEKİLİYOR",
+
   "grenadier": "Bombacı",
-  "grenadier_desc": "Sınırsız el bombasına sahipsin",
+  "grenadier_desc": "El bomban sınırsız",
 
   "healingchicken": "Şifacı Tavuk",
-  "healingchicken_desc": "Yakınındayken tavukların seni iyileştirir",
+  "healingchicken_desc": "Yakınındayken tavuğun seni iyileştirir",
 
   "healingsmoke": "Şifalı Sis",
-  "healingsmoke_desc": "Sis bombaların iyileştirir",
+  "healingsmoke_desc": "Sis bomban iyileştirir",
 
   "hermit": "Münzevi",
   "hermit_desc": "Birini öldürünce mermin ve canın yenilenir",
 
   "holyhandgrenade": "Kutsal El Bombası",
-  "holyhandgrenade_desc": "El bomban iki kat hasara ve menzile sahip",
+  "holyhandgrenade_desc": "El bombanın hasarı ve menzili iki kat",
 
   "homingnades": "Güdümlü Bomba",
-  "homingnades_desc": "Bombalarınız (sis hariç) düşmanlara yönelir",
+  "homingnades_desc": "Bomban (sis hariç) yakın düşmana yönelir",
 
   "hotbomb": "Sıcak C4",
-  "hotbomb_desc": "Yaşadığın sürece bombacının canı azalıyor",
-  "hotbomb_hint": "Bomba çok sıcak!",
-  "hotbomb_disable_info": "Bomba artık yakmıyor.",
+  "hotbomb_desc": "Yaşadığın sürece bombacının canı azalır",
+  "hotbomb_hint": "C4 ÇOK SICAK!",
+  "hotbomb_disable_info": "C4 soğudu.",
 
   "iana": "Hologram",
   "iana_desc": "[css_useSkill] tuşuna basarak bir hologram oluştur",
 
   "illiterate": "Cahiliye",
-  "illiterate_desc": "Yaşadığın sürece rakibin sohbeti (chat) veya oyun yazılarını okuyamaz",
+  "illiterate_desc": "Yaşadığın sürece rakip hiçbir yazıyı okuyamaz",
   "illiterate_alert": "Cahiliye aktif! Bu yeteneğin sahibi ortadan kalkana kadar mesajları okuyamazsınız.",
 
   "illusionist": "İllüzyonist",
   "illusionist_desc": "[css_useSkill] tuşuna basarak düz ilerleyen illüzyon oluştur",
 
   "impostor": "Sahtekar",
-  "impostor_desc": "Düşman oyuncu modeline dönüşürsün",
+  "impostor_desc": "Düşman modeline dönüşürsün",
 
   "infiniteammo": "Sınırsız Mermi",
-  "infiniteammo_desc": "Tüm silahların sınırsız mermisi olur",
+  "infiniteammo_desc": "Silahlarının mermisi sınırsız",
+
+  "inheritance": "Miras",
+  "inheritance_desc": "Bir takım arkadaşın öldüğünde yeteneğini devralabilirsin",
+  "inheritance_select_info": "Birini seçin:",
+  "inheritance_player_info": "'{0}' yeteneğini devraldın.",
 
   "jackal": "İzci",
   "jackal_desc": "Her rakip yürüdüğünde ayak izi bırakır",
 
   "jammer": "Sinyal Kesici",
-  "jammer_desc": "Bir oyuncunun nişangahını (crosshair) kapatmak için seç",
+  "jammer_desc": "Bir düşmanın nişangahını kapat",
   "jammer_enemy_info": "Nişangahın kapatıldı.",
-  "jammer_disable_info": "Nişangahın açıldı",
+  "jammer_disable_info": "Nişangahın açıldı.",
   "jammer_player_info": "'{0}' isimli oyuncunun nişangahı kapatıldı.",
-  "jammer_select_info": "Nişangahı kapatılacak oyuncuyu seç:",
+  "jammer_select_info": "Birini seçin:",
 
   "jester": "Soytarı",
-  "jester_desc": "Soytarı modunda hasar alamazsın ve veremezsin. Bu mod birkaç saniyede bir değişir.",
+  "jester_desc": "Soytarı modunda hasar alamaz ve veremezsin, mod birkaç saniyede bir değişir",
   "jester_mode": "Soytarı Modu",
   "jester_on": "AÇIK",
   "jester_off": "KAPALI",
 
   "jetkick": "Jetkick",
-  "jetkick_desc": "Seçtiğin bir rakibin her atışı onu geriye iter",
-  "jetkick_select_info": "Jetkick uygulanacak oyuncu:",
+  "jetkick_desc": "Seçtiğin rakibi her atışı geriye iter",
+  "jetkick_select_info": "Birini seçin:",
   "jetkick_player_info": "'{0}' adlı oyuncuya jetkick uygulandı.",
   "jetkick_enemy_info": "Her atış seni geriye doğru iter",
   "jetkick_disable_info": "Geri tepmen normale döndü.",
 
   "jumpban": "Bacaksız",
-  "jumpban_desc": "Zıplayamayacak bir oyuncu seç",
-  "jumpban_enemy_info": "Bacakların kesildi",
-  "jumpban_disable_info": "Bacaklarına kavuştun",
+  "jumpban_desc": "Zıplayamayacak bir düşman seç",
+  "jumpban_enemy_info": "Bacakların kesildi.",
+  "jumpban_disable_info": "Tekrar zıplayabilirsin.",
   "jumpban_player_info": "'{0}' artık zıplayamaz.",
-  "jumpban_select_info": "Zıplaması yasaklanacak oyuncu:",
+  "jumpban_select_info": "Birini seçin:",
 
   "jumpcurse": "Zıplama Laneti",
-  "jumpcurse_desc": "Seçtiğin rakip, takım arkadaşları her zıpladığında zıplar",
-  "jumpcurse_disable_info": "Bacakların yeniden senin.",
-  "jumpcurse_enemy_info": "Artık takım arkadaşların zıpladıkça sen de zıplıyorsun.",
-  "jumpcurse_player_info": "'{0}' artık takımıyla birlikte zıplıyor.",
-  "jumpcurse_select_info": "Zıplama laneti verilecek oyuncu:",
+  "jumpcurse_desc": "Seçtiğin rakip, takım arkadaşlarıyla zıpladıkça zıplar",
+  "jumpcurse_disable_info": "Kendin için zıplayabilirsin.",
+  "jumpcurse_enemy_info": "Takım arkadaşların zıpladıkça sen de zıplıyorsun.",
+  "jumpcurse_player_info": "'{0}' takımıyla birlikte zıplıyor.",
+  "jumpcurse_select_info": "Birini seçin:",
 
   "jumpingjack": "Zıpzıp Jack",
   "jumpingjack_desc": "Zıplamak canını yeniler",
@@ -302,10 +317,10 @@
   "lastgasp_desc": "Öldükten sonra seni öldürene hasar verirsin",
 
   "lifeswap": "Can Takası",
-  "lifeswap_desc": "Can değerlerini takas etmek için bir oyuncu seç",
-  "lifeswap_enemy_info": "Birisi canını çaldı",
-  "lifeswap_player_info": "'{0}' isimli oyuncuyla canlarını takas ettin.",
-  "lifeswap_select_info": "Can takası yapılacak oyuncu:",
+  "lifeswap_desc": "Bir düşmanla canını takasla",
+  "lifeswap_enemy_info": "Birisi canını çaldı.",
+  "lifeswap_player_info": "'{0}' ile canını takasladın.",
+  "lifeswap_select_info": "Birini seçin:",
 
   "longknife": "Uzun Bıçak",
   "longknife_desc": "Bıçağın uzaktaki rakibe hasar verebilir",
@@ -314,46 +329,46 @@
   "longzeus_desc": "Zeus uzaktaki rakibe hasar verebilir",
 
   "magneticdecoy": "Manyetik Yanıltıcı",
-  "magneticdecoy_desc": "Yanıltıcı bombanız yakındaki oyuncuları kendine çeker",
+  "magneticdecoy_desc": "Yanıltıcı bomban yakındaki herkesi kendine çeker",
 
   "magneto": "Mıknatıs",
-  "magneto_desc": "Tüm düşman bombaları sizden uzaklaştırılır",
+  "magneto_desc": "Tüm düşman bombası senden uzaklaşır",
 
   "magnifier": "Büyüteç",
-  "magnifier_desc": "Düşmanın ekranını yakınlaştırarak görüş alanını daraltır",
+  "magnifier_desc": "Bir düşmanın görüş alanını daralt",
   "magnifier_enemy_info": "Görüşün bozuldu!",
   "magnifier_disable_info": "Görüşün düzeldi",
   "magnifier_player_info": "'{0}' isimli oyuncunun ekranı yakınlaştırıldı.",
-  "magnifier_select_info": "Ekranı büyütülecek oyuncuyu seç:",
+  "magnifier_select_info": "Birini seçin:",
 
   "medic": "Sıhhiye",
   "medic_desc": "[css_useSkill] tuşuna basarak kendine anında 50 HP bas",
 
   "miner": "Mayın",
-  "miner_desc": "El bombanız (HE) sadece yakında bir düşman olduğunda patlar",
+  "miner_desc": "El bomban sadece yakında düşman varken patlar",
 
   "bankrupt": "İflas",
-  "bankrupt_desc": "Tüm parasını kaybedecek bir oyuncu seç",
+  "bankrupt_desc": "Tüm parasını kaybedecek bir düşman seç",
   "bankrupt_enemy_info": "İflas ettin!",
-  "bankrupt_player_info": "'{0}' isimli oyuncu iflas etti.",
-  "bankrupt_select_info": "İflas edecek oyuncuyu seç:",
+  "bankrupt_player_info": "'{0}' iflas etti.",
+  "bankrupt_select_info": "Birini seçin:",
 
   "deathbomb": "Canlı Bomba",
-  "deathbomb_desc": "Öldüğünde patlayarak etraftaki oyuncuları öldürürsün",
+  "deathbomb_desc": "Öldüğünde patlayıp etrafındakilere hasar verirsin",
   "deathbomb_explosion": "BOOM!!!",
 
   "demoneye": "Şeytani Göz",
-  "demoneye_desc": "Baktığın tüm düşmanlara hasar verirsin",
+  "demoneye_desc": "Baktığın tüm düşmana hasar verirsin",
 
   "nightmare": "Kabus",
-  "nightmare_desc": "Seçtiğin bir rakibe kabus görüntüsü verir",
+  "nightmare_desc": "Seçtiğin rakibe kabus gördür",
   "nightmare_disable_info": "Kabus sona erdi.",
   "nightmare_enemy_info": "Gözlerini bir kabus bürüdü.",
   "nightmare_player_info": "'{0}' oyuncusuna kabus gördürdün.",
-  "nightmare_select_info": "Kabus görecek oyuncu:",
+  "nightmare_select_info": "Birini seçin:",
 
   "ninja": "Ninja",
-  "ninja_desc": "Görünmezliğini sabit durmak %33, eğilmek %33 ve bıçak tutmak %33 artırır",
+  "ninja_desc": "Sabit durmak, eğilmek ve bıçak tutmak görünmezliğini %33 artırır",
 
   "nonades": "Bomba Geçirmez",
   "nonades_desc": "Bombalar sana hasar vermez",
@@ -375,38 +390,38 @@
   "paweljumper_desc2": "{0} kez ekstra zıplayabilirsin",
 
   "phoenix": "Anka Kuşu",
-  "phoenix_desc": "Öldükten sonra rastgele yeniden doğma şansın olur",
+  "phoenix_desc": "Öldükten sonra yeniden doğma şansın olur",
   "phoenix_desc2": "Yeniden doğma şansın: %{0}",
   "phoenix_respawn": "Küllerinden yeniden doğdun!",
 
   "psychicdefusing": "Psişik İmha",
-  "psychicdefusing_desc": "Bombanın yanındayken onu otomatik imha etmeye başlarsın",
+  "psychicdefusing_desc": "Bombanın yanındayken otomatik imhaya başlarsın",
   "psychicdefusing_hud_info": "Bombanın çözülmesi için son {0} saniye",
 
   "pilot": "Pilot",
-  "pilot_desc": "Sınırlı bir süre uçun. Uçmak için zıplama tuşuna iki kez basın",
+  "pilot_desc": "Uçmak için zıplama tuşuna iki kez bas",
   "pilot_hud_info": "Yakıt",
 
   "planter": "Serbest Kurucu",
-  "planter_desc": "Bombayı her yere kurabilirsin, patlama süresi 60 saniyedir.",
+  "planter_desc": "Bombayı her yere kurabilirsin, patlama süresi 60 saniye",
   "planter_planting": "Kuruluyor ({0})...",
 
   "poison": "Zehir",
-  "poison_desc": "Birkaç saniyede bir hasar alacak bir oyuncu seç",
+  "poison_desc": "Birkaç saniyede bir hasar alacak bir düşman seç",
   "poison_enemy_info": "Zehirlendin.",
   "poison_disable_info": "Zehire bağışıklık kazandın",
   "poison_player_info": "'{0}' isimli oyuncu zehirlendi.",
-  "poison_select_info": "Zehirlenecek oyuncuyu seç:",
+  "poison_select_info": "Birini seçin:",
 
   "primaryban": "Tüfek Yasak",
-  "primaryban_desc": "Tüfek kullanamayacak bir oyuncu seç",
+  "primaryban_desc": "Tüfek kullanamayacak bir düşman seç",
   "primaryban_enemy_info": "Tüfek kullanmayı unuttun",
   "primaryban_disable_info": "Tüfek kullanabilirsin",
   "primaryban_player_info": "'{0}' artık tüfek kullanamaz.",
-  "primaryban_select_info": "Tüfek kullanımı yasaklanacak oyuncu:",
+  "primaryban_select_info": "Birini seçin:",
 
   "prosthesis": "Protez",
-  "prosthesis_desc": "Kollar ve bacaklar kurşun geçirmezdir",
+  "prosthesis_desc": "Kolların ve bacakların kurşun geçirmez",
 
   "push": "İtici",
   "push_desc": "Düşmana vurduğunda onu geri itme şansın olur",
@@ -422,43 +437,46 @@
   "radarhack_desc": "Düşmanlar radarda görünür",
 
   "rambo": "Rambo",
-  "rambo_desc": "Raund başında rastgele miktarda can alırsın",
+  "rambo_desc": "Rastgele miktarda canın olur",
 
   "randomweapon": "Silah Kumarı",
   "randomweapon_desc": "[css_useSkill] tuşuna basarak rastgele bir silah al",
 
   "rezombie": "Zombi",
-  "rezombie_desc": "Öldükten sonra daha fazla canla ve silahsız zombi olarak doğarsın",
+  "rezombie_desc": "Öldüğünde silahsız zombi olarak daha çok canla dirilirsin",
 
   "reactivearmor": "Reaktif Zırh",
-  "reactivearmor_desc": "Zırhın alınan ilk hasarı emmer",
+  "reactivearmor_desc": "Zırhın ilk hasarı emer",
 
   "regeneration": "Yenilenme",
   "regeneration_desc": "Birkaç saniyede bir canın yenilenir",
 
   "replicator": "Klon",
-  "replicator_desc": "[css_useSkill] tuşuna basarak klon oluştur ve öldürene hasar verir",
+  "replicator_desc": "[css_useSkill] tuşuna basarak klon oluştur, klonu öldürene hasar verir",
 
   "retreat": "Geri Çekil",
-  "retreat_desc": "[css_useSkill] tuşuna basarak başlangıç noktasına ışınlan",
+  "retreat_desc": "[css_useSkill] tuşuna basarak başlangıcına ışınlan",
 
   "returntosender": "İade",
-  "returntosender_desc": "Düşmana ilk vuruşun onu kendi başlangıç noktasına ışınlar",
+  "returntosender_desc": "Düşmana ilk vuruşun onu kendi başlangıcına ışınlar",
 
   "richboy": "Zengin Çocuk",
-  "richboy_desc": "Raund başında rastgele miktarda para alırsın",
+  "richboy_desc": "Rastgele miktarda paran olur",
+
+  "ricochet": "Seken Mermi",
+  "ricochet_desc": "Mermin duvardan seker ve düşmana isabet edebilir",
 
   "robinhood": "Robin Hood",
   "robinhood_desc": "Düşmana hasar vermek onun parasını çalar",
 
   "rubber": "Lastik Mermi",
-  "rubber_desc": "Mermilerin oyuncuları önemli ölçüde yavaşlatır",
+  "rubber_desc": "Mermin isabet edeni yavaşlatır",
 
   "saper": "İstihkamcı",
-  "saper_desc": "Bombayı daha hızlı kurabilir ve imha edebilirsin",
+  "saper_desc": "Bombayı daha hızlı kurar ve imha edersin",
 
   "secondlife": "İkinci Şans",
-  "secondlife_desc": "Öldükten sonra aynı miktarda canla yeniden doğarsın",
+  "secondlife_desc": "Öldüğünde aynı canla yeniden doğarsın",
 
   "shade": "Gölge",
   "shade_desc": "Vurduğun düşmanın arkasına ışınlanma şansın olur",
@@ -466,24 +484,24 @@
   "shade_nospace": "Uygun alan yok",
 
   "shortbomb": "Kısa Fünye",
-  "shortbomb_desc": "Bomba çok daha hızlı patlar",
+  "shortbomb_desc": "C4 çok daha hızlı patlar",
 
   "silent": "Sessiz",
-  "silent_desc": "Ayak seslerini ve zıplamalarını DİĞER oyuncular duyamaz",
+  "silent_desc": "Ayak ve zıplama sesini kimse duyamaz",
 
   "smoker": "Tiryaki",
-  "smoker_desc": "Attığın Sis asla bitmez",
+  "smoker_desc": "Attığın sis asla bitmez",
 
   "sniperelite": "Keskin Nişancı",
   "sniperelite_customname": "Keskin Nişancı",
   "sniperelite_desc": "[css_useSkill] tuşuna basarak silahını AWP ile değiştir",
 
   "soldier": "Teğmen",
-  "soldier_desc": "Rastgele bir oranda fazla hasar verirsin",
+  "soldier_desc": "Rastgele hasar verme çarpanın olur",
   "soldier_desc2": "Hasarın: {0}x",
 
   "soundmaker": "Çığlık",
-  "soundmaker_desc": "Rakiplerinin çığlıklarını duyarsın",
+  "soundmaker_desc": "Rakibin çığlığını duyarsın",
 
   "spectator": "Röntgen",
   "spectator_desc": "[css_useSkill] tuşuna basarak rakibinin gözünden gör",
@@ -492,47 +510,47 @@
   "swapposition_desc": "[css_useSkill] tuşuna basarak vurduğun düşmanla yer değiştir",
 
   "takeammo": "Cephane Hırsızı",
-  "takeammo_desc": "[css_useSkill] tuşuna basarak rastgele bir düşmanın silahının şarjörünü çalarsın",
-  "takeammo_hud_info1": "Cephanesi olan bir oyuncu bulunamadı.",
-  "takeammo_hud_info2": "Düşmanın cephanesi yok.",
-  "takeammo_enemy_info": "Birisi cephaneni çaldı.",
+  "takeammo_desc": "[css_useSkill] tuşuna basarak rastgele bir düşmanın şarjörünü çal",
+  "takeammo_hud_info1": "Şarjörü olan bir oyuncu bulunamadı.",
+  "takeammo_hud_info2": "Düşmanın şarjörü yok.",
+  "takeammo_enemy_info": "Birisi şarjörünü çaldı.",
 
   "teamteleport": "Takıma Işınlanma",
-  "teamteleport_desc": "[css_useSkill] tuşuna basarak baktığın takım arkadaşına ışınlanırsın",
+  "teamteleport_desc": "[css_useSkill] tuşuna basarak baktığın takım arkadaşına ışınlan",
   "teamteleport_noenemy": "Takım arkadaşı bulunamadı",
   "teamteleport_hud_info": "Bulundu: {0}",
 
   "teleporter": "Işınlayıcı",
-  "teleporter_desc": "Vurulan bir düşmanla yer değiştirme şansınız var",
+  "teleporter_desc": "Vurduğun düşmanla yer değiştirme şansın olur",
   "teleporter_desc2": "Yer değiştirme şansın: %{0}",
 
   "thief": "Hırsız",
-  "thief_desc": "Seçilen bir oyuncudan yeteneğini çalabilirsin",
+  "thief_desc": "Bir düşmanın yeteneğini çal",
   "thief_enemy_info": "Yeteneğin çalındı.",
   "thief_player_info": "'{0}' isimli oyuncunun yeteneği çalındı.",
-  "thief_select_info": "Yetenek çalınacak oyuncu:",
+  "thief_select_info": "Birini seçin:",
   "thief_incorrect_skill": "Bu yetenek çalınamaz!",
 
   "thirdeye": "Üçüncü Göz",
-  "thirdeye_desc": "[css_useSkill] tuşuna basarak üçüncü göze(thirdperson) geç",
+  "thirdeye_desc": "[css_useSkill] tuşuna basarak üçüncü şahıs görünümüne geç",
 
   "thorns": "Dikenler",
-  "thorns_desc": "Rakibin, sana verdiği hasarın bir kısmını geri alır",
+  "thorns_desc": "Sana verilen hasarın bir kısmı rakibe döner",
 
   "throwingknife": "Fırlatma Bıçağı",
-  "throwingknife_desc": "Bıçak fırlatmak için [css_useSkill] tuşuna basın. Ama başkalarına dikkat edin",
+  "throwingknife_desc": "[css_useSkill] tuşuna basarak bıçak fırlat",
 
   "toxicsmoke": "Zehirli Sis",
-  "toxicsmoke_desc": "Sis bombaların hasar verir",
+  "toxicsmoke_desc": "Sis bomban hasar verir",
 
   "tripwire": "Tel Tuzağı",
-  "tripwire_desc": "[css_useSkill] ile iki duvar arasına tel ger. Tele değen düşman radarında görünür",
+  "tripwire_desc": "[css_useSkill] tuşuna basarak iki duvar arasına tel ger, değen düşman radarda görünür",
   "tripwire_no_wall_info": "İki yanında da yeterince yakın duvar yok.",
   "tripwire_placed_info": "Tel gerildi.",
   "tripwire_triggered_info": "'{0}' teline takıldı.",
 
   "wallhack": "Wallhack",
-  "wallhack_desc": "Düşmanları duvarların arkasından görebilirsin",
+  "wallhack_desc": "Düşmanları duvar arkasından görürsün",
 
   "watchmaker": "Saat Ustası",
   "watchmaker_desc": "Atılan her bomba raund süresini değiştirir",
@@ -544,21 +562,21 @@
   "weaponsswap_hud_info2": "Takas edilecek silahın yok",
 
   "weightless": "Yerçekimsiz",
-  "weightless_desc": "El bombalarınız yerçekiminden etkilenmez ve dümdüz gider",
+  "weightless_desc": "El bomban yerçekiminden etkilenmez ve dümdüz gider",
 
   "wildthrow": "Unutkan Bombacı",
-  "wildthrow_desc": "El bombası atmakta zorluk çekecek bir oyuncu seçin",
-  "wildthrow_player_info": "'{0}' adlı oyuncu tüm taktiklerini unuttu",
+  "wildthrow_desc": "El bombası atmakta zorlanacak bir düşman seç",
+  "wildthrow_player_info": "'{0}' tüm taktiklerini unuttu.",
   "wildthrow_enemy_info": "Bomba atarken çok heyecanlanıyorsun.",
-  "wildthrow_disable_info": "Bombaların düzeldi.",
-  "wildthrow_select_info": "Bir oyuncu seçin:",
+  "wildthrow_disable_info": "Bomban tekrardan düzgün.",
+  "wildthrow_select_info": "Birini seçin:",
 
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 anında şarj olur",
 
   "your_skill": "Yeteneğin",
   "enemy_skill": "Düşmanın yeteneği",
-  "observer_skill": "Oyuncunun yeteneği",
+  "observer_skill": "Yeteneği",
   "welcome_message": "{PLAYER}, {SERVER_NAME} sunucusuna hoş geldin!\nGüncel jRandomSkills versiyonu: {VERSION} ({SKILLS_COUNT} yetenek).\n\nOrijinal yapımcı:\n{AUTHOR1}\nGeliştiren:\n{AUTHOR2}\nResmi Discord: https://discord.gg/9H8EZYBpPF",
   "drawing_skill": "Yetenek çarkı dönüyor...",
   "disabled_weapon": "Bu silahı kullanamazsın",

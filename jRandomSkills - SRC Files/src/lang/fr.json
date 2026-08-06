@@ -1,4 +1,4 @@
-﻿{
+{
   "none": "Aucune",
   "none_desc": "Vous n’avez aucune compétence",
 
@@ -76,6 +76,11 @@
   "catapult": "Catapulte",
   "catapult_desc": "Vous avez une chance aléatoire de projeter un ennemi en l’air",
   "catapult_desc2": "Votre chance de projeter un ennemi à l’impact est : {0}%",
+
+  "chameleon": "Caméléon",
+  "chameleon_desc": "Le premier joueur que vous tuez vous donne sa compétence",
+  "chameleon_copied_info": "Compétence copiée : {0}",
+  "chameleon_wrong_team_info": "'{0}' avait une compétence que votre équipe ne peut pas utiliser.",
 
   "chicken": "Poulet",
   "chicken_desc": "Vous obtenez un modèle de poulet + 10% de vitesse de déplacement en plus - 50 PV",
@@ -220,6 +225,11 @@
   "godmode_off": "Immortalité désactivée",
   "godmode_on": "Immortalité activée",
 
+  "grapple": "Grappin",
+  "grapple_desc": "Appuyez sur [css_useSkill] pour lancer un grappin sur le point visé et vous y propulser",
+  "grapple_no_anchor_info": "Aucune surface pour accrocher le grappin.",
+  "grapple_pulling_info": "TRACTION",
+
   "grenadier": "Grenadier",
   "grenadier_desc": "Tu as des grenades HE infinies",
 
@@ -258,6 +268,11 @@
 
   "infiniteammo": "Munitions Infinies",
   "infiniteammo_desc": "Vous recevez des munitions infinies pour toutes vos armes",
+
+  "inheritance": "Héritage",
+  "inheritance_desc": "Quand un coéquipier meurt, vous pouvez reprendre sa compétence",
+  "inheritance_select_info": "Choisissez la compétence à hériter :",
+  "inheritance_player_info": "Vous avez hérité de la compétence de '{0}'.",
 
   "jackal": "Traqueur",
   "jackal_desc": "Chaque adversaire laisse une trace derrière lui",
@@ -447,6 +462,9 @@
 
   "richboy": "Gosse de Riche",
   "richboy_desc": "Vous recevez une somme d’argent aléatoire au début du round",
+
+  "ricochet": "Ricochet",
+  "ricochet_desc": "Vos balles rebondissent sur les murs et peuvent encore toucher les ennemis",
 
   "robinhood": "Robin des Bois",
   "robinhood_desc": "Infliger des dégâts à un ennemi lui vole de l’argent",

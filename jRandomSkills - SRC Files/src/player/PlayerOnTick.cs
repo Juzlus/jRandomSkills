@@ -15,7 +15,7 @@ namespace src.player
             Instance.RegisterListener<OnTick>(() =>
             {
                 UpdateGameRules();
-                if (Server.TickCount % 2 != 0) return;
+                if (!SkillUtils.IsHudFrame()) return;
 
                 if (PerfLog.Enabled && Server.TickCount % 1920 == 0)
                 {
@@ -99,25 +99,19 @@ namespace src.player
             bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || Config.LoadedConfig.DisplayAlwaysDescription;
             bool isDescription = true;
 
-            var skills = SkillData.Skills;
+            var skills = SkillData.GetSnapshot();
 
-            if (skills == null || skills.IsEmpty)
+            if (skills.Length == 0)
             {
                 infoLine = player.GetTranslationWithoutIlliterate("your_skill");
                 skillLine = player.GetTranslationWithoutIlliterate("none");
             }
             else if (skillPlayer.IsDrawing && player.PawnIsAlive)
             {
-                int skillCount = skills.Count;
+                var randomSkill = skills[Instance.Random.Next(skills.Length)];
 
-                if (skillCount > 0)
-                {
-                    var skillsArray = skills.ToArray();
-                    var randomSkill = skillsArray[Instance.Random.Next(skillCount)];
-
-                    infoLine = player.GetTranslationWithoutIlliterate("drawing_skill");
-                    skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
-                }
+                infoLine = player.GetTranslationWithoutIlliterate("drawing_skill");
+                skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
             }
             else
             {

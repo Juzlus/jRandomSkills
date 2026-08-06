@@ -19,31 +19,30 @@ namespace src.player.skills
         {
             foreach (var player in PlayerManager.GetTickPlayers())
             {
+                if (player == null) continue;
+
+                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
                 if (!Instance.IsPlayerValid(player)) continue;
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-                if (playerInfo?.Skill == skillName)
+                var pawn = player.PlayerPawn.Value!;
+                var weaponServices = pawn.WeaponServices;
+                if (weaponServices == null || weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid) continue;
+
+                var weapon = weaponServices.ActiveWeapon.Value;
+                if (weapon == null || !weapon.IsValid || pawn.CameraServices == null) continue;
+
+                if (pawn.AimPunchServices != null)
                 {
-                    var pawn = player.PlayerPawn.Value!;
-                    var weaponServices = pawn.WeaponServices;
-                    if (weaponServices == null || weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid) continue;
-
-                    var weapon = weaponServices.ActiveWeapon.Value;
-                    if (weapon == null || !weapon.IsValid || pawn.CameraServices == null) continue;
-
-                    if (pawn.AimPunchServices != null)
-                    {
-                        pawn.AimPunchServices.PredictableBaseTick = 0;
-                        pawn.AimPunchServices.PredictableBaseTickInterpAmount = 0;
-                        pawn.AimPunchServices.UnpredictableBaseTick = 0;
-                    }
-
-                    pawn.CameraServices.CsViewPunchAngleTick = 0;
-                    pawn.CameraServices.CsViewPunchAngleTickRatio = 0f;
-
-                    Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick", Server.TickCount);
-                    Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick", Server.TickCount);
+                    pawn.AimPunchServices.PredictableBaseTick = 0;
+                    pawn.AimPunchServices.PredictableBaseTickInterpAmount = 0;
+                    pawn.AimPunchServices.UnpredictableBaseTick = 0;
                 }
+
+                pawn.CameraServices.CsViewPunchAngleTick = 0;
+                pawn.CameraServices.CsViewPunchAngleTickRatio = 0f;
+
+                Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick", Server.TickCount);
+                Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick", Server.TickCount);
             }
         }
 

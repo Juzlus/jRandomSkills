@@ -93,6 +93,7 @@ namespace src.player.skills
         public static void NewRound()
         {
             buildInProgress = false;
+            buildScheduled = false;
 
             foreach (var kvp in glows)
             {
@@ -139,10 +140,21 @@ namespace src.player.skills
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Index, 0);
 
-            if (glows.IsEmpty && !buildInProgress)
-                SetGlowEffectForAll();
+            if (buildScheduled || buildInProgress || !glows.IsEmpty) return;
 
-            SkillUtils.ForceFullUpdateToAll();
+            buildScheduled = true;
+
+            float delay = SkillUtils.IsFreezeTime()
+                ? Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0f)
+                : 0f;
+
+            jRandomSkills.Instance.AddTimer(delay, () =>
+            {
+                buildScheduled = false;
+
+                if (playersInAction.IsEmpty || buildInProgress || !glows.IsEmpty) return;
+                SetGlowEffectForAll();
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -158,6 +170,7 @@ namespace src.player.skills
 
         private const int GlowsPerFrame = 4;
         private static bool buildInProgress;
+        private static bool buildScheduled;
 
         private static void SetGlowEffectForAll()
         {
@@ -180,6 +193,7 @@ namespace src.player.skills
             if (start >= enemies.Count)
             {
                 buildInProgress = false;
+                SkillUtils.ForceFullUpdateToAllChunked();
                 return;
             }
 

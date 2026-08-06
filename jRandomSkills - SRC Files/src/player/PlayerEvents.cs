@@ -226,8 +226,11 @@ namespace src.player
                 if (controller == null || !controller.IsValid) return string.Empty;
 
                 uint routedIndex = PlayerManager.GetPlayerEvent(controller)?.Index ?? controller.Index;
-                return $" on {controller.PlayerName} [idx={controller.Index} skill={PlayerManager.GetPlayerByIndex(controller.Index)?.Skill}" +
-                    $" routedIdx={routedIndex} routedSkill={PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}]";
+                string routing = routedIndex == controller.Index
+                    ? string.Empty
+                    : $" routedIdx={routedIndex} routedSkill={PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}";
+
+                return $" on {controller.PlayerName} [idx={controller.Index} skill={PlayerManager.GetPlayerByIndex(controller.Index)?.Skill}{routing}]";
             }
             catch
             {

@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b4";
+        public override string ModuleVersion => "1.2.3.b5";
 
         public override void Load(bool hotReload)
         {
@@ -386,6 +386,10 @@ namespace src
     {
         public static ConcurrentBag<jSkill_SkillInfo> Skills { get; } = [];
 
+        private static jSkill_SkillInfo[]? _snapshot;
+
+        public static jSkill_SkillInfo[] GetSnapshot() => _snapshot ??= [.. Skills];
+
         private static Dictionary<Skills, jSkill_SkillInfo>? _bySkill;
 
         public static jSkill_SkillInfo? GetInfo(Skills skill)
@@ -401,7 +405,11 @@ namespace src
             return map.TryGetValue(skill, out var info) ? info : null;
         }
 
-        public static void Invalidate() => _bySkill = null;
+        public static void Invalidate()
+        {
+            _bySkill = null;
+            _snapshot = null;
+        }
     }
 
     public enum CS2ConsoleColors

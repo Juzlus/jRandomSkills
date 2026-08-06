@@ -406,6 +406,32 @@
     "Rarity": "Common"
   },
   {
+    "Bounces": 3,
+    "SegmentDistance": 1200.0,
+    "DamageMultiplier": 0.5,
+    "FallbackDamage": 25.0,
+    "RespectArmor": true,
+    "DamageFalloff": 0.75,
+    "MaxImpactsPerTick": 2,
+    "ShowTracer": true,
+    "TracerWidth": 0.5,
+    "TracerSpeed": 2600.0,
+    "TracerLength": 220.0,
+    "MaxActiveTracers": 12,
+    "NormalProbeOffset": 6.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#ffd75e",
+    "Active": true,
+    "Name": "Ricochet",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 2,
+    "Rarity": "Rare"
+  },
+  {
     "MinMoney": 5000,
     "MaxMoney": 15000,
     "NeedsTeammates": false,
@@ -1103,6 +1129,19 @@
     "Rarity": "Common"
   },
   {
+    "NeedsTeammates": true,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#c9a227",
+    "Active": true,
+    "Name": "Inheritance",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 2,
+    "Rarity": "Rare"
+  },
+  {
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "OnlyTeam": 0,
@@ -1285,6 +1324,26 @@
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
+  },
+  {
+    "Cooldown": 10.0,
+    "MaxDistance": 1500.0,
+    "MinDistance": 150.0,
+    "StopDistance": 90.0,
+    "PullSpeed": 850.0,
+    "MaxPullSeconds": 3.0,
+    "RopeWidth": 0.8,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "OnlyTeam": 0,
+    "Color": "#38e0c4",
+    "Active": true,
+    "Name": "Grapple",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "Rarity": "Rare"
   },
   {
     "Cooldown": 30.0,
@@ -1799,6 +1858,19 @@
     "RequiredPermission": "",
     "MaxPerServer": -1,
     "Rarity": "Common"
+  },
+  {
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "OnlyTeam": 0,
+    "Color": "#5fd98a",
+    "Active": true,
+    "Name": "Chameleon",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 2,
+    "Rarity": "Rare"
   },
   {
     "ChanceFrom": 0.2,

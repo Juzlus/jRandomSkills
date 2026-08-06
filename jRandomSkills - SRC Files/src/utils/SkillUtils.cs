@@ -65,10 +65,15 @@ namespace src.utils
             return jRandomSkills.Instance?.GameRules?.FreezePeriod == true;
         }
 
+        public static bool IsHudFrame() => Server.TickCount % 4 == 0;
+
         public static void RegisterSkill(Skills skill, string color, bool display = true)
         {
             if (!SkillData.Skills.Any(s => s.Skill == skill))
+            {
                 SkillData.Skills.Add(new jSkill_SkillInfo(skill, color, display));
+                SkillData.Invalidate();
+            }
         }
 
         public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
@@ -185,11 +190,6 @@ namespace src.utils
         {
             if (pawn == null || !pawn.IsValid) return;
             SnapViewAngles.Value?.Invoke(pawn, angle);
-        }
-
-        public static CBeam? CreateLine(Vector start, Vector end, Color color, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
-        {
-            return EntityManager.CreateTrackedBeam(ownerPlayerIndex, start, end, color);
         }
 
         public static void SetPlayerCollisions(CCSPlayerController? player, bool enable)
@@ -682,6 +682,50 @@ namespace src.utils
                     targetPawn.Look(item.LastAngle);
                 }
             });
+        }
+
+        public static void ForceFullUpdateToAllChunked(int clientsPerFrame = 2)
+        {
+            if (!Config.LoadedConfig.EnableFullForceUpdate) return;
+
+            var pending = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot).Select(p => p.Index).ToList();
+            if (pending.Count == 0) return;
+
+            ForceFullUpdateChunk(pending, 0, Math.Max(clientsPerFrame, 1));
+        }
+
+        private static void ForceFullUpdateChunk(List<uint> pending, int start, int clientsPerFrame)
+        {
+            if (start >= pending.Count) return;
+
+            int end = Math.Min(start + clientsPerFrame, pending.Count);
+            var toRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
+
+            INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
+            for (int i = start; i < end; i++)
+            {
+                var player = Utilities.GetPlayerFromIndex((int)pending[i]);
+                if (player == null || !player.IsValid) continue;
+
+                ForceFullUpdate(player, toRestore, networkGameServer);
+            }
+
+            if (toRestore.Count > 0)
+                jRandomSkills.Instance.AddTickTimer(3, () =>
+                {
+                    foreach (var item in toRestore)
+                    {
+                        var target = Utilities.GetPlayerFromIndex((int)item.PlayerIndex);
+                        if (target == null || !target.IsValid) continue;
+
+                        var targetPawn = target.PlayerPawn?.Value;
+                        if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
+
+                        targetPawn.Look(item.LastAngle);
+                    }
+                });
+
+            Server.NextFrame(() => ForceFullUpdateChunk(pending, end, clientsPerFrame));
         }
 
         public static bool SetHealth(CCSPlayerPawn? pawn, int newHealth, int? maxHealth = null)

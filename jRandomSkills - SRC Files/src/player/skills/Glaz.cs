@@ -46,10 +46,17 @@ namespace src.player.skills
                 if (player == null || !player.IsValid) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
-                var observedPlayer = PlayerManager.GetTickPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == player?.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle);
-                var observerInfo = observedPlayer != null ? PlayerManager.GetPlayerByIndex(observedPlayer.Index) : null;
+                if (playerInfo?.Skill != skillName)
+                {
+                    var observerTarget = player.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
+                    if (observerTarget == nint.Zero) continue;
 
-                if (playerInfo?.Skill != skillName && observerInfo?.Skill != skillName) continue;
+                    var observedPlayer = PlayerManager.GetTickPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == observerTarget);
+                    if (observedPlayer == null) continue;
+
+                    if (PlayerManager.GetPlayerByIndex(observedPlayer.Index)?.Skill != skillName) continue;
+                }
+
                 foreach (var entityIndex in smokes.Keys)
                 {
                     var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);

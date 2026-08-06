@@ -77,7 +77,7 @@ namespace src.player.skills
                 if (playerInfo?.Skill == skillName)
                     if (SkillPlayerInfo.TryGetValue(eventPlayer!.Index, out var skillInfo))
                     {
-                        UpdateHUD(player, skillInfo);
+                        if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
                         HandleDash(player, skillInfo);
                     }
             }
