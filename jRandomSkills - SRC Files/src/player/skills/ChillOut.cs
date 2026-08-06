@@ -78,6 +78,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (!SkillUtils.IsHudFrame()) return;
             if (plantingPlayers.IsEmpty) return;
 
             float currentTime = Server.CurrentTime;

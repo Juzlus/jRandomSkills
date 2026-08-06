@@ -139,12 +139,14 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (activeChickens.IsEmpty) return;
+
             int tickCooldown = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
             if (Server.TickCount % tickCooldown == 0) return;
 
             float boostFactor = SkillsInfo.GetValue<float>(skillName, "boostFactor");
 
-            var players = PlayerManager.GetTickPlayers().ToArray();
+            var players = PlayerManager.GetTickPlayers();
             int healAmount = SkillsInfo.GetValue<int>(skillName, "heal");
             float healRadius = SkillsInfo.GetValue<float>(skillName, "healRadius");
 

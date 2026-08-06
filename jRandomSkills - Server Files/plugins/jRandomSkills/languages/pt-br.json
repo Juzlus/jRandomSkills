@@ -1,4 +1,4 @@
-﻿{
+{
   "none": "Nenhuma",
   "none_desc": "Você não tem nenhuma habilidade",
 
@@ -76,6 +76,11 @@
   "catapult": "Catapulta",
   "catapult_desc": "Você tem uma chance aleatória de lançar um inimigo para cima",
   "catapult_desc2": "Sua chance de lançar um inimigo ao acertá-lo é: {0}%",
+
+  "chameleon": "Camaleão",
+  "chameleon_desc": "O primeiro jogador que você matar lhe dá a habilidade dele",
+  "chameleon_copied_info": "Habilidade copiada: {0}",
+  "chameleon_wrong_team_info": "'{0}' tinha uma habilidade que sua equipe não pode usar.",
 
   "chicken": "Galinha",
   "chicken_desc": "Você é uma galinha com +10% de movimento mais rápido e -50 HP",
@@ -220,6 +225,11 @@
   "godmode_off": "Imortalidade desativada",
   "godmode_on": "Imortalidade ativada",
 
+  "grapple": "Gancho",
+  "grapple_desc": "Pressione [css_useSkill] para lançar um gancho no ponto mirado e se puxar até lá",
+  "grapple_no_anchor_info": "Nenhuma superfície para prender o gancho.",
+  "grapple_pulling_info": "PUXANDO",
+
   "grenadier": "Bomberman",
   "grenadier_desc": "Você tem HEs infinitas",
 
@@ -258,6 +268,11 @@
 
   "infiniteammo": "Munição Infinita",
   "infiniteammo_desc": "Você recebe munição infinita para todas as suas armas",
+
+  "inheritance": "Herança",
+  "inheritance_desc": "Quando um companheiro de equipe morre, você pode assumir a habilidade dele",
+  "inheritance_select_info": "Escolha a habilidade que você herda:",
+  "inheritance_player_info": "Você herdou a habilidade de '{0}'.",
 
   "jackal": "Lesma",
   "jackal_desc": "Cada adversário deixa um rastro atrás de si",
@@ -447,6 +462,9 @@
 
   "richboy": "Filhinho de Papai",
   "richboy_desc": "Você recebe uma quantidade aleatória de dinheiro no início da rodada",
+
+  "ricochet": "Ricochete",
+  "ricochet_desc": "Suas balas ricocheteiam nas paredes e ainda podem acertar inimigos",
 
   "robinhood": "Robin Hood",
   "robinhood_desc": "Atirar em um inimigo rouba seu dinheiro",

@@ -40,6 +40,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (!SkillUtils.IsHudFrame()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);

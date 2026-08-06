@@ -25,6 +25,10 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (distancerPlayers.IsEmpty) return;
+
+            if (!SkillUtils.IsHudFrame()) return;
+
             if (SkillUtils.IsFreezeTime()) return;
             foreach (var playerIndex in distancerPlayers.Keys)
             {
@@ -41,8 +45,10 @@ namespace src.player.skills
                 string closetEnemy = "Bot";
                 double closetDistance = double.MaxValue;
 
-                foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.Team != player.Team))
+                foreach (var enemy in PlayerManager.GetTickPlayers())
                 {
+                    if (enemy == null || enemy.Team == player.Team) continue;
+
                     var enemyPawn = enemy.PlayerPawn.Value;
                     if (enemyPawn == null || !enemyPawn.IsValid) continue;
                     if (enemyPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || playerPawn.AbsOrigin == null || enemyPawn.AbsOrigin == null) continue;

@@ -71,6 +71,11 @@
   "catapult_desc": "你有随机几率将敌人向上弹射",
   "catapult_desc2": "你击中敌人将其弹射的几率是：{0}%",
 
+  "chameleon": "变色龙",
+  "chameleon_desc": "你击杀的第一名玩家会把技能传给你",
+  "chameleon_copied_info": "已复制技能：{0}",
+  "chameleon_wrong_team_info": "'{0}' 的技能你的队伍无法使用。",
+
   "chicken": "小鸡",
   "chicken_desc": "你获得小鸡模型 + 移动速度提高10% - 50生命值",
 
@@ -201,6 +206,11 @@
   "godmode_off": "无敌状态已禁用",
   "godmode_on": "无敌状态已启用",
 
+  "grapple": "钩爪",
+  "grapple_desc": "按 [css_useSkill] 向准星所指位置发射钩爪并将自己拉过去",
+  "grapple_no_anchor_info": "没有可以钩住的表面。",
+  "grapple_pulling_info": "拉动中",
+
   "grenadier": "投弹手",
   "grenadier_desc": "你拥有无限高爆手雷",
 
@@ -236,6 +246,11 @@
 
   "infiniteammo": "无限弹药",
   "infiniteammo_desc": "你为所有武器获得无限弹药",
+
+  "inheritance": "继承",
+  "inheritance_desc": "当队友阵亡时，你可以接管他的技能",
+  "inheritance_select_info": "选择要继承的技能：",
+  "inheritance_player_info": "你继承了 '{0}' 的技能。",
 
   "jackal": "追踪者",
   "jackal_desc": "每个对手都会留下痕迹",
@@ -417,6 +432,9 @@
 
   "richboy": "富少",
   "richboy_desc": "回合开始时你获得随机数量的钱",
+
+  "ricochet": "跳弹",
+  "ricochet_desc": "你的子弹会从墙上弹开，并且仍能击中敌人",
 
   "robinhood": "罗宾汉",
   "robinhood_desc": "对敌人造成伤害会偷取他们的钱",

@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
 
@@ -96,32 +95,8 @@ namespace src.player
                 WriteToDebug($"Map changed: {mapName}.");
             });
 
-            Instance.RegisterEventHandler<EventPlayerShoot>((@event, info) =>
-            {
-                var player = PlayerManager.GetPlayerEvent(@event.Userid);
-                if (player == null || !player.IsValid) return HookResult.Continue;
-                WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} fired a shot.");
-                return HookResult.Continue;
-            });
-
-            Instance.RegisterEventHandler<EventPlayerHurt>((@event, info) =>
-            {
-                var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-                if (victim == null || !victim.IsValid) return HookResult.Continue;
-
-                if (!lastNativeHitGroup.TryRemove(victim.Index, out var native)) return HookResult.Continue;
-                if (native.HitGroup == @event.Hitgroup) return HookResult.Continue;
-
-                WriteToDebug($"[HITGROUP] mismatch on {victim.PlayerName}: native={(HitGroup_t)native.HitGroup} event={(HitGroup_t)@event.Hitgroup} " +
-                    $"weapon={@event.Weapon} rawDmg={native.Damage:0.#} appliedDmg={@event.DmgHealth}");
-
-                return HookResult.Continue;
-            });
-
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
         }
-
-        private static readonly ConcurrentDictionary<uint, (int HitGroup, float Damage)> lastNativeHitGroup = [];
 
         public static void Unload()
         {
@@ -129,16 +104,6 @@ namespace src.player
             catch { }
 
             lock (_writeLock) { _writer?.Dispose(); _writer = null; }
-        }
-
-        private static string DescribeIdentitySplit(CCSPlayerController victim)
-        {
-            var routed = PlayerManager.GetPlayerEvent(victim);
-            uint routedIndex = routed?.Index ?? victim.Index;
-            if (routedIndex == victim.Index) return string.Empty;
-
-            return $" SPLIT(idx {victim.Index}->{routedIndex}, skill {PlayerManager.GetPlayerByIndex(victim.Index)?.Skill}" +
-                $"->{PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}, controllingBot={victim.ControllingBot})";
         }
 
         private static HookResult OnTakeDamage(DynamicHook h)
@@ -165,12 +130,10 @@ namespace src.player
             if (playerInfo == null) return HookResult.Continue;
 
             var nativeHitGroup = SkillUtils.GetHitGroup(param2);
-            lastNativeHitGroup[victim.Index] = ((int)nativeHitGroup, param2.Damage);
 
             WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}. " +
                 $"[dmg={param2.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={nativeHitGroup} " +
-                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}" +
-                $"{DescribeIdentitySplit(victim)}]");
+                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}]");
             return HookResult.Continue;
         }
 

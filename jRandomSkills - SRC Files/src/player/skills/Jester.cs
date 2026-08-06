@@ -235,6 +235,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (!SkillUtils.IsHudFrame()) return;
             if (SkillUtils.IsFreezeTime()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {

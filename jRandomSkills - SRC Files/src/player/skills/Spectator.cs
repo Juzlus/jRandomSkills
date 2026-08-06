@@ -133,7 +133,10 @@ namespace src.player.skills
                 pawn.CameraServices.ViewEntity.Raw = defaultCam ? orginalCameraRaw : newCameraRaw;
             }
             else
+            {
+                defaultCam = true;
                 pawn.CameraServices.ViewEntity.Raw = orginalCameraRaw;
+            }
 
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
 

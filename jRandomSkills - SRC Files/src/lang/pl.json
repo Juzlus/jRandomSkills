@@ -1,4 +1,4 @@
-﻿{
+{
   "none": "Brak",
   "none_desc": "Nie posiadasz żadnej supermocy",
 
@@ -76,6 +76,11 @@
   "catapult": "Katapulta",
   "catapult_desc": "Masz losową szanse na podrzucenie wroga",
   "catapult_desc2": "Twoje szanse na podrzucenie wroga po trafieniu to: {0}%",
+
+  "chameleon": "Kameleon",
+  "chameleon_desc": "Pierwszy zabity gracz oddaje ci swoją umiejętność",
+  "chameleon_copied_info": "Skopiowano umiejętność: {0}",
+  "chameleon_wrong_team_info": "'{0}' miał umiejętność, której twoja drużyna nie może użyć.",
 
   "chicken": "Kurczak",
   "chicken_desc": "Otrzymujesz model kurczaka + jesteś o 10% szybszy - 50hp",
@@ -220,6 +225,11 @@
   "godmode_off": "Nieśmiertelność wyłączona",
   "godmode_on": "Nieśmiertelność włączona",
 
+  "grapple": "Hak",
+  "grapple_desc": "Naciśnij [css_useSkill], aby wystrzelić hak w celowany punkt i przyciągnąć się do niego",
+  "grapple_no_anchor_info": "Brak powierzchni do zaczepienia haka.",
+  "grapple_pulling_info": "PRZYCIĄGANIE",
+
   "grenadier": "Granatnik",
   "grenadier_desc": "Masz nieskończone granaty odłamkowe",
 
@@ -258,6 +268,11 @@
 
   "infiniteammo": "Nieskończone Ammo",
   "infiniteammo_desc": "Otrzymujesz nieskończoną ilość amunicji do wszystkich broni",
+
+  "inheritance": "Spadek",
+  "inheritance_desc": "Gdy członek drużyny ginie, możesz przejąć jego umiejętność",
+  "inheritance_select_info": "Wybierz dziedziczoną umiejętność:",
+  "inheritance_player_info": "Odziedziczyłeś umiejętność gracza '{0}'.",
 
   "jackal": "Stópkarz",
   "jackal_desc": "Każdy przeciwnik pozostawia za sobą ślad",
@@ -447,6 +462,9 @@
 
   "richboy": "Bogacz",
   "richboy_desc": "Na początku rundy otrzymujesz losową kwotę gotówki",
+
+  "ricochet": "Rykoszet",
+  "ricochet_desc": "Twoje pociski odbijają się od ścian i nadal mogą trafić przeciwników",
 
   "robinhood": "Robin Hood",
   "robinhood_desc": "Zadanie obrażeń przeciwnikowi powoduje kradzież jego pieniędzy",

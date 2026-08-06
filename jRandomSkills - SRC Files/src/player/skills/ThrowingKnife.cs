@@ -400,13 +400,34 @@ namespace src.player.skills
             return (closet, minKnifeInfo);
         }
 
+        private static readonly List<(uint OwnerIndex, uint GlowEntityIndex)> transmitGlows = [];
+
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
-            var snapshot = knivesInfo.ToArray();
+            if (knivesInfo.IsEmpty) return;
+
+            transmitGlows.Clear();
+            foreach (var (knifeOwnerIndex, knifeInfo) in knivesInfo)
+            {
+                if (knifeInfo.GlowIndex == null) continue;
+
+                var glowEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)knifeInfo.GlowIndex);
+                if (glowEntity == null || !glowEntity.IsValid)
+                {
+                    knifeInfo.GlowIndex = null;
+                    continue;
+                }
+
+                transmitGlows.Add((knifeOwnerIndex, glowEntity.Index));
+            }
+
+            if (transmitGlows.Count == 0) return;
 
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
+
+                uint viewerIndex = PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index;
 
                 uint? observedPlayerIndex = null;
                 var playerPawn = player.Pawn?.Value;
@@ -423,23 +444,13 @@ namespace src.player.skills
                     }
                 }
 
-                foreach ((uint knifeOwnerIndex, KnifeInfo knifeInfo) in snapshot)
+                foreach (var (knifeOwnerIndex, glowEntityIndex) in transmitGlows)
                 {
-                    if (knifeInfo.GlowIndex == null) continue;
+                    if (knifeOwnerIndex == viewerIndex) continue;
+                    if (observedPlayerIndex.HasValue && observedPlayerIndex.Value == knifeOwnerIndex) continue;
 
-                    var glowEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)knifeInfo.GlowIndex);
-                    if (glowEntity == null || !glowEntity.IsValid)
-                    {
-                        knifeInfo.GlowIndex = null;
-                        continue;
-                    }
-
-                    bool isOwner = knifeOwnerIndex == (PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
-                    bool isObservingOwner = observedPlayerIndex.HasValue && observedPlayerIndex.Value == knifeOwnerIndex;
-
-                    if (!isOwner && !isObservingOwner)
-                        if (info.TransmitEntities.Contains(glowEntity.Index))
-                            info.TransmitEntities.Remove(glowEntity.Index);
+                    if (info.TransmitEntities.Contains(glowEntityIndex))
+                        info.TransmitEntities.Remove(glowEntityIndex);
                 }
             }
         }

@@ -71,6 +71,7 @@ namespace src.player.skills
                 KillCamera(playerSkill);
             }
             playersInfo.TryRemove(player.Index, out _);
+            SkillUtils.ResetPrintHTML(player);
         }
 
         private static void KillCamera(PlayerSkill playerSkill)
