@@ -12,6 +12,7 @@ namespace src.player.skills
     public class CarefulBullets : ISkill
     {
         private const Skills skillName = Skills.CarefulBullets;
+        private const string hurtSound = "Player.DamageBody.Victim";
         private static readonly ConcurrentDictionary<uint, byte> targetPlayers = [];
         private static readonly ConcurrentDictionary<uint, bool> lastShot = [];
         private static readonly ConcurrentDictionary<uint, int> hitPlayer = [];
@@ -153,7 +154,7 @@ namespace src.player.skills
                     {
                         if (lastShot.TryRemove(playerIndex, out bool didHit) && !didHit)
                         {
-                            eventPlayer.ExecuteClientCommand($"play player/player_damagebody_0{Instance.Random.Next(4, 8)}");
+                            SkillUtils.EmitSoundToPlayer(eventPlayer, hurtSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
                             SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"), GetSkillOwner(playerIndex), KillfeedIcons.Fist);
                         }
@@ -257,8 +258,9 @@ namespace src.player.skills
             targetToPlayer.TryRemove(index, out _);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#db6c35", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int damageAfterMiss = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#db6c35", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int damageAfterMiss = 5, float soundVolume = .35f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int DamageAfterMiss { get; set; } = damageAfterMiss;
         }
     }

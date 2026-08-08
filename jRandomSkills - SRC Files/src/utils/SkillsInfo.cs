@@ -21,6 +21,7 @@ namespace src.utils
         private static SkillsInfoModel? _indexedConfig;
         private static ConcurrentDictionary<string, DefaultSkillInfo> _byName = new();
         private static readonly ConcurrentDictionary<(Type Type, string Key), MemberInfo?> _memberCache = new();
+        private static readonly ConcurrentDictionary<(DefaultSkillInfo Config, string Key, Type Target), object?> _valueCache = new();
 
         public static SkillsInfoModel LoadSkillsInfo()
         {
@@ -92,6 +93,12 @@ namespace src.utils
             if (!_byName.TryGetValue(skill.ToString()!, out var skillConfig) || skillConfig == null)
                 return default!;
 
+            object? cached = _valueCache.GetOrAdd((skillConfig, key, typeof(T)), k => Resolve(k.Config, k.Key, k.Target));
+            return cached == null ? default! : (T)cached;
+        }
+
+        private static object? Resolve(DefaultSkillInfo skillConfig, string key, Type targetType)
+        {
             var member = _memberCache.GetOrAdd((skillConfig.GetType(), key), k =>
             {
                 MemberInfo? m = k.Type.GetProperty(k.Key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
@@ -106,11 +113,10 @@ namespace src.utils
                 _ => null
             };
 
-            if (value == null) return default!;
+            if (value == null) return null;
 
-            Type targetType = typeof(T);
             Type? underlyingType = Nullable.GetUnderlyingType(targetType);
-            return (T)Convert.ChangeType(value, underlyingType ?? targetType);
+            return Convert.ChangeType(value, underlyingType ?? targetType);
         }
 
         private static void EnsureIndex()
@@ -124,6 +130,7 @@ namespace src.utils
             _byName = dict;
             _indexedConfig = config;
             _memberCache.Clear();
+            _valueCache.Clear();
         }
 
         public class SkillsInfoModel : ConcurrentBag<DefaultSkillInfo>
@@ -147,10 +154,11 @@ namespace src.utils
             }
         }
 
-        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common)
+        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, bool disableOnPistolRound = false)
         {
             public bool NeedsTeammates { get; set; } = needsTeammates;
             public bool DisableOnFreezeTime { get; set; } = disableOnFreezeTime;
+            public bool DisableOnPistolRound { get; set; } = disableOnPistolRound;
             public int OnlyTeam { get; set; } = (int)onlyTeam;
             public string Color { get; set; } = color;
             public bool Active { get; set; } = active;

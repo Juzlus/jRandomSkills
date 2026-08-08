@@ -143,6 +143,8 @@ namespace src.player.skills
                     eventPlayerPawn.AbsVelocity.X = newVelocity.X;
                     eventPlayerPawn.AbsVelocity.Y = newVelocity.Y;
                     eventPlayerPawn.AbsVelocity.Z = newVelocity.Z;
+
+                    eventPlayerPawn.EmitSound("Default.WalkJump", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
                 }
             }
 
@@ -164,8 +166,9 @@ namespace src.player.skills
             public int JumpReleasedTicks { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42bbfc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 150f, float pushVelocity = 600f, bool anyDirection = true, float cooldown = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42bbfc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 150f, float pushVelocity = 600f, bool anyDirection = true, float cooldown = 2f, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float JumpVelocity { get; set; } = jumpVelocity;
             public float PushVelocity { get; set; } = pushVelocity;
             public bool AnyDirection { get; set; } = anyDirection;

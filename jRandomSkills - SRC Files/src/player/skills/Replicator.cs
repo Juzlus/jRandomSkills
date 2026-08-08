@@ -152,7 +152,7 @@ namespace src.player.skills
 
             if (!consumedReplicas.TryAdd(replica.Index, 0)) return;
 
-            replica.EmitSound("GlassBottle.BulletImpact", volume: 1f);
+            replica.EmitSound("GlassBottle.BulletImpact", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
             var owner = GetReplicaOwner(replica.Index);
             EntityManager.DestroyEntity(replica.Index);
@@ -183,8 +183,9 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a3000b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 15f, int yourTeamDamage = 10, int enemyTeamDamage = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a3000b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 15f, int yourTeamDamage = 10, int enemyTeamDamage = 20, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float Cooldown { get; set; } = cooldown;
             public int YourTeamDamage { get; set; } = yourTeamDamage;
             public int EnemyTeamDamage { get; set; } = enemyTeamDamage;

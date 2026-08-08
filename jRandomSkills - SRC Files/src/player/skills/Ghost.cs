@@ -13,9 +13,13 @@ namespace src.player.skills
     public class Ghost : ISkill
     {
         private const Skills skillName = Skills.Ghost;
-        private static readonly string[] allowedWeapons = [
-            "weapon_molotov", "weapon_incgrenade", "weapon_flashbang", "weapon_smokegrenade", "weapon_decoy", "weapon_hegrenade", "weapon_knife", "weapon_bayonet", "weapon_c4"
-        ];
+        private static readonly HashSet<string> alwaysAllowed = new(StringComparer.Ordinal)
+        {
+            "weapon_knife", "weapon_bayonet", "weapon_c4"
+        };
+
+        private static bool IsAllowed(string? weapon) =>
+            weapon != null && (alwaysAllowed.Contains(weapon) || WeaponPool.IsGrenade(weapon));
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
@@ -61,38 +65,30 @@ namespace src.player.skills
             var bomb = PlayerManager.GetTickBomb();
             uint? bombOwnerIndex = bomb != null && bomb.IsValid ? bomb.OwnerEntity?.Index : null;
 
+            var hidden = SkillUtils.ResolveHiddenPawns(invisiblePlayers.Keys, bombOwnerIndex);
+            if (hidden.Count == 0) return;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
 
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
 
-                foreach (var playerIndex in invisiblePlayers.Keys)
+                foreach (var target in hidden)
                 {
-                    var playerController = Utilities.GetPlayerFromIndex((int)playerIndex);
-                    if (playerController == null || !playerController.IsValid || playerController.Index == player.Index)
-                        continue;
-
-                    if (player.Team == playerController.Team)
-                        continue;
-
-                    var playerPawn = playerController.PlayerPawn.Value;
-                    if (playerPawn == null || !playerPawn.IsValid) continue;
+                    if (target.Index == player.Index) continue;
+                    if (player.Team == target.Team) continue;
 
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
-                    if (targetHandle != nint.Zero && playerPawn.Handle == targetHandle)
-                        continue;
+                    if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
-                    if (entity == null || !entity.IsValid) continue;
+                    if (info.TransmitEntities.Contains(target.Pawn.Index))
+                        info.TransmitEntities.Remove(target.Pawn.Index);
 
-                    if (info.TransmitEntities.Contains(entity.Index))
-                        info.TransmitEntities.Remove(entity.Index);
-
-                    SkillUtils.HideCarriedEntities(info, playerPawn);
+                    SkillUtils.HideCarriedEntities(info, target.Pawn);
 
                     // Hide the bomb as well, but only while this hidden player is the one holding it.
-                    if (bomb == null || bombOwnerIndex != playerController.Index) continue;
+                    if (bomb == null || !target.HoldsBomb) continue;
 
                     if (info.TransmitEntities.Contains(bomb.Index))
                         info.TransmitEntities.Remove(bomb.Index);
@@ -156,7 +152,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.Skill == skillName && SkillUtils.IsHudFrame())
                     UpdateHUD(player);
 
                 if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
@@ -206,7 +202,7 @@ namespace src.player.skills
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid && !string.IsNullOrEmpty(weapon.Value.DesignerName))
                 {
                     string weaponName = weapon.Value.DesignerName;
-                    if (!allowedWeapons.Contains(weaponName))
+                    if (!IsAllowed(weaponName))
                     {
                         weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
                         weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
@@ -227,7 +223,7 @@ namespace src.player.skills
             if (playerInfo == null) return;
 
             var weapon = pawn.WeaponServices.ActiveWeapon.Value;
-            if (weapon == null || !weapon.IsValid || allowedWeapons.Contains(weapon.DesignerName))
+            if (weapon == null || !weapon.IsValid || IsAllowed(weapon.DesignerName))
             {
                 playerInfo.PrintHTML = null;
                 return;

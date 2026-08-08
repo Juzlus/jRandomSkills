@@ -60,6 +60,13 @@
   "blastshot": "Mocne Uderzenie",
   "blastshot_desc": "Naciśnij Attack2 na MP5, aby wystrzelić granat HE",
 
+  "bounty": "Nagroda",
+  "bounty_desc": "Wyznacz nagrodę za głowę wroga; kto go zabije, dostaje pieniądze",
+  "bounty_select_info": "Wybierz gracza:",
+  "bounty_player_info": "Wyznaczyłeś nagrodę {1}$ za '{0}'.",
+  "bounty_enemy_info": "Za twoją głowę wyznaczono {0}$.",
+  "bounty_claimed_info": "Zabiłeś '{0}' i zgarnąłeś {1}$.",
+
   "bunnyhop": "Królik",
   "bunnyhop_desc": "Otrzymujesz auto \"BunnyHopa\"",
 
@@ -143,6 +150,10 @@
   "dwarf": "Mini Majk",
   "dwarf_desc": "Losowa wielkość postaci na początku rundy",
   "dwarf_desc2": "Twój mnożnik wielkości to {0}x",
+
+  "empgrenade": "Granat EMP",
+  "empgrenade_desc": "Kto oberwie twoim granatem, na chwilę traci radar i celownik",
+  "empgrenade_enemy_info": "Granat EMP wyłączył twój radar i celownik.",
 
   "enemyspawn": "Resp Wroga",
   "enemyspawn_desc": "Kliknij [css_useSkill], aby teleportować się na resp wroga",
@@ -230,6 +241,9 @@
   "grapple_no_anchor_info": "Brak powierzchni do zaczepienia haka.",
   "grapple_pulling_info": "PRZYCIĄGANIE",
 
+  "gravitydecoy": "Grawitacyjna wabik",
+  "gravitydecoy_desc": "Twój wabik zmienia grawitację wszystkich w pobliżu",
+
   "grenadier": "Granatnik",
   "grenadier_desc": "Masz nieskończone granaty odłamkowe",
 
@@ -238,6 +252,9 @@
 
   "healingchicken": "Lecząca Kura",
   "healingchicken_desc": "Twoje kury leczą Cię, gdy jesteś w pobliżu",
+
+  "heavyweight": "Waga ciężka",
+  "heavyweight_desc": "Umiejętności, które cię popychają lub spowalniają, nie działają na ciebie",
 
   "hermit": "Pustelnik",
   "hermit_desc": "Zabijanie przywraca amunicję i część zdrowia",
@@ -360,6 +377,12 @@
   "moneyswap_player_info": "Wymieniłeś swoje pieniądze z graczem '{0}'.",
   "moneyswap_select_info": "Zamień się kasą z graczem:",
 
+  "nemesis": "Nemezis",
+  "nemesis_desc": "Oznaczony gracz otrzymuje dodatkowe obrażenia",
+  "nemesis_select_info": "Wybierz gracza:",
+  "nemesis_player_info": "Oznaczyłeś '{0}'.",
+  "nemesis_enemy_info": "Zostałeś oznaczony jako nemezis, teraz otrzymujesz dodatkowe obrażenia od wszystkich.",
+
   "nightmare": "Koszmar",
   "nightmare_desc": "Wywołaj u wybranego przeciwnika przerażającą wizję",
   "nightmare_disable_info": "Koszmar minął.",
@@ -423,6 +446,10 @@
   "prosthesis": "Proteza",
   "prosthesis_desc": "Ramiona i nogi są kuloodporne",
 
+  "punisher": "Karzyciel",
+  "punisher_desc": "Gromadzisz część otrzymanych obrażeń i dodajesz je do następnego trafienia",
+  "punisher_released_info": "Zadałeś {0} dodatkowych obrażeń i odzyskałeś tyle samo życia.",
+
   "push": "Odpychacz",
   "push_desc": "Masz losową szansę na odepchnięcie wroga po trafieniu go",
   "push_desc2": "Twoje szanse na odepchnięcie wroga to: {0}%",
@@ -459,6 +486,10 @@
 
   "returntosender": "Zwrot do Nadawcy",
   "returntosender_desc": "Pierwsze trafienie wroga powoduje, że wraca on na swój resp",
+
+  "rewind": "Przewijanie",
+  "rewind_desc": "Naciśnij [css_useSkill], aby zostawić znacznik i wkrótce do niego wrócić",
+  "rewind_pending_info": "POWRÓT: {0}",
 
   "richboy": "Bogacz",
   "richboy_desc": "Na początku rundy otrzymujesz losową kwotę gotówki",
@@ -548,6 +579,14 @@
   "tripwire_no_wall_info": "Po obu stronach nie ma wystarczająco blisko położonych ścian.",
   "tripwire_placed_info": "Linka została rozstawiona.",
   "tripwire_triggered_info": "'{0}' uruchomił Twoją linkę.",
+
+  "truearmor": "Prawdziwy pancerz",
+  "truearmor_desc": "Część obrażeń pokrywa twój pancerz zamiast zdrowia",
+
+  "voodoo": "Voodoo",
+  "voodoo_desc": "Oznaczony wróg również otrzymuje część obrażeń, które ty dostajesz",
+  "voodoo_select_info": "Wybierz gracza:",
+  "voodoo_player_info": "Związałeś '{0}' swoim voodoo.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Widzisz wrogów przez ściany",

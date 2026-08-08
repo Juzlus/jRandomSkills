@@ -50,11 +50,19 @@ namespace src.player.skills
 
         private static void SendAlertToAll()
         {
+            holdersTick = int.MinValue;
+
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (!CheckIlliterateSkill(player)) continue;
-                player.PrintToCenterAlert(player.GetTranslationWithoutIlliterate("illiterate_alert"));
-            }   
+
+                var playerEvent = PlayerManager.GetPlayerFromEvent(player);
+                if (playerEvent == null || !playerEvent.IsValid) continue;
+
+                string alert = playerEvent.GetTranslationWithoutIlliterate("illiterate_alert");
+                playerEvent.PrintToCenterAlert(alert);
+                SkillUtils.PrintToChat(playerEvent, $"{ChatColors.Red}{alert}", ignoreIlliterate: true);
+            }
         }
 
         public static bool CheckIlliterateSkill(CCSPlayerController? player)

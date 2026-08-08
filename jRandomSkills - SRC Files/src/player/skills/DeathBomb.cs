@@ -13,6 +13,7 @@ namespace src.player.skills
     public class DeathBomb : ISkill
     {
         private const Skills skillName = Skills.DeathBomb;
+        private static readonly string[] voiceLines = ["balkan.radiobotfallback01", "balkan.radiobotfallback02", "balkan.radiobotfallback04"];
         private static readonly QAngle angle = new(10, -5, 9);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
 
@@ -61,9 +62,7 @@ namespace src.player.skills
                 SkillUtils.PrintToChat(_p, $"{ChatColors.DarkRed}\u202A{player.PlayerName}\u202C: {ChatColors.Lime}{_p.GetTranslation("deathbomb_explosion")}",
                     border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
 
-            var fileNames = new[] { "radiobotfallback01", "radiobotfallback02", "radiobotfallback04" };
-            var randomFile = fileNames[new Random().Next(fileNames.Length)];
-            player.ExecuteClientCommand($"play vo/agents/balkan/{randomFile}.vsnd");
+            player.EmitSound(voiceLines[Random.Shared.Next(voiceLines.Length)], volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
             nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Index), (_, _) => (player.TeamNum, player.Index));
         }
@@ -136,8 +135,9 @@ namespace src.player.skills
             return player != null && player.IsValid && player.PlayerPawn?.Value != null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = 0.5f, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;

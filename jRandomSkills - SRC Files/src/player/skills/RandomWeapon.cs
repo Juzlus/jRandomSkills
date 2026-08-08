@@ -13,19 +13,8 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = new();
         private static readonly object setLock = new();
 
-        private static readonly HashSet<string> pistols = new(StringComparer.Ordinal)
-        {
-            "weapon_deagle", "weapon_revolver", "weapon_glock", "weapon_usp_silencer",
-            "weapon_cz75a", "weapon_fiveseven", "weapon_p250", "weapon_tec9", "weapon_elite", "weapon_hkp2000"
-        };
-
-        private static readonly HashSet<string> rifles = new(StringComparer.Ordinal)
-        {
-            "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
-            "weapon_mp5sd", "weapon_famas", "weapon_galilar", "weapon_m4a1", "weapon_m4a1_silencer", "weapon_ak47",
-            "weapon_aug", "weapon_sg556", "weapon_ssg08", "weapon_awp", "weapon_scar20", "weapon_g3sg1",
-            "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249", "weapon_negev"
-        };
+        private static HashSet<string> pistols => WeaponPool.Pistols;
+        private static HashSet<string> rifles => WeaponPool.Rifles;
 
         public static void LoadSkill()
         {
@@ -104,6 +93,19 @@ namespace src.player.skills
             RemoveAndGiveWeapon(player);
         }
 
+        private static bool RollPistol(bool pistolAvailable, bool rifleAvailable)
+        {
+            if (!rifleAvailable) return true;
+            if (!pistolAvailable) return false;
+
+            float pistolChance = Math.Max(SkillsInfo.GetValue<float>(skillName, "pistolChance"), 0);
+            float rifleChance = Math.Max(SkillsInfo.GetValue<float>(skillName, "rifleChance"), 0);
+            float total = pistolChance + rifleChance;
+
+            if (total <= 0) return Instance.Random.Next(2) == 0;
+            return Instance.Random.NextDouble() * total < pistolChance;
+        }
+
         private static void RemoveAndGiveWeapon(CCSPlayerController player)
         {
             var pawn = player.PlayerPawn.Value;
@@ -117,12 +119,15 @@ namespace src.player.skills
             if (playerWeapons.Count == 0)
                 return;
 
-            var available = pistols.Concat(rifles).Where(w => !playerWeapons.Contains(w)).ToArray();
-            if (available.Length == 0)
+            var availablePistols = pistols.Where(w => !playerWeapons.Contains(w)).ToArray();
+            var availableRifles = rifles.Where(w => !playerWeapons.Contains(w)).ToArray();
+            if (availablePistols.Length == 0 && availableRifles.Length == 0)
                 return;
 
+            bool isPistol = RollPistol(availablePistols.Length > 0, availableRifles.Length > 0);
+            var available = isPistol ? availablePistols : availableRifles;
+
             string newWeapon = available[Instance.Random.Next(available.Length)];
-            bool isPistol = pistols.Contains(newWeapon);
 
             string? weaponToRemove = null;
             foreach (var item in pawn.WeaponServices.MyWeapons)
@@ -163,9 +168,11 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0873a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 15f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0873a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 15f, float pistolChance = 60f, float rifleChance = 40f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
+            public float PistolChance { get; set; } = pistolChance;
+            public float RifleChance { get; set; } = rifleChance;
         }
     }
 }

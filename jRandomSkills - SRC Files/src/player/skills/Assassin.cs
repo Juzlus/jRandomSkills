@@ -8,11 +8,9 @@ namespace src.player.skills
     public class Assassin : ISkill
     {
         private const Skills skillName = Skills.Assassin;
-        private static readonly string[] nadeWeapons =
-        [
-            "weapon_inferno", "weapon_molotov", "weapon_incgrenade", "weapon_flashbang",
-            "weapon_smokegrenade", "weapon_decoy", "weapon_hegrenade"
-        ];
+        private const string infernoWeapon = "weapon_inferno";
+
+        private static bool IsNade(string? weapon) => weapon == infernoWeapon || WeaponPool.IsGrenade(weapon);
 
         public static void LoadSkill()
         {
@@ -46,7 +44,7 @@ namespace src.player.skills
 
             var weapon = param2.Ability?.Value;
             if (weapon == null || !weapon.IsValid) return;
-            if (nadeWeapons.Contains(weapon.DesignerName)) return;
+            if (IsNade(weapon.DesignerName)) return;
 
             if (IsBehind(attacker, victim))
                 param2.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");

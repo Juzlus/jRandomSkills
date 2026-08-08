@@ -14,6 +14,7 @@ namespace src.player.skills
     public class Ricochet : ISkill
     {
         private const Skills skillName = Skills.Ricochet;
+        private const string bounceSound = "FX_RicochetSound.Ricochet_Legacy";
 
         private static readonly ConcurrentDictionary<uint, ImpactBudget> impactBudgets = [];
         private static readonly HashSet<uint> ownedTracers = [];
@@ -57,18 +58,10 @@ namespace src.player.skills
 
             if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) return;
 
-            if (!RayTrace.IsAvailable)
-            {
-                Trace("RayTrace module unavailable");
-                return;
-            }
+            if (!RayTrace.IsAvailable) return;
 
             var pawn = player.PlayerPawn?.Value;
-            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-            {
-                Trace("shooter pawn invalid or dead");
-                return;
-            }
+            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             if (!TryConsumeBudget(player.Index)) return;
 
@@ -76,32 +69,14 @@ namespace src.player.skills
             Vector3 impact = new(@event.X, @event.Y, @event.Z);
 
             Vector3 toImpact = impact - eyePos;
-            if (toImpact.LengthSquared() < 1f)
-            {
-                Trace("impact too close to eye");
-                return;
-            }
+            if (toImpact.LengthSquared() < 1f) return;
 
             Vector3 direction = Vector3.Normalize(toImpact);
 
             var surface = RayTrace.TraceShape(player, ToVector(eyePos), ToVector(impact + direction * 8f), worldOnlyMask, 0);
-            if (surface == null)
-            {
-                Trace("surface trace returned null");
-                return;
-            }
+            if (surface == null || !surface.Value.DidHit) return;
 
-            if (!surface.Value.DidHit)
-            {
-                Trace($"surface trace missed (fraction={surface.Value.Fraction:0.###})");
-                return;
-            }
-
-            if (!TryResolveNormal(player, surface.Value, direction, out Vector3 normal))
-            {
-                Trace("could not resolve surface normal");
-                return;
-            }
+            if (!TryResolveNormal(player, surface.Value, direction, out Vector3 normal)) return;
 
             Bounce(player, pawn, surface.Value.EndPos, direction, normal);
         }
@@ -118,31 +93,28 @@ namespace src.player.skills
             KillfeedIcons? killfeedIcon = KillfeedIconsExtensions.FromWeaponName(SkillUtils.GetDesignerName(pawn.WeaponServices?.ActiveWeapon?.Value));
 
             List<Vector3> path = [];
+            List<int> soundAt = [];
 
             for (int i = 0; i < bounces; i++)
             {
                 direction = Vector3.Reflect(direction, normal);
 
                 Vector3 start = point + normal * 2f;
-                if (path.Count == 0) path.Add(start);
+                if (path.Count == 0)
+                {
+                    path.Add(start);
+                    soundAt.Add(0);
+                }
 
                 Vector3 end = start + direction * segmentDistance;
 
                 var hit = RayTrace.TraceShape(player, ToVector(start), ToVector(end));
-                if (hit == null)
-                {
-                    Trace($"bounce {i + 1}: segment trace returned null");
-                    break;
-                }
+                if (hit == null) break;
 
                 Vector3 stop = hit.Value.DidHit ? hit.Value.EndPos : end;
                 path.Add(stop);
 
-                if (!hit.Value.DidHit)
-                {
-                    Trace($"bounce {i + 1}: no surface, len={Vector3.Distance(start, stop):0.#}");
-                    break;
-                }
+                if (!hit.Value.DidHit) break;
 
                 if (hit.Value.HitPlayer(out var victim))
                 {
@@ -150,17 +122,14 @@ namespace src.player.skills
                     break;
                 }
 
-                if (!TryResolveNormal(player, hit.Value, direction, out normal))
-                {
-                    Trace($"bounce {i + 1}: could not resolve normal");
-                    break;
-                }
+                if (!TryResolveNormal(player, hit.Value, direction, out normal)) break;
 
+                soundAt.Add(path.Count - 1);
                 point = hit.Value.EndPos;
                 damage *= damageFalloff;
             }
 
-            StartFlight(player, path);
+            StartFlight(player, path, soundAt);
         }
 
         public static void OnTick()
@@ -191,11 +160,12 @@ namespace src.player.skills
                     float tail = MathF.Max(head - trail, flight.Cumulative[segment]);
 
                     UpdateTracer(flight, PointAt(flight, tail), PointAt(flight, head));
+                    EmitBounceSound(flight, tail);
                 }
             }
         }
 
-        private static void StartFlight(CCSPlayerController player, List<Vector3> path)
+        private static void StartFlight(CCSPlayerController player, List<Vector3> path, List<int> soundAt)
         {
             if (path.Count < 2) return;
             if (!SkillsInfo.GetValue<bool>(skillName, "showTracer")) return;
@@ -223,8 +193,25 @@ namespace src.player.skills
                     Cumulative = cumulative,
                     TotalLength = total,
                     DeadlineTick = Server.TickCount + (int)(total / speed * 64f) + 128,
+                    SoundAt = [.. soundAt.Where(index => index < points.Length)],
                 });
             }
+        }
+
+        private static void EmitBounceSound(Flight flight, float tail)
+        {
+            if (flight.NextSound >= flight.SoundAt.Length) return;
+            if (tail < flight.Cumulative[flight.SoundAt[flight.NextSound]]) return;
+
+            while (flight.NextSound < flight.SoundAt.Length && tail >= flight.Cumulative[flight.SoundAt[flight.NextSound]])
+                flight.NextSound++;
+
+            if (flight.BeamIndex == null) return;
+
+            var beam = ResolveTracer(flight.BeamIndex.Value);
+            if (beam == null) return;
+
+            beam.EmitSound(bounceSound, volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
         }
 
         private static int SegmentAt(Flight flight, float distance)
@@ -332,9 +319,8 @@ namespace src.player.skills
                 beam.DispatchSpawn();
                 return beam;
             }
-            catch (Exception ex)
+            catch
             {
-                Trace($"beam create failed: {ex.Message}");
                 return null;
             }
         }
@@ -352,7 +338,6 @@ namespace src.player.skills
             if (beam == null)
             {
                 ownedTracers.Remove(beamIndex);
-                Trace($"tracer {beamIndex} vanished before release");
                 return;
             }
 
@@ -394,9 +379,6 @@ namespace src.player.skills
                         var beam = ResolveTracer(beamIndex);
                         if (beam != null) HideTracer(beam);
                     }
-
-                if (ownedTracers.Count > 0)
-                    Trace($"pool reset: {ownedTracers.Count} tracer(s) released");
 
                 tracerPool.Clear();
                 ownedTracers.Clear();
@@ -454,7 +436,6 @@ namespace src.player.skills
             int finalDamage = (int)MathF.Round(damage);
             if (finalDamage <= 0) return;
 
-            Trace($"hit {victimEvent.PlayerName} for {finalDamage}");
             SkillUtils.TakeHealth(victimPawn, finalDamage, attacker, killfeedIcon ?? KillfeedIcons.Leg);
         }
 
@@ -466,7 +447,6 @@ namespace src.player.skills
 
             if (TryRefineNormal(player, result.EndPos, direction, rough, out normal)) return true;
 
-            Trace("surface refine failed, using rough normal");
             normal = rough;
             return true;
         }
@@ -600,11 +580,6 @@ namespace src.player.skills
             return Vector3.Distance(point, baseHit) <= tolerance;
         }
 
-        private static void Trace(string message)
-        {
-            Debug.WriteToDebug($"[Ricochet] {message}");
-        }
-
         private static bool TryConsumeBudget(uint playerIndex)
         {
             int tick = Server.TickCount;
@@ -637,12 +612,15 @@ namespace src.player.skills
             public required float[] Cumulative { get; set; }
             public required float TotalLength { get; set; }
             public required int DeadlineTick { get; set; }
+            public required int[] SoundAt { get; set; }
             public float Travelled { get; set; }
+            public int NextSound { get; set; }
             public uint? BeamIndex { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffd75e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Rare, int bounces = 3, float segmentDistance = 1200f, float damageMultiplier = .5f, float fallbackDamage = 25f, bool respectArmor = true, float damageFalloff = .75f, int maxImpactsPerTick = 2, bool showTracer = true, float tracerWidth = 0.5f, float tracerSpeed = 2600f, float tracerLength = 220f, int maxActiveTracers = 12, float normalProbeOffset = 6f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffd75e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Rare, int bounces = 3, float segmentDistance = 1200f, float damageMultiplier = .5f, float fallbackDamage = 25f, bool respectArmor = true, float damageFalloff = .75f, int maxImpactsPerTick = 2, bool showTracer = true, float tracerWidth = 0.5f, float tracerSpeed = 2600f, float tracerLength = 220f, int maxActiveTracers = 12, float normalProbeOffset = 6f, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int Bounces { get; set; } = bounces;
             public float SegmentDistance { get; set; } = segmentDistance;
             public float DamageMultiplier { get; set; } = damageMultiplier;

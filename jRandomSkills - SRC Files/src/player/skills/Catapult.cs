@@ -23,6 +23,8 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
+            if (Heavyweight.Resists(victim)) return;
+
             if (attackerInfo?.Skill == skillName && victim!.PawnIsAlive)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
                 {

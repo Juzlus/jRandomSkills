@@ -199,7 +199,7 @@ namespace src.player.skills
 
             if (!consumedReplicas.TryAdd(replica.Index, 0)) return;
 
-            replica.EmitSound("GlassBottle.BulletImpact", volume: 1f);
+            replica.EmitSound("GlassBottle.BulletImpact", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
             if (ActiveTimers.TryRemove((int)replica.Index, out var timer)) timer?.Kill();
 
             var owner = GetReplicaOwner(replica.Index);
@@ -230,8 +230,9 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 30f, float durationRun = 5, float durationCrouch = 12, int yourTeamDamage = 10, int enemyTeamDamage = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 30f, float durationRun = 5, float durationCrouch = 12, int yourTeamDamage = 10, int enemyTeamDamage = 20, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float Cooldown { get; set; } = cooldown;
             public float DurationRun { get; set; } = durationRun;
             public float DurationCrouch { get; set; } = durationCrouch;

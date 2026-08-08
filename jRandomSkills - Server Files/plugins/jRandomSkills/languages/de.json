@@ -60,6 +60,13 @@
   "blastshot": "Explosivschuss",
   "blastshot_desc": "Drücke Attack2 mit der MP5, um eine HE-Granate abzufeuern",
 
+  "bounty": "Kopfgeld",
+  "bounty_desc": "Setze ein Kopfgeld auf einen Gegner aus; wer ihn tötet, bekommt das Geld",
+  "bounty_select_info": "Wähle einen Spieler:",
+  "bounty_player_info": "Du hast {1}$ Kopfgeld auf '{0}' ausgesetzt.",
+  "bounty_enemy_info": "Auf deinen Kopf wurden {0}$ ausgesetzt.",
+  "bounty_claimed_info": "Du hast '{0}' getötet und {1}$ kassiert.",
+
   "bunnyhop": "Hase",
   "bunnyhop_desc": "Du erhältst automatisch bunnyhop",
 
@@ -143,6 +150,10 @@
   "dwarf": "Zwerg",
   "dwarf_desc": "Zufällige Charaktergröße zu Beginn der Runde",
   "dwarf_desc2": "Dein Größenmultiplikator beträgt: {0}x",
+
+  "empgrenade": "EMP-Granate",
+  "empgrenade_desc": "Wer von deiner Granate getroffen wird, verliert kurzzeitig Radar und Fadenkreuz",
+  "empgrenade_enemy_info": "Eine EMP-Granate hat dein Radar und Fadenkreuz lahmgelegt.",
 
   "enemyspawn": "Feindes-Spawn",
   "enemyspawn_desc": "Klicke auf [css_useSkill], um zum Feindes-Spawn zu teleportieren",
@@ -230,6 +241,9 @@
   "grapple_no_anchor_info": "Keine Oberfläche zum Einhaken.",
   "grapple_pulling_info": "ZUG",
 
+  "gravitydecoy": "Schwerkraft-Ablenker",
+  "gravitydecoy_desc": "Dein Ablenkungsköder verändert die Schwerkraft aller in der Nähe",
+
   "grenadier": "Grenadier",
   "grenadier_desc": "Du hast unendlich viele Granaten",
 
@@ -238,6 +252,9 @@
 
   "healingchicken": "Heilendes Huhn",
   "healingchicken_desc": "Deine Hühner heilen dich, solange du in ihrer Nähe bist",
+
+  "heavyweight": "Schwergewicht",
+  "heavyweight_desc": "Fähigkeiten, die dich stoßen oder verlangsamen, wirken nicht auf dich",
 
   "hermit": "Einsiedler",
   "hermit_desc": "Durch das Töten von Gegnern werden Munition und ein Teil der Gesundheit wiederhergestellt",
@@ -360,6 +377,12 @@
   "bankrupt_player_info": "Der Spieler ‚{0}‘ ist bankrott.",
   "bankrupt_select_info": "Wähle einen Spieler aus, der bankrott gehen soll:",
 
+  "nemesis": "Nemesis",
+  "nemesis_desc": "Der von dir markierte Spieler erleidet zusätzlichen Schaden",
+  "nemesis_select_info": "Wähle einen Spieler:",
+  "nemesis_player_info": "Du hast '{0}' markiert.",
+  "nemesis_enemy_info": "Du wurdest als Nemesis markiert und erleidest jetzt von allen zusätzlichen Schaden.",
+
   "nightmare": "Albtraum",
   "nightmare_desc": "Lass einen ausgewählten Gegner eine schreckliche Vision erleben",
   "nightmare_disable_info": "Der Albtraum ist vorbei.",
@@ -423,6 +446,10 @@
   "prosthesis": "Prothese",
   "prosthesis_desc": "Arme und Beine sind kugelsicher",
 
+  "punisher": "Bestrafer",
+  "punisher_desc": "Du sammelst einen Teil des erlittenen Schadens und legst ihn auf deinen nächsten Treffer",
+  "punisher_released_info": "Du hast {0} zusätzlichen Schaden verursacht und ebenso viel Leben erhalten.",
+
   "push": "Pusher",
   "push_desc": "Du hast eine zufällige Chance, einen Gegner zurückzustoßen, wenn du ihn triffst",
   "push_desc2": "Deine Chancen, den Gegner zurückzustoßen, betragen: {0} %",
@@ -459,6 +486,10 @@
 
   "returntosender": "Zurück zum Absender",
   "returntosender_desc": "Der erste Treffer eines Gegners schickt ihn zurück zu seinem Spawn",
+
+  "rewind": "Rückspulen",
+  "rewind_desc": "Drücke [css_useSkill], um hier eine Marke zu setzen und kurz darauf dorthin zurückzukehren",
+  "rewind_pending_info": "RÜCKKEHR: {0}",
 
   "richboy": "Rich Boy",
   "richboy_desc": "Du erhältst zu Beginn der Runde einen zufälligen Geldbetrag",
@@ -548,6 +579,14 @@
   "tripwire_no_wall_info": "Auf beiden Seiten sind keine Wände nah genug.",
   "tripwire_placed_info": "Stolperdraht platziert.",
   "tripwire_triggered_info": "'{0}' hat deinen Stolperdraht ausgelöst.",
+
+  "truearmor": "Echte Rüstung",
+  "truearmor_desc": "Ein Teil des Schadens geht auf deine Rüstung statt auf dein Leben",
+
+  "voodoo": "Voodoo",
+  "voodoo_desc": "Der markierte Gegner erleidet einen Teil des Schadens, den du erleidest",
+  "voodoo_select_info": "Wähle einen Spieler:",
+  "voodoo_player_info": "Du hast '{0}' an deinen Voodoo gebunden.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Du kannst Feinde durch Wände hindurch sehen",

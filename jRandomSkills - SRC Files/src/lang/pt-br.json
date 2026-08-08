@@ -60,6 +60,13 @@
   "blastshot": "Tiro Explosivo",
   "blastshot_desc": "Pressione Attack2 com a MP5 para disparar uma granada HE",
 
+  "bounty": "Recompensa",
+  "bounty_desc": "Coloque um preço na cabeça de um inimigo; quem o matar leva o dinheiro",
+  "bounty_select_info": "Escolha um jogador:",
+  "bounty_player_info": "Você colocou {1}$ de recompensa em '{0}'.",
+  "bounty_enemy_info": "Puseram {0}$ de recompensa na sua cabeça.",
+  "bounty_claimed_info": "Você matou '{0}' e levou {1}$.",
+
   "bunnyhop": "Coelho",
   "bunnyhop_desc": "Você ganha \"BunnyHop\" automático",
 
@@ -143,6 +150,10 @@
   "dwarf": "Anão",
   "dwarf_desc": "Sua altura agora é aleatória",
   "dwarf_desc2": "Seu multiplicador de altura é: {0}x",
+
+  "empgrenade": "Granada EMP",
+  "empgrenade_desc": "Quem se ferir com sua granada perde o radar e a mira por um tempo",
+  "empgrenade_enemy_info": "Uma granada EMP derrubou seu radar e sua mira.",
 
   "enemyspawn": "Spawn Inimigo",
   "enemyspawn_desc": "Clique em [css_useSkill] para se teletransportar para a base inimiga",
@@ -230,6 +241,9 @@
   "grapple_no_anchor_info": "Nenhuma superfície para prender o gancho.",
   "grapple_pulling_info": "PUXANDO",
 
+  "gravitydecoy": "Chamariz Gravitacional",
+  "gravitydecoy_desc": "Seu chamariz muda a gravidade de todos que estão por perto",
+
   "grenadier": "Bomberman",
   "grenadier_desc": "Você tem HEs infinitas",
 
@@ -238,6 +252,9 @@
 
   "healingchicken": "Galinha Curadora",
   "healingchicken_desc": "Suas galinhas curam você enquanto você estiver por perto",
+
+  "heavyweight": "Peso Pesado",
+  "heavyweight_desc": "Habilidades que empurram ou te deixam lento não fazem efeito em você",
 
   "hermit": "Sanguessuga",
   "hermit_desc": "Matar restaura munição e uma parte da sua vida",
@@ -360,6 +377,12 @@
   "moneyswap_player_info": "Você trocou dinheiro com o jogador '{0}'.",
   "moneyswap_select_info": "Trocar dinheiro c/ jogador:",
 
+  "nemesis": "Nêmesis",
+  "nemesis_desc": "O jogador que você marcar recebe dano extra",
+  "nemesis_select_info": "Escolha um jogador:",
+  "nemesis_player_info": "Você marcou '{0}'.",
+  "nemesis_enemy_info": "Você foi marcado como nêmesis, agora recebe dano extra de todos.",
+
   "nightmare": "Pesadelo",
   "nightmare_desc": "Faça um inimigo escolhido ter uma visão aterrorizante",
   "nightmare_disable_info": "O pesadelo desapareceu.",
@@ -423,6 +446,10 @@
   "prosthesis": "Prótese",
   "prosthesis_desc": "Braços e pernas são à prova de balas",
 
+  "punisher": "Punidor",
+  "punisher_desc": "Você guarda parte do dano recebido e soma no seu próximo tiro",
+  "punisher_released_info": "Você causou {0} de dano extra e recuperou a mesma vida.",
+
   "push": "Empurrão",
   "push_desc": "Você tem uma chance aleatória de empurrar um inimigo ao acertá-lo",
   "push_desc2": "Suas chances de empurrar o inimigo são: {0}%",
@@ -459,6 +486,10 @@
 
   "returntosender": "Devolução ao Remetente",
   "returntosender_desc": "O primeiro tiro em um inimigo o envia de volta a sua base",
+
+  "rewind": "Retroceder",
+  "rewind_desc": "Clique em [css_useSkill] para deixar uma marca aqui e voltar a ela logo depois",
+  "rewind_pending_info": "RETORNO: {0}",
 
   "richboy": "Filhinho de Papai",
   "richboy_desc": "Você recebe uma quantidade aleatória de dinheiro no início da rodada",
@@ -548,6 +579,14 @@
   "tripwire_no_wall_info": "Não há paredes próximas o suficiente dos dois lados.",
   "tripwire_placed_info": "Fio de armadilha colocado.",
   "tripwire_triggered_info": "'{0}' acionou seu fio.",
+
+  "truearmor": "Armadura Real",
+  "truearmor_desc": "Parte do dano que você recebe sai do colete em vez da vida",
+
+  "voodoo": "Vodu",
+  "voodoo_desc": "O inimigo que você marcar também recebe parte do dano que você leva",
+  "voodoo_select_info": "Escolha um jogador:",
+  "voodoo_player_info": "Você ligou '{0}' ao seu vodu.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Você pode ver inimigos através das paredes",

@@ -10,6 +10,7 @@ namespace src.player.skills
     public class Nightmare : ISkill
     {
         private const Skills skillName = Skills.Nightmare;
+        private const string cursedSound = "UI.ArmsRace.FinalKill_Tone";
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetVolumes = [];
         private static readonly object setLock = new();
@@ -129,7 +130,10 @@ namespace src.player.skills
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("nightmare_player_info", enemy.PlayerName));
 
             if (enemyEvent != null && enemyEvent.IsValid)
+            {
                 enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("nightmare_enemy_info"));
+                SkillUtils.EmitSoundToPlayer(enemyEvent, cursedSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
+            }
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -227,8 +231,9 @@ namespace src.player.skills
             EntityManager.DestroyEntity(volumeIndex);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5b2c6f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, string postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost", float fadeTime = .25f, float minExposure = .5f, float maxExposure = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5b2c6f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, string postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost", float fadeTime = .25f, float minExposure = .5f, float maxExposure = 2f, float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public string PostProcessing { get; set; } = postProcessing;
             public float FadeTime { get; set; } = fadeTime;
             public float MinExposure { get; set; } = minExposure;

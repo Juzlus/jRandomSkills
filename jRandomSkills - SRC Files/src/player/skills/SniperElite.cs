@@ -16,13 +16,7 @@ namespace src.player.skills
         private static readonly object setLock = new();
 
         private const string weapon_awp = "weapon_awp";
-        private static readonly string[] rifles =
-        [
-            "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7", "weapon_ump45", "weapon_p90",
-            "weapon_mp5sd", "weapon_famas", "weapon_galilar", "weapon_m4a1", "weapon_m4a1_silencer", "weapon_ak47",
-            "weapon_aug", "weapon_sg556", "weapon_ssg08", "weapon_awp", "weapon_scar20", "weapon_g3sg1",
-            "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249", "weapon_negev"
-        ];
+        private static HashSet<string> rifles => WeaponPool.Rifles;
 
         public static void LoadSkill()
         {
@@ -81,7 +75,7 @@ namespace src.player.skills
                 foreach (var index in AWPs.ToList())
                     SkillUtils.SafeKillEntity<CBasePlayerWeapon>(index);
 
-            if (savedWeapons.TryGetValue(player.Index, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))
+            if (!SkillUtils.IsPistolRound() && savedWeapons.TryGetValue(player.Index, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))
                 Server.NextFrame(() =>
                 {
                     if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;

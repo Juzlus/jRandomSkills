@@ -60,6 +60,13 @@
   "blastshot": "Patlama Atışı",
   "blastshot_desc": "MP5 ile sağ tıklayarak el bombası fırlat",
 
+  "bounty": "Ödül Avı",
+  "bounty_desc": "Bir düşmana ödül koy, onu öldüren parayı alır",
+  "bounty_select_info": "Birini seçin:",
+  "bounty_player_info": "'{0}' için {1}$ ödül koydun.",
+  "bounty_enemy_info": "Başına {0}$ ödül kondu.",
+  "bounty_claimed_info": "'{0}' oyuncusunu öldürdün ve {1}$ kazandın.",
+
   "bunnyhop": "Tavşan",
   "bunnyhop_desc": "Otomatik BunnyHop yaparsın",
 
@@ -136,6 +143,10 @@
   "dwarf": "Cüce",
   "dwarf_desc": "Rastgele karakter boyutu",
   "dwarf_desc2": "Boyutun: {0}x",
+
+  "empgrenade": "EMP Bombası",
+  "empgrenade_desc": "El bomban, hasar verdiğin düşmanın radarını ve nişangahını kapatır",
+  "empgrenade_enemy_info": "Radarın ve nişangahın kapandı.",
 
   "enemyspawn": "Base Baskını",
   "enemyspawn_desc": "[css_useSkill] tuşuna basarak düşman doğma noktasına ışınlan",
@@ -223,6 +234,9 @@
   "grapple_no_anchor_info": "Kanca atılacak yüzey yok",
   "grapple_pulling_info": "ÇEKİLİYOR",
 
+  "gravitydecoy": "Yerçekimi Yanıltıcısı",
+  "gravitydecoy_desc": "Yanıltıcı bomban yakındaki herkesin yerçekimini değiştirir",
+
   "grenadier": "Bombacı",
   "grenadier_desc": "El bomban sınırsız",
 
@@ -231,6 +245,9 @@
 
   "healingsmoke": "Şifalı Sis",
   "healingsmoke_desc": "Sis bomban iyileştirir",
+
+  "heavyweight": "Ağır Sıklet",
+  "heavyweight_desc": "Seni iten ve yavaşlatan yetenekler işlemez",
 
   "hermit": "Münzevi",
   "hermit_desc": "Birini öldürünce mermin ve canın yenilenir",
@@ -360,6 +377,12 @@
   "demoneye": "Şeytani Göz",
   "demoneye_desc": "Baktığın tüm düşmana hasar verirsin",
 
+  "nemesis": "Ezeli Rakip",
+  "nemesis_desc": "İşaretlediğin düşman herkesten daha fazla hasar alır",
+  "nemesis_select_info": "Birini seçin:",
+  "nemesis_player_info": "'{0}' artık herkesten daha fazla hasar alacak.",
+  "nemesis_enemy_info": "İşaretlendin, artık herkesten daha fazla hasar alıyorsun.",
+
   "nightmare": "Kabus",
   "nightmare_desc": "Seçtiğin rakibe kabus gördür",
   "nightmare_disable_info": "Kabus sona erdi.",
@@ -423,6 +446,10 @@
   "prosthesis": "Protez",
   "prosthesis_desc": "Kolların ve bacakların kurşun geçirmez",
 
+  "punisher": "İntikam",
+  "punisher_desc": "Aldığın hasarı biriktirir, sonraki vuruşunda geri verirsin",
+  "punisher_released_info": "{0} ekstra hasar verdin ve o kadar can kazandın.",
+
   "push": "İtici",
   "push_desc": "Düşmana vurduğunda onu geri itme şansın olur",
   "push_desc2": "Geri itme şansın: %{0}",
@@ -459,6 +486,10 @@
 
   "returntosender": "İade",
   "returntosender_desc": "Düşmana ilk vuruşun onu kendi başlangıcına ışınlar",
+
+  "rewind": "Geri Sarma",
+  "rewind_desc": "[css_useSkill] tuşuna basarak iz bırak, birazdan oraya geri dön",
+  "rewind_pending_info": "DÖNÜŞ: {0}",
 
   "richboy": "Zengin Çocuk",
   "richboy_desc": "Rastgele miktarda paran olur",
@@ -548,6 +579,14 @@
   "tripwire_no_wall_info": "İki yanında da yeterince yakın duvar yok.",
   "tripwire_placed_info": "Tel gerildi.",
   "tripwire_triggered_info": "'{0}' teline takıldı.",
+
+  "truearmor": "Gerçek Zırh",
+  "truearmor_desc": "Aldığın hasarın bir kısmını canın yerine zırhın karşılar",
+
+  "voodoo": "Vudu",
+  "voodoo_desc": "Aldığın hasarın bir kısmını işaretlediğin düşman da alır",
+  "voodoo_select_info": "Birini seçin:",
+  "voodoo_player_info": "'{0}' oyuncusunu kendine bağladın.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Düşmanları duvar arkasından görürsün",

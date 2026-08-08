@@ -33,7 +33,7 @@ namespace src.player
         public static readonly SkillsInfo.DefaultSkillInfo[] counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
         private static readonly SkillsInfo.DefaultSkillInfo[] allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
 
-        private static readonly ConcurrentDictionary<uint, ConcurrentBag<jSkill_SkillInfo>> playersSkills = [];
+        private static readonly ConcurrentDictionary<uint, HashSet<Skills>> playersSkills = [];
         public static readonly ConcurrentDictionary<uint, jSkill_SkillInfo> staticSkills = [];
         public static readonly ConcurrentDictionary<uint, uint> playersCustomFOV = [];
         private static readonly object setLock = new();
@@ -564,6 +564,7 @@ namespace src.player
 
                 PlayerManager.UnregisterPlayer(player.Index);
                 EntityManager.DestroyPlayerEntities(player.Index);
+                SkillUtils.ClearHudSuppression(player.Index);
 
                 return HookResult.Continue;
             }
@@ -601,6 +602,8 @@ namespace src.player
 
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid) return;
+
+            SkillUtils.ClearHudSuppression(player.Index);
 
             pawn.HideHUD = (uint)(pawn.HideHUD & ~(1 << 8));
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
@@ -768,6 +771,21 @@ namespace src.player
                 }
 
                 var config = Config.LoadedConfig.HtmlHudCustomisation;
+
+                var cache = skillPlayer?.HudCache;
+                if (cache != null
+                    && cache.Content != null
+                    && cache.PlayerIndex == player.Index
+                    && ReferenceEquals(cache.Config, config)
+                    && cache.IsDescription == isDescription
+                    && string.Equals(cache.Header, headerLine, StringComparison.Ordinal)
+                    && string.Equals(cache.Center, centerLine, StringComparison.Ordinal)
+                    && string.Equals(cache.Extra, extraLine, StringComparison.Ordinal))
+                {
+                    player.PrintToCenterHtml(cache.Content);
+                    return;
+                }
+
                 var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(headerLine) || string.IsNullOrEmpty(config.HeaderLineSize) ? "l" : "ml")}'> </font>";
                 var emptySymbol2 = $"<font class='fontSize-ml'> </font>";
 
@@ -782,6 +800,19 @@ namespace src.player
                     : $"<br>{emptySymbol}<font class='fontSize-{(isDescription ? config.SkillDescriptionLineSize : config.InfoLineSize)}' color='{(isDescription ? config.SkillDescriptionLineColor : config.InfoLineColor)}'>{extraLine}</font>{emptySymbol}";
 
                 var hudContent = "<jRS/>" + infoLine + skillLine + remainingLine;
+
+                if (skillPlayer != null)
+                {
+                    cache ??= skillPlayer.HudCache = new HudCacheEntry();
+                    cache.PlayerIndex = player.Index;
+                    cache.Config = config;
+                    cache.Header = headerLine;
+                    cache.Center = centerLine;
+                    cache.Extra = extraLine;
+                    cache.IsDescription = isDescription;
+                    cache.Content = hudContent;
+                }
+
                 player.PrintToCenterHtml(hudContent);
             }
         }

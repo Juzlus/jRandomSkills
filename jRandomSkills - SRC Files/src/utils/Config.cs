@@ -33,6 +33,9 @@ namespace src.utils
                     using (var sr = new StreamReader(fs))
                         json = sr.ReadToEnd();
                     newConfig = JsonConvert.DeserializeObject<SettingsModel>(json) ?? new SettingsModel();
+
+                    if (IsSectionMissing(json, nameof(SettingsModel.Weapons)))
+                        SaveConfig(newConfig);
                 }
                 catch
                 {
@@ -42,6 +45,18 @@ namespace src.utils
                 if (newConfig.DisplayAlwaysDescription)
                     newConfig.SkillDescriptionDuration = 9999;
                 return config = newConfig;
+            }
+        }
+
+        private static bool IsSectionMissing(string json, string section)
+        {
+            try
+            {
+                return Newtonsoft.Json.Linq.JObject.Parse(json)[section] == null;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -92,6 +107,7 @@ namespace src.utils
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
             public int? CurseSkillPerPlayer { get; set; }
+            public WeaponPools Weapons { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
             public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
             public ChatMessage ChatMessage { get; set; }
@@ -123,6 +139,31 @@ namespace src.utils
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
                 CurseSkillPerPlayer = null;
+
+                Weapons = new WeaponPools
+                {
+                    Rifle =
+                    [
+                        "weapon_ak47", "weapon_m4a1", "weapon_m4a1_silencer",
+                        "weapon_famas", "weapon_galilar", "weapon_aug", "weapon_sg556",
+                        "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7",
+                        "weapon_ump45", "weapon_p90", "weapon_mp5sd", "weapon_ssg08",
+                        "weapon_awp", "weapon_scar20", "weapon_g3sg1", "weapon_nova",
+                        "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
+                        "weapon_negev"
+                    ],
+                    Pistol =
+                    [
+                        "weapon_deagle", "weapon_revolver", "weapon_glock", "weapon_usp_silencer",
+                        "weapon_cz75a", "weapon_fiveseven", "weapon_p250", "weapon_tec9",
+                        "weapon_elite", "weapon_hkp2000"
+                    ],
+                    Grenade =
+                    [
+                        "weapon_hegrenade", "weapon_flashbang", "weapon_smokegrenade",
+                        "weapon_molotov", "weapon_incgrenade", "weapon_decoy"
+                    ],
+                };
 
                 LanguageSystem = new LanguageSystem
                 {
@@ -202,6 +243,13 @@ namespace src.utils
                     SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandomSkills/owner", 15, 90, 15, 90, 2),
                 };
             }
+        }
+
+        public class WeaponPools
+        {
+            public required List<string> Rifle { get; set; }
+            public required List<string> Pistol { get; set; }
+            public required List<string> Grenade { get; set; }
         }
 
         public class ChatMessage

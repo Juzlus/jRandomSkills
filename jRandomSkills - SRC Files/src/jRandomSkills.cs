@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b5";
+        public override string ModuleVersion => "1.2.3.b6";
 
         public override void Load(bool hotReload)
         {
@@ -371,6 +371,18 @@ namespace src
         public int HideHUD { get; set; }
         public bool SkillUsed = false;
         public bool? HudOnDeathBlocked { get; set; }
+        public HudCacheEntry? HudCache { get; set; }
+    }
+
+    public sealed class HudCacheEntry
+    {
+        public uint PlayerIndex;
+        public object? Config;
+        public string? Header;
+        public string? Center;
+        public string? Extra;
+        public bool IsDescription;
+        public string? Content;
     }
 
     public class jSkill_SkillInfo(Skills skill, string color, bool display)
