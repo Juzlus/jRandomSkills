@@ -167,7 +167,7 @@ namespace src.player.skills
                         SetMagazines(player, playerMagazines + enemyMagazines);
                         SetMagazines(enemy, 0);
 
-                        PlayerManager.GetPlayerFromEvent(enemy)?.ExecuteClientCommand($"play sounds/weapons/g3sg1/g3sg1_clipout");
+                        player.PlayerPawn?.Value?.EmitSound("BaseCombatCharacter.AmmoPickup", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
                         var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
                         if (enemyEvent == null || !enemyEvent.IsValid) return;
@@ -299,8 +299,9 @@ namespace src.player.skills
             public required int Reserve { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5eb8b0", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5eb8b0", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float Cooldown { get; set; } = cooldown;
         }
     }

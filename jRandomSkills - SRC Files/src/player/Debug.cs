@@ -45,13 +45,13 @@ namespace src.player
                 var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager").Where(t => t != null).ToList();
                 var tTeam = teams.FirstOrDefault(t => t.TeamNum == (int)CsTeam.Terrorist);
                 var ctTeam = teams.FirstOrDefault(t => t.TeamNum == (int)CsTeam.CounterTerrorist);
-                WriteToDebug($"Round #{tTeam?.Score + ctTeam?.Score + 1} (CT {ctTeam?.Score} : {tTeam?.Score} TT) started.");
+                WriteToDebug($"Round #{tTeam?.Score + ctTeam?.Score + 1} (CT {ctTeam?.Score} : {tTeam?.Score} TT) started.{WarmupTag()}");
                 return HookResult.Continue;
             });
 
             Instance.RegisterEventHandler<EventRoundFreezeEnd>((@event, info) =>
             {
-                WriteToDebug($"Freeze time ended.");
+                WriteToDebug($"Freeze time ended.{WarmupTag()}");
                 return HookResult.Continue;
             });
 
@@ -60,7 +60,7 @@ namespace src.player
                 var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager").Where(t => t != null).ToList();
                 var tTeam = teams.FirstOrDefault(t => t.TeamNum == (int)CsTeam.Terrorist);
                 var ctTeam = teams.FirstOrDefault(t => t.TeamNum == (int)CsTeam.CounterTerrorist);
-                WriteToDebug($"Round #{tTeam?.Score + ctTeam?.Score} (CT {ctTeam?.Score} : {tTeam?.Score} TT) ended.");
+                WriteToDebug($"Round #{tTeam?.Score + ctTeam?.Score} (CT {ctTeam?.Score} : {tTeam?.Score} TT) ended.{WarmupTag()}");
                 return HookResult.Continue;
             });
 
@@ -135,6 +135,13 @@ namespace src.player
                 $"[dmg={param2.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={nativeHitGroup} " +
                 $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}]");
             return HookResult.Continue;
+        }
+
+        private static string WarmupTag()
+        {
+            var gameRules = Instance?.GameRules;
+            if (gameRules == null || gameRules.Handle == IntPtr.Zero) return " [gamerules unavailable]";
+            return gameRules.WarmupPeriod ? " [WARMUP]" : string.Empty;
         }
 
         public static void WriteToDebug(string message)

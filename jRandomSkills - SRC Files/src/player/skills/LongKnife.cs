@@ -12,6 +12,9 @@ namespace src.player.skills
     public class LongKnife : ISkill
     {
         private const Skills skillName = Skills.LongKnife;
+        private const string victimSound = "Player.DamageBody.Victim";
+        private const string heavyHitSound = "Weapon_Knife.Hit.Heavy.Flesh";
+        private const string lightHitSound = "Weapon_Knife.Hit.Light.Flesh";
 
         private static bool hooked = false;
         private const int actionCode = 503;
@@ -121,12 +124,15 @@ namespace src.player.skills
 
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
 
-            target.PlayerPawn.Value.EmitSound("Player.DamageBody.Onlooker");
+            SkillUtils.EmitSoundToPlayer(target, victimSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
+            SkillUtils.EmitSoundToPlayer(player, heavyHit ? heavyHitSound : lightHitSound, SkillsInfo.GetValue<float>(skillName, "hitSoundVolume"));
             SkillUtils.TakeHealth(target.PlayerPawn.Value, heavyHit ? Instance.Random.Next(45, 55) : Instance.Random.Next(21, 34), player, killfeedIcon ?? KillfeedIcons.Knife);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c9f8ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDistance = 4096f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c9f8ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDistance = 4096f, bool friendlyFire = true, float soundVolume = .35f, float hitSoundVolume = .35f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
+            public float HitSoundVolume { get; set; } = hitSoundVolume;
             public float MaxDistance { get; set; } = maxDistance;
             public bool FriendlyFire { get; set; } = friendlyFire;
         }

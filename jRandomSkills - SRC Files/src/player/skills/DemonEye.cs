@@ -66,13 +66,14 @@ namespace src.player.skills
                 if (playerSeesEnemy)
                 {
                     SkillUtils.TakeHealth(enemyPawn, damage, player, KillfeedIcons.Fist);
-                    enemyEvent.EmitSound("Player.DamageBody.Onlooker");
+                    SkillUtils.EmitSoundToPlayer(enemyEvent, "Player.DamageBody.Victim", SkillsInfo.GetValue<float>(skillName, "soundVolume"));
                 }
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c91243", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float secondCooldown = 1f, int damage = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c91243", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float secondCooldown = 1f, int damage = 5, float soundVolume = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float SecondCooldown { get; set; } = secondCooldown;
             public int Damage { get; set; } = damage;
         }

@@ -60,6 +60,13 @@
   "blastshot": "Blast Shot",
   "blastshot_desc": "Press Attack2 with the MP5 to fire an HE grenade",
 
+  "bounty": "Bounty",
+  "bounty_desc": "Put a price on an enemy's head; whoever kills them takes the money",
+  "bounty_select_info": "Choose a player:",
+  "bounty_player_info": "You put a {1}$ bounty on '{0}'.",
+  "bounty_enemy_info": "A {0}$ bounty was placed on your head.",
+  "bounty_claimed_info": "You killed '{0}' and claimed {1}$.",
+
   "bunnyhop": "Bunny",
   "bunnyhop_desc": "You get auto \"BunnyHop\"",
 
@@ -136,6 +143,10 @@
   "dwarf": "Dwarf",
   "dwarf_desc": "Random character size at the start of the round",
   "dwarf_desc2": "Your size multiplier is: {0}x",
+
+  "empgrenade": "EMP Grenade",
+  "empgrenade_desc": "Anyone hurt by your grenade loses their radar and crosshair for a while",
+  "empgrenade_enemy_info": "An EMP grenade knocked out your radar and crosshair.",
 
   "enemyspawn": "Enemy Spawn",
   "enemyspawn_desc": "Click [css_useSkill] to teleport to the enemy spawn",
@@ -223,6 +234,9 @@
   "grapple_no_anchor_info": "No surface to hook onto.",
   "grapple_pulling_info": "PULLING",
 
+  "gravitydecoy": "Gravity Decoy",
+  "gravitydecoy_desc": "Your decoy changes the gravity of everyone nearby",
+
   "grenadier": "Grenadier",
   "grenadier_desc": "You have infinite hegrenade",
 
@@ -231,6 +245,9 @@
 
   "healingsmoke": "Healing Smoke",
   "healingsmoke_desc": "Your smoke grenades heal",
+
+  "heavyweight": "Heavyweight",
+  "heavyweight_desc": "Skills that push or slow you down have no effect on you",
 
   "hermit": "Hermit",
   "hermit_desc": "Killing restores ammo and a portion of health",
@@ -360,6 +377,12 @@
   "demoneye": "Demon Eye",
   "demoneye_desc": "You deal damage to every enemy you are looking at",
 
+  "nemesis": "Nemesis",
+  "nemesis_desc": "The player you mark takes extra damage",
+  "nemesis_select_info": "Choose a player:",
+  "nemesis_player_info": "You marked '{0}'.",
+  "nemesis_enemy_info": "You have been marked as a nemesis, you now take extra damage from everyone.",
+
   "nightmare": "Nightmare",
   "nightmare_desc": "Force a chosen enemy to experience a terrifying vision",
   "nightmare_disable_info": "The nightmare has faded.",
@@ -423,6 +446,10 @@
   "prosthesis": "Prosthesis",
   "prosthesis_desc": "Arms and legs are bulletproof",
 
+  "punisher": "Punisher",
+  "punisher_desc": "You bank part of the damage you take and add it to your next hit",
+  "punisher_released_info": "You dealt {0} extra damage and healed for the same amount.",
+
   "push": "Pusher",
   "push_desc": "You have a random chance to push an enemy back when hitting them",
   "push_desc2": "Your chances of pushing back the enemy are: {0}%",
@@ -459,6 +486,10 @@
 
   "returntosender": "Return to Sender",
   "returntosender_desc": "The first hit on an enemy sends them back to their spawn",
+
+  "rewind": "Rewind",
+  "rewind_desc": "Click [css_useSkill] to drop a marker where you stand and return to it shortly after",
+  "rewind_pending_info": "RETURN: {0}",
 
   "richboy": "Rich Boy",
   "richboy_desc": "You receive a random amount of money at the start of the round",
@@ -548,6 +579,14 @@
   "tripwire_no_wall_info": "There are no walls close enough on both sides.",
   "tripwire_placed_info": "Tripwire placed.",
   "tripwire_triggered_info": "'{0}' triggered your tripwire.",
+
+  "truearmor": "True Armor",
+  "truearmor_desc": "Part of the damage you take is paid by your armor instead of your health",
+
+  "voodoo": "Voodoo",
+  "voodoo_desc": "The enemy you mark also takes part of the damage you take",
+  "voodoo_select_info": "Choose a player:",
+  "voodoo_player_info": "You bound '{0}' to your voodoo.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "You can see enemies through walls",

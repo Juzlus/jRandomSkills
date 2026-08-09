@@ -19,12 +19,14 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            DecoyRing.PreloadAssets();
         }
 
         public static void NewRound()
         {
             KillAllDecoys();
             rainMolotovs.Clear();
+            DecoyRing.ClearAll(skillName);
         }
 
         private static void KillAllDecoys()
@@ -276,7 +278,14 @@ namespace src.player.skills
                 if (decoy != null && decoy.IsValid)
                     decoy.AddEntityIOEvent("Kill", decoy, delay: 0.1f);
                 decoys.TryRemove(key, out _);
-                SpawnRain(player, new Vector(@event.X, @event.Y, @event.Z));
+
+                Vector impact = new(@event.X, @event.Y, @event.Z);
+                SpawnRain(player, impact);
+
+                DecoyRing.Show(skillName, key, impact, 130f);
+                jRandomSkills.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "markerSeconds"),
+                    () => DecoyRing.Hide(skillName, key),
+                    CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             }
         }
 
@@ -286,8 +295,9 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffbf47", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Epic) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffbf47", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Epic, float markerSeconds = 4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float MarkerSeconds { get; set; } = markerSeconds;
         }
     }
 }

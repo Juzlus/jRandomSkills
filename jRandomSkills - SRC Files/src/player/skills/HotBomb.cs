@@ -12,6 +12,7 @@ namespace src.player.skills
     public class HotBomb : ISkill
     {
         private const Skills skillName = Skills.HotBomb;
+        private const string hurtSound = "Player.DamageBody.Victim";
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 
         public static void LoadSkill()
@@ -41,7 +42,7 @@ namespace src.player.skills
                 if (!hasC4) continue;
 
                 SkillUtils.TakeHealth(pawn, damage, owner, KillfeedIcons.C4);
-                playerEvent?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
+                SkillUtils.EmitSoundToPlayer(playerEvent, hurtSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
             }
         }
 
@@ -121,8 +122,9 @@ namespace src.player.skills
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#baf081", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, float cooldown = 1, int damage = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#baf081", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, float cooldown = 1, int damage = 2, float soundVolume = .35f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float Cooldown { get; set; } = cooldown;
             public int Damage { get; set; } = damage;
         }

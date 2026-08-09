@@ -92,7 +92,7 @@ namespace src.player.skills
 
                     if (SkillUtils.GetDistance(smokePos, pawn.AbsOrigin) <= smokeRadius)
                         if (SkillUtils.AddHealth(pawn, smokeHeal))
-                            player.EmitSound("Healthshot.Success");
+                            SkillUtils.EmitSoundToPlayer(player, "Healthshot.Success", SkillsInfo.GetValue<float>(skillName, "soundVolume"));
                 }
         }
 
@@ -156,8 +156,9 @@ namespace src.player.skills
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16, int grenadeLimit = 1, float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int SmokeHeal { get; set; } = smokeHeal;
             public float SmokeRadius { get; set; } = smokeRadius;
             public int TickCooldown { get; set; } = tickCooldown;

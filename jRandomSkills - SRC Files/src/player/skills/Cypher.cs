@@ -88,7 +88,7 @@ namespace src.player.skills
             {
                 var cameraProp = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CameraProp);
                 if (cameraProp != null && cameraProp.IsValid)
-                    cameraProp.EmitSound("SolidMetal.BulletImpact");
+                    cameraProp.EmitSound("SolidMetal.BulletImpact", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
                 SkillUtils.SafeKillEntity<CDynamicProp>(playerSkill.CameraProp);
                 playerSkill.CameraProp = null;
@@ -414,8 +414,9 @@ namespace src.player.skills
             public required QAngle LastCameraAngle { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float Cooldown { get; set; } = cooldown;
         }
     }

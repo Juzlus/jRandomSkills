@@ -9,6 +9,7 @@ namespace src.player.skills
     public class Jammer : ISkill
     {
         private const Skills skillName = Skills.Jammer;
+        private const string ownerTag = "Jammer";
         private static readonly ConcurrentDictionary<uint, byte> jammedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> jammerToTarget = [];
         private static readonly object setLock = new();
@@ -118,14 +119,7 @@ namespace src.player.skills
 
         private static void SetCrosshair(CCSPlayerController player, bool enabled)
         {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
-
-            pawn.HideHUD = (uint)(enabled
-                ? (pawn.HideHUD & ~(1 << 8))
-                : (pawn.HideHUD | (1 << 8)));
-
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
+            SkillUtils.SetCrosshairHidden(player, ownerTag, !enabled);
         }
 
         public static void BotTakeover(EventBotTakeover @event)

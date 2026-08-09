@@ -54,6 +54,13 @@
   "blademaster": "我的刀能档子弹！",
   "blademaster_desc": "持刀时，你有很高几率格挡子弹",
 
+  "bounty": "悬赏",
+  "bounty_desc": "对一名敌人悬赏，击杀他的人可以获得赏金",
+  "bounty_select_info": "选择一名玩家：",
+  "bounty_player_info": "你对 '{0}' 悬赏了 {1}$。",
+  "bounty_enemy_info": "有人对你悬赏了 {0}$。",
+  "bounty_claimed_info": "你击杀了 '{0}'，获得 {1}$。",
+
   "bunnyhop": "连跳大佬",
   "bunnyhop_desc": "你获得自动连跳的能力",
 
@@ -130,6 +137,10 @@
   "dwarf": "小矮人",
   "dwarf_desc": "回合开始时获得随机角色大小",
   "dwarf_desc2": "你的体型倍率是：{0}x",
+
+  "empgrenade": "电磁脉冲手雷",
+  "empgrenade_desc": "被你的手雷伤到的人会暂时失去雷达和准星",
+  "empgrenade_enemy_info": "电磁脉冲手雷让你的雷达和准星失效了。",
 
   "enemyspawn": "传送敌人出生点",
   "enemyspawn_desc": "点击 [css_useSkill] 传送到敌人出生点",
@@ -211,11 +222,17 @@
   "grapple_no_anchor_info": "没有可以钩住的表面。",
   "grapple_pulling_info": "拉动中",
 
+  "gravitydecoy": "重力诱饵",
+  "gravitydecoy_desc": "你的诱饵会改变附近所有人的重力",
+
   "grenadier": "投弹手",
   "grenadier_desc": "你拥有无限高爆手雷",
 
   "healingsmoke": "治疗烟雾",
   "healingsmoke_desc": "你的烟雾弹会治疗",
+
+  "heavyweight": "重量级",
+  "heavyweight_desc": "推开你或让你减速的技能对你无效",
 
   "hermit": "隐士",
   "hermit_desc": "击杀敌人会恢复弹药和部分生命值",
@@ -330,6 +347,12 @@
   "deathbomb_desc": "你死亡时会爆炸，杀死附近的玩家",
   "deathbomb_explosion": "砰！",
 
+  "nemesis": "宿敌",
+  "nemesis_desc": "被你标记的玩家会受到额外伤害",
+  "nemesis_select_info": "选择一名玩家：",
+  "nemesis_player_info": "你标记了 '{0}'。",
+  "nemesis_enemy_info": "你被标记为宿敌，现在会受到所有人的额外伤害。",
+
   "nightmare": "nightmare",
   "nightmare_desc": "nightmare_desc",
   "nightmare_disable_info": "nightmare_disable_info",
@@ -393,6 +416,10 @@
   "prosthesis": "假肢",
   "prosthesis_desc": "手臂和腿部防弹",
 
+  "punisher": "惩罚者",
+  "punisher_desc": "你会积攒受到伤害的一部分，并加到下一次命中上",
+  "punisher_released_info": "你造成了 {0} 点额外伤害，并回复了同样的生命值。",
+
   "push": "推力者",
   "push_desc": "你有随机几率在击中敌人时将其推回",
   "push_desc2": "你击退敌人的几率为：{0}%",
@@ -429,6 +456,10 @@
 
   "returntosender": "发送他们房子！！！",
   "returntosender_desc": "首次击中敌人会将其送回出生点",
+
+  "rewind": "回溯",
+  "rewind_desc": "按 [css_useSkill] 在原地留下标记，稍后回到那里",
+  "rewind_pending_info": "回溯：{0}",
 
   "richboy": "富少",
   "richboy_desc": "回合开始时你获得随机数量的钱",
@@ -506,6 +537,14 @@
   "tripwire_no_wall_info": "tripwire_no_wall_info",
   "tripwire_placed_info": "tripwire_placed_info",
   "tripwire_triggered_info": "tripwire_triggered_info: {0}",
+
+  "truearmor": "真实护甲",
+  "truearmor_desc": "你受到的一部分伤害由护甲承担，而不是生命值",
+
+  "voodoo": "巫毒",
+  "voodoo_desc": "被你标记的敌人也会受到你所受伤害的一部分",
+  "voodoo_select_info": "选择一名玩家：",
+  "voodoo_player_info": "你把 '{0}' 绑到了你的巫毒上。",
 
   "wallhack": "透视",
   "wallhack_desc": "你可以通过墙壁看到敌人",

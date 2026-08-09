@@ -12,6 +12,7 @@ namespace src.player.skills
     public class Jester : ISkill
     {
         private const Skills skillName = Skills.Jester;
+        private const string toggleSound = "Weapon_Taser.ChargeReady";
         private static readonly ConcurrentDictionary<uint, JesterInfo> jesters = [];
 
         public static void LoadSkill()
@@ -196,7 +197,7 @@ namespace src.player.skills
 
                 var playerEvent = PlayerManager.GetPlayerFromEvent(player);
                 if (playerEvent != null && playerEvent.IsValid)
-                    playerEvent.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
+                    SkillUtils.EmitSoundToPlayer(playerEvent, toggleSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
             }
 
             var minTime = SkillsInfo.GetValue<float>(skillName, "minTime");
@@ -275,8 +276,9 @@ namespace src.player.skills
             public Timer? Timer { get; set; } = null;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8f108f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float minTime = 10f, float maxTime = 25f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8f108f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float minTime = 10f, float maxTime = 25f, float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float MinTime { get; set; } = minTime;
             public float MaxTime { get; set; } = maxTime;
         }

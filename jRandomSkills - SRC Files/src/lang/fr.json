@@ -60,6 +60,13 @@
   "blastshot": "Tir explosif",
   "blastshot_desc": "Appuyez sur Attack2 avec le MP5 pour tirer une grenade HE",
 
+  "bounty": "Prime",
+  "bounty_desc": "Mets une prime sur la tête d'un ennemi ; celui qui le tue empoche l'argent",
+  "bounty_select_info": "Choisis un joueur :",
+  "bounty_player_info": "Tu as mis une prime de {1}$ sur '{0}'.",
+  "bounty_enemy_info": "Une prime de {0}$ a été mise sur ta tête.",
+  "bounty_claimed_info": "Tu as tué '{0}' et empoché {1}$.",
+
   "bunnyhop": "Lapin",
   "bunnyhop_desc": "Vous obtenez l’auto « BunnyHop »",
 
@@ -143,6 +150,10 @@
   "dwarf": "Nain",
   "dwarf_desc": "Taille du personnage aléatoire au début du round",
   "dwarf_desc2": "Votre multiplicateur de taille est : {0}x",
+
+  "empgrenade": "Grenade EMP",
+  "empgrenade_desc": "Ceux que ta grenade blesse perdent leur radar et leur viseur un moment",
+  "empgrenade_enemy_info": "Une grenade EMP a coupé ton radar et ton viseur.",
 
   "enemyspawn": "Spawn Ennemi",
   "enemyspawn_desc": "Appuyez sur [css_useSkill] pour vous téléporter au spawn ennemi",
@@ -230,6 +241,9 @@
   "grapple_no_anchor_info": "Aucune surface pour accrocher le grappin.",
   "grapple_pulling_info": "TRACTION",
 
+  "gravitydecoy": "Leurre gravitationnel",
+  "gravitydecoy_desc": "Ton leurre modifie la gravité de tous ceux qui sont à proximité",
+
   "grenadier": "Grenadier",
   "grenadier_desc": "Tu as des grenades HE infinies",
 
@@ -238,6 +252,9 @@
 
   "healingchicken": "Poulet guérisseur",
   "healingchicken_desc": "Vos poulets vous soignent lorsque vous êtes à proximité",
+
+  "heavyweight": "Poids lourd",
+  "heavyweight_desc": "Les compétences qui te poussent ou te ralentissent n'ont aucun effet sur toi",
 
   "hermit": "Ermite",
   "hermit_desc": "Tuer restaure des munitions et une partie de vos PV",
@@ -360,6 +377,12 @@
   "bankrupt_player_info": "Le joueur « {0} » est en faillite.",
   "bankrupt_select_info": "Mettre un joueur en faillite :",
 
+  "nemesis": "Némésis",
+  "nemesis_desc": "Le joueur que tu marques subit des dégâts supplémentaires",
+  "nemesis_select_info": "Choisis un joueur :",
+  "nemesis_player_info": "Tu as marqué '{0}'.",
+  "nemesis_enemy_info": "Vous avez été marqué comme némésis, vous subissez désormais des dégâts supplémentaires de la part de tous.",
+
   "nightmare": "Cauchemar",
   "nightmare_desc": "Faites subir une vision terrifiante à un ennemi choisi",
   "nightmare_disable_info": "Le cauchemar s'est dissipé.",
@@ -423,6 +446,10 @@
   "prosthesis": "Prothèses",
   "prosthesis_desc": "Les bras et les jambes sont pare-balles",
 
+  "punisher": "Punisseur",
+  "punisher_desc": "Tu accumules une partie des dégâts subis et l'ajoutes à ton prochain tir",
+  "punisher_released_info": "Tu as infligé {0} dégâts en plus et récupéré autant de vie.",
+
   "push": "Pousseur",
   "push_desc": "Vous avez une chance aléatoire de repousser un ennemi en le touchant",
   "push_desc2": "Votre chance de repousser l’ennemi est : {0}%",
@@ -459,6 +486,10 @@
 
   "returntosender": "Retour à l’Expéditeur",
   "returntosender_desc": "Le premier coup porté à un ennemi le renvoie à son spawn",
+
+  "rewind": "Rembobinage",
+  "rewind_desc": "Appuie sur [css_useSkill] pour poser un repère ici et y revenir peu après",
+  "rewind_pending_info": "RETOUR : {0}",
 
   "richboy": "Gosse de Riche",
   "richboy_desc": "Vous recevez une somme d’argent aléatoire au début du round",
@@ -548,6 +579,14 @@
   "tripwire_no_wall_info": "Aucun mur n'est suffisamment proche des deux côtés.",
   "tripwire_placed_info": "Fil-piège placé.",
   "tripwire_triggered_info": "'{0}' a déclenché votre fil-piège.",
+
+  "truearmor": "Vraie armure",
+  "truearmor_desc": "Une partie des dégâts est absorbée par ton armure au lieu de ta vie",
+
+  "voodoo": "Vaudou",
+  "voodoo_desc": "L'ennemi que tu marques subit aussi une partie des dégâts que tu reçois",
+  "voodoo_select_info": "Choisis un joueur :",
+  "voodoo_player_info": "Tu as lié '{0}' à ton vaudou.",
 
   "wallhack": "Wallhack",
   "wallhack_desc": "Vous pouvez voir les ennemis à travers les murs",

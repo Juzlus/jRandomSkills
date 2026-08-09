@@ -105,35 +105,27 @@ namespace src.player.skills
 
             var bomb = PlayerManager.GetTickBomb();
 
+            var hidden = SkillUtils.ResolveHiddenPawns(invisiblePlayers.Keys, null);
+            if (hidden.Count == 0) return;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
 
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
 
-                foreach (var playerIndex in invisiblePlayers.Keys)
+                foreach (var target in hidden)
                 {
-                    var playerController = PlayerManager.GetPlayerEvent(Utilities.GetPlayerFromIndex((int)playerIndex));
-                    if (playerController == null || !playerController.IsValid || playerController.Index == player.Index)
-                        continue;
-
-                    if (player.Team == playerController.Team)
-                        continue;
-
-                    var playerPawn = playerController.PlayerPawn.Value;
-                    if (playerPawn == null || !playerPawn.IsValid) continue;
+                    if (target.Index == player.Index) continue;
+                    if (player.Team == target.Team) continue;
 
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
-                    if (targetHandle != nint.Zero && playerPawn.Handle == targetHandle)
-                        continue;
+                    if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)playerPawn.Index);
-                    if (entity == null || !entity.IsValid) continue;
+                    if (info.TransmitEntities.Contains(target.Pawn.Index))
+                        info.TransmitEntities.Remove(target.Pawn.Index);
 
-                    if (info.TransmitEntities.Contains(entity.Index))
-                        info.TransmitEntities.Remove(entity.Index);
-
-                    SkillUtils.HideCarriedEntities(info, playerPawn);
+                    SkillUtils.HideCarriedEntities(info, target.Pawn);
 
                     if (bomb == null) continue;
 

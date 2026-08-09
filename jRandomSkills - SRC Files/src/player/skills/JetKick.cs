@@ -166,6 +166,8 @@ namespace src.player.skills
 
         private static void PushPlayer(CCSPlayerController player)
         {
+            if (Heavyweight.Resists(player)) return;
+
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.Health <= 0) return;
 

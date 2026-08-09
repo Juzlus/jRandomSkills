@@ -16,11 +16,19 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            DecoyRing.PreloadAssets();
         }
 
         public static void NewRound()
         {
             decoys.Clear();
+            DecoyRing.ClearAll(skillName);
+        }
+
+        public static void RoundEnd()
+        {
+            decoys.Clear();
+            DecoyRing.ClearAll(skillName);
         }
 
         public static void DecoyStarted(EventDecoyStarted @event)
@@ -31,7 +39,9 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            decoys.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
+            Vector pos = new(@event.X, @event.Y, @event.Z);
+            decoys.TryAdd(pos, 0);
+            DecoyRing.Show(skillName, (uint)@event.Entityid, pos, SkillsInfo.GetValue<float>(skillName, "triggerRadius"));
         }
 
         public static void DecoyDetonate(EventDecoyDetonate @event)
@@ -44,6 +54,8 @@ namespace src.player.skills
 
             foreach (var decoy in decoys.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
                 decoys.TryRemove(decoy, out _);
+
+            DecoyRing.Hide(skillName, (uint)@event.Entityid);
         }
 
         public static void OnTick()

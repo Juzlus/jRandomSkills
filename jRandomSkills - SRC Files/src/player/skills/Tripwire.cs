@@ -12,6 +12,7 @@ namespace src.player.skills
     public class Tripwire : ISkill
     {
         private const Skills skillName = Skills.Tripwire;
+        private const string triggerSound = "Weapon_Taser.ChargeReady";
 
         private static readonly ConcurrentDictionary<uint, WireInfo> wires = [];
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
@@ -267,7 +268,7 @@ namespace src.player.skills
                     var ownerEvent = PlayerManager.GetPlayerFromEvent(owner);
                     if (ownerEvent != null && ownerEvent.IsValid)
                     {
-                        ownerEvent.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
+                        SkillUtils.EmitSoundToPlayer(ownerEvent, triggerSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
                         ownerEvent.PrintToChat($" {ChatColors.Red}" + ownerEvent.GetTranslation("tripwire_triggered_info", enemyEvent.PlayerName));
                     }
                 }
@@ -314,8 +315,9 @@ namespace src.player.skills
             public DateTime LastAttempt { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 0.7f, float maxWallDistance = 400f, float cooldown = 20f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 0.7f, float maxWallDistance = 400f, float cooldown = 20f, float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public float RadarDuration { get; set; } = radarDuration;
             public float TriggerRadius { get; set; } = triggerRadius;
             public float WireHeight { get; set; } = wireHeight;

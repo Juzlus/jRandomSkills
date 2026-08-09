@@ -40,7 +40,7 @@ namespace src.utils
             LazySig<MemoryFunctionVoid<CBasePlayerPawn, QAngle>>("SnapViewAngles", s => new(s));
         // private static readonly int collisionRulesChangedOffset = GameData.GetOffset("CBaseEntity_CollisionRulesChanged");
 
-        public static void PrintToChat(CCSPlayerController player, string? msg, string border = "tb", string? title = null)
+        public static void PrintToChat(CCSPlayerController player, string? msg, string border = "tb", string? title = null, bool ignoreIlliterate = false)
         {
             if (!player.IsValid) return;
 
@@ -49,7 +49,7 @@ namespace src.utils
             char symbol = config.LineSymbol;
             if (string.IsNullOrEmpty(title)) title = player.GetTranslation("jRandomSkills");
 
-            if (Illiterate.CheckIlliterateSkill(player))
+            if (!ignoreIlliterate && Illiterate.CheckIlliterateSkill(player))
                 msg = Illiterate.GetRandomText(msg);
 
             if (border.Contains('t') && config.LineShow)
@@ -60,9 +60,37 @@ namespace src.utils
                 player.PrintToChat($" {MeansureString.GetTextDashed("", maxWidth, symbol, config.LineColor)}");
         }
 
+        public static void EmitSoundToPlayer(CCSPlayerController? listener, string soundEvent, float volume)
+        {
+            var target = PlayerManager.GetPlayerFromEvent(listener);
+            if (target == null || !target.IsValid) return;
+
+            target.EmitSound(soundEvent, new RecipientFilter(target), volume);
+        }
+
         public static bool IsFreezeTime()
         {
             return jRandomSkills.Instance?.GameRules?.FreezePeriod == true;
+        }
+
+        public static bool IsPistolRound()
+        {
+            var gameRules = jRandomSkills.Instance?.GameRules;
+            if (gameRules == null) return false;
+
+            if (gameRules.TotalRoundsPlayed == 0 || gameRules.GameRestart) return true;
+
+            try
+            {
+                if (ConVar.Find("mp_halftime")?.GetPrimitiveValue<bool>() != true) return false;
+
+                int maxRounds = ConVar.Find("mp_maxrounds")?.GetPrimitiveValue<int>() ?? 0;
+                return maxRounds > 0 && maxRounds / 2 == gameRules.TotalRoundsPlayed;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static bool IsHudFrame() => Server.TickCount % 4 == 0;
@@ -396,7 +424,8 @@ namespace src.utils
             Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
             Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
-            Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
+            Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow,
+            Skills.Voodoo, Skills.Nemesis, Skills.Bounty
         ];
 
         private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
@@ -490,6 +519,73 @@ namespace src.utils
             else curseCounts[victimIndex] = used - 1;
         }
 
+        private const uint crosshairBit = 1u << 8;
+
+        private static readonly object hudSuppressionLock = new();
+        private static readonly Dictionary<uint, HashSet<string>> crosshairOwners = [];
+        private static readonly Dictionary<uint, HashSet<string>> radarOwners = [];
+
+        public static void SetCrosshairHidden(CCSPlayerController? player, string owner, bool hide)
+        {
+            if (player == null || !player.IsValid) return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return;
+
+            if (!TryUpdateOwners(crosshairOwners, player.Index, owner, hide, out bool suppressed)) return;
+
+            if (suppressed) pawn.HideHUD |= crosshairBit;
+            else pawn.HideHUD &= ~crosshairBit;
+
+            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
+        }
+
+        public static void SetRadarDisabled(CCSPlayerController? player, string owner, bool disable)
+        {
+            if (player == null || !player.IsValid) return;
+            if (!TryUpdateOwners(radarOwners, player.Index, owner, disable, out bool suppressed)) return;
+
+            player.ReplicateConVar("sv_disable_radar", suppressed ? "1" : "0");
+        }
+
+        public static void ClearHudSuppression(uint playerIndex)
+        {
+            lock (hudSuppressionLock)
+            {
+                crosshairOwners.Remove(playerIndex);
+                radarOwners.Remove(playerIndex);
+            }
+        }
+
+        public static void ClearAllHudSuppression()
+        {
+            lock (hudSuppressionLock)
+            {
+                crosshairOwners.Clear();
+                radarOwners.Clear();
+            }
+        }
+
+        private static bool TryUpdateOwners(Dictionary<uint, HashSet<string>> registry, uint playerIndex, string owner, bool claim, out bool suppressed)
+        {
+            lock (hudSuppressionLock)
+            {
+                if (!registry.TryGetValue(playerIndex, out var owners))
+                {
+                    owners = [];
+                    registry[playerIndex] = owners;
+                }
+
+                bool before = owners.Count > 0;
+                bool changed = claim ? owners.Add(owner) : owners.Remove(owner);
+
+                suppressed = owners.Count > 0;
+                if (!suppressed) registry.Remove(playerIndex);
+
+                return changed && before != suppressed;
+            }
+        }
+
         public static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player, bool respectCurseLimit = false)
         {
             if (player == null || !player.IsValid) return [];
@@ -573,6 +669,26 @@ namespace src.utils
             }
 
             return true;
+        }
+
+        public readonly record struct HiddenPawn(uint Index, CsTeam Team, CCSPlayerPawn Pawn, bool HoldsBomb);
+
+        public static List<HiddenPawn> ResolveHiddenPawns(ICollection<uint> playerIndexes, uint? bombOwnerIndex)
+        {
+            List<HiddenPawn> hidden = new(playerIndexes.Count);
+
+            foreach (var playerIndex in playerIndexes)
+            {
+                var controller = PlayerManager.GetPlayerEvent(Utilities.GetPlayerFromIndex((int)playerIndex));
+                if (controller == null || !controller.IsValid) continue;
+
+                var pawn = controller.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid) continue;
+
+                hidden.Add(new HiddenPawn(controller.Index, controller.Team, pawn, bombOwnerIndex == controller.Index));
+            }
+
+            return hidden;
         }
 
         public static void HideCarriedEntities(CCheckTransmitInfo info, CCSPlayerPawn? pawn)

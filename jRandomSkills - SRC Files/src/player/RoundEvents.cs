@@ -195,6 +195,8 @@ namespace src.player
                 SkillsUsedThisMap.Clear();
                 nextRoundPicks.Clear();
 
+                SkillUtils.ClearAllHudSuppression();
+
                 playersCustomFOV.Clear();
                 playersSkills.Clear();
                 staticSkills.Clear();
@@ -275,6 +277,7 @@ namespace src.player
             public required HashSet<Skills> NeedsTeammates { get; init; }
             public required HashSet<Skills> CtOnly { get; init; }
             public required HashSet<Skills> TOnly { get; init; }
+            public required HashSet<Skills> PistolRoundBanned { get; init; }
             public required int TerroristCount { get; init; }
             public required int CounterTerroristCount { get; init; }
         }
@@ -296,6 +299,9 @@ namespace src.player
                 NeedsTeammates = ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).Select(s => s.Name)),
                 CtOnly = ToSkillSet(counterterroristSkills.Select(s => s.Name)),
                 TOnly = ToSkillSet(terroristSkills.Select(s => s.Name)),
+                PistolRoundBanned = SkillUtils.IsPistolRound()
+                    ? ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.DisableOnPistolRound).Select(s => s.Name))
+                    : [],
                 TerroristCount = validPlayers.Count(p => p.Team == CsTeam.Terrorist),
                 CounterTerroristCount = validPlayers.Count(p => p.Team == CsTeam.CounterTerrorist),
             };
@@ -328,9 +334,12 @@ namespace src.player
             else
                 skillList.RemoveAll(s => ctx.TOnly.Contains(s.Skill));
 
-            if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+            if (ctx.PistolRoundBanned.Count != 0)
+                skillList.RemoveAll(s => ctx.PistolRoundBanned.Contains(s.Skill));
+
+            if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out HashSet<Skills>? skills))
             {
-                skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
+                skillList.RemoveAll(s => skills.Contains(s.Skill));
                 if (skillList.Count == 0) skills.Clear();
             }
 
@@ -338,10 +347,10 @@ namespace src.player
 
             if (gameMode == Config.GameModes.NoRepeat)
             {
-                if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? value))
-                    value.Add(randomSkill);
+                if (playersSkills.TryGetValue(player.Index, out HashSet<Skills>? value))
+                    value.Add(randomSkill.Skill);
                 else
-                    playersSkills.TryAdd(player.Index, [randomSkill]);
+                    playersSkills.TryAdd(player.Index, [randomSkill.Skill]);
             }
 
             return randomSkill;
@@ -358,6 +367,7 @@ namespace src.player
 
             var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == name);
             if (def == null) return false;
+            if (def.DisableOnPistolRound && SkillUtils.IsPistolRound()) return false;
             if (def.NeedsTeammates && validPlayers.Count(p => p.Team == player.Team) == 1) return false;
             if (def.MaxPerServer >= 0 && assignmentCounts.TryGetValue(pick.Skill, out var c) && c >= def.MaxPerServer) return false;
 
@@ -648,9 +658,12 @@ namespace src.player
                         else
                             skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
 
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+                        if (SkillUtils.IsPistolRound())
+                            skillList.RemoveAll(s => SkillsInfo.GetValue<bool>(s.Skill, "disableOnPistolRound"));
+
+                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out HashSet<Skills>? skills))
                         {
-                            skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
+                            skillList.RemoveAll(s => skills.Contains(s.Skill));
                             if (skillList.Count == 0) skills.Clear();
                         }
 

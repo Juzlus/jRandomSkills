@@ -281,7 +281,7 @@ namespace jRandomSkills.src.utils
                 "weapon_sg556" => KillfeedIcons.Sg556,
                 "weapon_famas" => KillfeedIcons.Famas,
                 "weapon_galilar" => KillfeedIcons.Galilar,
-                "weapon_m4a4" => KillfeedIcons.M4A4,
+                "weapon_m4a1" => KillfeedIcons.M4A4,
                 "weapon_m4a1_silencer" => KillfeedIcons.M4A1,
                 "weapon_ak47" => KillfeedIcons.Ak47,
                 "weapon_aug" => KillfeedIcons.Aug,

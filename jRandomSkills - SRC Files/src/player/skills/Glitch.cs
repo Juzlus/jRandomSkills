@@ -9,6 +9,7 @@ namespace src.player.skills
     public class Glitch : ISkill
     {
         private const Skills skillName = Skills.Glitch;
+        private const string ownerTag = "Glitch";
         private static readonly ConcurrentDictionary<uint, byte> glitchedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
@@ -100,7 +101,7 @@ namespace src.player.skills
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-            enemyEvent.ReplicateConVar("sv_disable_radar", "1");
+            SkillUtils.SetRadarDisabled(enemyEvent, ownerTag, true);
             playerInfo.SkillUsed = true;
 
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("glitch_player_info", enemy.PlayerName));
@@ -117,7 +118,7 @@ namespace src.player.skills
 
             if (!glitchedPlayers.ContainsKey(bot.Index)) return;
 
-            player.ReplicateConVar("sv_disable_radar", "1");
+            SkillUtils.SetRadarDisabled(player, ownerTag, true);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -146,7 +147,7 @@ namespace src.player.skills
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid)
                 {
-                    target.ReplicateConVar("sv_disable_radar", "0");
+                    SkillUtils.SetRadarDisabled(target, ownerTag, false);
                     if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("glitch_disable_info"));
                 }
@@ -161,7 +162,7 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            player.ReplicateConVar("sv_disable_radar", "0");
+            SkillUtils.SetRadarDisabled(player, ownerTag, false);
             glitchedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
         }

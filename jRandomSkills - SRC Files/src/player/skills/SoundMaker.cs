@@ -100,9 +100,13 @@ namespace src.player.skills
         {
             if (SkillPlayerInfo.IsEmpty) return;
 
+            if (Server.TickCount % 60 != 0) return;
+
             int cooldown = SkillsInfo.GetValue<int>(skillName, "cooldown");
             if (cooldown < 1) cooldown = 1;
-            if (Server.TickCount % (60 * cooldown) != 0) return;
+            if ((Server.TickCount / 60) % cooldown != 0) return;
+
+            float volume = SkillsInfo.GetValue<float>(skillName, "soundVolume");
 
             foreach (var player in PlayerManager.GetTickPlayers()
                 .Where(p => p != null && p.IsValid && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0))
@@ -111,18 +115,19 @@ namespace src.player.skills
 
                 if (entities.Count == 0)
                 {
-                    player.PlayerPawn.Value!.EmitSound(soundEventName, volume: 1f);
+                    player.PlayerPawn.Value!.EmitSound(soundEventName, volume: volume);
                     continue;
                 }
 
                 var entity = Utilities.GetEntityFromIndex<CDynamicProp>((int)entities[0]);
                 if (entity != null && entity.IsValid)
-                    entity.EmitSound(soundEventName, volume: 1f);
+                    entity.EmitSound(soundEventName, volume: volume);
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int cooldown = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int cooldown = 2, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int Cooldown { get; set; } = cooldown;
         }
     }

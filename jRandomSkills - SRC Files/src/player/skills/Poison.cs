@@ -10,6 +10,7 @@ namespace src.player.skills
     public class Poison : ISkill
     {
         private const Skills skillName = Skills.Poison;
+        private const string poisonSound = "Player.DamageBody.Victim";
         private static readonly ConcurrentDictionary<uint, byte> poisonedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetToPlayer = [];
@@ -69,7 +70,7 @@ namespace src.player.skills
                     SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), KillfeedIcons.Spray);
 
                     if (Server.TickCount % cooldown2 == 0)
-                        PlayerManager.GetPlayerFromEvent(player)?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
+                        SkillUtils.EmitSoundToPlayer(player, poisonSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
                 }
             }
 
@@ -186,8 +187,9 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#902eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = .85f, int damage = 1, int minHealth = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#902eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = .85f, int damage = 1, int minHealth = 30, float soundVolume = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int Damage { get; set; } = damage;
             public float Cooldown { get; set; } = cooldown;
             public int MinHealth { get; set; } = minHealth;

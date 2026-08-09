@@ -12,16 +12,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, byte> bannedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
-        private static readonly string[] disabledWeapons =
-        [
-            "weapon_ak47", "weapon_m4a4", "weapon_m4a1", "weapon_m4a1_silencer",
-            "weapon_famas", "weapon_galilar", "weapon_aug", "weapon_sg556",
-            "weapon_mp9", "weapon_mac10", "weapon_bizon", "weapon_mp7",
-            "weapon_ump45", "weapon_p90", "weapon_mp5sd", "weapon_ssg08",
-            "weapon_awp", "weapon_scar20", "weapon_g3sg1", "weapon_nova",
-            "weapon_xm1014", "weapon_mag7", "weapon_sawedoff", "weapon_m249",
-            "weapon_negev"
-        ];
+        private static HashSet<string> disabledWeapons => WeaponPool.Rifles;
 
         public static void LoadSkill()
         {

@@ -41,6 +41,18 @@ namespace src.player.skills
         {
             if (smokes.IsEmpty || playersWithSkill.IsEmpty) return;
 
+            List<uint> smokeIndexes = new(smokes.Count);
+            foreach (var entityIndex in smokes.Keys)
+            {
+                var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
+                if (entity == null || !entity.IsValid) continue;
+                smokeIndexes.Add(entity.Index);
+            }
+
+            if (smokeIndexes.Count == 0) return;
+
+            Dictionary<nint, uint>? pawnOwners = null;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
@@ -51,21 +63,34 @@ namespace src.player.skills
                     var observerTarget = player.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
                     if (observerTarget == nint.Zero) continue;
 
-                    var observedPlayer = PlayerManager.GetTickPlayers().FirstOrDefault(p => p?.Pawn?.Value?.Handle == observerTarget);
-                    if (observedPlayer == null) continue;
+                    pawnOwners ??= BuildPawnOwners();
 
-                    if (PlayerManager.GetPlayerByIndex(observedPlayer.Index)?.Skill != skillName) continue;
+                    if (!pawnOwners.TryGetValue(observerTarget, out uint observedIndex)) continue;
+                    if (PlayerManager.GetPlayerByIndex(observedIndex)?.Skill != skillName) continue;
                 }
 
-                foreach (var entityIndex in smokes.Keys)
-                {
-                    var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
-                    if (entity == null || !entity.IsValid) continue;
-
-                    if (info.TransmitEntities.Contains(entity.Index))
-                        info.TransmitEntities.Remove(entity.Index);
-                }
+                foreach (var index in smokeIndexes)
+                    if (info.TransmitEntities.Contains(index))
+                        info.TransmitEntities.Remove(index);
             }
+        }
+
+        private static Dictionary<nint, uint> BuildPawnOwners()
+        {
+            var players = PlayerManager.GetTickPlayers();
+            Dictionary<nint, uint> owners = new(players.Count);
+
+            foreach (var p in players)
+            {
+                if (p == null || !p.IsValid) continue;
+
+                nint handle = p.Pawn?.Value?.Handle ?? nint.Zero;
+                if (handle == nint.Zero) continue;
+
+                owners.TryAdd(handle, p.Index);
+            }
+
+            return owners;
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)

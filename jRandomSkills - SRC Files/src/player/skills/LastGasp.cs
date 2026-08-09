@@ -9,6 +9,7 @@ namespace src.player.skills
     public class LastGasp : ISkill
     {
         private const Skills skillName = Skills.LastGasp;
+        private const string hurtSound = "Player.DamageBody.Victim";
 
         public static void LoadSkill()
         {
@@ -45,11 +46,12 @@ namespace src.player.skills
             }
 
             SkillUtils.TakeHealth(attackerPawn, damageAfterDeath, victim, KillfeedIcons.Fist);
-            PlayerManager.GetPlayerFromEvent(attacker)?.ExecuteClientCommand($"play player/player_damagebody_0{jRandomSkills.Instance.Random.Next(4, 8)}");
+            SkillUtils.EmitSoundToPlayer(attacker, hurtSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#88bdba", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, int damageAfterDeath = 30, bool canKill = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#88bdba", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, int damageAfterDeath = 30, bool canKill = true, float soundVolume = .35f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int DamageAfterDeath { get; set; } = damageAfterDeath;
             public bool CanKill { get; set; } = canKill;
 

@@ -9,6 +9,7 @@ namespace src.player.skills
     public class PawelJumper : ISkill
     {
         private const Skills skillName = Skills.PawelJumper;
+        private const string jumpSound = "Default.WalkJump";
         private static readonly int?[] J = new int?[64];
         private static readonly PlayerButtons[] LB = new PlayerButtons[64];
 
@@ -73,13 +74,17 @@ namespace src.player.skills
             {
                 J[player.Slot]++;
                 playerEventPawn.AbsVelocity.Z = 300;
+
+                if (J[player.Slot] > 1)
+                    playerEventPawn.EmitSound(jumpSound, volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
             }
 
             LB[player.Slot] = buttons;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FFA500", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int extraJumpsMin = 1, int extraJumpsMax = 4) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FFA500", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int extraJumpsMin = 1, int extraJumpsMax = 4, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public float SoundVolume { get; set; } = soundVolume;
             public int ExtraJumpsMin { get; set; } = extraJumpsMin;
             public int ExtraJumpsMax { get; set; } = extraJumpsMax;
         }

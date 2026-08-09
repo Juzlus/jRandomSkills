@@ -273,6 +273,40 @@ namespace src.utils
             return false;
         }
 
+        public static bool DestroyBeam(uint entityIndex)
+        {
+            try
+            {
+                var beam = Utilities.GetEntityFromIndex<CBeam>((int)entityIndex);
+                if (beam != null && beam.IsValid)
+                {
+                    beam.Width = 0;
+                    beam.EndWidth = 0;
+                    beam.Render = Color.FromArgb(0, 0, 0, 0);
+
+                    Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
+                    Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
+                    Utilities.SetStateChanged(beam, "CBaseModelEntity", "m_clrRender");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[EntityManager] DestroyBeam {entityIndex}: {ex.Message}");
+            }
+
+            bool killed = DestroyEntity(entityIndex);
+
+            if (!SuppressKills)
+                Server.NextFrame(() =>
+                {
+                    var leftover = Utilities.GetEntityFromIndex<CBeam>((int)entityIndex);
+                    if (leftover != null && leftover.IsValid)
+                        leftover.Remove();
+                });
+
+            return killed;
+        }
+
         public static bool DestroyEntity<T>(uint? entityIndex) where T : CBaseEntity
         {
             if (entityIndex == null) return false;

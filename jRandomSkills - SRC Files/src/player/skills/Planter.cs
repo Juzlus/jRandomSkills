@@ -94,6 +94,8 @@ namespace src.player.skills
         public static void OnTick()
         {
             float currentTime = Server.CurrentTime;
+            bool hudFrame = SkillUtils.IsHudFrame();
+
             foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.Team == CsTeam.Terrorist))
             {
                 if (!Instance.IsPlayerValid(player)) continue;
@@ -111,7 +113,7 @@ namespace src.player.skills
                 pawn.InBombZone = true;
                 Schema.SetSchemaValue<bool>(pawn.Handle, "CCSPlayerPawn", "m_bInBombZone", true);
 
-                if (plantingPlayers.TryGetValue(player.Index, out float plantTime))
+                if (hudFrame && plantingPlayers.TryGetValue(player.Index, out float plantTime))
                 {
                     float remaining = plantTime + 3f - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";

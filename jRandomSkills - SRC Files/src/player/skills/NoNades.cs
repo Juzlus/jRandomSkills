@@ -15,15 +15,14 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        private static readonly HashSet<string> blockedWeapons =
-            ["hegrenade", "inferno", "decoy", "flashbang", "smokegrenade", "molotov"];
+        private const string infernoDamage = "inferno";
 
         public static bool PlayerHurtPre(EventPlayerHurt @event)
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return false;
 
-            if (!blockedWeapons.Contains(@event.Weapon)) return false;
+            if (@event.Weapon != infernoDamage && !WeaponPool.IsGrenade(@event.Weapon)) return false;
             if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != skillName) return false;
 
             SkillUtils.RestoreHealth(player);
