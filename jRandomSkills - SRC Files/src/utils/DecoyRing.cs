@@ -38,7 +38,7 @@ namespace src.utils
 
         public static void Show(Skills skill, uint id, Vector center, float radius)
         {
-            if (radius <= 0) return;
+            if (radius <= 0 || !Config.LoadedConfig.ShowDecoyRing) return;
 
             string key = MakeKey(skill, id);
             var ring = new Ring();

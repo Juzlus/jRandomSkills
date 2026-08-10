@@ -22,6 +22,7 @@
   "DisableHUDOnDeathPermission": "@jRandomSkills/death",
   "DisableSkillsOnRoundEnd": false,
   "CurseSkillPerPlayer": null,
+  "ShowDecoyRing": true,
   "Weapons": {
     "Rifle": [
       "weapon_ak47",

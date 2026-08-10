@@ -10,6 +10,8 @@ using RayTraceAPI;
 using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
+using System.ComponentModel.Design;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
@@ -738,7 +740,15 @@ namespace src.player
                         if (entity == null || !entity.IsValid) return;
 
                         string designer = entity.DesignerName;
-                        if (designer.Contains("door") || designer.Contains("button") || designer.Contains("weapon") || designer.Contains("blocker")) return;
+
+                        if (designer.Contains("door"))
+                        {
+                            if (playerInfo.Skill == Skills.ThirdEye && !ThirdEye.IsOrginalCamera(player))
+                                SkillUtils.ToogleDoor(entity, pawn);
+                            return;
+                        }
+
+                        if (designer.Contains("button") || designer.Contains("weapon") || designer.Contains("blocker")) return;
                     }
                 }
 

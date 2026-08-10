@@ -1,9 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
-using System.Drawing;
-using System.Collections.Concurrent;
 using src.utils;
+using System.Collections.Concurrent;
+using System.Drawing;
 
 namespace src.player.skills
 {
@@ -42,6 +43,19 @@ namespace src.player.skills
             ChangeCamera(player, true);
             EntityManager.DestroyPlayerEntities(player.Index);
             cameras.TryRemove(player.Index, out _);
+        }
+
+        public static bool IsOrginalCamera(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return true;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid) return true;
+
+            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item1 != 0)
+                return pawn?.CameraServices?.ViewEntity.Raw == cameraInfo.Item1;
+
+            return true;
         }
 
         public static void OnTick()

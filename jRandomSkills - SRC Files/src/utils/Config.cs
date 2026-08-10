@@ -107,6 +107,7 @@ namespace src.utils
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
             public int? CurseSkillPerPlayer { get; set; }
+            public bool ShowDecoyRing { get; set; }
             public WeaponPools Weapons { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
             public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
@@ -139,6 +140,7 @@ namespace src.utils
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
                 CurseSkillPerPlayer = null;
+                ShowDecoyRing = true;
 
                 Weapons = new WeaponPools
                 {

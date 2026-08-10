@@ -1099,6 +1099,22 @@ namespace src.utils
             manager.OpenMainMenu(player, menu);
         }
 
+        public static void ToogleDoor(CBaseEntity entity, CBasePlayerPawn pawn)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+            if (entity == null || !entity.IsValid) return;
+            if (!entity.DesignerName.Contains("door")) return;
+
+            var door = new CPropDoorRotating(entity.Handle);
+            if (door == null || !door.IsValid) return;
+
+            if (door.DoorState == DoorState_t.DOOR_STATE_CLOSED || door.DoorState == DoorState_t.DOOR_STATE_CLOSING)
+                door.AcceptInput("use", pawn, door, "!activator");
+
+            else if (door.DoorState == DoorState_t.DOOR_STATE_OPEN || door.DoorState == DoorState_t.DOOR_STATE_OPENING)
+                door.AcceptInput("close");
+        }
+
         public static void SetTeamScores(short ctScore, short tScore, RoundEndReason roundEndReason)
         {
             if (jRandomSkills.Instance == null || jRandomSkills.Instance.GameRules == null) return;
