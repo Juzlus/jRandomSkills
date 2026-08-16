@@ -818,7 +818,7 @@
   },
   {
     "ParticleName": "particles/inferno_fx/incgrenade_thrown_trail.vpcf",
-    "ParticleOffset": 0.0,
+    "ParticleOffset": 10.0,
     "MaximumFuel": 150.0,
     "FuelConsumption": 0.64,
     "Refuelling": 0.1,

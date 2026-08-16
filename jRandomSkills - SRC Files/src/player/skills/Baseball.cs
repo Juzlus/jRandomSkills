@@ -11,7 +11,7 @@ namespace src.player.skills
     public class Baseball : ISkill
     {
         private const Skills skillName = Skills.Baseball;
-        private static readonly ConcurrentDictionary<uint, byte> decoys = [];
+        private static readonly ConcurrentDictionary<uint, uint> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -28,13 +28,35 @@ namespace src.player.skills
         private static void KillAllDecoys()
         {
             foreach (var decoyIndex in decoys.Keys.ToArray())
-            {
-                var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>((int)decoyIndex);
-                if (decoy != null && decoy.IsValid && decoy.DesignerName == "decoy_projectile")
-                    decoy.AddEntityIOEvent("Kill", decoy, delay: 0.1f);
-            }
+                KillDecoy(decoyIndex);
 
             decoys.Clear();
+        }
+
+        private static void KillDecoy(uint decoyIndex)
+        {
+            var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>((int)decoyIndex);
+            if (decoy != null && decoy.IsValid && decoy.DesignerName == "decoy_projectile")
+                decoy.AddEntityIOEvent("Kill", decoy, delay: 0.1f);
+        }
+
+        private static void KillOwnerDecoys(uint ownerIndex)
+        {
+            foreach (var pair in decoys.ToArray())
+            {
+                if (pair.Value != ownerIndex) continue;
+
+                KillDecoy(pair.Key);
+                decoys.TryRemove(pair.Key, out _);
+            }
+        }
+
+        public static void PlayerDeath(EventPlayerDeath @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            KillOwnerDecoys(player.Index);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
@@ -76,9 +98,11 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
+            uint ownerIndex = PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(ownerIndex);
             if (playerInfo?.Skill != skillName) return;
-            decoys.TryAdd(decoy.Index, 0);
+            decoys.TryAdd(decoy.Index, ownerIndex);
 
             decoy.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
             decoy.Collision.CollisionGroup = pawn.Collision.CollisionGroup;
@@ -93,13 +117,8 @@ namespace src.player.skills
             if (playerInfo?.Skill != skillName) return;
 
             uint key = (uint)@event.Entityid;
-            if (decoys.ContainsKey(key))
-            {
-                var decoy = Utilities.GetEntityFromIndex<CDecoyProjectile>(@event.Entityid);
-                if (decoy != null && decoy.IsValid)
-                    decoy.AddEntityIOEvent("Kill", decoy, delay: 0.1f);
-                decoys.TryRemove(key, out _);
-            }
+            if (decoys.TryRemove(key, out _))
+                KillDecoy(key);
         }
 
         public static void OnTick()
@@ -194,6 +213,13 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Index, out _);
+
+            KillOwnerDecoys(player.Index);
+
+            var eventPlayer = PlayerManager.GetPlayerEvent(player);
+            if (eventPlayer != null && eventPlayer.IsValid && eventPlayer.Index != player.Index)
+                KillOwnerDecoys(eventPlayer.Index);
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
         }
 

@@ -68,7 +68,7 @@ namespace src.player.skills
             Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
 
             Debug.WriteToDebug($"[TrueArmor] {victim.PlayerName}: raw={damage:0.#} absorbed={absorbed:0.#} " +
-                $"passed={info.Damage:0.#} armor={armor}->{pending[victim.Index]} hp={victimPawn.Health}");
+                $"passed={info.Damage:0.#} armor={armor}->{pending[victim.Index]} hp={victimPawn.Health}", DebugCategory.Damage);
         }
 
         public static void OnTakeDamagePost(DynamicHook h)

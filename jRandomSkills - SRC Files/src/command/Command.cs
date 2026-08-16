@@ -91,7 +91,7 @@ namespace src.command
                 return;
 
             string[] commands = _.ArgString.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill}");
+            Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill}", DebugCategory.Skill);
 
             if (commands == null || commands.Length == 0)
                 Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);

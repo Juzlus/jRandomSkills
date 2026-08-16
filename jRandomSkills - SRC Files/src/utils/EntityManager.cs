@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.player;
 using System.Collections.Concurrent;
 using System.Drawing;
 using static src.jRandomSkills;
@@ -48,6 +49,20 @@ namespace src.utils
                 EntityType = entityType,
                 CreatedAt = DateTime.UtcNow
             };
+
+            if (Config.DebugEnabled(DebugCategory.Entity))
+                Debug.WriteToDebug($"[Entity] + {entityType} #{entityIndex} owner={DescribeOwner(playerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
+        }
+
+        private static string DescribeOwner(uint playerIndex)
+        {
+            return playerIndex == SystemOwnerIndex ? "system" : playerIndex.ToString();
+        }
+
+        private static void LogEntityError(string message)
+        {
+            Server.PrintToConsole($"[EntityManager] {message}");
+            Debug.WriteToDebug($"[Entity] ! {message}", DebugCategory.Entity);
         }
 
         public static void RegisterExisting(CBaseEntity? entity, uint playerIndex, string entityType)
@@ -95,7 +110,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedParticleSystem: {ex.Message}");
+                LogEntityError($"CreateTrackedParticleSystem: {ex.Message}");
                 return null;
             }
         }
@@ -113,7 +128,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedDynamicProp: {ex.Message}");
+                LogEntityError($"CreateTrackedDynamicProp: {ex.Message}");
                 return null;
             }
         }
@@ -137,7 +152,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedChicken: {ex.Message}");
+                LogEntityError($"CreateTrackedChicken: {ex.Message}");
                 return null;
             }
         }
@@ -155,7 +170,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedPhysicsProp: {ex.Message}");
+                LogEntityError($"CreateTrackedPhysicsProp: {ex.Message}");
                 return null;
             }
         }
@@ -195,7 +210,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedTrigger: {ex.Message}");
+                LogEntityError($"CreateTrackedTrigger: {ex.Message}");
                 return null;
             }
         }
@@ -222,7 +237,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] CreateTrackedBeam: {ex.Message}");
+                LogEntityError($"CreateTrackedBeam: {ex.Message}");
                 return null;
             }
         }
@@ -248,7 +263,10 @@ namespace src.utils
 
         public static bool DestroyEntity(uint entityIndex, float delay = 0.1f)
         {
-            trackedEntities.TryRemove(entityIndex, out _);
+            bool wasTracked = trackedEntities.TryRemove(entityIndex, out var removed);
+
+            if (wasTracked && Config.DebugEnabled(DebugCategory.Entity))
+                Debug.WriteToDebug($"[Entity] - {removed.EntityType} #{entityIndex} owner={DescribeOwner(removed.PlayerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
 
             if (SuppressKills)
                 return false;
@@ -267,7 +285,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] DestroyEntity {entityIndex}: {ex.Message}");
+                LogEntityError($"DestroyEntity {entityIndex}: {ex.Message}");
             }
 
             return false;
@@ -291,7 +309,7 @@ namespace src.utils
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[EntityManager] DestroyBeam {entityIndex}: {ex.Message}");
+                LogEntityError($"DestroyBeam {entityIndex}: {ex.Message}");
             }
 
             bool killed = DestroyEntity(entityIndex);

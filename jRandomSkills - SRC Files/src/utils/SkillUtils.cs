@@ -671,7 +671,7 @@ namespace src.utils
             return true;
         }
 
-        public readonly record struct HiddenPawn(uint Index, CsTeam Team, CCSPlayerPawn Pawn, bool HoldsBomb);
+        public readonly record struct HiddenPawn(uint Index, CsTeam Team, CCSPlayerPawn Pawn, bool HoldsBomb, uint[] CarriedIndexes);
 
         public static List<HiddenPawn> ResolveHiddenPawns(ICollection<uint> playerIndexes, uint? bombOwnerIndex)
         {
@@ -685,33 +685,41 @@ namespace src.utils
                 var pawn = controller.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
 
-                hidden.Add(new HiddenPawn(controller.Index, controller.Team, pawn, bombOwnerIndex == controller.Index));
+                hidden.Add(new HiddenPawn(controller.Index, controller.Team, pawn, bombOwnerIndex == controller.Index, ResolveCarriedIndexes(pawn)));
             }
 
             return hidden;
         }
 
-        public static void HideCarriedEntities(CCheckTransmitInfo info, CCSPlayerPawn? pawn)
+        private static uint[] ResolveCarriedIndexes(CCSPlayerPawn pawn)
         {
-            if (pawn == null || !pawn.IsValid) return;
-
             var weaponServices = pawn.WeaponServices;
-            if (weaponServices == null) return;
+            if (weaponServices == null) return [];
+
+            List<uint> indexes = [];
 
             var activeWeapon = weaponServices.ActiveWeapon?.Value;
-            if (activeWeapon != null && activeWeapon.IsValid && info.TransmitEntities.Contains(activeWeapon.Index))
-                info.TransmitEntities.Remove(activeWeapon.Index);
+            if (activeWeapon != null && activeWeapon.IsValid)
+                indexes.Add(activeWeapon.Index);
 
-            if (weaponServices.MyWeapons == null) return;
+            if (weaponServices.MyWeapons != null)
+                foreach (var handle in weaponServices.MyWeapons)
+                {
+                    var weapon = handle?.Value;
+                    if (weapon == null || !weapon.IsValid) continue;
+                    if (indexes.Contains(weapon.Index)) continue;
 
-            foreach (var handle in weaponServices.MyWeapons)
-            {
-                var weapon = handle?.Value;
-                if (weapon == null || !weapon.IsValid) continue;
+                    indexes.Add(weapon.Index);
+                }
 
-                if (info.TransmitEntities.Contains(weapon.Index))
-                    info.TransmitEntities.Remove(weapon.Index);
-            }
+            return [.. indexes];
+        }
+
+        public static void HideCarriedEntities(CCheckTransmitInfo info, in HiddenPawn target)
+        {
+            foreach (var index in target.CarriedIndexes)
+                if (info.TransmitEntities.Contains(index))
+                    info.TransmitEntities.Remove(index);
         }
 
         public static void ResetPrintHTML(CCSPlayerController? player)
@@ -1050,16 +1058,16 @@ namespace src.utils
                 : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>\u202A{player.GetSkillName(skillData.Skill)}\u202C</font><br>";
 
             var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLowerInvariant()}_select_info");
-            string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
+            string remainingLine = string.IsNullOrWhiteSpace(skill_select_info) || string.IsNullOrEmpty(config.WSADMenuSelectInfoLineSize)
                 ? ""
                 : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
 
             var hudContent = infoLine + skillLine + remainingLine;
 
-            string controllsLine =
+            string controllsLine = string.IsNullOrEmpty(config.WSADMenuControllsLineSize) ? "" :
                 $"{emptySymbol}<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor1}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_scroll")}</font>"
                 + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor2}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_padding")}</font>"
-                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_select")}</font>{emptySymbol}";
+                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_select")}</font>{emptySymbol}<br>";
 
             string itemText = $"<font class='fontSize-{config.WSADMenuItemLineSize}' color='{config.WSADMenuItemLineColor}'>{{0}}</font><br>";
             string itemHoverText = $"<font class='fontSize-{config.WSADMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WSADMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
@@ -1103,7 +1111,8 @@ namespace src.utils
         {
             if (pawn == null || !pawn.IsValid) return;
             if (entity == null || !entity.IsValid) return;
-            if (!entity.DesignerName.Contains("door")) return;
+
+            if (!entity.DesignerName.StartsWith("prop_door_rotating", StringComparison.Ordinal)) return;
 
             var door = new CPropDoorRotating(entity.Handle);
             if (door == null || !door.IsValid) return;

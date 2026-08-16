@@ -10,7 +10,6 @@ namespace src.player.skills
     public class FrozenDecoy : ISkill
     {
         private const Skills skillName = Skills.FrozenDecoy;
-        private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -21,14 +20,12 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            decoys.Clear();
-            DecoyRing.ClearAll(skillName);
+            DecoyTracker.Clear(skillName);
         }
 
         public static void RoundEnd()
         {
-            decoys.Clear();
-            DecoyRing.ClearAll(skillName);
+            DecoyTracker.Clear(skillName);
         }
 
         public static void DecoyStarted(EventDecoyStarted @event)
@@ -40,43 +37,51 @@ namespace src.player.skills
             if (playerInfo?.Skill != skillName) return;
 
             Vector pos = new(@event.X, @event.Y, @event.Z);
-            decoys.TryAdd(pos, 0);
+            DecoyTracker.Add(skillName, (uint)@event.Entityid, pos, player.Index);
             DecoyRing.Show(skillName, (uint)@event.Entityid, pos, SkillsInfo.GetValue<float>(skillName, "triggerRadius"));
         }
 
         public static void DecoyDetonate(EventDecoyDetonate @event)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (player == null || !player.IsValid) return;
-
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
-
-            foreach (var decoy in decoys.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
-                decoys.TryRemove(decoy, out _);
-
-            DecoyRing.Hide(skillName, (uint)@event.Entityid);
+            DecoyTracker.Remove(skillName, (uint)@event.Entityid);
         }
 
         public static void OnTick()
         {
-            foreach (Vector decoyPos in decoys.Keys)
-                foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+            var decoyPositions = DecoyTracker.Positions(skillName);
+            if (decoyPositions.Length == 0) return;
+
+            float decoyRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
+            int slownessMultiplier = SkillsInfo.GetValue<int>(skillName, "slownessMultiplier");
+
+            List<CCSPlayerPawn> pawns = [];
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (player == null || !player.IsValid) continue;
+                if (player.Team is not (CsTeam.CounterTerrorist or CsTeam.Terrorist)) continue;
+
+                var eventPlayer = PlayerManager.GetPlayerEvent(player);
+                if (eventPlayer == null || !eventPlayer.IsValid) continue;
+
+                var pawn = eventPlayer.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+
+                pawns.Add(pawn);
+            }
+
+            if (pawns.Count == 0) return;
+
+            foreach (Vector decoyPos in decoyPositions)
+                foreach (var pawn in pawns)
                 {
-                    var eventPlayer = PlayerManager.GetPlayerEvent(player);
-                    if (eventPlayer == null || !eventPlayer.IsValid) continue;
+                    var origin = pawn.AbsOrigin;
+                    if (origin == null) continue;
 
-                    var decoyRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
+                    double distance = SkillUtils.GetDistance(decoyPos, origin);
+                    if (distance > decoyRadius) continue;
 
-                    var pawn = eventPlayer.PlayerPawn.Value;
-                    if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
-
-                    double distance = SkillUtils.GetDistance(decoyPos, pawn.AbsOrigin);
-                    if (distance <= decoyRadius)
-                    {
-                        double modifier = Math.Clamp(distance / decoyRadius, 0f, 1f);
-                        pawn.VelocityModifier = (float)Math.Pow(modifier, SkillsInfo.GetValue<int>(skillName, "slownessMultiplier"));
-                    }
+                    double modifier = Math.Clamp(distance / decoyRadius, 0f, 1f);
+                    pawn.VelocityModifier = (float)Math.Pow(modifier, slownessMultiplier);
                 }
         }
 
@@ -137,6 +142,12 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Index, out _);
+            DecoyTracker.RemoveOwner(skillName, player.Index);
+
+            var eventPlayer = PlayerManager.GetPlayerEvent(player);
+            if (eventPlayer != null && eventPlayer.IsValid && eventPlayer.Index != player.Index)
+                DecoyTracker.RemoveOwner(skillName, eventPlayer.Index);
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
         }
 

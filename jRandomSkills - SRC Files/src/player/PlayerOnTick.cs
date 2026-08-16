@@ -54,9 +54,9 @@ namespace src.player
             BotManager.Stop();
         }
 
-        private static void InitializeGameRules()
+        public static void InitializeGameRules()
         {
-            if (Instance.GameRules != null) return;
+            if (Instance.GameRules != null && Instance.GameRules.Handle != IntPtr.Zero) return;
             var gameRulesProxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
 
             if (gameRulesProxy != null)
@@ -182,7 +182,12 @@ namespace src.player
                         skillLine = $"<font color='{observedSpecialInfo.Color}'>{specialName}({primaryName})</font>";
                     }
 
-                    if (showDescriptionHUD)
+                    if (observedSkill.Skill != Skills.None && !string.IsNullOrEmpty(observedSkill.PrintHTML))
+                    {
+                        remainingLine = observedSkill.PrintHTML;
+                        isDescription = false;
+                    }
+                    else if (showDescriptionHUD)
                         remainingLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
                 }
             }

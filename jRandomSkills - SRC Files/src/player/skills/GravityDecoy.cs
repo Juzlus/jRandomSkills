@@ -13,7 +13,6 @@ namespace src.player.skills
 
         private const float defaultGravity = 1f;
 
-        private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
         private static readonly ConcurrentDictionary<uint, int> playersWithSkill = [];
         private static readonly ConcurrentDictionary<uint, byte> affected = [];
         private static readonly ConcurrentDictionary<uint, byte> restoreOnRespawn = [];
@@ -27,15 +26,13 @@ namespace src.player.skills
         public static void NewRound()
         {
             RestoreAll();
-            decoys.Clear();
-            DecoyRing.ClearAll(skillName);
+            DecoyTracker.Clear(skillName);
         }
 
         public static void RoundEnd()
         {
             RestoreAll();
-            decoys.Clear();
-            DecoyRing.ClearAll(skillName);
+            DecoyTracker.Clear(skillName);
         }
 
         public static void DecoyStarted(EventDecoyStarted @event)
@@ -47,31 +44,24 @@ namespace src.player.skills
             if (playerInfo?.Skill != skillName) return;
 
             Vector pos = new(@event.X, @event.Y, @event.Z);
-            decoys.TryAdd(pos, 0);
+            DecoyTracker.Add(skillName, (uint)@event.Entityid, pos, player.Index);
             DecoyRing.Show(skillName, (uint)@event.Entityid, pos, SkillsInfo.GetValue<float>(skillName, "triggerRadius"));
         }
 
         public static void DecoyDetonate(EventDecoyDetonate @event)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (player == null || !player.IsValid) return;
+            DecoyTracker.Remove(skillName, (uint)@event.Entityid);
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
-
-            foreach (var decoy in decoys.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
-                decoys.TryRemove(decoy, out _);
-
-            DecoyRing.Hide(skillName, (uint)@event.Entityid);
-
-            if (decoys.IsEmpty) RestoreAll();
+            if (DecoyTracker.IsEmpty(skillName)) RestoreAll();
         }
 
         public static void OnTick()
         {
-            if (decoys.IsEmpty && affected.IsEmpty && restoreOnRespawn.IsEmpty) return;
+            var decoyPositions = DecoyTracker.Positions(skillName);
 
-            if (decoys.IsEmpty && !affected.IsEmpty) RestoreAll();
+            if (decoyPositions.Length == 0 && affected.IsEmpty && restoreOnRespawn.IsEmpty) return;
+
+            if (decoyPositions.Length == 0 && !affected.IsEmpty) RestoreAll();
 
             float radius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
             float gravity = SkillsInfo.GetValue<float>(skillName, "gravityScale");
@@ -91,7 +81,9 @@ namespace src.player.skills
                 if (restoreOnRespawn.TryRemove(eventPlayer.Index, out _))
                     pawn.ActualGravityScale = defaultGravity;
 
-                bool inside = !decoys.IsEmpty && decoys.Keys.Any(d => SkillUtils.GetDistance(d, pawn.AbsOrigin) <= radius);
+                bool inside = false;
+                foreach (var decoyPos in decoyPositions)
+                    if (SkillUtils.GetDistance(decoyPos, pawn.AbsOrigin) <= radius) { inside = true; break; }
 
                 if (inside)
                 {
@@ -176,6 +168,15 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Index, out _);
+
+            DecoyTracker.RemoveOwner(skillName, player.Index);
+
+            var eventPlayer = PlayerManager.GetPlayerEvent(player);
+            if (eventPlayer != null && eventPlayer.IsValid && eventPlayer.Index != player.Index)
+                DecoyTracker.RemoveOwner(skillName, eventPlayer.Index);
+
+            if (DecoyTracker.IsEmpty(skillName)) RestoreAll();
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
         }
 

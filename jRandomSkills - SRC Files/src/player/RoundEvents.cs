@@ -27,27 +27,31 @@ namespace src.player
             bool ignoreMax = gameMode == Config.GameModes.SameSkills || gameMode == Config.GameModes.TeamSkills;
 
             const int attempts = 6;
+            var filtered = new List<jSkill_SkillInfo>(candidates.Count);
+
             for (int attempt = 0; attempt < attempts; attempt++)
             {
                 var (roll, rolled) = RarityManager.RollRarity();
+                string rolledName = rolled.ToString();
 
-                var filtered = candidates.Where(s =>
+                filtered.Clear();
+                foreach (var s in candidates)
                 {
-                    if (s == null) return false;
-                    var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == s.Skill.ToString());
-                    if (def == null) return false;
+                    if (s == null) continue;
+                    var def = SkillsInfo.GetSkillConfig(s.Skill);
+                    if (def == null) continue;
 
-                    if (!string.Equals(def.Rarity ?? string.Empty, rolled.ToString(), StringComparison.OrdinalIgnoreCase))
-                        return false;
+                    if (!string.Equals(def.Rarity ?? string.Empty, rolledName, StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     if (!ignoreMax && def.MaxPerServer >= 0)
                     {
                         int current = assignmentCounts.TryGetValue(s.Skill, out var c) ? c : 0;
-                        if (current >= def.MaxPerServer) return false;
+                        if (current >= def.MaxPerServer) continue;
                     }
 
-                    return true;
-                }).ToList();
+                    filtered.Add(s);
+                }
 
                 if (filtered.Count > 0)
                     return filtered[Random.Shared.Next(filtered.Count)];
@@ -55,7 +59,7 @@ namespace src.player
 
             var fallback = candidates.Where(s =>
             {
-                var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == s.Skill.ToString());
+                var def = SkillsInfo.GetSkillConfig(s.Skill);
                 if (def == null) return true;
                 if (ignoreMax) return true;
                 if (def.MaxPerServer < 0) return true;
@@ -361,11 +365,11 @@ namespace src.player
             if (pick.Skill == Skills.None) return true;
             if (!SkillData.Skills.Any(s => s.Skill == pick.Skill)) return false;
 
-            string name = pick.Skill.ToString();
+            string name = SkillNames.Get(pick.Skill);
             if (player.Team == CsTeam.Terrorist && counterterroristSkills.Any(s => s.Name == name)) return false;
             if (player.Team == CsTeam.CounterTerrorist && terroristSkills.Any(s => s.Name == name)) return false;
 
-            var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == name);
+            var def = SkillsInfo.GetSkillConfig(pick.Skill);
             if (def == null) return false;
             if (def.DisableOnPistolRound && SkillUtils.IsPistolRound()) return false;
             if (def.NeedsTeammates && validPlayers.Count(p => p.Team == player.Team) == 1) return false;
@@ -557,18 +561,18 @@ namespace src.player
                                 if (playerTarget == null || !playerTarget.IsValid) return;
 
                                 if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
-                                Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill);
+                                Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill, DebugCategory.Skill);
                                 Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
                         {
                             if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
-                            Debug.WriteToDebug("Enabling skill: " + randomSkill.Skill);
+                            Debug.WriteToDebug("Enabling skill: " + randomSkill.Skill, DebugCategory.Skill);
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
                         }
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                    Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
+                    Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{SkillNames.Get(randomSkill.Skill)}\".", DebugCategory.Skill);
                     UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
 
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
@@ -714,7 +718,7 @@ namespace src.player
                         Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
+                Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{SkillNames.Get(randomSkill.Skill)}\".", DebugCategory.Skill);
                 UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
             }
         }

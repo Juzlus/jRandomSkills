@@ -120,7 +120,9 @@ namespace src.player.skills
             }
             else
             {
-                if (pilotInfo.TrailIndex != null)
+                PauseTrail(pilotInfo);
+
+                if (isOnGround)
                     ClearTrail(pilotInfo);
 
                 if (pilotInfo.Fuel <= 0)
@@ -164,8 +166,13 @@ namespace src.player.skills
             if (pilotInfo.TrailIndex != null)
             {
                 var existing = Utilities.GetEntityFromIndex<CParticleSystem>((int)pilotInfo.TrailIndex.Value);
-                if (existing != null && existing.IsValid) return;
-                pilotInfo.TrailIndex = null;
+                if (existing != null && existing.IsValid)
+                {
+                    ResumeTrail(pilotInfo);
+                    return;
+                }
+
+                ClearTrail(pilotInfo);
             }
 
             if (pawn.AbsOrigin == null) return;
@@ -179,6 +186,29 @@ namespace src.player.skills
             particle.AcceptInput("Start");
 
             pilotInfo.TrailIndex = particle.Index;
+            pilotInfo.TrailActive = true;
+        }
+
+        private static void ResumeTrail(Pilot_PlayerInfo pilotInfo)
+        {
+            if (pilotInfo.TrailActive || pilotInfo.TrailIndex == null) return;
+
+            var particle = Utilities.GetEntityFromIndex<CParticleSystem>((int)pilotInfo.TrailIndex.Value);
+            if (particle != null && particle.IsValid)
+                particle.AcceptInput("Start");
+
+            pilotInfo.TrailActive = true;
+        }
+
+        private static void PauseTrail(Pilot_PlayerInfo pilotInfo)
+        {
+            if (!pilotInfo.TrailActive || pilotInfo.TrailIndex == null) return;
+
+            var particle = Utilities.GetEntityFromIndex<CParticleSystem>((int)pilotInfo.TrailIndex.Value);
+            if (particle != null && particle.IsValid)
+                particle.AcceptInput("Stop");
+
+            pilotInfo.TrailActive = false;
         }
 
         private static void StopTrail(Pilot_PlayerInfo pilotInfo)
@@ -187,6 +217,7 @@ namespace src.player.skills
 
             uint index = pilotInfo.TrailIndex.Value;
             pilotInfo.TrailIndex = null;
+            pilotInfo.TrailActive = false;
 
             var particle = Utilities.GetEntityFromIndex<CParticleSystem>((int)index);
             if (particle != null && particle.IsValid)
@@ -252,9 +283,10 @@ namespace src.player.skills
             public float LastJumpTime { get; set; } = 0;
             public bool IsFlying { get; set; } = false;
             public uint? TrailIndex { get; set; }
+            public bool TrailActive { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maximumFuel = 150f, float fuelConsumption = .64f, float refuelling = .1f, string particleName = "particles/inferno_fx/incgrenade_thrown_trail.vpcf", float particleOffset = 0f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maximumFuel = 150f, float fuelConsumption = .64f, float refuelling = .1f, string particleName = "particles/inferno_fx/incgrenade_thrown_trail.vpcf", float particleOffset = 10f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public string ParticleName { get; set; } = particleName;
             public float ParticleOffset { get; set; } = particleOffset;

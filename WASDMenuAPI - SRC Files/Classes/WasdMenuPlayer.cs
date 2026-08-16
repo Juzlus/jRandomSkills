@@ -225,7 +225,7 @@ public class WasdMenuPlayer
             if (option == CurrentChoice)
                 builder.AppendLine(string.Format(itemHoverText, finalOptionText));
             else
-                builder.AppendLine(string.Format(itemText, $"<font {(string.IsNullOrEmpty(color) ? "" : $"color='{color}'")}'>{finalOptionText}</font>"));
+                builder.AppendLine(string.Format(itemText, string.IsNullOrEmpty(color) ? finalOptionText : $"<font color='{color}'>{finalOptionText}</font>"));
 
             option = option.Next;
             shown++;

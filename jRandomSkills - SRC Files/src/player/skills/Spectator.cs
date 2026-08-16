@@ -116,7 +116,7 @@ namespace src.player.skills
                 if (cam != null && cam.IsValid)
                     EntityManager.DestroyEntity(cam.Index);
 
-                if (!forceToDefault)
+                if (!forceToDefault && pawn.CameraServices.ViewEntity.Raw == orginalCameraRaw)
                     newCameraRaw = CreateCamera(player);
             }
             else
@@ -140,7 +140,7 @@ namespace src.player.skills
 
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
 
-            if (forceToDefault && cameras.TryGetValue(player.Index, out var current) && current.Item2 != 0)
+            if (defaultCam && cameras.TryGetValue(player.Index, out var current) && current.Item2 != 0)
                 cameras[player.Index] = (current.Item1, 0, current.Item3);
 
             BlockWeapon(player, !defaultCam);
@@ -165,7 +165,11 @@ namespace src.player.skills
                 return 0;
             }
 
-            var enemy = enemies[Instance.Random.Next(enemies.Count)];
+            uint lastTarget = cameras.TryGetValue(player.Index, out var previous) ? previous.Item3 : 0;
+            if (lastTarget != 0 && enemies.Count > 1)
+                enemies.RemoveAll(p => p.Index == lastTarget);
+
+            var enemy = enemies[Random.Shared.Next(enemies.Count)];
 
             var pawn = enemy.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null || pawn.AbsOrigin == null)

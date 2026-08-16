@@ -20,7 +20,7 @@ namespace src
         public static jRandomSkills Instance { get; private set; }
 #pragma warning restore CS8618
         public IEnumerable<jSkill_PlayerInfo> SkillPlayer => PlayerManager.GetAllPlayers();
-        public Random Random { get; } = new Random();
+        public Random Random => Random.Shared;
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
         public IWasdMenuManager? MenuManager;
@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b6";
+        public override string ModuleVersion => "1.2.3.b7";
 
         public override void Load(bool hotReload)
         {
@@ -87,9 +87,9 @@ namespace src
                     SkillAction(skill.ToString()!, "LoadSkill");
 
             Debug.WriteToDebug($"jRandomSkills v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillsInfo.LoadedConfig.Count - 1} Skills) loaded!");
-            Debug.WriteToDebug($"GameModes: {(Config.GameModes)Config.LoadedConfig.GameMode}, Lang: {Config.LoadedConfig.LanguageSystem.DefaultLangCode}");
+            Debug.WriteToDebug($"GameModes: {(Config.GameModes)Config.LoadedConfig.GameMode}, Lang: {Config.LoadedConfig.LanguageSystem.DefaultLangCode}, Debug: {DebugCategories.Describe(Config.DebugFlags)}");
             foreach (var skill in SkillData.Skills)
-                Debug.WriteToDebug($"Loaded: {skill.Skill}");
+                Debug.WriteToDebug($"Loaded: {skill.Skill}", DebugCategory.Skill);
         }
 
         private static bool TryClaimCurseTarget(object[]? param)
