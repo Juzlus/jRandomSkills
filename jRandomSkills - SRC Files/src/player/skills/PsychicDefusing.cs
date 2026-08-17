@@ -12,6 +12,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.PsychicDefusing;
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static Vector? bombLocation = null;
+        private static bool roundEnded;
         private static readonly float tickRate = 64f;
         private static readonly object setLock = new();
 
@@ -26,6 +27,17 @@ namespace src.player.skills
             {
                 SkillPlayerInfo.Clear();
                 bombLocation = null;
+                roundEnded = false;
+            }
+        }
+
+        public static void RoundEnd()
+        {
+            lock (setLock)
+            {
+                roundEnded = true;
+                bombLocation = null;
+                SkillPlayerInfo.Clear();
             }
         }
 
@@ -48,7 +60,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (bombLocation == null) return;
+            var bomb = bombLocation;
+            if (roundEnded || bomb == null) return;
             foreach (var skillInfo in SkillPlayerInfo)
             {
                 var playerIndex = skillInfo.Key;
@@ -60,7 +73,7 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
 
-                if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > SkillsInfo.GetValue<float>(skillName, "maxDefusingRange"))
+                if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bomb) > SkillsInfo.GetValue<float>(skillName, "maxDefusingRange"))
                 {
                     info.Defusing = false;
                     info.DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime");
@@ -76,13 +89,14 @@ namespace src.player.skills
                 if (info.DefusingTime <= 0)
                 {
                     var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
-                    if (plantedBomb != null)
+                    if (plantedBomb != null && plantedBomb.IsValid && plantedBomb.BombTicking && !plantedBomb.BombDefused)
                     {
                         plantedBomb.AddEntityIOEvent("Kill", plantedBomb, delay: 0.1f);
                         SkillUtils.TerminateRound(CsTeam.CounterTerrorist);
                     }
                     SkillUtils.ResetPrintHTML(player);
                     SkillPlayerInfo.Clear();
+                    bombLocation = null;
                 }
 
                 UpdateHUD(player, info);

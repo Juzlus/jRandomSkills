@@ -52,8 +52,11 @@ namespace src.player.skills
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid) return true;
 
+            var cameraServices = pawn.CameraServices;
+            if (cameraServices == null) return true;
+
             if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item1 != 0)
-                return pawn?.CameraServices?.ViewEntity.Raw == cameraInfo.Item1;
+                return cameraServices.ViewEntity.Raw == cameraInfo.Item1;
 
             return true;
         }

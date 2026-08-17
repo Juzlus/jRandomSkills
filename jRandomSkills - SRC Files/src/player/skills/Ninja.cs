@@ -83,7 +83,7 @@ namespace src.player.skills
                     if (info.TransmitEntities.Contains(target.Pawn.Index))
                         info.TransmitEntities.Remove(target.Pawn.Index);
 
-                    SkillUtils.HideCarriedEntities(info, target.Pawn);
+                    SkillUtils.HideCarriedEntities(info, target);
 
                     if (bomb == null || !target.HoldsBomb) continue;
 

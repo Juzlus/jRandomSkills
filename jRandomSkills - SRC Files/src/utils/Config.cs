@@ -10,8 +10,13 @@ namespace src.utils
         private static readonly string configPath = Path.Combine(configsFolder, "config.json");
         private static readonly object fileLock = new();
 
+        private static DebugCategory debugFlags;
+
         private static SettingsModel config = LoadConfig();
         public static SettingsModel LoadedConfig => config;
+
+        public static DebugCategory DebugFlags => debugFlags;
+        public static bool DebugEnabled(DebugCategory category) => (debugFlags & category) != 0;
 
         public static SettingsModel LoadConfig()
         {
@@ -23,6 +28,7 @@ namespace src.utils
                 {
                     Instance.Logger.LogInformation("Config file does not exist. Create a new config file...");
                     SaveConfig(newConfig);
+                    debugFlags = DebugCategories.Parse(newConfig.DebugMode);
                     return config = newConfig;
                 }
 
@@ -34,7 +40,7 @@ namespace src.utils
                         json = sr.ReadToEnd();
                     newConfig = JsonConvert.DeserializeObject<SettingsModel>(json) ?? new SettingsModel();
 
-                    if (IsSectionMissing(json, nameof(SettingsModel.Weapons)))
+                    if (HasMissingKeys(json) || IsLegacyDebugMode(json))
                         SaveConfig(newConfig);
                 }
                 catch
@@ -44,15 +50,36 @@ namespace src.utils
 
                 if (newConfig.DisplayAlwaysDescription)
                     newConfig.SkillDescriptionDuration = 9999;
+
+                debugFlags = DebugCategories.Parse(newConfig.DebugMode);
                 return config = newConfig;
             }
         }
 
-        private static bool IsSectionMissing(string json, string section)
+        private static bool HasMissingKeys(string json)
         {
             try
             {
-                return Newtonsoft.Json.Linq.JObject.Parse(json)[section] == null;
+                var current = Newtonsoft.Json.Linq.JObject.Parse(json);
+                var expected = Newtonsoft.Json.Linq.JObject.FromObject(new SettingsModel());
+
+                foreach (var property in expected.Properties())
+                    if (current[property.Name] == null) return true;
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool IsLegacyDebugMode(string json)
+        {
+            try
+            {
+                var token = Newtonsoft.Json.Linq.JObject.Parse(json)[nameof(SettingsModel.DebugMode)];
+                return token != null && token.Type == Newtonsoft.Json.Linq.JTokenType.Boolean;
             }
             catch
             {
@@ -93,7 +120,8 @@ namespace src.utils
             public bool EnableBotSkills { get; set; }
             public bool EnableBotKickDebug { get; set; }
             public bool EnableFullForceUpdate { get; set; }
-            public bool DebugMode { get; set; }
+            [JsonConverter(typeof(DebugModeConverter))]
+            public int DebugMode { get; set; }
             public bool PerfMode { get; set; }
             public string? AlternativeSkillButton { get; set; }
             public float SkillTimeBeforeStart { get; set; }
@@ -126,7 +154,7 @@ namespace src.utils
                 EnableBotSkills = true;
                 EnableBotKickDebug = false;
                 EnableFullForceUpdate = false;
-                DebugMode = false;
+                DebugMode = 0;
                 PerfMode = false;
                 AlternativeSkillButton = null;
                 SkillTimeBeforeStart = 7;

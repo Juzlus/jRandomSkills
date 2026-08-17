@@ -85,7 +85,7 @@ namespace src.player.skills
                     if (info.TransmitEntities.Contains(target.Pawn.Index))
                         info.TransmitEntities.Remove(target.Pawn.Index);
 
-                    SkillUtils.HideCarriedEntities(info, target.Pawn);
+                    SkillUtils.HideCarriedEntities(info, target);
 
                     // Hide the bomb as well, but only while this hidden player is the one holding it.
                     if (bomb == null || !target.HoldsBomb) continue;

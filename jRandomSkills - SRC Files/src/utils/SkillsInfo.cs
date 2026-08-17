@@ -85,6 +85,14 @@ namespace src.utils
             }
         }
 
+        public static DefaultSkillInfo? GetSkillConfig(Skills skill)
+        {
+            if (config == null) return null;
+
+            EnsureIndex();
+            return _byName.TryGetValue(SkillNames.Get(skill), out var skillConfig) ? skillConfig : null;
+        }
+
         public static T GetValue<T>(object skill, string key)
         {
             if (config == null) return default!;
@@ -170,5 +178,31 @@ namespace src.utils
             public string Rarity { get; set; } = rarity.ToString();
         }
 
+    }
+
+    public static class SkillNames
+    {
+        private static readonly string[] names = BuildNames();
+
+        private static string[] BuildNames()
+        {
+            var values = Enum.GetValues<Skills>();
+            int max = 0;
+            foreach (var value in values)
+                if ((int)value > max) max = (int)value;
+
+            var table = new string[max + 1];
+            foreach (var value in values)
+                table[(int)value] = value.ToString();
+
+            return table;
+        }
+
+        public static string Get(Skills skill)
+        {
+            int index = (int)skill;
+            if (index < 0 || index >= names.Length) return skill.ToString();
+            return names[index] ?? skill.ToString();
+        }
     }
 }

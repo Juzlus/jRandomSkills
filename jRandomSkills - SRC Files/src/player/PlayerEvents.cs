@@ -10,8 +10,6 @@ using RayTraceAPI;
 using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
-using System.ComponentModel.Design;
-using System.Security.Principal;
 using System.Text.RegularExpressions;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.jRandomSkills;
@@ -198,7 +196,7 @@ namespace src.player
 
         private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args, bool post)
         {
-            if (Config.LoadedConfig.DebugMode != true)
+            if (!Config.DebugEnabled(DebugCategory.Damage))
             {
                 InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
                 return;
@@ -211,7 +209,7 @@ namespace src.player
 
             float after = info == null ? 0f : info.Damage;
             if (Math.Abs(before - after) > 0.01f)
-                Debug.WriteToDebug($"[DMG] {skill} changed damage {before:0.#} -> {after:0.#}{DescribeDamageTarget(h)}");
+                Debug.WriteToDebug($"[DMG] {skill} changed damage {before:0.#} -> {after:0.#}{DescribeDamageTarget(h)}", DebugCategory.Damage);
         }
 
         private static string DescribeDamageTarget(DynamicHook h)
@@ -752,7 +750,7 @@ namespace src.player
                     }
                 }
 
-                Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}");
+                Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}", DebugCategory.Skill);
                 Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
             }
         }
@@ -805,9 +803,10 @@ namespace src.player
 
                 string skillLine = $"{emptySymbol2}<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>{centerLine}</font>{emptySymbol2}";
 
-                string remainingLine = string.IsNullOrWhiteSpace(extraLine)
+                var extraLineSize = isDescription ? config.SkillDescriptionLineSize : config.InfoLineSize;
+                string remainingLine = string.IsNullOrWhiteSpace(extraLine) || string.IsNullOrEmpty(extraLineSize)
                     ? ""
-                    : $"<br>{emptySymbol}<font class='fontSize-{(isDescription ? config.SkillDescriptionLineSize : config.InfoLineSize)}' color='{(isDescription ? config.SkillDescriptionLineColor : config.InfoLineColor)}'>{extraLine}</font>{emptySymbol}";
+                    : $"<br>{emptySymbol}<font class='fontSize-{extraLineSize}' color='{(isDescription ? config.SkillDescriptionLineColor : config.InfoLineColor)}'>{extraLine}</font>{emptySymbol}";
 
                 var hudContent = "<jRS/>" + infoLine + skillLine + remainingLine;
 
