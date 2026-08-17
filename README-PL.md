@@ -47,7 +47,7 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Aktualne Supermoce (145)
+## ✨ Aktualne Supermoce (154)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
@@ -89,7 +89,9 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Glaz                 | Widzisz przez granaty dymne                                                                                       | -               |
 | Glitch               | Wyłączasz radar wybranemu przeciwnikowi                                                                           | -               |
 | Gorąca Bomba         | Dopóki żyjesz, bomba zadaje obrażenia osobie, która ją niesie                                                     | -               |
+| Granat EMP           | Kto oberwie twoim granatem, na chwilę traci radar i celownik.                                                     | 3 s             |
 | Granatnik            | Masz nieskończone granaty HE                                                                                      | -               |
+| Grawitacyjny Wabik   | Twój wabik zmienia grawitację wszystkich w pobliżu.                                                               | 0.5x            |
 | Gruby                | Masz losowy mnożnik otrzymywanych obrażeń                                                                         | (0.65 - 0.85)x  |
 | Gumowe Kule          | Twoje pociski znacznie spowalniają graczy                                                                         | -               |
 | Głuchy               | Wybierasz gracza, dla którego chcesz wyłączyć wszystkie dźwięki                                                   | -               |
@@ -100,12 +102,13 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Jednostrzałowiec     | Po trafieniu natychmiast zabijasz przeciwnika                                                                     | -               |
 | Kameleon             | Pierwszy zabity gracz oddaje ci swoją umiejętność                                                                 | -               |
 | Kamera               | Kliknij [css_useSkill], aby utworzyć lub przełączyć się na kamerę                                                 | 30 s            |
+| Karający             | Gromadzisz część otrzymanych obrażeń i uwalniasz je przy następnym strzale.                                       | 0.5x            |
 | Katapulta            | Masz losową szansę na podrzucenie wroga                                                                           | (20 - 40)%      |
 | Klej                 | Twoje granaty przyklejają się do ścian                                                                            | -               |
 | Klątwa Skakania      | Wybrany przeciwnik skacze za każdym razem, gdy skaczą jego sojusznicy                                             | -               |
 | Koszmar              | Wywołaj u wybranego przeciwnika przerażającą wizję                                                                | -               |
-| Krucha Bomba         | Strzelanie do bomby powoduje jej uszkodzenie                                                                      | -               |
 | Królik               | Otrzymujesz auto "BunnyHopa"                                                                                      | -               |
+| Krucha Bomba         | Strzelanie do bomby powoduje jej uszkodzenie                                                                      | -               |
 | Krótka Bomba         | Bomba wybucha znacznie szybciej                                                                                   | -               |
 | Kurczak              | Otrzymujesz model kurczaka, poruszasz się o 10% szybciej i masz 50 HP                                             | -               |
 | Latarka              | Kliknij [css_useSkill], aby włączyć lub wyłączyć latarkę. Jej światło może oślepić przeciwników                   | 2 s             |
@@ -120,8 +123,10 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Medyk                | Kliknij [css_useSkill], aby użyć ładunku leczniczego, który przywraca 50 punktów zdrowia                          | 1 s             |
 | Mini Majk            | Losowa wielkość postaci na początku rundy                                                                         | (60 - 95)%      |
 | Mistrz Ostrza        | Trzymając nóż, masz dużą szansę na odparcie strzału                                                               | -               |
+| Mocne Uderzenie      | Naciśnij Attack2 na MP5, aby wystrzelić granat HE                                                                 | 10 s            |
 | Mrok                 | Nadaje efekt ciemności wybranemu przeciwnikowi                                                                    | -               |
 | Naprowadzane Granaty | Twoje granaty, z wyjątkiem dymnych, są przyciągane do wrogów                                                      | -               |
+| Nemezis              | Oznaczony gracz otrzymuje dodatkowe obrażenia.                                                                    | +0.25x          |
 | Nieskończone Ammo    | Otrzymujesz nieskończoną ilość amunicji do wszystkich broni                                                       | -               |
 | Nieważkość           | Twoje granaty nie podlegają grawitacji i lecą szybciej                                                            | -               |
 | Nieśmiertelność      | Kliknij [css_useSkill], aby stać się nieśmiertelnym na krótką chwilę                                              | 30 s            |
@@ -148,6 +153,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Papito               | Kliknij [css_useSkill], aby zamienić aktualną broń na AWP                                                         | 0 s             |
 | Pawel Jumper         | Otrzymujesz dodatkowy skok                                                                                        | -               |
 | Pilot                | Latanie przez określony czas. Przytrzymaj [USE - E], aby latać                                                    | -               |
+| Prawdziwy Pancerz    | Pancerz pochłania część otrzymywanych obrażeń zamiast zdrowia.                                                    | 0.33x           |
 | Proteza              | Ramiona i nogi są kuloodporne                                                                                     | -               |
 | Pustelnik            | Zabijanie przywraca amunicję i część zdrowia                                                                      | -               |
 | Pyro                 | Molotow przywraca zdrowie                                                                                         | -               |
@@ -172,15 +178,17 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Szpieg               | Na początku rundy otrzymujesz model postaci przeciwnika                                                           | -               |
 | Szybkie Rączki       | Kliknij [css_useSkill], aby przeładować broń, którą obecnie trzymasz                                              | -               |
 | Szybkostrzelność     | Wszystkie pociski są wystrzeliwane bardzo szybko                                                                  | -               |
+| Święty Granat Ręczny | Twoje granaty HE zadają podwójne obrażenia i mają podwójny zasięg                                                 | -               |
 | Teleport do drużyny  | Naciśnij [css_useSkill], aby teleportować się do członka drużyny, na którego patrzysz                             | 15 s            |
 | Teleporter           | Zamieniasz się miejscami z trafionym przeciwnikiem                                                                | -               |
 | Toksyczny Dym        | Twoje granaty dymne zadają obrażenia                                                                              | -               |
 | Trutka               | Wybierasz gracza, który co kilka sekund będzie otrzymywał obrażenia                                               | -               |
 | Trzecie Oko          | Kliknij [css_useSkill], aby aktywować widok z trzeciej osoby                                                      | 0 s             |
 | Tylko Głowa          | Otrzymujesz obrażenia tylko w głowę                                                                               | -               |
+| Voodoo               | Oznaczony wróg również otrzymuje część obrażeń, które ty dostajesz.                                               | 0.5x            |
+| Waga Ciężka          | Umiejętności, które cię popychają lub spowalniają, nie działają na ciebie.                                        | -               |
 | Wallhack             | Widzisz wrogów przez ściany                                                                                       | -               |
 | Wybuchowa Beczka     | Kliknij [css_useSkill], aby postawić beczkę, która wybucha po trafieniu                                           | 20 s            |
-| Mocne Uderzenie     | Naciśnij Attack2 na MP5, aby wystrzelić granat HE                                                                  | 10 s            |
 | Wyluzowany           | Podłożenie bomby zajmuje 10 sekund                                                                                | -               |
 | Zabierz Amunicję     | Kliknij [css_useSkill], aby zabrać magazynek aktywnej broni losowego przeciwnika                                  | -               |
 | Zabójczy Flash       | Każdy całkowicie oślepiony twoim granatem umiera, włącznie z Tobą                                                 | -               |
@@ -195,7 +203,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Zeus                 | Zeus x27 natychmiastowo się odnawia                                                                               | -               |
 | Zwrot do Nadawcy     | Pierwsze trafienie wroga powoduje, że wraca on na swój resp                                                       | -               |
 | Złodziej             | Możesz ukraść supermoc wybranemu graczowi                                                                         | -               |
-| Święty Granat Ręczny | Twoje granaty HE zadają podwójne obrażenia i mają podwójny zasięg                                                 | -               |
+| Zlecenie Śmierci     | Wyznacz nagrodę za głowę wroga; kto go zabije, dostaje pieniądze.                                                 | 300$            |
 | Żelazna Głowa        | Nie otrzymujesz obrażeń od strzałów w głowę                                                                       | -               |
 | Żołnierz             | Masz losowy mnożnik obrażeń                                                                                       | (1.15 - 1.35)x  |
 
@@ -295,7 +303,13 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
         "SummaryAfterTheRound": true,    // Pokazuj podsumowanie z ostatniej rundy
         "EnableBotSkills": true,         // Włącz umiejętności dla botów
         "EnableBotKickDebug": false,     // Co 45 sekund wyrzuć losowego bota (do celów debugowania/testowania)
-        "DebugMode": false,              // Zapisuje logi debugowania (zdarzenia graczy i działanie pluginu) do folderu Debug
+        "DebugMode": 0,                  // Zapisuje logi debugowania (zdarzenia graczy i działanie pluginu) do folderu Debug
+                                         // 0 - Wyłączone
+                                         // 1 - Skill
+                                         // 2 - Round
+                                         // 3 - Entity
+                                         // 4 - Damage
+                                         // Przykład: '123' włącza logowanie: Skill, Round i Entity
         "PerfMode": false,               // Zapisuje pomiary wydajności pluginu do folderu logs
         "AlternativeSkillButton": null,  // Możliwe przyciski:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
@@ -382,6 +396,7 @@ Plugin korzysta z zawartości następujących projektów:
 - [GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) autorstwa [MaxMind](https://www.maxmind.com/) - Dane geolokalizacyjne
 - [cs2-css-flashlight](https://github.com/creazy231/cs2-css-flashlight) autorstwa [creazy231](https://github.com/creazy231) - System tworzenia oświetlenia
 - [CServerSideClient](https://discord.com/channels/1160907911501991946/1508172390863994910/1508180670659166348) autorstwa [SLAYER](https://github.com/zakriamansoor47)
+- [CS2Plugins](https://github.com/ByDexterTR/CS2Plugins) autorstwa [ByDexterTR](https://github.com/ByDexterTR)
 
 ## ❤️ Szczególne podziękowania
 <div align="center">
@@ -406,6 +421,109 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.3.b7</b></summary>
+
+- #### Wspólne systemy
+    - **DecoyTracker** - Śledzenie wabików z uwzględnieniem właściciela, wspólne dla **Zamrażającego Wabika, Magnetycznego Wabika i Grawitacyjnego Wabika**, zastępujące osobne słowniki pozycji dla każdej umiejętności.
+    - **DebugCategory** - Nowy enum flag obsługujący `DebugMode`, z automatyczną migracją ze starej wartości logicznej.
+    - **SkillsInfo.GetSkillConfig** - Indeksowane wyszukiwanie konfiguracji skilli zastępujące liniowe przeszukiwanie używane przy losowaniu i renderowaniu HUD-u.
+    - **SkillNames** - Buforowana tabela nazw enumów, eliminująca powtarzające się wywołania `ToString()` podczas renderowania.
+    - **SkillUtils.HideCarriedEntities** - Wspólne rozwiązywanie przenoszonej broni dla **C4 Kamuflażu, Duszka i Ninja**.
+
+- #### Wydajność
+    - **Renderowanie skilli** - Usunięto wyszukiwanie konfiguracji o złożoności $O(n²)$; liczba rund przekraczających próg wydajności spadła z 89% do 0,3%.
+    - **CheckTransmit** - Łańcuch broni jest teraz rozwiązywany tylko raz dla każdej ukrytej postaci zamiast raz dla każdego odbiorcy; koszt **Duszka** spadł o 61%.
+    - **Pilot** - Smuga spalin jest teraz wstrzymywana i wznawiana zamiast niszczenia i tworzenia od nowa przy każdym zakończeniu lotu.
+    - **Magnetyczny Wabik** - Odczyty konfiguracji i lista postaci zostały przeniesione poza pętlę wykonywaną dla każdego wabika.
+    - **Zamrażający Wabik** - Odczyty konfiguracji zostały przeniesione poza pętlę wykonywaną przy każdym ticku.
+    - **Debug** - Hook obrażeń jest instalowany tylko wtedy, gdy włączono logowanie obrażeń.
+
+- #### Poprawki
+    - **Zdalne Rozbrajanie** - Nie można już zakończyć rozbrajania i przyznać dodatkowej rundy po zakończeniu bieżącej rundy.
+    - **Obserwator** - Przy każdym użyciu wybierany jest inny przeciwnik; wyłączanie umiejętności nie tworzy już za każdym razem nieużywanej kamery.
+    - **Random** - Współdzielona instancja `Random` została zastąpiona przez `Random.Shared`, zapobiegając błędnym wynikom przy jednoczesnym użyciu.
+    - **Bejsbolista** - Wabiki są usuwane, gdy ich właściciel zginie lub straci umiejętność.
+    - **Zamrażający Wabik, Grawitacyjny Wabik, Magnetyczny Wabik** - Wabiki oraz ich pierścienie na ziemi są usuwane po odebraniu umiejętności.
+    - **Trzecie Oko** - Naprawiono sprawdzanie kamery odwołujące się do brakującego `CameraServices`; przełączanie drzwi sprawdza teraz klasę encji przed rzutowaniem.
+    - **Początek rundy** - Naprawiono pojawianie się komunikatu `[gamerules unavailable]` przy pierwszym zakończeniu czasu zamrożenia po każdej zmianie mapy.
+    - **Konfiguracja** - Dodano migrację kluczy brakujących w istniejących plikach konfiguracyjnych.
+
+- #### Menu
+    - **WASDMenuAPI** - Naprawiono niepoprawny znacznik `<font>`, który powodował otwarcie atrybutu bez jego zamknięcia przy każdym niepodświetlonym wierszu menu.
+    - **Menu WSAD** - Linia z informacją o sterowaniu nie jest już usuwana, gdy ukryta zostanie linia nagłówka.
+    - **HtmlHudCustomisation** - Puste opcje rozmiaru linii ukrywają teraz linię zamiast generować nieprawidłową klasę fontu.
+
+- #### Debug
+    - **DebugMode** - Zmieniono z wartości logicznej na liczbę z połączonymi cyframi kategorii:
+        - `1` - Skill
+        - `2` - Round
+        - `3` - Entity
+        - `4` - Damage
+        Przykład: `123` włącza logowanie **Skill, Round i Entity**. `0` wyłącza logowanie. Istniejące wartości `true` są migrowane automatycznie.
+    - **EntityManager** - Tworzenie, niszczenie i błędy encji są teraz logowane w kategorii **Entity** zamiast bezpośrednio w konsoli serwera.
+    - Przy uruchamianiu serwer informuje, które kategorie debugowania są aktywne.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#52](https://github.com/Juzlus/jRandomSkills/pull/52). Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
+<summary><b>v1.2.3.b6</b></summary>
+ 
+- #### Nowe moce (9)
+    - **Zlecenie Śmierci** - Wyznacz nagrodę za głowę wroga; kto go zabije, dostaje pieniądze.
+    - **Granat EMP** - Kto oberwie twoim granatem, na chwilę traci radar i celownik.
+    - **Grawitacyjny Wabik** - Twój wabik zmienia grawitację wszystkich w pobliżu.
+    - **Waga Ciężka** - Umiejętności, które cię popychają lub spowalniają, nie działają na ciebie.
+    - **Nemezis** - Oznaczony gracz otrzymuje dodatkowe obrażenia.
+    - **Karający** - Gromadzisz część otrzymanych obrażeń i uwalniasz je przy następnym strzale.
+    - **Cofnięcie** - Naciśnij [css_useSkill], aby zostawić znacznik i wkrótce do niego wrócić.
+    - **Prawdziwy Pancerz** - Pancerz pochłania część otrzymywanych obrażeń zamiast zdrowia.
+    - **Voodoo** - Oznaczony wróg również otrzymuje część obrażeń, które ty dostajesz.
+
+- #### Wspólne systemy
+    - **DecoyRing** - Wspólny pierścień na ziemi pokazujący rzeczywisty zasięg działania wabika.
+    - **Konfiguracja DecoyRing** - Dodano opcję wyłączenia pierścienia DecoyRing. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - **WeaponPool** - Scentralizowana klasyfikacja broni z obsługą konfigurowalnej sekcji `Weapons`, zastępująca powielone listy broni w wielu skillach.
+    - **Ukrywanie HUD-u** - System zliczania aktywnych blokad radaru/celownika zapobiega zbyt wczesnemu przywracaniu HUD-u przy nakładających się skillach.
+    - **ResolveHiddenPawns** - Wspólne rozwiązywanie niewidzialnych postaci dla **C4 Kamuflażu, Duszka i Ninja**.
+    - **Konfiguracja** - Dodano sekcję `Weapons` z automatyczną migracją dla istniejących instalacji.
+    - **DisableOnPistolRound** - Nowa opcja dostępna dla każdego skilla, pozwalająca wyłączyć go podczas rundy pistoletowej; obsługiwana zarówno przy losowaniu skilli, jak i przez `css_setskill`.
+
+- #### Dźwięk
+    * Zbalansowano głośność dźwięków skilli.
+    * Dodano `SkillUtils.EmitSoundToPlayer` z filtrowaniem odbiorców, dzięki czemu dźwięki skilli nie są już odtwarzane wszystkim graczom.
+    * Dodano nowe efekty dźwiękowe dla **Długiego Noża, Haka, Rykoszetu, Koszmaru, Linki z Drutu, Zakłócacza, Zdalnego Rozbrajania** i innych.
+    * Dodano konfigurowalny `SoundVolume` dla **29 skilli**; **Długi Nóż** obsługuje również `HitSoundVolume`.
+    - **Hak** - Dźwięk trafienia haka jest teraz odtwarzany w miejscu, w które trafił hak.
+    - **Pawel Jumper** - Dźwięk jest odtwarzany tylko przy dodatkowych skokach.
+
+- #### Modele i efekty wizualne
+    - **Hak** - Dodano właściwy model haka z konfigurowalnymi wartościami `hookScale` i `hookEmbed`.
+    - **Pilot** - Dodano świecącą smugę spalin podczas lotu.
+
+- #### Wydajność
+    - **SkillsInfo.GetValue** - Dodano cache eliminujący powtarzające się operacje reflection.
+    - **HUD** - Dodano cache renderowania, aby pomijać identyczne klatki.
+    - **Glaz** - Zoptymalizowano wyszukiwanie indeksów dymu oraz mapowanie właścicieli postaci.
+    - **playersSkills** - `ConcurrentBag` zastąpiono `HashSet`, poprawiając wyszukiwanie przy opcji `NoRepeat`.
+
+- #### Poprawki
+    - **NoRepeat** - Naprawiono problem, przez który gracze mogli otrzymywać kilka kopii tego samego skilla w jednej rundzie.
+    - **Papito** - Broń jest teraz prawidłowo przywracana po zmianie drużyn w połowie meczu.
+    - **Analfabeta** - Komunikaty dla posiadacza skilla docierają teraz do czatu i omijają jego własne zakłócenie tekstu.
+    - **EntityManager.DestroyBeam** - Naprawiono problem, przez który wiązki czasami pozostawały widoczne po zniszczeniu.
+    - **Rykoszet** - Usunięto diagnostyczne śledzenie generujące nadmierną ilość logów debugowania.
+    - **Trzecie Oko** - Dodano możliwość interakcji z drzwiami podczas korzystania z widoku trzeciej osoby. [autor: [@Juzlus](https://github.com/Juzlus)]
+
+- #### Debug
+    - Komunikaty dotyczące rozpoczęcia rundy rozgrzewkowej, końca rundy i zakończenia czasu zamrożenia mają teraz oznaczenie `[WARMUP]`, aby oddzielić aktywność rozgrzewki od obciążenia związanego z właściwą rundą.
+
+**"Pełna" aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#50](https://github.com/Juzlus/jRandomSkills/pull/50). Dziękujemy ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b5</b></summary>
@@ -455,29 +573,29 @@ Plugin korzysta z zawartości następujących projektów:
 <summary><b>v1.2.3.b4</b></summary>
 
 - #### Ogólne:
-    - ###### Dodano powiadomienie o aktywacji umiejętności `Analfabeta`. [by: [@Juzlus](https://github.com/Juzlus)]
-    - ###### `Analfabeta` wpływa teraz tylko na wiadomości związane z umiejętnościami. [by: [@Juzlus](https://github.com/Juzlus)]
-    - ###### FOV jest teraz resetowany tylko wtedy, gdy umiejętność `Lupa` jest aktywna, a aktualny FOV gracza odpowiada wartości ustawionej przez Lupa. [by: [@Juzlus](https://github.com/Juzlus)]
-    - ###### Klątwy są teraz cały czas śledzone i automatycznie usuwane po opuszczeniu serwera przez gracza, dzięki czemu nie przechodzą na kolejnego gracza używającego tego samego slotu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### Naprawiono problem, przez który błąd podczas czyszczenia rundy mógł zatrzymać dalsze czyszczenie i pozostawić blokadę usuwania encji aktywną do końca mapy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Dodano powiadomienie o aktywacji umiejętności `Analfabeta`. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### `Analfabeta` wpływa teraz tylko na wiadomości związane z umiejętnościami. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### FOV jest teraz resetowany tylko wtedy, gdy umiejętność `Lupa` jest aktywna, a aktualny FOV gracza odpowiada wartości ustawionej przez Lupa. [autor: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Klątwy są teraz cały czas śledzone i automatycznie usuwane po opuszczeniu serwera przez gracza, dzięki czemu nie przechodzą na kolejnego gracza używającego tego samego slotu. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Naprawiono problem, przez który błąd podczas czyszczenia rundy mógł zatrzymać dalsze czyszczenie i pozostawić blokadę usuwania encji aktywną do końca mapy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
 
 - #### Poprawki mocy:
     - ###### Wallhack / Koszmar:
-        - ###### Naprawiono problem, przez który obie umiejętności były ujawniane całemu serwerowi podczas pokazywania umiejętności na początku rundy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Naprawiono problem, przez który obie umiejętności były ujawniane całemu serwerowi podczas pokazywania umiejętności na początku rundy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Mocne Uderzenie / Ludzka Bomba / Wybuchowa Beczka / Strzał Wybuchowy / Toksyczny Dym:
-        - ###### Te umiejętności uwzględniają teraz redukcję obrażeń od przyjaznego ognia. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Te umiejętności uwzględniają teraz redukcję obrażeń od przyjaznego ognia. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Deszcz Ognia:
-        - ###### Dodano tryb rozprysku, który jest automatycznie używany po wykryciu sufitu nad celem. [by: [@Juzlus](https://github.com/Juzlus)]
-        - ###### Molotovy poprawnie zachowują teraz właściciela oraz drużynę, dzięki czemu zasady przyjaznego ognia działają poprawnie. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Dodano tryb rozprysku, który jest automatycznie używany po wykryciu sufitu nad celem. [autor: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Molotovy poprawnie zachowują teraz właściciela oraz drużynę, dzięki czemu zasady przyjaznego ognia działają poprawnie. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Lecząca Kura:
-        - ###### Dodano opcję konfiguracji zdrowia przywoływanych kurczaków. [by: [@Juzlus](https://github.com/Juzlus)]
-        - ###### Sojusznicy nie mogą już zadawać obrażeń ani zabijać przywołanych kurczaków. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Dodano opcję konfiguracji zdrowia przywoływanych kurczaków. [autor: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Sojusznicy nie mogą już zadawać obrażeń ani zabijać przywołanych kurczaków. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Zabierz Amunicję:
-        - ###### Naprawiono crash podczas zmiany mapy przy przywracaniu amunicji zapasowej broni. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Naprawiono crash podczas zmiany mapy przy przywracaniu amunicji zapasowej broni. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Fortnite:
-        - ###### Ściana pojawia się teraz z wysokim początkowym HP, dzięki czemu nie niszczy się natychmiast po postawieniu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Ściana pojawia się teraz z wysokim początkowym HP, dzięki czemu nie niszczy się natychmiast po postawieniu. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Odrzutowy Kop / Ostrożne Pociski / Dzikie Rzuty:
-        - ###### Naprawiono pozostające efekty po rozłączeniu się gracza będącego celem tych umiejętności. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Naprawiono pozostające efekty po rozłączeniu się gracza będącego celem tych umiejętności. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
 
 </details>
 
@@ -634,29 +752,29 @@ Plugin korzysta z zawartości następujących projektów:
 <summary><b>v1.2.2.b7</b></summary>
 
 - #### Ogólne:
-    - ###### Zaktualizowano sygnatury gamedata do najnowszej aktualizacji CS2 (build 24134959) oraz zaktualizowano CounterStrikeSharp do wersji 1.0.371. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### FNaprawiono `NullReferenceException` występujący podczas podnoszenia broni, gdy dane broni wskazywały na zwolnioną pamięć schematu. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### `FullForceUpdate` został zmieniony na opcjonalne ustawienie w konfiguracji. Jego włączenie zmniejsza ryzyko błędów PVS, ale powoduje znaczne obciążenie serwera (domyślnie wyłączone). [by: [@Juzlus](https://github.com/Juzlus)]
+    - ###### Zaktualizowano sygnatury gamedata do najnowszej aktualizacji CS2 (build 24134959) oraz zaktualizowano CounterStrikeSharp do wersji 1.0.371. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### FNaprawiono `NullReferenceException` występujący podczas podnoszenia broni, gdy dane broni wskazywały na zwolnioną pamięć schematu. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `FullForceUpdate` został zmieniony na opcjonalne ustawienie w konfiguracji. Jego włączenie zmniejsza ryzyko błędów PVS, ale powoduje znaczne obciążenie serwera (domyślnie wyłączone). [autor: [@Juzlus](https://github.com/Juzlus)]
 
 - #### Poprawki mocy:
     - ###### Duszek:
-        - ###### Teraz może podkładać C4. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Teraz może podkładać C4. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Samowolka / Krótka Bomba:
-        - ###### Odliczanie bomby wyświetlane na ekranie jest teraz zgodne z ustawionym czasem detonacji (`mp_c4timer`). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Odliczanie bomby wyświetlane na ekranie jest teraz zgodne z ustawionym czasem detonacji (`mp_c4timer`). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Bogacz:
-        - ###### Bonus za pieniądze teraz respektuje `mp_maxmoney` zamiast być ograniczony na sztywno do wartości 16000. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Bonus za pieniądze teraz respektuje `mp_maxmoney` zamiast być ograniczony na sztywno do wartości 16000. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Druga Szansa:
-        - ###### Teraz niezawodnie odradza gracza w bazie po otrzymaniu śmiertelnego obrażenia, również od obrażeń od upadku. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Teraz niezawodnie odradza gracza w bazie po otrzymaniu śmiertelnego obrażenia, również od obrażeń od upadku. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Cień:
-        - ###### Naprawiono fałszywy komunikat "brak miejsca" podczas teleportacji za cel z bliskiej odległości. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Naprawiono fałszywy komunikat "brak miejsca" podczas teleportacji za cel z bliskiej odległości. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Radarowiec:
-        - ###### Teraz ujawnia przeciwników tylko posiadaczowi mocy zamiast całej jego drużynie oraz nie ujawnia już niewidzialnych ani zamaskowanych przeciwników. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Teraz ujawnia przeciwników tylko posiadaczowi mocy zamiast całej jego drużynie oraz nie ujawnia już niewidzialnych ani zamaskowanych przeciwników. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### C4 Kamuflaż:
-        - ###### Niewidzialny gracz niosący bombe nie pojawia się już na radarze przeciwników. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Niewidzialny gracz niosący bombe nie pojawia się już na radarze przeciwników. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Gorąca bomba:
-        - ###### Podpowiedź dotycząca "gorącej bomby" nie pojawia się już w rundach, w których nikt nie posiada tej mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Podpowiedź dotycząca "gorącej bomby" nie pojawia się już w rundach, w których nikt nie posiada tej mocy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Błazen:
-        - ###### Naprawiono crashe występujące podczas wyłączania mocy. [by: [@Juzlus](https://github.com/Juzlus)]
+        - ###### Naprawiono crashe występujące podczas wyłączania mocy. [autor: [@Juzlus](https://github.com/Juzlus)]
 
 </details>
 
@@ -664,22 +782,22 @@ Plugin korzysta z zawartości następujących projektów:
 <summary><b>v1.2.2.b6</b></summary>
 
 - #### Ogólne:
-    - ###### Wydajność: znacznie przyspieszono zmianę rundy - resetowane są tylko moce, które były aktywne w poprzedniej rundzie, zamiast wszystkich załadowanych (DisableAll skrócono z ok. 89 ms do ok. 5 ms na pełnym serwerze). [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### Wydajność i zużycie pamięci: usunięto alokacje LINQ oraz nazw mocy wykonywane przy każdym ticku, przyspieszono wyszukiwanie nazw mocy w HUD do złożoności O(1), a podstawianie kolorów i przycisków w tłumaczeniach przeniesiono do etapu ich wczytywania. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### `ForceFullUpdate` tworzy teraz usługę sieciową tylko raz na każde rozgłoszenie, a zabezpieczenie kątów widoku na początku rundy pomija wyłącznie rzeczywistą wartość zastępczą (0, 0, 0), zamiast błędnie pomijać również poprawne kąty. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### Logowanie debugowania jest aktywowane tylko wtedy, gdy włączony jest DebugMode, a wpisy są zapisywane przy użyciu jednego, ponownie wykorzystywanego strumienia zamiast każdorazowego otwierania pliku. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### Stan mocy gracza został ujednolicony do jednej kolekcji (usunięto zduplikowaną listę), eliminując rzadkie problemy z desynchronizacją podczas rozłączenia gracza. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### Sygnatury Gamedata są teraz wczytywane leniwie i niezależnie od siebie, dzięki czemu uszkodzona sygnatura po aktualizacji CS2 nie powoduje już awarii całej warstwy narzędziowej. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### Zabezpieczono wiele ścieżek wykonywanych przy tickach i transmisji przed nieprawidłowymi uchwytami graczy, co zapobiega rzadkim awariom. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
-    - ###### HUD z opisem mocy poprawnie obsługuje opcję "zawsze pokazuj" (-1) we wszystkich ścieżkach przypisywania mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wydajność: znacznie przyspieszono zmianę rundy - resetowane są tylko moce, które były aktywne w poprzedniej rundzie, zamiast wszystkich załadowanych (DisableAll skrócono z ok. 89 ms do ok. 5 ms na pełnym serwerze). [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Wydajność i zużycie pamięci: usunięto alokacje LINQ oraz nazw mocy wykonywane przy każdym ticku, przyspieszono wyszukiwanie nazw mocy w HUD do złożoności O(1), a podstawianie kolorów i przycisków w tłumaczeniach przeniesiono do etapu ich wczytywania. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### `ForceFullUpdate` tworzy teraz usługę sieciową tylko raz na każde rozgłoszenie, a zabezpieczenie kątów widoku na początku rundy pomija wyłącznie rzeczywistą wartość zastępczą (0, 0, 0), zamiast błędnie pomijać również poprawne kąty. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Logowanie debugowania jest aktywowane tylko wtedy, gdy włączony jest DebugMode, a wpisy są zapisywane przy użyciu jednego, ponownie wykorzystywanego strumienia zamiast każdorazowego otwierania pliku. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Stan mocy gracza został ujednolicony do jednej kolekcji (usunięto zduplikowaną listę), eliminując rzadkie problemy z desynchronizacją podczas rozłączenia gracza. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Sygnatury Gamedata są teraz wczytywane leniwie i niezależnie od siebie, dzięki czemu uszkodzona sygnatura po aktualizacji CS2 nie powoduje już awarii całej warstwy narzędziowej. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### Zabezpieczono wiele ścieżek wykonywanych przy tickach i transmisji przed nieprawidłowymi uchwytami graczy, co zapobiega rzadkim awariom. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
+    - ###### HUD z opisem mocy poprawnie obsługuje opcję "zawsze pokazuj" (-1) we wszystkich ścieżkach przypisywania mocy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
 
 - #### Poprawki mocy:
     - ###### Błazen:
-        - ###### Naprawiono błąd, przez który efekt braku obrażeń pozostawał na graczu po zmianie jego mocy w trakcie rundy (np. po kradzieży przez Złodzieja lub usunięciu przez Dezaktywatora) - stan wewnętrzny jest teraz poprawnie czyszczony po wyłączeniu mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Naprawiono błąd, przez który efekt braku obrażeń pozostawał na graczu po zmianie jego mocy w trakcie rundy (np. po kradzieży przez Złodzieja lub usunięciu przez Dezaktywatora) - stan wewnętrzny jest teraz poprawnie czyszczony po wyłączeniu mocy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Stópkarz:
-        - ###### Naprawiono problem z gromadzeniem się śladów w trakcie rundy - poprzedni ślad jest teraz usuwany przed utworzeniem nowego. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Naprawiono problem z gromadzeniem się śladów w trakcie rundy - poprzedni ślad jest teraz usuwany przed utworzeniem nowego. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
     - ###### Oko Sokoła / Trzecie Oko / Obserwator:
-        - ###### Stan kamery jest teraz całkowicie resetowany po wyłączeniu mocy. [by: [@ByDexterTR](https://github.com/ByDexterTR)]
+        - ###### Stan kamery jest teraz całkowicie resetowany po wyłączeniu mocy. [autor: [@ByDexterTR](https://github.com/ByDexterTR)]
 
 </details>
 
