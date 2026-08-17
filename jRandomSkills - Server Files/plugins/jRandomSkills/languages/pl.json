@@ -60,7 +60,7 @@
   "blastshot": "Mocne Uderzenie",
   "blastshot_desc": "Naciśnij Attack2 na MP5, aby wystrzelić granat HE",
 
-  "bounty": "Nagroda",
+  "bounty": "Zlecenie Śmierci",
   "bounty_desc": "Wyznacz nagrodę za głowę wroga; kto go zabije, dostaje pieniądze",
   "bounty_select_info": "Wybierz gracza:",
   "bounty_player_info": "Wyznaczyłeś nagrodę {1}$ za '{0}'.",
@@ -241,7 +241,7 @@
   "grapple_no_anchor_info": "Brak powierzchni do zaczepienia haka.",
   "grapple_pulling_info": "PRZYCIĄGANIE",
 
-  "gravitydecoy": "Grawitacyjna wabik",
+  "gravitydecoy": "Grawitacyjny Wabik",
   "gravitydecoy_desc": "Twój wabik zmienia grawitację wszystkich w pobliżu",
 
   "grenadier": "Granatnik",
@@ -253,7 +253,7 @@
   "healingchicken": "Lecząca Kura",
   "healingchicken_desc": "Twoje kury leczą Cię, gdy jesteś w pobliżu",
 
-  "heavyweight": "Waga ciężka",
+  "heavyweight": "Waga Ciężka",
   "heavyweight_desc": "Umiejętności, które cię popychają lub spowalniają, nie działają na ciebie",
 
   "hermit": "Pustelnik",
@@ -446,8 +446,8 @@
   "prosthesis": "Proteza",
   "prosthesis_desc": "Ramiona i nogi są kuloodporne",
 
-  "punisher": "Karzyciel",
-  "punisher_desc": "Gromadzisz część otrzymanych obrażeń i dodajesz je do następnego trafienia",
+  "punisher": "Karający",
+  "punisher_desc": "Gromadzisz część otrzymanych obrażeń i uwalniasz je przy następnym strzale",
   "punisher_released_info": "Zadałeś {0} dodatkowych obrażeń i odzyskałeś tyle samo życia.",
 
   "push": "Odpychacz",
@@ -487,7 +487,7 @@
   "returntosender": "Zwrot do Nadawcy",
   "returntosender_desc": "Pierwsze trafienie wroga powoduje, że wraca on na swój resp",
 
-  "rewind": "Przewijanie",
+  "rewind": "Cofnięcie",
   "rewind_desc": "Naciśnij [css_useSkill], aby zostawić znacznik i wkrótce do niego wrócić",
   "rewind_pending_info": "POWRÓT: {0}",
 
@@ -580,8 +580,8 @@
   "tripwire_placed_info": "Linka została rozstawiona.",
   "tripwire_triggered_info": "'{0}' uruchomił Twoją linkę.",
 
-  "truearmor": "Prawdziwy pancerz",
-  "truearmor_desc": "Część obrażeń pokrywa twój pancerz zamiast zdrowia",
+  "truearmor": "Prawdziwy Pancerz",
+  "truearmor_desc": "Pancerz pochłania część otrzymywanych obrażeń zamiast zdrowia",
 
   "voodoo": "Voodoo",
   "voodoo_desc": "Oznaczony wróg również otrzymuje część obrażeń, które ty dostajesz",
