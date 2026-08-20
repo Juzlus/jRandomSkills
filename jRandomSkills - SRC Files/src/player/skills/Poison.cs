@@ -15,6 +15,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetToPlayer = [];
         private static readonly object setLock = new();
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -49,9 +50,9 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")));
+            int cooldown = poisonedPlayers.IsEmpty ? 0 : Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")));
 
-            if (Server.TickCount % cooldown == 0)
+            if (cooldown != 0 && Server.TickCount % cooldown == 0)
             {
                 int cooldown2 = cooldown * 2;
 
@@ -75,11 +76,12 @@ namespace src.player.skills
             }
 
             if (Server.TickCount % 32 != 0) return;
-            foreach (var player in PlayerManager.GetTickPlayers())
-            {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-                if (playerInfo == null || playerInfo.Skill != skillName) continue;
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            foreach (var player in holderBuffer)
+            {
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);

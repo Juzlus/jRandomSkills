@@ -53,9 +53,18 @@ namespace src.player.skills
 
         public static void BombPlanted(EventBombPlanted _)
         {
+            ResolveBombLocation();
+        }
+
+        private static void ResolveBombLocation()
+        {
             var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
-            if (plantedBomb != null)
-                bombLocation = plantedBomb.AbsOrigin;
+            if (plantedBomb == null || !plantedBomb.IsValid || !plantedBomb.BombTicking || plantedBomb.BombDefused) return;
+
+            var origin = plantedBomb.AbsOrigin;
+            if (origin == null) return;
+
+            bombLocation = new Vector(origin.X, origin.Y, origin.Z);
         }
 
         public static void OnTick()
@@ -92,7 +101,7 @@ namespace src.player.skills
                     if (plantedBomb != null && plantedBomb.IsValid && plantedBomb.BombTicking && !plantedBomb.BombDefused)
                     {
                         plantedBomb.AddEntityIOEvent("Kill", plantedBomb, delay: 0.1f);
-                        SkillUtils.TerminateRound(CsTeam.CounterTerrorist);
+                        SkillUtils.TerminateRound(CsTeam.CounterTerrorist, player);
                     }
                     SkillUtils.ResetPrintHTML(player);
                     SkillPlayerInfo.Clear();
@@ -105,8 +114,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid) return;
+            if (player == null || !player.IsValid) return;
 
             SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
@@ -114,6 +122,9 @@ namespace src.player.skills
                 Defusing = false,
                 DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime"),
             });
+
+            if (!roundEnded && bombLocation == null)
+                ResolveBombLocation();
         }
 
         public static void DisableSkill(CCSPlayerController player)

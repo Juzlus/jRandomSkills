@@ -63,15 +63,27 @@ namespace src.utils
                 var current = Newtonsoft.Json.Linq.JObject.Parse(json);
                 var expected = Newtonsoft.Json.Linq.JObject.FromObject(new SettingsModel());
 
-                foreach (var property in expected.Properties())
-                    if (current[property.Name] == null) return true;
-
-                return false;
+                return HasMissingKeys(current, expected);
             }
             catch
             {
                 return false;
             }
+        }
+
+        private static bool HasMissingKeys(Newtonsoft.Json.Linq.JObject current, Newtonsoft.Json.Linq.JObject expected)
+        {
+            foreach (var property in expected.Properties())
+            {
+                var currentValue = current[property.Name];
+                if (currentValue == null) return true;
+
+                if (property.Value is Newtonsoft.Json.Linq.JObject expectedChild
+                    && currentValue is Newtonsoft.Json.Linq.JObject currentChild
+                    && HasMissingKeys(currentChild, expectedChild)) return true;
+            }
+
+            return false;
         }
 
         private static bool IsLegacyDebugMode(string json)
@@ -227,6 +239,7 @@ namespace src.utils
                     WSADMenuItemLineColor = "white",
                     WSADMenuItemHoverLineColor = "orange",
                     WSADMenuItemLineSize = "sm",
+                    WSADMenuVisibleItems = 3,
                     WSADMenuControllsLineSize = "sm",
                     WSADMenuControllsLineColor1 = "cyan",
                     WSADMenuControllsLineColor2 = "white",
@@ -308,6 +321,7 @@ namespace src.utils
             public required string WSADMenuItemLineColor { get; set; }
             public required string WSADMenuItemHoverLineColor { get; set; }
             public required string WSADMenuItemLineSize { get; set; }
+            public required int WSADMenuVisibleItems { get; set; }
             public required string WSADMenuControllsLineSize { get; set; }
             public required string WSADMenuControllsLineColor1 { get; set; }
             public required string WSADMenuControllsLineColor2 { get; set; }

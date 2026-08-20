@@ -31,7 +31,7 @@ namespace src.player
                 {
                     var player = PlayerManager.GetPlayerEvent(@event.Userid);
                     if (player == null || !player.IsValid) return HookResult.Continue;
-                    WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} joined the game.", DebugCategory.Round);
+                    WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} joined the game.", DebugCategory.Round, ignoreIdle: true);
                     return HookResult.Continue;
                 });
 
@@ -39,7 +39,7 @@ namespace src.player
                 {
                     var player = PlayerManager.GetPlayerEvent(@event.Userid);
                     if (player == null || !player.IsValid) return HookResult.Continue;
-                    WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} disconnected.", DebugCategory.Round);
+                    WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} disconnected.", DebugCategory.Round, ignoreIdle: true);
                     return HookResult.Continue;
                 });
 
@@ -101,7 +101,7 @@ namespace src.player
 
             if (Config.DebugEnabled(DebugCategory.Damage))
             {
-                VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
+                Instance.RegisterListener<OnEntityTakeDamagePre>(OnTakeDamage);
                 damageHooked = true;
             }
         }
@@ -110,7 +110,7 @@ namespace src.player
         {
             if (damageHooked)
             {
-                try { VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Pre); }
+                try { Instance.RemoveListener<OnEntityTakeDamagePre>(OnTakeDamage); }
                 catch { }
                 damageHooked = false;
             }
@@ -118,16 +118,13 @@ namespace src.player
             lock (_writeLock) { _writer?.Dispose(); _writer = null; }
         }
 
-        private static HookResult OnTakeDamage(DynamicHook h)
+        private static HookResult OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return HookResult.Continue;
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn attackerPawn = new(damageInfo.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
                 return HookResult.Continue;
@@ -141,10 +138,10 @@ namespace src.player
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo == null) return HookResult.Continue;
 
-            var nativeHitGroup = SkillUtils.GetHitGroup(param2);
+            var nativeHitGroup = SkillUtils.GetHitGroup(damageInfo);
 
             WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}. " +
-                $"[dmg={param2.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={nativeHitGroup} " +
+                $"[dmg={damageInfo.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={nativeHitGroup} " +
                 $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}]", DebugCategory.Damage);
             return HookResult.Continue;
         }
@@ -163,9 +160,12 @@ namespace src.player
             return gameRules.WarmupPeriod ? " [WARMUP]" : string.Empty;
         }
 
-        public static void WriteToDebug(string message, DebugCategory category = DebugCategory.Core)
+        public static void WriteToDebug(string message, DebugCategory category = DebugCategory.Core, bool ignoreIdle = false)
         {
             if (!Config.DebugEnabled(category))
+                return;
+
+            if (!ignoreIdle && category != DebugCategory.Core && PlayerManager.IsServerIdle())
                 return;
 
             lock (_writeLock)

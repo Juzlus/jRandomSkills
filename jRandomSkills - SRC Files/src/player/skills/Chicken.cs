@@ -142,6 +142,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (chickens.IsEmpty) return;
+
             var pairs = chickens.ToArray();
             foreach (var valuePair in pairs)
             {

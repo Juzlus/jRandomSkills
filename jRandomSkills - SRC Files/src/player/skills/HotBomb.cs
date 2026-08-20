@@ -22,10 +22,10 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (players.IsEmpty || jRandomSkills.Instance.GameRules?.FreezePeriod == true) return;
+
             int cooldown = Math.Max(1, (int)(SkillsInfo.GetValue<float>(skillName, "cooldown") * 64));
             if (Server.TickCount % cooldown != 0) return;
-
-            if (players.IsEmpty || jRandomSkills.Instance.GameRules?.FreezePeriod == true) return;
             int damage = SkillsInfo.GetValue<int>(skillName, "damage");
 
             var owner = GetSkillOwner();

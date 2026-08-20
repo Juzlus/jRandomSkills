@@ -17,15 +17,12 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null || damageInfo.Handle == nint.Zero) return;
+            if (damageInfo.Attacker == null || !damageInfo.Attacker.IsValid || damageInfo.Attacker.Value == null) return;
 
-            if (param == null || !param.IsValid || param2 == null || param2.Handle == nint.Zero) return;
-            if (param2.Attacker == null || !param2.Attacker.IsValid || param2.Attacker.Value == null) return;
-
-            var attackerEnt = param2.Attacker.Value;
+            var attackerEnt = damageInfo.Attacker.Value;
             if (attackerEnt == null || !attackerEnt.IsValid) return;
 
             var attackerPawn = attackerEnt.As<CCSPlayerPawn>();
@@ -40,12 +37,12 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
-            if (!SkillUtils.IsBulletDamage(param2)) return;
+            if (!SkillUtils.IsBulletDamage(damageInfo)) return;
 
             int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
             if (offset <= 0) return;
 
-            nint hitGroupPointer = Marshal.ReadIntPtr(param2.Handle, offset);
+            nint hitGroupPointer = Marshal.ReadIntPtr(damageInfo.Handle, offset);
             if (hitGroupPointer == nint.Zero) return;
 
             nint hitGroupData = Marshal.ReadIntPtr(hitGroupPointer, 16);
@@ -60,14 +57,12 @@ namespace src.player.skills
             Marshal.WriteInt32(address, (int)HitGroup_t.HITGROUP_HEAD);
         }
 
-        public static void OnTakeDamagePost(DynamicHook h)
+        public static void OnTakeDamagePost(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, CTakeDamageResult damageResult)
         {
-            var info = h.GetParam<CTakeDamageInfo>(1);
-
-            if (info == null || info.Handle == nint.Zero)
+            if (damageInfo == null || damageInfo.Handle == nint.Zero)
                 return;
 
-            if (!SkillUtils.IsBulletDamage(info)) return;
+            if (!SkillUtils.IsBulletDamage(damageInfo)) return;
 
             if (_restoreStack.Value!.Count > 0)
             {

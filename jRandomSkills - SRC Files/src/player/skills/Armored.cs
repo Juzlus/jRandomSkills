@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -31,14 +31,11 @@ namespace src.player.skills
                 border: !PlayerManager.GetTickPlayers().Any(p => p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null) return;
 
-            if (param == null || !param.IsValid || param2 == null) return;
-
-            var victimPawn = param.As<CCSPlayerPawn>();
+            var victimPawn = damagedEntity.As<CCSPlayerPawn>();
             if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
             var victimController = victimPawn.Controller.Value;
@@ -53,7 +50,7 @@ namespace src.player.skills
             if (playerInfo.Skill == skillName && victim.PawnIsAlive)
             {
                 float? skillChance = playerInfo.SkillChance;
-                param2.Damage *= skillChance ?? 1f;
+                damageInfo.Damage *= skillChance ?? 1f;
             }
         }
 

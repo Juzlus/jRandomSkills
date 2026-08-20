@@ -74,6 +74,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (cameras.IsEmpty) return;
+
             foreach (var player in PlayerManager.GetTickPlayers())
                 if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
                 {

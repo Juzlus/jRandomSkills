@@ -50,15 +50,13 @@ namespace src.player.skills
                 storedDamage[victim.Index] = 0f;
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
             if (storedDamage.IsEmpty) return;
 
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-            if (param == null || !param.IsValid || param2 == null) return;
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null) return;
 
-            var victimPawn = param.As<CCSPlayerPawn>();
+            var victimPawn = damagedEntity.As<CCSPlayerPawn>();
             if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
             var victimController = victimPawn.Controller.Value;
@@ -67,9 +65,11 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid) return;
 
+            if (SkillUtils.IsFriendlyFireBlocked(skillName, damageInfo, victimPawn)) return;
+
             uint victimIndex = PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index;
 
-            var attacker = param2.Attacker?.Value?.As<CCSPlayerPawn>();
+            var attacker = damageInfo.Attacker?.Value?.As<CCSPlayerPawn>();
             var attackerController = attacker?.Controller?.Value?.As<CCSPlayerController>();
             uint? attackerIndex = attackerController != null && attackerController.IsValid
                 ? PlayerManager.GetPlayerEvent(attackerController)?.Index ?? attackerController.Index
@@ -78,7 +78,7 @@ namespace src.player.skills
             if (attackerIndex.HasValue && attackerIndex.Value != victimIndex && storedDamage.TryGetValue(attackerIndex.Value, out float banked) && banked > 0f)
             {
                 storedDamage[attackerIndex.Value] = 0f;
-                param2.Damage += banked;
+                damageInfo.Damage += banked;
 
                 var puncher = CounterStrikeSharp.API.Utilities.GetPlayerFromIndex((int)attackerIndex.Value);
                 var puncherPawn = puncher?.PlayerPawn?.Value;
@@ -97,14 +97,15 @@ namespace src.player.skills
             float ratio = SkillsInfo.GetValue<float>(skillName, "storePercent");
             float cap = SkillsInfo.GetValue<float>(skillName, "maxStored");
 
-            float stored = storedDamage[victimIndex] + (param2.Damage * ratio);
+            float stored = storedDamage[victimIndex] + (damageInfo.Damage * ratio);
             storedDamage[victimIndex] = MathF.Min(stored, cap);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffb347", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float storePercent = .5f, float maxStored = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffb347", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float storePercent = .5f, float maxStored = 100f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float StorePercent { get; set; } = storePercent;
             public float MaxStored { get; set; } = maxStored;
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

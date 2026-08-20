@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -35,21 +35,18 @@ namespace src.player.skills
             chickenOwners.Clear();
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (damagedEntity == null || damageInfo == null) return;
 
-            if (param == null || param2 == null) return;
-
-            if (!chickenOwners.TryGetValue(param.Index, out var ownerData)) return;
+            if (!chickenOwners.TryGetValue(damagedEntity.Index, out var ownerData)) return;
             uint ownerIndex = ownerData.ownerIndex;
             int health = ownerData.health;
 
             var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
             if (owner == null || !owner.IsValid) return;
 
-            var attackerEnt = param2.Attacker?.Value;
+            var attackerEnt = damageInfo.Attacker?.Value;
             if (attackerEnt == null || !attackerEnt.IsValid) return;
 
             var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
@@ -60,15 +57,15 @@ namespace src.player.skills
 
             if (attackerPawn.Index != ownerPawn.Index && attackerPawn.TeamNum == owner.TeamNum)
             {
-                param2.Damage = 0;
+                damageInfo.Damage = 0;
                 return;
             }
 
-            int newHealth = Math.Max(0, health - (int)param2.Damage);
-            chickenOwners[param.Index] = (ownerIndex, newHealth);
+            int newHealth = Math.Max(0, health - (int)damageInfo.Damage);
+            chickenOwners[damagedEntity.Index] = (ownerIndex, newHealth);
 
             if (newHealth > 0)
-                CreateHitParticles(param.Index);
+                CreateHitParticles(damagedEntity.Index);
         }
 
         private static void CreateHitParticles(uint chickenIndex)

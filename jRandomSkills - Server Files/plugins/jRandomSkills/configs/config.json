@@ -126,6 +126,7 @@
     "WSADMenuItemLineColor": "white",
     "WSADMenuItemHoverLineColor": "orange",
     "WSADMenuItemLineSize": "sm",
+    "WSADMenuVisibleItems": 3,
     "WSADMenuControllsLineSize": "sm",
     "WSADMenuControllsLineColor1": "cyan",
     "WSADMenuControllsLineColor2": "white",

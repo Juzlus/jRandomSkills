@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
@@ -65,7 +65,6 @@ namespace src.player.skills
                 {
                     UpdateWeapons(player, playerSkill);
                     CreateClone(playerSkill);
-                    SkillUtils.SetPlayerCollisions(player, false);
                 }
                 else if (playerSkill.CloneProp != null)
                     KillClone(playerSkill);
@@ -137,8 +136,6 @@ namespace src.player.skills
             var eventTarget = PlayerManager.GetPlayerFromEvent(player);
             if (eventTarget != null && eventTarget.IsValid)
                 SkillUtils.ApplyScreenColor(eventTarget, 0, 0, 0, 0, 10, 0, 2);
-
-            SkillUtils.SetPlayerCollisions(player, true);
 
             BlockWeapon(player, false);
             playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
@@ -305,25 +302,22 @@ namespace src.player.skills
             return shooter != null && shooter.IsValid ? shooter : null;
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null)
                 return;
 
-            if (string.IsNullOrEmpty(param.Entity.Name)) return;
-            if (!param.Entity.Name.StartsWith("IanaClone_")) return;
+            if (string.IsNullOrEmpty(damagedEntity.Entity.Name)) return;
+            if (!damagedEntity.Entity.Name.StartsWith("IanaClone_")) return;
 
-            var nameParams = param.Entity.Name.Split('_')[2];
+            var nameParams = damagedEntity.Entity.Name.Split('_')[2];
             _ = uint.TryParse(nameParams, out uint userIndex);
             if (userIndex == 0) return;
 
             var player = Utilities.GetPlayerFromIndex((int)userIndex);
             if (player == null || !player.IsValid) return;
 
-            float dealDamage = param2.Damage;
+            float dealDamage = damageInfo.Damage;
 
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))
             {
@@ -333,7 +327,7 @@ namespace src.player.skills
 
                 if (cloneProp != null && cloneProp.IsValid && cloneProp.AbsOrigin != null)
                 {
-                    Vector pos = param2.DamagePosition;
+                    Vector pos = damageInfo.DamagePosition;
                     Vector posCl = cloneProp.AbsOrigin;
 
                     bool isHead = false;
@@ -343,8 +337,8 @@ namespace src.player.skills
                     if (pos.Z >= posCl.Z + viewOffset - diff)
                         isHead = true;
 
-                    float damage = param2.Damage;
-                    string? weapon = param2.Ability?.Value?.DesignerName;
+                    float damage = damageInfo.Damage;
+                    string? weapon = damageInfo.Ability?.Value?.DesignerName;
                     if (weapon != null)
                         dealDamage = CalculateDamage(player, weapon, damage, isHead);
                 }
@@ -357,8 +351,8 @@ namespace src.player.skills
                 var playerPawn = player.PlayerPawn.Value;
                 if (playerPawn != null)
                 {
-                    KillfeedIcons? killfeed = KillfeedIconsExtensions.FromWeaponName(param2.Ability?.Value?.DesignerName);
-                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage, GetShooter(param2), killfeed ?? KillfeedIcons.Leg);
+                    KillfeedIcons? killfeed = KillfeedIconsExtensions.FromWeaponName(damageInfo.Ability?.Value?.DesignerName);
+                    SkillUtils.TakeHealth(playerPawn, (int)dealDamage, GetShooter(damageInfo), killfeed ?? KillfeedIcons.Leg);
                 }
             }
         }

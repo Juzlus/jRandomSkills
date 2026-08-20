@@ -17,11 +17,11 @@ namespace src.player
                 UpdateGameRules();
                 if (!SkillUtils.IsHudFrame()) return;
 
-                if (PerfLog.Enabled && Server.TickCount % 1920 == 0)
+                if (PerfLog.Enabled && Server.TickCount % 1920 == 0 && !PlayerManager.IsServerIdle())
                 {
                     int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
                     var (tracked, owners) = EntityManager.GetStatistics();
-                    PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}");
+                    PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}{EntityManager.DescribeTracked()}{Event.PerfContext()}");
                 }
 
                 long perfStart = PerfLog.Start();
@@ -108,7 +108,7 @@ namespace src.player
             }
             else if (skillPlayer.IsDrawing && player.PawnIsAlive)
             {
-                var randomSkill = skills[Instance.Random.Next(skills.Length)];
+                var randomSkill = skills[Random.Shared.Next(skills.Length)];
 
                 infoLine = player.GetTranslationWithoutIlliterate("drawing_skill");
                 skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
@@ -148,9 +148,7 @@ namespace src.player
                     var observerTarget = pawn.ObserverServices.ObserverTarget?.Value;
                     if (observerTarget == null || !observerTarget.IsValid) return;
 
-                    var observedPlayer = PlayerManager.GetTickPlayers().FirstOrDefault(p =>
-                        p != null && p.IsValid && p.Pawn?.Value?.Handle == observerTarget.Handle);
-
+                    var observedPlayer = PlayerManager.GetControllerByPawn(observerTarget.Handle);
                     if (observedPlayer == null) return;
 
                     var observedEvent = PlayerManager.GetPlayerEvent(observedPlayer);

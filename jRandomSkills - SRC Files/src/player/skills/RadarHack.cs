@@ -10,6 +10,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.RadarHack;
         private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -18,14 +19,14 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
-            {
-                var playerEvent = PlayerManager.GetPlayerEvent(player);
-                if (playerEvent == null) continue;
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
 
-                if (PlayerManager.GetPlayerByIndex(playerEvent.Index)?.Skill != skillName) continue;
+            foreach (var playerEvent in holderBuffer)
+            {
                 if (!Instance.IsPlayerValid(playerEvent)) continue;
 
+                var player = PlayerManager.GetPlayerFromEvent(playerEvent) ?? playerEvent;
                 SetEnemiesVisibleOnRadar(player);
             }
         }

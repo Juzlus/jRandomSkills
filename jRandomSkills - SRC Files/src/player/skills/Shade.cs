@@ -61,6 +61,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (noSpace.IsEmpty) return;
+
             foreach (var (playerIndex, time) in noSpace)
             {
                 var player = Utilities.GetPlayerFromIndex((int)playerIndex);

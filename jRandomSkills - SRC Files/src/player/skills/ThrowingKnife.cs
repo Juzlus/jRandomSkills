@@ -156,7 +156,13 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (knivesInfo.TryRemove(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null)
+            {
+                bool wasDropped = knifeInfo.IsDropped;
                 DisableKnifeSkill(knifeInfo);
+
+                if (wasDropped && player != null && player.IsValid && player.PawnIsAlive)
+                    player.GiveNamedItem("weapon_knife");
+            }
         }
 
         public static void PlayerDisconnect(uint playerIndex)

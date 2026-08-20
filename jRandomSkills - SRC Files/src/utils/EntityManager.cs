@@ -91,6 +91,21 @@ namespace src.utils
             return (trackedEntities.Count, trackedEntities.Values.Select(e => e.PlayerIndex).Distinct().Count());
         }
 
+        public static string DescribeTracked(int topTypes = 4)
+        {
+            var byType = new Dictionary<string, int>();
+            foreach (var data in trackedEntities.Values)
+            {
+                string type = string.IsNullOrEmpty(data.EntityType) ? "?" : data.EntityType;
+                byType[type] = byType.TryGetValue(type, out int count) ? count + 1 : 1;
+            }
+
+            if (byType.Count == 0) return string.Empty;
+
+            var parts = byType.OrderByDescending(kvp => kvp.Value).Take(topTypes).Select(kvp => $"{kvp.Key}:{kvp.Value}");
+            return " types=" + string.Join(",", parts);
+        }
+
 
         public static CParticleSystem? CreateTrackedParticleSystem(uint playerIndex, string particleName, float? autoDestroySeconds = null)
         {

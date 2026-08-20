@@ -24,13 +24,11 @@ namespace src.player.skills
         public static void NewRound()
         {
             RestoreAll();
-            jammedUntilTick.Clear();
         }
 
         public static void RoundEnd()
         {
             RestoreAll();
-            jammedUntilTick.Clear();
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -89,6 +87,8 @@ namespace src.player.skills
         {
             foreach (var playerIndex in jammedUntilTick.Keys)
                 SetHud(playerIndex, false);
+
+            jammedUntilTick.Clear();
         }
 
         private static void SetHud(uint playerIndex, bool jam)
@@ -142,6 +142,10 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Index, out _);
+
+            if (playersWithSkill.IsEmpty)
+                RestoreAll();
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
         }
 

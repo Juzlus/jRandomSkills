@@ -13,8 +13,8 @@ public interface ISkill
     public static void UseSkill(CCSPlayerController _) { }
     public static void TypeSkill(CCSPlayerController _, string[] __) { }
 
-    public static void OnTakeDamage(DynamicHook _) { }
-    public static void OnTakeDamagePost(DynamicHook _) { }
+    public static void OnTakeDamage(CBaseEntity _, CTakeDamageInfo __) { }
+    public static void OnTakeDamagePost(CBaseEntity _, CTakeDamageInfo __, CTakeDamageResult ___) { }
     public static void OnEntitySpawned(CEntityInstance _) { }
     public static void OnTick() { }
     public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList _) { }

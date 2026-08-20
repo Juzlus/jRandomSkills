@@ -10,6 +10,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.PawelJumper;
         private const string jumpSound = "Default.WalkJump";
+        private static readonly List<CCSPlayerController> holderBuffer = [];
         private static readonly int?[] J = new int?[64];
         private static readonly PlayerButtons[] LB = new PlayerButtons[64];
 
@@ -20,14 +21,15 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
-            {
-                if (player == null || !player.IsValid) return;
-                var playerEvent = PlayerManager.GetPlayerEvent(player);
-                var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
 
-                if (playerInfo?.Skill == skillName)
-                    GiveAdditionalJump(player, playerEvent);
+            foreach (var playerEvent in holderBuffer)
+            {
+                var player = PlayerManager.GetPlayerFromEvent(playerEvent) ?? playerEvent;
+                if (player == null || !player.IsValid) continue;
+
+                GiveAdditionalJump(player, playerEvent);
             }
         }
 

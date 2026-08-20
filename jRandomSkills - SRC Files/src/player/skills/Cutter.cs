@@ -14,19 +14,18 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn attackerPawn = new(damageInfo.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
                 return;
+
+            if (SkillUtils.IsFriendlyFireBlocked(skillName, damageInfo, victimPawn)) return;
 
             if (attackerPawn.Controller?.Value == null || victimPawn.Controller?.Value == null)
                 return;
@@ -38,15 +37,16 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            var weapon = param2.Ability?.Value;
+            var weapon = damageInfo.Ability?.Value;
             if (weapon == null || !weapon.IsValid) return;
             if (weapon.DesignerName != "weapon_knife" && weapon.DesignerName != "weapon_bayonet") return;
 
-            param2.Damage = 9999f;
+            damageInfo.Damage = 9999f;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#88a31a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#88a31a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

@@ -46,6 +46,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (bannedPlayers.IsEmpty) return;
+
             foreach (var item in bannedPlayers)
             {
                 var playerIndex = item.Key;

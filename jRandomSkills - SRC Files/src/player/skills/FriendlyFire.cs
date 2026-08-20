@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -29,19 +29,16 @@ namespace src.player.skills
             Server.ExecuteCommand($"mp_autokick {(defaultAutoKick ? 1 : 0)}");
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            if (param2.AmmoType == 255)
+            if (damageInfo.AmmoType == 255)
                 return;
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn attackerPawn = new(damageInfo.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (attackerPawn == null || !attackerPawn.IsValid || victimPawn == null || !victimPawn.IsValid)
                 return;
@@ -67,8 +64,8 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (playerInfo?.Skill != skillName || attacker!.Team != victim!.Team) return;
 
-            float damage = param2.Damage;
-            param2.Damage = 0;
+            float damage = damageInfo.Damage;
+            damageInfo.Damage = 0;
 
             if (!autoKickOverridden)
             {

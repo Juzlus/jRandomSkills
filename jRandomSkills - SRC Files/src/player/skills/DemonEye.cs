@@ -11,6 +11,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.DemonEye;
         private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -24,14 +25,14 @@ namespace src.player.skills
 
             int damage = SkillsInfo.GetValue<int>(skillName, "damage");
 
-            foreach (var player in PlayerManager.GetTickPlayers())
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            foreach (var playerEvent in holderBuffer)
             {
-                var playerEvent = PlayerManager.GetPlayerEvent(player);
                 if (!Instance.IsPlayerValid(playerEvent)) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
-                if (playerInfo?.Skill == skillName)
-                    HitEnemies(playerEvent, damage);
+                HitEnemies(playerEvent, damage);
             }
         }
 

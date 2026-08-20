@@ -220,27 +220,6 @@ namespace src.utils
             SnapViewAngles.Value?.Invoke(pawn, angle);
         }
 
-        public static void SetPlayerCollisions(CCSPlayerController? player, bool enable)
-        {
-            return;
-
-            if (player == null || !player.IsValid) return;
-
-            var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.CBodyComponent == null) return;
-
-            var collision = pawn.Collision;
-            if (collision == null) return;
-
-            var collisionGroup = (byte)(enable ? CollisionGroup.COLLISION_GROUP_PLAYER : CollisionGroup.COLLISION_GROUP_DEBRIS);
-
-            collision.CollisionGroup = collisionGroup;
-            collision.CollisionAttribute.CollisionGroup = collisionGroup;
-            Utilities.SetStateChanged(pawn, "CCollisionProperty", "m_collisionAttribute");
-
-            // CollisionRulesChanged(pawn);
-        }
-
         //public static void CollisionRulesChanged(CBaseEntity? entity)
         //{
         //    if (entity == null || !entity.IsValid || collisionRulesChangedOffset <= 0) return;
@@ -365,6 +344,30 @@ namespace src.utils
             bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
             bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
             return !ff && !tae; // same team + FF off -> engine will zero this damage
+        }
+
+        public static bool IsFriendlyFireBlocked(Skills skill, CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (!IsSameTeamHit(info, victimPawn)) return false;
+            if (!SkillsInfo.GetValue<bool>(skill, "friendlyFire")) return true;
+
+            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
+            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            return !ff && !tae;
+        }
+
+        public static bool IsSameTeamHit(CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (info == null || victimPawn == null || !victimPawn.IsValid) return false;
+
+            var attackerEnt = info.Attacker?.Value;
+            if (attackerEnt == null || !attackerEnt.IsValid) return false;
+            if (attackerEnt.Handle == victimPawn.Handle) return false;
+
+            var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
+            if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return false;
+
+            return attackerPawn.TeamNum == victimPawn.TeamNum;
         }
 
         public static float GetTeamDamageMultiplier(Skills skill)
@@ -945,7 +948,15 @@ namespace src.utils
         {
             if (jRandomSkills.Instance.MenuManager == null)
                 jRandomSkills.Instance.MenuManager = new WasdManager();
+
+            ApplyMenuVisibleItems();
             return jRandomSkills.Instance.MenuManager;
+        }
+
+        private static void ApplyMenuVisibleItems()
+        {
+            int visibleItems = Config.LoadedConfig.HtmlHudCustomisation.WSADMenuVisibleItems;
+            WASDMenuAPI.WasdMenuPlayer.DefaultVisibleOptions = visibleItems < 1 ? 3 : Math.Min(visibleItems, 10);
         }
 
         public static void CloseMenu(CCSPlayerController? player)
@@ -1092,11 +1103,20 @@ namespace src.utils
 
             if (lastElement != null)
             {
-                string encodedLastElement = isIlliterate
-                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(lastElement.Value.Item1)!)
-                    : System.Net.WebUtility.HtmlEncode(lastElement.Value.Item1);
+                string lastText = lastElement.Value.Item1;
+                string lastColor = string.Empty;
 
-                menu.Add($"\u202A{encodedLastElement}\u202C", (p, option) =>
+                if (lastText.Length > 8 && lastText[0] == '#' && lastText[7] == '|')
+                {
+                    lastColor = lastText[..8];
+                    lastText = lastText[8..];
+                }
+
+                string encodedLastElement = isIlliterate
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(lastText)!)
+                    : System.Net.WebUtility.HtmlEncode(lastText);
+
+                menu.Add($"{lastColor}\u202A{encodedLastElement}\u202C", (p, option) =>
                 {
                     jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
                     if (lastElement.Value.Item3)
@@ -1131,7 +1151,7 @@ namespace src.utils
             TerminateRoundFunc.Value?.Invoke(jRandomSkills.Instance.GameRules.Handle, 5f, roundEndReason, 0, 0);
         }
 
-        public static void TerminateRound(CsTeam winnerTeam)
+        public static void TerminateRound(CsTeam winnerTeam, CCSPlayerController? bonusPlayer = null)
         {
             if (jRandomSkills.Instance == null || jRandomSkills.Instance.GameRules == null) return;
             var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager");
@@ -1144,6 +1164,40 @@ namespace src.utils
 
             UpdateServerTeamScores(ctScore, tScore);
             jRandomSkills.Instance.GameRules?.TerminateRound(5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed);
+
+            AwardRoundEndMoney(winnerTeam, bonusPlayer);
+        }
+
+        private static void AwardRoundEndMoney(CsTeam winnerTeam, CCSPlayerController? bonusPlayer = null)
+        {
+            int winnerReward = winnerTeam == CsTeam.CounterTerrorist
+                ? ConVar.Find("cash_team_win_by_defusing_bomb")?.GetPrimitiveValue<int>() ?? 3500
+                : ConVar.Find("cash_team_terrorist_win_bomb")?.GetPrimitiveValue<int>() ?? 3500;
+
+            if (winnerReward <= 0) return;
+
+            int maxMoney = ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
+            int personalBonus = bonusPlayer == null
+                ? 0
+                : winnerTeam == CsTeam.CounterTerrorist
+                    ? ConVar.Find("cash_player_defused_bomb")?.GetPrimitiveValue<int>() ?? 300
+                    : ConVar.Find("cash_player_bomb_planted")?.GetPrimitiveValue<int>() ?? 300;
+
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (player == null || !player.IsValid) continue;
+                if (player.Team != winnerTeam) continue;
+
+                var moneyServices = player.InGameMoneyServices;
+                if (moneyServices == null) continue;
+
+                int reward = winnerReward;
+                if (bonusPlayer != null && bonusPlayer.IsValid && player.Index == bonusPlayer.Index)
+                    reward += personalBonus;
+
+                moneyServices.Account = Math.Clamp(moneyServices.Account + reward, 0, maxMoney);
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            }
         }
 
         private static void UpdateServerTeamScores(short ctScore, short tScore)

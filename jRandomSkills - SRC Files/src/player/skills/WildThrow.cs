@@ -114,7 +114,7 @@ namespace src.player.skills
                     !p.IsHLTV &&
                     p.Team != CsTeam.Spectator
                     && p.Team != CsTeam.None
-                ).ToArray();
+                ).OfType<CCSPlayerController>().ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);

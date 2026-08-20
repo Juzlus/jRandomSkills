@@ -81,6 +81,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (SkillPlayerInfo.IsEmpty) return;
+
             var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
             {

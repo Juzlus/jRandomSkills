@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
@@ -80,8 +80,10 @@ namespace src.player
             Instance.HookUserMessage(208, PlayerMakeSound);
             Instance.HookUserMessage(207, GetPrintToCenterHtml);
 
-            VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
-            VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamagePost, HookMode.Post);
+            Instance.RegisterListener<OnEntityTakeDamagePre>(OnEntityTakeDamagePre);
+            Instance.RegisterListener<OnEntityTakeDamagePost>(OnEntityTakeDamagePost);
+
+            PerfLog.ContextProvider = PerfContext;
 
             Instance.RegisterEventHandler<EventBulletImpact>(BulletImpact);
 
@@ -96,8 +98,8 @@ namespace src.player
 
         public static void Unload()
         {
-            TryUnhook(() => VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Pre));
-            TryUnhook(() => VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamagePost, HookMode.Post));
+            TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePre>(OnEntityTakeDamagePre));
+            TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePost>(OnEntityTakeDamagePost));
             TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
             TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
             TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
@@ -170,9 +172,8 @@ namespace src.player
             }
         }
 
-        private static void DispatchOnTakeDamage(DynamicHook h, bool post = false)
+        private static void DispatchOnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, object[] args, bool post = false)
         {
-            object[] args = [h];
             var seen = new HashSet<Skills>();
             List<Skills>? deferred = null;
 
@@ -186,15 +187,15 @@ namespace src.player
                     continue;
                 }
 
-                InvokeOnTakeDamage(p.Skill, h, args, post);
+                InvokeOnTakeDamage(p.Skill, damagedEntity, damageInfo, args, post);
             }
 
             if (deferred == null) return;
             foreach (var skill in deferred)
-                InvokeOnTakeDamage(skill, h, args, post);
+                InvokeOnTakeDamage(skill, damagedEntity, damageInfo, args, post);
         }
 
-        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args, bool post)
+        private static void InvokeOnTakeDamage(Skills skill, CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, object[] args, bool post)
         {
             if (!Config.DebugEnabled(DebugCategory.Damage))
             {
@@ -202,24 +203,22 @@ namespace src.player
                 return;
             }
 
-            var info = h.GetParam<CTakeDamageInfo>(1);
-            float before = info == null ? 0f : info.Damage;
+            float before = damageInfo == null ? 0f : damageInfo.Damage;
 
             InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
 
-            float after = info == null ? 0f : info.Damage;
+            float after = damageInfo == null ? 0f : damageInfo.Damage;
             if (Math.Abs(before - after) > 0.01f)
-                Debug.WriteToDebug($"[DMG] {skill} changed damage {before:0.#} -> {after:0.#}{DescribeDamageTarget(h)}", DebugCategory.Damage);
+                Debug.WriteToDebug($"[DMG] {skill} changed damage {before:0.#} -> {after:0.#}{DescribeDamageTarget(damagedEntity)}", DebugCategory.Damage);
         }
 
-        private static string DescribeDamageTarget(DynamicHook h)
+        private static string DescribeDamageTarget(CBaseEntity damagedEntity)
         {
             try
             {
-                var victimEntity = h.GetParam<CEntityInstance>(0);
-                if (victimEntity == null || !victimEntity.IsValid) return string.Empty;
+                if (damagedEntity == null || !damagedEntity.IsValid) return string.Empty;
 
-                var pawn = victimEntity.As<CCSPlayerPawn>();
+                var pawn = damagedEntity.As<CCSPlayerPawn>();
                 if (pawn == null || !pawn.IsValid || pawn.DesignerName != "player") return string.Empty;
 
                 var controller = pawn.Controller.Value?.As<CCSPlayerController>();
@@ -445,8 +444,61 @@ namespace src.player
 
         public static void InvalidateFreezeDisabledCache() => _freezeDisabledSkills = null;
 
+        private const double stallThresholdMs = 100.0;
+        private static long lastTickTimestamp;
+
+        private static void ReportStall()
+        {
+            if (!PerfLog.Enabled)
+            {
+                lastTickTimestamp = 0;
+                return;
+            }
+
+            long now = System.Diagnostics.Stopwatch.GetTimestamp();
+            long previous = lastTickTimestamp;
+            lastTickTimestamp = now;
+
+            if (previous == 0) return;
+
+            double gapMs = (now - previous) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+            if (gapMs >= stallThresholdMs && !PlayerManager.IsServerIdle())
+            {
+                var (tracked, owners) = EntityManager.GetStatistics();
+                PerfLog.Info($"STALL gap={gapMs:F2}ms tick={Server.TickCount} tracked={tracked} owners={owners}{PerfContext()}");
+            }
+        }
+
+        public static string PerfContext()
+        {
+            try
+            {
+                int players = 0, alive = 0, bots = 0;
+                foreach (var player in PlayerManager.GetTickPlayers())
+                {
+                    if (player == null || !player.IsValid || player.IsHLTV) continue;
+                    if (player.Team != CsTeam.Terrorist && player.Team != CsTeam.CounterTerrorist) continue;
+
+                    players++;
+                    if (player.IsBot) bots++;
+                    if (player.PawnIsAlive) alive++;
+                }
+
+                var gameRules = jRandomSkills.Instance?.GameRules;
+                int round = gameRules == null || gameRules.Handle == IntPtr.Zero ? -1 : gameRules.TotalRoundsPlayed;
+
+                return $" players={players} alive={alive} bots={bots} skills={_activeSkillsList.Count} round={round}";
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
         private static void OnTick()
         {
+            ReportStall();
+
             long perfStart = PerfLog.Start();
             lock (setLock)
             {

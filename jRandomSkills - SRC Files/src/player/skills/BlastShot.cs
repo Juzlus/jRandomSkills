@@ -50,6 +50,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (SkillPlayerInfo.IsEmpty) return;
+
             float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
 
             foreach (var player in PlayerManager.GetTickPlayers())
@@ -140,14 +142,11 @@ namespace src.player.skills
             });
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null) return;
 
-            if (param == null || param.Entity == null || param2 == null) return;
-
-            var nade = param2.Attacker.Value;
+            var nade = damageInfo.Attacker.Value;
             if (nade == null || !nade.IsValid) return;
 
             if (nade.DesignerName != "hegrenade_projectile") return;
@@ -158,7 +157,7 @@ namespace src.player.skills
             if (!int.TryParse(parts[2], out int nadeTeam)) return;
             if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
 
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (victimPawn.DesignerName != "player") return;
             if (victimPawn.Controller?.Value == null) return;
@@ -170,9 +169,17 @@ namespace src.player.skills
             if (owner != null && !owner.IsValid) owner = null;
 
             if (victimPawn.TeamNum == nadeTeam)
-                param2.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+            {
+                if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire"))
+                {
+                    damageInfo.Damage = 0;
+                    return;
+                }
 
-            if (owner != null && param2.Damage >= victimPawn.Health)
+                damageInfo.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+            }
+
+            if (owner != null && damageInfo.Damage >= victimPawn.Health)
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 
@@ -185,13 +192,14 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7740c9", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 400.0f, int explosionDamage = 60, float dmgReductionForTeamates = 0.5f, float cooldown = 10f, float force = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7740c9", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 400.0f, int explosionDamage = 60, float dmgReductionForTeamates = 0.5f, float cooldown = 10f, float force = 1000f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
             public float Cooldown { get; set; } = cooldown;
             public float Force { get; set; } = force;
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

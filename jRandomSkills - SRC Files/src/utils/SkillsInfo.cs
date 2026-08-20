@@ -44,6 +44,9 @@ namespace src.utils
                         json = sr.ReadToEnd();
 
                     var root = JsonConvert.DeserializeObject<JArray>(json);
+                    bool needsRewrite = root == null;
+                    var present = new HashSet<string>(StringComparer.Ordinal);
+
                     if (root != null)
                         foreach (var skillObj in root)
                         {
@@ -51,8 +54,24 @@ namespace src.utils
                             if (string.IsNullOrEmpty(name)) continue;
 
                             var instance = newConfig.FirstOrDefault(x => x.Name == name.ToString());
-                            if (instance != null) JsonConvert.PopulateObject(skillObj.ToString(), instance);
+                            if (instance == null) continue;
+
+                            present.Add(name);
+
+                            if (skillObj is JObject current && HasMissingKeys(current, instance))
+                                needsRewrite = true;
+
+                            JsonConvert.PopulateObject(skillObj.ToString(), instance);
                         }
+
+                    if (newConfig.Any(s => !string.IsNullOrEmpty(s.Name) && !present.Contains(s.Name)))
+                        needsRewrite = true;
+
+                    if (needsRewrite)
+                    {
+                        SaveConfig(newConfig);
+                        Instance.Logger.LogInformation("skillsInfo.json was missing keys; rewritten with the defaults filled in.");
+                    }
                 }
                 catch
                 {
@@ -61,6 +80,16 @@ namespace src.utils
 
                 return config = newConfig;
             }
+        }
+
+        private static bool HasMissingKeys(JObject current, DefaultSkillInfo expectedInstance)
+        {
+            var expected = JObject.FromObject(expectedInstance);
+
+            foreach (var property in expected.Properties())
+                if (current[property.Name] == null) return true;
+
+            return false;
         }
 
         public static void SaveConfig(SkillsInfoModel config)

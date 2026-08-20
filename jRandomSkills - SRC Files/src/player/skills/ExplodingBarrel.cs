@@ -130,12 +130,16 @@ namespace src.player.skills
             barrel.Entity!.Name = barrel.Globalname = $"Barrel_{Server.TickCount}_{player.TeamNum}_{player.Index}";
             barrel.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             barrel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(barrel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            barrel.DispatchSpawn();
+
+            using (var keys = new CEntityKeyValues())
+            {
+                keys.SetString("model", SkillsInfo.GetValue<string>(skillName, "propModel"));
+                barrel.DispatchSpawn(keys);
+            }
 
             Server.NextFrame(() =>
             {
                 if (barrel == null || !barrel.IsValid) return;
-                barrel.SetModel(SkillsInfo.GetValue<string>(skillName, "propModel"));
                 barrel.Teleport(pos, rotation, null);
             });
         }
@@ -165,27 +169,24 @@ namespace src.player.skills
             });
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null) return;
 
-            if (param == null || param.Entity == null || param2 == null) return;
-
-            if (HandleBarrelHit(param)) return;
-            HandleNadeDamage(param, param2);
+            if (HandleBarrelHit(damagedEntity)) return;
+            HandleNadeDamage(damagedEntity, damageInfo);
         }
 
-        private static bool HandleBarrelHit(CEntityInstance param)
+        private static bool HandleBarrelHit(CEntityInstance damagedEntity)
         {
-            if (string.IsNullOrEmpty(param.Entity!.Name)) return false;
-            if (!param.Entity.Name.StartsWith("Barrel_")) return false;
+            if (string.IsNullOrEmpty(damagedEntity.Entity!.Name)) return false;
+            if (!damagedEntity.Entity.Name.StartsWith("Barrel_")) return false;
 
-            var barrel = param.As<CDynamicProp>();
+            var barrel = damagedEntity.As<CDynamicProp>();
             if (barrel == null || !barrel.IsValid) return true;
             if (!consumedBarrels.TryAdd(barrel.Index, 0)) return true;
 
-            var nameParts = param.Entity.Name.Split('_');
+            var nameParts = damagedEntity.Entity.Name.Split('_');
             if (nameParts.Length < 4) return true;
             if (!int.TryParse(nameParts[2], out int teamNum)) return true;
             if (!uint.TryParse(nameParts[3], out uint ownerIndex)) return true;
@@ -207,9 +208,9 @@ namespace src.player.skills
             return true;
         }
 
-        private static void HandleNadeDamage(CEntityInstance param, CTakeDamageInfo param2)
+        private static void HandleNadeDamage(CEntityInstance damagedEntity, CTakeDamageInfo damageInfo)
         {
-            var nade = param2.Attacker?.Value;
+            var nade = damageInfo.Attacker?.Value;
             if (nade == null || !nade.IsValid) return;
             if (nade.DesignerName != "hegrenade_projectile") return;
             if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("barrel_team_")) return;
@@ -219,7 +220,7 @@ namespace src.player.skills
             if (!int.TryParse(parts[2], out int nadeTeam)) return;
             if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
 
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
             if (victimPawn.DesignerName != "player" || victimPawn.Controller?.Value == null) return;
 
             var victim = victimPawn.Controller.Value.As<CCSPlayerController>();
@@ -229,9 +230,17 @@ namespace src.player.skills
             if (owner != null && !owner.IsValid) owner = null;
 
             if (victimPawn.TeamNum == nadeTeam)
-                param2.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+            {
+                if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire"))
+                {
+                    damageInfo.Damage = 0;
+                    return;
+                }
 
-            if (owner != null && param2.Damage >= victimPawn.Health)
+                damageInfo.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+            }
+
+            if (owner != null && damageInfo.Damage >= victimPawn.Health)
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 
@@ -244,13 +253,14 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c0392b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 20f, float explosionRadius = 600f, int explosionDamage = 50, string propModel = "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl", float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c0392b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 20f, float explosionRadius = 600f, int explosionDamage = 50, string propModel = "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl", float dmgReductionForTeamates = 0.5f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
             public float ExplosionRadius { get; set; } = explosionRadius;
             public int ExplosionDamage { get; set; } = explosionDamage;
             public string PropModel { get; set; } = propModel;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

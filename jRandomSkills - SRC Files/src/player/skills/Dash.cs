@@ -67,6 +67,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (SkillPlayerInfo.IsEmpty) return;
+
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) return;

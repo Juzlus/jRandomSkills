@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
@@ -146,6 +146,7 @@
     "TickCooldown": 17,
     "GrenadeLimit": 1,
     "DmgReductionForTeamates": 0.5,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -321,6 +322,7 @@
   {
     "ChanceFrom": 1.15,
     "ChanceTo": 1.35,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -725,6 +727,7 @@
   {
     "StorePercent": 0.5,
     "MaxStored": 100.0,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -883,6 +886,7 @@
     "Rarity": "Common"
   },
   {
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -993,6 +997,7 @@
   },
   {
     "ExtraDamagePercent": 0.25,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1798,6 +1803,7 @@
     "Rarity": "Epic"
   },
   {
+    "Cooldown": 5.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1832,6 +1838,7 @@
     "ChanceFrom": 0.15,
     "ChanceTo": 0.3,
     "DmgReductionForTeamates": 0.5,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1851,6 +1858,7 @@
     "ExplosionDamage": 50,
     "PropModel": "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl",
     "DmgReductionForTeamates": 0.5,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -2008,6 +2016,7 @@
     "ExplosionRadius": 500.0,
     "ExplosionDamage": 999,
     "DmgReductionForTeamates": 0.5,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2103,6 +2112,7 @@
     "Rarity": "Common"
   },
   {
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2243,6 +2253,7 @@
     "DmgReductionForTeamates": 0.5,
     "Cooldown": 10.0,
     "Force": 1000.0,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2276,6 +2287,7 @@
   {
     "MaxSpeedVelocity": 2.0,
     "MaxDamageVelocity": 2.0,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2356,6 +2368,7 @@
   {
     "DamageMultiplier": 2.0,
     "ToleranceDeg": 45.0,
+    "FriendlyFire": true,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,

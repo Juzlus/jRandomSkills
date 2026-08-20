@@ -75,14 +75,11 @@ namespace src.player.skills
             });
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null) return;
 
-            if (param == null || param.Entity == null || param2 == null) return;
-
-            var nade = param2.Attacker?.Value;
+            var nade = damageInfo.Attacker?.Value;
             if (nade == null || !nade.IsValid) return;
 
             if (nade.DesignerName != "hegrenade_projectile") return;
@@ -93,7 +90,7 @@ namespace src.player.skills
             if (!int.TryParse(parts[2], out int nadeTeam)) return;
             if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
 
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (victimPawn.DesignerName != "player") return;
             if (victimPawn.Controller?.Value == null) return;
@@ -102,12 +99,20 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || victim.Index == ownerIndex) return;
 
             if (victimPawn.TeamNum == nadeTeam)
-                param2.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+            {
+                if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire"))
+                {
+                    damageInfo.Damage = 0;
+                    return;
+                }
+
+                damageInfo.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
+            }
 
             var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
             if (owner != null && !owner.IsValid) owner = null;
 
-            if (owner != null && param2.Damage >= victimPawn.Health)
+            if (owner != null && damageInfo.Damage >= victimPawn.Health)
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 
@@ -129,13 +134,14 @@ namespace src.player.skills
                 SpawnExplosion(pos, player);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f, float dmgReductionForTeamates = 0.5f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Damage { get; set; } = damage;
             public float DamageRadius { get; set; } = damageRadius;
             public float ChanceFrom { get; set; } = chanceFrom;
             public float ChanceTo { get; set; } = chanceTo;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

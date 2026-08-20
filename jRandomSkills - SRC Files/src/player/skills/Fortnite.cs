@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -141,24 +141,21 @@ namespace src.player.skills
             });
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            if (string.IsNullOrEmpty(param.Entity.Name)) return;
-            if (!param.Entity.Name.StartsWith("FortniteWall")) return;
+            if (string.IsNullOrEmpty(damagedEntity.Entity.Name)) return;
+            if (!damagedEntity.Entity.Name.StartsWith("FortniteWall")) return;
 
-            var box = param.As<CDynamicProp>();
+            var box = damagedEntity.As<CDynamicProp>();
             if (box == null || !box.IsValid) return;
             box.EmitSound("Wood_Plank.BulletImpact", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
             if (barricades.TryGetValue(box.Index, out int health))
             {
-                int newHealth = health - (int)param2.Damage;
+                int newHealth = health - (int)damageInfo.Damage;
 
                 if (newHealth <= 0)
                 {

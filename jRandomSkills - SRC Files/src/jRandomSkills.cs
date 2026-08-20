@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b7";
+        public override string ModuleVersion => "1.2.3.b8";
 
         public override void Load(bool hotReload)
         {
@@ -165,7 +165,7 @@ namespace src
 
             long perfStart = PerfLog.Start();
             var result = method.Invoke(null, param);
-            PerfLog.End($"SkillAction {skill}.{methodName}", perfStart, 2.0);
+            PerfLog.Sample($"SkillAction {skill}.{methodName}", perfStart, 30.0, 1.0);
             return result;
         }
 
@@ -176,7 +176,7 @@ namespace src
             CommandManager.RegisterCommand(definition);
         }
 
-        internal bool IsPlayerValid(CCSPlayerController? player)
+        internal bool IsPlayerValid([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] CCSPlayerController? player)
         {
             return player != null && player.IsValid && player.PlayerPawn?.Value != null && player.PlayerPawn.Value.IsValid && player.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE;
         }

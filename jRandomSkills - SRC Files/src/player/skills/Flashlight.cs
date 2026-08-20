@@ -41,6 +41,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (SkillPlayerInfo.IsEmpty) return;
+
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid)
@@ -288,10 +290,14 @@ namespace src.player.skills
                 if (needEnemySees && !enemySeesPlayer)
                     continue;
 
+                var targetOrigin = targetPawn.AbsOrigin;
+                if (targetOrigin == null)
+                    continue;
+
                 Vector targetEyePos = new(
-                    targetPawn.AbsOrigin.X,
-                    targetPawn.AbsOrigin.Y,
-                    targetPawn.AbsOrigin.Z + targetPawn.ViewOffset.Z
+                    targetOrigin.X,
+                    targetOrigin.Y,
+                    targetOrigin.Z + targetPawn.ViewOffset.Z
                 );
 
                 Vector toTarget = new(
