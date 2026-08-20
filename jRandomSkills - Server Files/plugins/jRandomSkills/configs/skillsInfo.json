@@ -1702,6 +1702,7 @@
   },
   {
     "HealthDamageMultiplier": 0.3,
+    "ManageAutoKick": true,
     "NeedsTeammates": true,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
