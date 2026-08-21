@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -42,6 +42,8 @@ namespace src.utils
         {
             if (entityIndex == 0) return;
 
+            bool alreadyTracked = trackedEntities.TryGetValue(entityIndex, out var previous);
+
             trackedEntities[entityIndex] = new EntityData
             {
                 EntityIndex = entityIndex,
@@ -50,8 +52,12 @@ namespace src.utils
                 CreatedAt = DateTime.UtcNow
             };
 
-            if (Config.DebugEnabled(DebugCategory.Entity))
+            if (!Config.DebugEnabled(DebugCategory.Entity)) return;
+
+            if (!alreadyTracked)
                 Debug.WriteToDebug($"[Entity] + {entityType} #{entityIndex} owner={DescribeOwner(playerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
+            else if (previous.EntityType != entityType)
+                Debug.WriteToDebug($"[Entity] ~ {previous.EntityType} -> {entityType} #{entityIndex} owner={DescribeOwner(playerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
         }
 
         private static string DescribeOwner(uint playerIndex)
@@ -130,7 +136,7 @@ namespace src.utils
             }
         }
 
-        public static CDynamicProp? CreateTrackedDynamicProp(uint playerIndex, string designerName = "prop_dynamic")
+        public static CDynamicProp? CreateTrackedDynamicProp(uint playerIndex, string designerName = "prop_dynamic", string? trackAs = null)
         {
             try
             {
@@ -138,7 +144,7 @@ namespace src.utils
                 var prop = Utilities.CreateEntityByName<CDynamicProp>(designerName);
                 if (prop == null || !prop.IsValid) return null;
 
-                RegisterEntity(prop.Index, playerIndex, designerName);
+                RegisterEntity(prop.Index, playerIndex, trackAs ?? designerName);
                 return prop;
             }
             catch (Exception ex)

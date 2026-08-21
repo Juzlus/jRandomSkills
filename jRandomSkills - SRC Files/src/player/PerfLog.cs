@@ -1,4 +1,4 @@
-using src.utils;
+﻿using src.utils;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using static src.jRandomSkills;
@@ -49,13 +49,18 @@ namespace src.player
 
         private static readonly double[] bucketBoundsMs = [0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8, 16, 32, double.MaxValue];
 
+        private const int maxRawSamples = 4096;
+
         private sealed class Aggregate
         {
             public double TotalMs;
             public double MaxMs;
             public int Count;
             public readonly int[] Buckets = new int[bucketBoundsMs.Length];
+            public readonly List<double> Raw = [];
             public DateTime WindowStart = DateTime.Now;
+
+            private bool rawSorted;
 
             public void Add(double ms)
             {
@@ -63,21 +68,53 @@ namespace src.player
                 Count++;
                 if (ms > MaxMs) MaxMs = ms;
 
+                if (Raw.Count < maxRawSamples) Raw.Add(ms);
+
                 for (int i = 0; i < bucketBoundsMs.Length; i++)
                     if (ms <= bucketBoundsMs[i]) { Buckets[i]++; break; }
             }
 
             public double Percentile(double fraction)
             {
+                if (Count == 0) return 0;
+
+                double value = Raw.Count == Count ? ExactPercentile(fraction) : BucketPercentile(fraction);
+                return value > MaxMs ? MaxMs : value;
+            }
+
+            private double ExactPercentile(double fraction)
+            {
+                if (!rawSorted)
+                {
+                    Raw.Sort();
+                    rawSorted = true;
+                }
+
+                int index = (int)Math.Ceiling(Raw.Count * fraction) - 1;
+                if (index < 0) index = 0;
+                if (index >= Raw.Count) index = Raw.Count - 1;
+                return Raw[index];
+            }
+
+            private double BucketPercentile(double fraction)
+            {
                 int target = (int)Math.Ceiling(Count * fraction);
                 if (target < 1) target = 1;
 
                 int seen = 0;
+                double lower = 0;
                 for (int i = 0; i < bucketBoundsMs.Length; i++)
                 {
+                    double upper = bucketBoundsMs[i] == double.MaxValue || bucketBoundsMs[i] > MaxMs ? MaxMs : bucketBoundsMs[i];
+
+                    if (seen + Buckets[i] >= target)
+                    {
+                        if (Buckets[i] <= 0) return upper;
+                        return lower + (upper - lower) * ((target - seen) / (double)Buckets[i]);
+                    }
+
                     seen += Buckets[i];
-                    if (seen >= target)
-                        return bucketBoundsMs[i] == double.MaxValue ? MaxMs : bucketBoundsMs[i];
+                    lower = upper;
                 }
                 return MaxMs;
             }
@@ -88,6 +125,8 @@ namespace src.player
                 MaxMs = 0;
                 Count = 0;
                 Array.Clear(Buckets);
+                Raw.Clear();
+                rawSorted = false;
                 WindowStart = DateTime.Now;
             }
         }
