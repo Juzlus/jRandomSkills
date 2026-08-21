@@ -273,13 +273,13 @@ namespace src.utils
                     ChangeLanguageCommand = new NormalCommand("lang, language, changelang, change_lang, jezyk, język", ""),
                     ReloadCommand = new NormalCommand("reload, refresh", "@jRandomSkills/admin"),
                     NextCommand = new NormalCommand("next_skill", "@jRandomSkills/admin"),
-                    CheckEntityCommand = new NormalCommand("ent, entity, checkentity, check_entity, sprawdzencje, checkent, check_ent, 检查实体, 检查实体", "@jRandomSkills/owner"),
+                    CheckEntityCommand = new NormalCommand("ent, entity, checkentity, check_entity, sprawdzencje, checkent, check_ent, 检查实体", "@jRandomSkills/owner"),
                 };
 
                 VotingCommands = new VotingCommands
                 {
                     StartGameCommand = new StartGameCommand(true, "start, go, começar, iniciar, 开始, 启动", "@jRandomSkills/admin", "mp_freezetime 15; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 0", "mp_freezetime 0; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 1", 15, 60, 15, 500, 2),
-                    ChangeMapCommand = new VotingCommand(true, "map, mapa, changemap, zmienmape, zmienmape, mudarMapa, trocarMapa, 更换地图, 更改地图", "@jRandomSkills/admin", 25, 90, 15, 500, 2),
+                    ChangeMapCommand = new VotingCommand(true, "map, mapa, changemap, zmienmape, mudarMapa, trocarMapa, 更换地图, 更改地图", "@jRandomSkills/admin", 25, 90, 15, 500, 2),
                     SwapCommand = new VotingCommand(true, "swap, zmiana, trocar, 交换, 切换", "@jRandomSkills/admin", 15, 90, 15, 20, 2),
                     ShuffleCommand = new VotingCommand(true, "shuffle, embaralhar, 随机排序, 洗牌", "@jRandomSkills/admin", 15, 90, 15, 20, 2),
                     PauseCommand = new VotingCommand(true, "pause, unpause, pausar, despausar, 暂停, 恢复", "@jRandomSkills/admin", 15, 60, 15, 2, 2),

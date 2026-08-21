@@ -1,4 +1,4 @@
-{
+﻿{
   "ConfigName": "Default",
   "GameMode": 3,
   "YourSkillChatInfo": true,
@@ -196,7 +196,7 @@
       "Permissions": "@jRandomSkills/admin"
     },
     "CheckEntityCommand": {
-      "Alias": "ent, entity, checkentity, check_entity, sprawdzencje, checkent, check_ent, 检查实体, 检查实体",
+      "Alias": "ent, entity, checkentity, check_entity, sprawdzencje, checkent, check_ent, 检查实体",
       "Permissions": "@jRandomSkills/owner"
     }
   },
@@ -220,7 +220,7 @@
       "TimeToNextVoting": 15.0,
       "TimeToNextSameVoting": 500.0,
       "MinimumPlayersToStartVoting": 2,
-      "Alias": "map, mapa, changemap, zmienmape, zmienmape, mudarMapa, trocarMapa, 更换地图, 更改地图",
+      "Alias": "map, mapa, changemap, zmienmape, mudarMapa, trocarMapa, 更换地图, 更改地图",
       "Permissions": "@jRandomSkills/admin"
     },
     "SwapCommand": {

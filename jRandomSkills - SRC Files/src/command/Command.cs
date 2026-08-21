@@ -62,8 +62,9 @@ namespace src.command
                 foreach (var commandPair in commands)
                     foreach (var command in commandPair.Key)
                     {
-                        Instance.AddCommand($"css_{command}", commandPair.Value.description, commandPair.Value.handler);
-                        oldCommands.TryAdd($"css_{command}", commandPair.Value.handler);
+                        string name = $"css_{command}";
+                        if (!oldCommands.TryAdd(name, commandPair.Value.handler)) continue;
+                        Instance.AddCommand(name, commandPair.Value.description, commandPair.Value.handler);
                     }
             }
         }

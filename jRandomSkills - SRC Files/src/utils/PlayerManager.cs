@@ -19,8 +19,14 @@ namespace src.utils
         private static int cachedIdleTick = int.MinValue;
         private static bool cachedIdle = true;
 
+        private static bool serverActive;
+
+        public static void SetServerActive(bool active) => serverActive = active;
+
         public static bool IsServerIdle()
         {
+            if (!serverActive) return true;
+
             int tick = Server.TickCount;
             if (tick == cachedIdleTick) return cachedIdle;
             cachedIdleTick = tick;
@@ -77,12 +83,16 @@ namespace src.utils
 
         public static List<CCSPlayerController> GetTickPlayers()
         {
+            if (!serverActive) return [];
+
             EnsureTickCache();
             return cachedControllers;
         }
 
         public static CC4? GetTickBomb()
         {
+            if (!serverActive) return null;
+
             int tick = Server.TickCount;
             if (tick != cachedBombTick)
             {

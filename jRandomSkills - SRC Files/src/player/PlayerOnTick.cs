@@ -42,6 +42,7 @@ namespace src.player
 
         private static void OnMapStart(string mapName)
         {
+            PlayerManager.SetServerActive(true);
             Instance.GameRules = null;
             Event.OnMapChange();
             BotManager.Initialize();
@@ -52,6 +53,7 @@ namespace src.player
             PerfLog.Info("===== MAP END (clean map change) =====");
             Debug.WriteToDebug("===== MAP END (clean map change) =====");
             BotManager.Stop();
+            PlayerManager.SetServerActive(false);
         }
 
         public static void InitializeGameRules()

@@ -550,10 +550,6 @@ namespace src.player
                         var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
                         if (playerTarget == null || !playerTarget.IsValid) return;
 
-                        if (randomSkill.Display)
-                            SkillUtils.PrintToChat(playerTarget, $"{ChatColors.DarkRed}{playerTarget.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {playerTarget.GetSkillDescription(randomSkill.Skill)}",
-                                border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == playerTarget.Team && p != playerTarget) ? "tb" : "t");
-
                         if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
@@ -575,9 +571,18 @@ namespace src.player
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{SkillNames.Get(randomSkill.Skill)}\".", DebugCategory.Skill);
                     UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
 
+                    if (randomSkill.Display)
+                        Instance?.AddTimer(.6f, () =>
+                        {
+                            var descTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
+                            if (descTarget == null || !descTarget.IsValid) return;
+
+                            SkillUtils.PrintToChat(descTarget, $"{ChatColors.DarkRed}{descTarget.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {descTarget.GetSkillDescription(randomSkill.Skill)}", border: "tb");
+                        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
                     {
-                        Instance?.AddTimer(.6f, () =>
+                        Instance?.AddTimer(.2f, () =>
                         {
                             if (player == null || !player.IsValid) return;
 
@@ -597,7 +602,8 @@ namespace src.player
                                 foreach (string text in teammateSkills.Split("\n"))
                                     if (!string.IsNullOrEmpty(text))
                                         SkillUtils.PrintToChat(player, text, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "");
-                                SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "b");
+                                if (!randomSkill.Display)
+                                    SkillUtils.PrintToChat(player, string.Empty, title: player.GetTranslationWithoutIlliterate("teammate_skills"), border: "b");
                             }
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     }
@@ -700,8 +706,7 @@ namespace src.player
                 skillPlayer.SpecialSkill = Skills.None;
 
                 if (randomSkill.Display && Config.LoadedConfig.YourSkillChatInfo)
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
-                        border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
+                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}", border: "tb");
 
                 if (randomSkill.Skill == Skills.Illiterate)
                     Illiterate.Enable();
