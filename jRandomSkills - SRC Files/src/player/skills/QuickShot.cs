@@ -1,4 +1,5 @@
 using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -9,6 +10,7 @@ namespace src.player.skills
     public class QuickShot : ISkill
     {
         private const Skills skillName = Skills.QuickShot;
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -17,14 +19,16 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
-            {
-                if (player == null) continue;
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
 
-                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
+            foreach (var player in holderBuffer)
+            {
                 if (!Instance.IsPlayerValid(player)) continue;
 
-                var pawn = player.PlayerPawn.Value!;
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid) continue;
+
                 var weaponServices = pawn.WeaponServices;
                 if (weaponServices == null || weaponServices.ActiveWeapon == null || !weaponServices.ActiveWeapon.IsValid) continue;
 

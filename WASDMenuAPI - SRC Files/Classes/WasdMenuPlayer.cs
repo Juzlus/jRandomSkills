@@ -13,7 +13,8 @@ public class WasdMenuPlayer
     public LinkedListNode<IWasdMenuOption>? CurrentChoice = null;
     public LinkedListNode<IWasdMenuOption>? MenuStart = null;
     public string CenterHtml = "";
-    public int VisibleOptions = 3;
+    public static int DefaultVisibleOptions = 3;
+    public int VisibleOptions => DefaultVisibleOptions;
     public PlayerButtons Buttons { get; set; }
     public bool Paused = false;
 
@@ -245,10 +246,11 @@ public class WasdMenuPlayer
             return;
         }
 
-        if (MainMenu == null || MainMenu.Options == null)
+        var options = MainMenu?.Options;
+        if (MainMenu == null || options == null)
             return;
 
-        MainMenu.Options.Clear();
+        options.Clear();
         bool choiceExists = false;
 
         foreach (var item in list)
@@ -257,19 +259,19 @@ public class WasdMenuPlayer
             {
                 OptionDisplay = item.Key,
                 OnChoose = item.Value,
-                Index = MainMenu.Options.Count,
+                Index = options.Count,
                 Parent = MainMenu
             };
-            MainMenu.Options.AddLast(newOption);
+            options.AddLast(newOption);
 
             if (CurrentChoice?.Value?.OptionDisplay == item.Key)
             {
-                CurrentChoice = MainMenu.Options?.Last;
+                CurrentChoice = options.Last;
                 choiceExists = true;
             }
         }
         if (!choiceExists)
-            CurrentChoice = MainMenu.Options?.First;
+            CurrentChoice = options.First;
 
         if (CurrentChoice != null)
         {

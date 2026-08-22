@@ -23,12 +23,15 @@ namespace src.utils
 
         private const float maxLifetime = 25f;
 
+        private const int spawnFrames = 4;
+
         private static readonly ConcurrentDictionary<string, Ring> rings = [];
 
         private sealed class Ring
         {
             public uint? Disc { get; set; }
             public List<uint> Beams { get; } = [];
+            public bool Cancelled { get; set; }
         }
 
         public static void PreloadAssets()
@@ -48,9 +51,11 @@ namespace src.utils
 
             if (!EntityManager.OverBudget())
             {
-                Color color = GetSkillColor(skill);
-                SpawnRing(center, radius, outerSegments, color, ring);
-                SpawnRing(center, radius * .5f, innerSegments, color, ring);
+                var segments = new List<(Vector From, Vector To)>(outerSegments + innerSegments);
+                CollectRing(center, radius, outerSegments, segments);
+                CollectRing(center, radius * .5f, innerSegments, segments);
+
+                SpawnBeamChunk(ring, segments, 0, GetSkillColor(skill));
             }
 
             jRandomSkills.Instance.AddTimer(maxLifetime, () => Hide(skill, id), TimerFlags.STOP_ON_MAPCHANGE);
@@ -77,6 +82,8 @@ namespace src.utils
 
         private static void Destroy(Ring ring)
         {
+            ring.Cancelled = true;
+
             foreach (uint beamIndex in ring.Beams)
                 EntityManager.DestroyBeam(beamIndex);
 
@@ -166,7 +173,7 @@ namespace src.utils
             attribute.InteractsExclude = 0;
         }
 
-        private static void SpawnRing(Vector center, float radius, int segments, Color color, Ring ring)
+        private static void CollectRing(Vector center, float radius, int segments, List<(Vector From, Vector To)> output)
         {
             if (segments < 3 || radius <= 0) return;
 
@@ -176,21 +183,35 @@ namespace src.utils
             for (int i = 1; i <= segments; i++)
             {
                 Vector next = PointOn(center, radius, step * i);
-
-                var beam = EntityManager.CreateTrackedBeam(EntityManager.SystemOwnerIndex, previous, next, color);
-                if (beam != null && beam.IsValid)
-                {
-                    beam.Width = 1.2f;
-                    beam.EndWidth = 1.2f;
-
-                    Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
-                    Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
-
-                    ring.Beams.Add(beam.Index);
-                }
-
+                output.Add((previous, next));
                 previous = next;
             }
+        }
+
+        private static void SpawnBeamChunk(Ring ring, List<(Vector From, Vector To)> segments, int start, Color color)
+        {
+            if (ring.Cancelled || start >= segments.Count) return;
+
+            int perFrame = (segments.Count + spawnFrames - 1) / spawnFrames;
+            int end = Math.Min(start + perFrame, segments.Count);
+
+            for (int i = start; i < end; i++)
+            {
+                var beam = EntityManager.CreateTrackedBeam(EntityManager.SystemOwnerIndex, segments[i].From, segments[i].To, color);
+                if (beam == null || !beam.IsValid) continue;
+
+                beam.Width = 1.2f;
+                beam.EndWidth = 1.2f;
+
+                Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
+                Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
+
+                ring.Beams.Add(beam.Index);
+            }
+
+            if (end >= segments.Count) return;
+
+            Server.NextFrame(() => SpawnBeamChunk(ring, segments, end, color));
         }
 
         private static Vector PointOn(Vector center, float radius, float angle)

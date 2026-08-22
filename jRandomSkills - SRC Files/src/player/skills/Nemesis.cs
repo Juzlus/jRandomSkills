@@ -125,15 +125,13 @@ namespace src.player.skills
                 enemyEvent.PrintToChat($" {ChatColors.Red}{enemyEvent.GetTranslation("nemesis_enemy_info")}");
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
             if (markedPlayers.IsEmpty) return;
 
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-            if (param == null || !param.IsValid || param2 == null) return;
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null) return;
 
-            var victimPawn = param.As<CCSPlayerPawn>();
+            var victimPawn = damagedEntity.As<CCSPlayerPawn>();
             if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
             var victimController = victimPawn.Controller.Value;
@@ -145,12 +143,15 @@ namespace src.player.skills
             uint victimIndex = PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index;
             if (!markedPlayers.ContainsKey(victimIndex)) return;
 
-            param2.Damage *= 1f + SkillsInfo.GetValue<float>(skillName, "extraDamagePercent");
+            if (SkillUtils.IsFriendlyFireBlocked(skillName, damageInfo, victimPawn)) return;
+
+            damageInfo.Damage *= 1f + SkillsInfo.GetValue<float>(skillName, "extraDamagePercent");
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b8003a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Rare, float extraDamagePercent = .25f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b8003a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Rare, float extraDamagePercent = .25f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float ExtraDamagePercent { get; set; } = extraDamagePercent;
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

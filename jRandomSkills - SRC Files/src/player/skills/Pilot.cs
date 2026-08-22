@@ -11,6 +11,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Pilot;
         private static readonly ConcurrentDictionary<uint, Pilot_PlayerInfo> PlayerPilotInfo = [];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -40,12 +41,11 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
-            {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
-                    HandlePilot(player);
-            }
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            foreach (var player in holderBuffer)
+                HandlePilot(player);
         }
 
         public static void EnableSkill(CCSPlayerController player)

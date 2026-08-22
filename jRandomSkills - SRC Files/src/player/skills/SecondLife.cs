@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -27,13 +27,11 @@ namespace src.player.skills
 
         // Must intercept pre-damage: player_hurt fires after the death is committed, so a
         // lethal hit (esp. fall damage) can't be undone there. Cancelling the blow here keeps the respawn clean.
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            var victimEntity = h.GetParam<CEntityInstance>(0);
-            var info = h.GetParam<CTakeDamageInfo>(1);
-            if (victimEntity == null || !victimEntity.IsValid || info == null) return;
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null) return;
 
-            var victimPawn = victimEntity.As<CCSPlayerPawn>();
+            var victimPawn = damagedEntity.As<CCSPlayerPawn>();
             if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return;
 
             var victimController = victimPawn.Controller.Value;
@@ -45,23 +43,23 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
-            if (SkillUtils.IsFriendlyFireBlocked(info, victimPawn)) return;
+            if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
-            float effectiveDamage = info.Damage;
-            if (SkillUtils.GetHitGroup(info) == HitGroup_t.HITGROUP_HEAD)
-                effectiveDamage *= GetHeadshotMultiplier(info);
+            float effectiveDamage = damageInfo.Damage;
+            if (SkillUtils.GetHitGroup(damageInfo) == HitGroup_t.HITGROUP_HEAD)
+                effectiveDamage *= GetHeadshotMultiplier(damageInfo);
 
             if (effectiveDamage < victimPawn.Health) return;
 
             if (usedThisRound.TryGetValue(victim.Handle, out int savedTick))
             {
                 if (savedTick == Server.TickCount)
-                    info.Damage = 0;
+                    damageInfo.Damage = 0;
                 return;
             }
 
             if (TryConsumeRevive(victim, victimPawn))
-                info.Damage = 0;
+                damageInfo.Damage = 0;
         }
 
         private static float GetHeadshotMultiplier(CTakeDamageInfo info)

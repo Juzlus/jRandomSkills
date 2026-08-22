@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -43,11 +43,11 @@ namespace src.player.skills
             pending.TryRemove(playerIndex, out _);
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
             if (holders.IsEmpty) return;
 
-            if (!TryResolveVictim(h, out var victim, out var victimPawn, out var info)) return;
+            if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out var info)) return;
             if (!holders.ContainsKey(victim!.Index)) return;
 
             int armor = victimPawn!.ArmorValue;
@@ -71,28 +71,26 @@ namespace src.player.skills
                 $"passed={info.Damage:0.#} armor={armor}->{pending[victim.Index]} hp={victimPawn.Health}", DebugCategory.Damage);
         }
 
-        public static void OnTakeDamagePost(DynamicHook h)
+        public static void OnTakeDamagePost(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, CTakeDamageResult damageResult)
         {
             if (pending.IsEmpty) return;
 
-            if (!TryResolveVictim(h, out var victim, out var victimPawn, out _)) return;
+            if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out _)) return;
             if (!pending.TryRemove(victim!.Index, out int restored)) return;
 
             victimPawn!.ArmorValue = restored;
             Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
         }
 
-        private static bool TryResolveVictim(DynamicHook h, out CCSPlayerController? victim, out CCSPlayerPawn? pawn, out CTakeDamageInfo? info)
+        private static bool TryResolveVictim(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, out CCSPlayerController? victim, out CCSPlayerPawn? pawn, out CTakeDamageInfo? info)
         {
             victim = null;
             pawn = null;
             info = null;
 
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-            if (param == null || !param.IsValid || param2 == null) return false;
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null) return false;
 
-            var victimPawn = param.As<CCSPlayerPawn>();
+            var victimPawn = damagedEntity.As<CCSPlayerPawn>();
             if (victimPawn == null || !victimPawn.IsValid || victimPawn.DesignerName != "player") return false;
 
             var controller = victimPawn.Controller.Value;
@@ -104,7 +102,7 @@ namespace src.player.skills
             var routed = PlayerManager.GetPlayerEvent(resolved);
             victim = routed != null && routed.IsValid ? routed : resolved;
             pawn = victimPawn;
-            info = param2;
+            info = damageInfo;
             return true;
         }
 

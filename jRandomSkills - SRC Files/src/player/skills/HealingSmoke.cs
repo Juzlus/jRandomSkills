@@ -10,7 +10,14 @@ namespace src.player.skills
     public class HealingSmoke : ISkill
     {
         private const Skills skillName = Skills.HealingSmoke;
-        private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
+        private static readonly ConcurrentDictionary<Vector, uint> smokes = [];
+
+        private static void RemoveOwnerSmokes(uint ownerIndex)
+        {
+            foreach (var smoke in smokes)
+                if (smoke.Value == ownerIndex)
+                    smokes.TryRemove(smoke.Key, out _);
+        }
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -31,16 +38,13 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo?.Skill != skillName) return;
 
-            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), 0);
+            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), player.Index);
         }
 
         public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
 
             foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
                 smokes.TryRemove(smoke, out _);
@@ -153,6 +157,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Index, out _);
+            RemoveOwnerSmokes(player.Index);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
         }
 

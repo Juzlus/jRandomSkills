@@ -84,26 +84,58 @@ namespace src.player
             }
         }
 
-        private static HookResult OnTakeDamage(DynamicHook h)
+        private static HookResult OnEntityTakeDamagePre(CBaseEntity entity, CTakeDamageInfo info)
         {
             lock (setLock)
             {
-                DispatchOnTakeDamage(h);
+                CountDamageResolution(info);
+
+                object[] args = [entity, info];
+                DispatchOnTakeDamage(entity, info, args);
 
                 if (Fortnite.skillInThisRound == true &&
                     !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
-                    Instance.SkillAction("Fortnite", "OnTakeDamage", [h]);
+                    Instance.SkillAction("Fortnite", "OnTakeDamage", args);
 
                 return HookResult.Continue;
             }
         }
 
-        private static HookResult OnTakeDamagePost(DynamicHook h)
+        private static int dmgTotal, dmgAttackerOk, dmgAbilityOk, dmgSameTeam;
+        private static DateTime dmgWindowStart = DateTime.Now;
+
+        private static void CountDamageResolution(CTakeDamageInfo info)
+        {
+            if (!PerfLog.Enabled || info == null) return;
+
+            dmgTotal++;
+
+            var attacker = info.Attacker?.Value;
+            if (attacker != null && attacker.IsValid)
+            {
+                dmgAttackerOk++;
+
+                var attackerPawn = new CCSPlayerPawn(attacker.Handle);
+                if (attackerPawn.IsValid && attackerPawn.DesignerName == "player") dmgSameTeam++;
+            }
+
+            var ability = info.Ability?.Value;
+            if (ability != null && ability.IsValid) dmgAbilityOk++;
+
+            if ((DateTime.Now - dmgWindowStart).TotalSeconds < 60) return;
+
+            if (dmgTotal > 0)
+                PerfLog.Info($"DMGHOOK total={dmgTotal} attacker={dmgAttackerOk} ability={dmgAbilityOk} playerAttacker={dmgSameTeam}");
+
+            dmgTotal = dmgAttackerOk = dmgAbilityOk = dmgSameTeam = 0;
+            dmgWindowStart = DateTime.Now;
+        }
+
+        private static void OnEntityTakeDamagePost(CBaseEntity entity, CTakeDamageInfo info, CTakeDamageResult result)
         {
             lock (setLock)
             {
-                DispatchOnTakeDamage(h, true);
-                return HookResult.Continue;
+                DispatchOnTakeDamage(entity, info, [entity, info, result], true);
             }
         }
 

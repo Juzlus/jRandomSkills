@@ -10,6 +10,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.BunnyHop;
         private static readonly ConcurrentDictionary<uint, int> playersLastJump = [];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void NewRound()
         {
@@ -28,13 +29,15 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            foreach (var playerEvent in holderBuffer)
             {
+                var player = PlayerManager.GetPlayerFromEvent(playerEvent) ?? playerEvent;
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-                if (playerInfo?.Skill == skillName)
-                    GiveBunnyHop(player);
+                GiveBunnyHop(player);
             }
         }
 

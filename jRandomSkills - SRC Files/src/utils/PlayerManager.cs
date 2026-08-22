@@ -16,6 +16,41 @@ namespace src.utils
         private static int cachedBombTick = int.MinValue;
         private static CC4? cachedBomb;
 
+        private static int cachedIdleTick = int.MinValue;
+        private static bool cachedIdle = true;
+
+        private static bool serverActive;
+
+        public static void SetServerActive(bool active) => serverActive = active;
+
+        public static bool IsServerIdle()
+        {
+            if (!serverActive) return true;
+
+            int tick = Server.TickCount;
+            if (tick == cachedIdleTick) return cachedIdle;
+            cachedIdleTick = tick;
+
+            cachedIdle = true;
+            foreach (var player in GetTickPlayers())
+            {
+                if (player == null || !player.IsValid) continue;
+                if (player.IsBot || player.IsHLTV) continue;
+
+                cachedIdle = false;
+                break;
+            }
+
+            return cachedIdle;
+        }
+
+        private static int cachedPawnMapTick = int.MinValue;
+        private static readonly Dictionary<nint, CCSPlayerController> controllersByPawn = [];
+
+        private static int cachedBotMapTick = int.MinValue;
+        private static readonly Dictionary<nint, CCSPlayerController> botsByController = [];
+        private static readonly HashSet<nint> tickPlayerHandles = [];
+
         private static void EnsureTickCache()
         {
             int tick = Server.TickCount;
@@ -24,14 +59,40 @@ namespace src.utils
             cachedControllers = Utilities.GetPlayers();
         }
 
+        private static void EnsureBotMapCache()
+        {
+            int tick = Server.TickCount;
+            if (tick == cachedBotMapTick) return;
+            cachedBotMapTick = tick;
+
+            botsByController.Clear();
+            tickPlayerHandles.Clear();
+
+            foreach (var player in GetTickPlayers())
+            {
+                if (player == null || !player.IsValid) continue;
+
+                tickPlayerHandles.Add(player.Handle);
+                if (!player.IsBot) continue;
+
+                var original = player.OriginalControllerOfCurrentPawn.Value;
+                if (original != null)
+                    botsByController[original.Handle] = player;
+            }
+        }
+
         public static List<CCSPlayerController> GetTickPlayers()
         {
+            if (!serverActive) return [];
+
             EnsureTickCache();
             return cachedControllers;
         }
 
         public static CC4? GetTickBomb()
         {
+            if (!serverActive) return null;
+
             int tick = Server.TickCount;
             if (tick != cachedBombTick)
             {
@@ -69,12 +130,8 @@ namespace src.utils
             if (!player.ControllingBot)
                 return player;
 
-            return GetTickPlayers().FirstOrDefault(p =>
-                p != null &&
-                p.IsValid &&
-                p.IsBot &&
-                p.OriginalControllerOfCurrentPawn.Value != null && p.OriginalControllerOfCurrentPawn.Value == player)
-                ?? player;
+            EnsureBotMapCache();
+            return botsByController.TryGetValue(player.Handle, out var bot) ? bot : player;
         }
 
         public static CCSPlayerController? GetPlayerFromEvent(CCSPlayerController? player)
@@ -85,12 +142,48 @@ namespace src.utils
             if (!player.IsBot)
                 return player;
 
-            return GetTickPlayers().FirstOrDefault(p =>
-                p != null &&
-                p.IsValid &&
-                !p.IsBot &&
-                player.OriginalControllerOfCurrentPawn.Value != null && player.OriginalControllerOfCurrentPawn.Value == p)
-                ?? player;
+            var original = player.OriginalControllerOfCurrentPawn.Value;
+            if (original == null || !original.IsValid || original.IsBot) return player;
+
+            EnsureBotMapCache();
+            return tickPlayerHandles.Contains(original.Handle) ? original : player;
+        }
+
+        public static CCSPlayerController? GetControllerByPawn(nint pawnHandle)
+        {
+            if (pawnHandle == nint.Zero) return null;
+
+            int tick = Server.TickCount;
+            if (tick != cachedPawnMapTick)
+            {
+                cachedPawnMapTick = tick;
+                controllersByPawn.Clear();
+
+                foreach (var player in GetTickPlayers())
+                {
+                    if (player == null || !player.IsValid) continue;
+
+                    var handle = player.Pawn?.Value?.Handle;
+                    if (handle != null && handle.Value != nint.Zero)
+                        controllersByPawn[handle.Value] = player;
+                }
+            }
+
+            return controllersByPawn.TryGetValue(pawnHandle, out var controller) ? controller : null;
+        }
+
+        public static void FillSkillHolders(Skills skill, List<CCSPlayerController> buffer)
+        {
+            buffer.Clear();
+
+            foreach (var info in playersByIndex.Values)
+            {
+                if (info.Skill != skill) continue;
+
+                var controller = Utilities.GetPlayerFromIndex((int)info.PlayerIndex);
+                if (controller != null && controller.IsValid)
+                    buffer.Add(controller);
+            }
         }
 
         public static IEnumerable<jSkill_PlayerInfo> GetAllPlayers()

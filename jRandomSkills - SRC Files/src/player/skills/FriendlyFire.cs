@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -16,9 +16,6 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-
-            try { defaultAutoKick = ConVar.Find("mp_autokick")?.GetPrimitiveValue<bool>() ?? true; }
-            catch { defaultAutoKick = true; }
         }
 
         public static void NewRound()
@@ -26,22 +23,36 @@ namespace src.player.skills
             if (!autoKickOverridden) return;
 
             autoKickOverridden = false;
-            Server.ExecuteCommand($"mp_autokick {(defaultAutoKick ? 1 : 0)}");
+            if (defaultAutoKick) Server.ExecuteCommand("mp_autokick 1");
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        private static bool TrySuppressAutoKick()
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
+            if (autoKickOverridden) return true;
+            if (!SkillsInfo.GetValue<bool>(skillName, "manageAutoKick")) return false;
 
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            bool live;
+            try { live = ConVar.Find("mp_autokick")?.GetPrimitiveValue<bool>() ?? false; }
+            catch { return false; }
+
+            if (!live) return false;
+
+            defaultAutoKick = true;
+            autoKickOverridden = true;
+            Server.ExecuteCommand("mp_autokick 0");
+            return true;
+        }
+
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
+        {
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            if (param2.AmmoType == 255)
+            if (damageInfo.AmmoType == 255)
                 return;
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn attackerPawn = new(damageInfo.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (attackerPawn == null || !attackerPawn.IsValid || victimPawn == null || !victimPawn.IsValid)
                 return;
@@ -67,14 +78,10 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (playerInfo?.Skill != skillName || attacker!.Team != victim!.Team) return;
 
-            float damage = param2.Damage;
-            param2.Damage = 0;
+            float damage = damageInfo.Damage;
+            damageInfo.Damage = 0;
 
-            if (!autoKickOverridden)
-            {
-                autoKickOverridden = true;
-                Server.ExecuteCommand("mp_autokick 0");
-            }
+            TrySuppressAutoKick();
 
             SkillUtils.AddHealth(
                 victimPawn,
@@ -83,9 +90,10 @@ namespace src.player.skills
             );
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = true, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthDamageMultiplier = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = true, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthDamageMultiplier = .3f, bool manageAutoKick = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float HealthDamageMultiplier { get; set; } = healthDamageMultiplier;
+            public bool ManageAutoKick { get; set; } = manageAutoKick;
         }
     }
 }

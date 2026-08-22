@@ -30,6 +30,7 @@ project.fragment.lock.json
 *.userosscache
 
 # Logs, caches, temp
+log/
 *.log
 debug_*.txt
 perf_*.txt

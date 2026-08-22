@@ -1,4 +1,5 @@
 using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -8,6 +9,7 @@ namespace src.player.skills
     public class Regeneration : ISkill
     {
         private const Skills skillName = Skills.Regeneration;
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -18,11 +20,11 @@ namespace src.player.skills
         {
             int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")));
             if (Server.TickCount % cooldown != 0) return;
-            foreach (var player in PlayerManager.GetTickPlayers())
-            {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
 
+            foreach (var player in holderBuffer)
+            {
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
                 SkillUtils.AddHealth(pawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));

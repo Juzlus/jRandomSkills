@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -143,7 +143,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var emptyProp = EntityManager.CreateTrackedDynamicProp(player.Index);
+            var emptyProp = EntityManager.CreateTrackedDynamicProp(player.Index, trackAs: "empty_prop");
             if (emptyProp == null || !emptyProp.IsValid) return;
 
             var playerPawn = player.PlayerPawn?.Value;
@@ -161,7 +161,6 @@ namespace src.player.skills
 
             Utilities.SetStateChanged(emptyProp, "CBaseEntity", "m_CBodyComponent");
 
-            EntityManager.RegisterExisting(emptyProp, player.Index, "empty_prop");
         }
 
         private static void UpdateNinja(CCSPlayerController? player)

@@ -11,11 +11,9 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.GravityDecoy;
 
-        private const float defaultGravity = 1f;
-
         private static readonly ConcurrentDictionary<uint, int> playersWithSkill = [];
-        private static readonly ConcurrentDictionary<uint, byte> affected = [];
-        private static readonly ConcurrentDictionary<uint, byte> restoreOnRespawn = [];
+        private static readonly ConcurrentDictionary<uint, float> affected = [];
+        private static readonly ConcurrentDictionary<uint, float> restoreOnRespawn = [];
 
         public static void LoadSkill()
         {
@@ -78,8 +76,8 @@ namespace src.player.skills
                 if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
                 if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
 
-                if (restoreOnRespawn.TryRemove(eventPlayer.Index, out _))
-                    pawn.ActualGravityScale = defaultGravity;
+                if (restoreOnRespawn.TryRemove(eventPlayer.Index, out float respawnGravity))
+                    pawn.ActualGravityScale = respawnGravity;
 
                 bool inside = false;
                 foreach (var decoyPos in decoyPositions)
@@ -87,11 +85,11 @@ namespace src.player.skills
 
                 if (inside)
                 {
-                    if (!affected.TryAdd(eventPlayer.Index, 0)) continue;
+                    if (!affected.TryAdd(eventPlayer.Index, pawn.ActualGravityScale)) continue;
                     pawn.ActualGravityScale = gravity;
                 }
-                else if (affected.TryRemove(eventPlayer.Index, out _))
-                    pawn.ActualGravityScale = defaultGravity;
+                else if (affected.TryRemove(eventPlayer.Index, out float ownGravity))
+                    pawn.ActualGravityScale = ownGravity;
             }
         }
 
@@ -100,10 +98,10 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            if (!affected.TryRemove(victim.Index, out _)) return;
+            if (!affected.TryRemove(victim.Index, out float ownGravity)) return;
 
-            Restore(victim.Index);
-            restoreOnRespawn[victim.Index] = 0;
+            Restore(victim.Index, ownGravity);
+            restoreOnRespawn[victim.Index] = ownGravity;
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -115,23 +113,23 @@ namespace src.player.skills
 
         private static void RestoreAll()
         {
-            foreach (uint playerIndex in affected.Keys)
-                Restore(playerIndex);
+            foreach (var entry in affected)
+                Restore(entry.Key, entry.Value);
 
-            foreach (uint playerIndex in restoreOnRespawn.Keys)
-                Restore(playerIndex);
+            foreach (var entry in restoreOnRespawn)
+                Restore(entry.Key, entry.Value);
 
             affected.Clear();
             restoreOnRespawn.Clear();
         }
 
-        private static void Restore(uint playerIndex)
+        private static void Restore(uint playerIndex, float gravity)
         {
             var player = Utilities.GetPlayerFromIndex((int)playerIndex);
             var pawn = player?.PlayerPawn?.Value;
 
             if (pawn != null && pawn.IsValid)
-                pawn.ActualGravityScale = defaultGravity;
+                pawn.ActualGravityScale = gravity;
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)

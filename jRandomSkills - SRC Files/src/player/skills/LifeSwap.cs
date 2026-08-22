@@ -33,7 +33,7 @@ namespace src.player.skills
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {e?.PlayerPawn?.Value?.Health ?? 0} HP", e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {e.PlayerPawn?.Value?.Health ?? 0} HP", e.Index.ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }

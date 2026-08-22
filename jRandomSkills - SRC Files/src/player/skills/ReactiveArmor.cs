@@ -40,9 +40,6 @@ namespace src.player.skills
             var victim = @event.Userid;
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
 
-            var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-            if (attacker == null || !attacker.IsValid) return false;
-
             var victimEvent = PlayerManager.GetPlayerEvent(victim);
             if (victimEvent == null || !victimEvent.IsValid) return false;
 

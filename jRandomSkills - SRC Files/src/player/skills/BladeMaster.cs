@@ -10,6 +10,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.BladeMaster;
         private static readonly string[] noReflectionWeapon = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade", "knife", "taser", "bayonet"];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -20,13 +21,11 @@ namespace src.player.skills
         {
             var modifier = SkillsInfo.GetValue<float>(skillName, "velocityModifier");
 
-            foreach (var player in PlayerManager.GetTickPlayers())
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            foreach (var player in holderBuffer)
             {
-                if (player == null || !player.IsValid) continue;
-
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
-
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || !playerPawn.IsValid || playerPawn.VelocityModifier == 0) continue;
 

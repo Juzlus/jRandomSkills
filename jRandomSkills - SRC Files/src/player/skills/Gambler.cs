@@ -46,9 +46,15 @@ namespace src.player.skills
                 return;
             }
 
-            if (skill.Skill == skillName && !TakeMoney(player))
+            if (skill.Skill == skillName)
             {
-                playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("gambler_no_money"));
+                if (!TakeMoney(player))
+                {
+                    playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("gambler_no_money"));
+                    return;
+                }
+
+                EnableSkill(player);
                 return;
             }
 

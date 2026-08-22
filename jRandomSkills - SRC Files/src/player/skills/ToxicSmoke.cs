@@ -12,6 +12,13 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.ToxicSmoke;
         private static readonly ConcurrentDictionary<Vector, uint> smokes = [];
+
+        private static void RemoveOwnerSmokes(uint ownerIndex)
+        {
+            foreach (var smoke in smokes)
+                if (smoke.Value == ownerIndex)
+                    smokes.TryRemove(smoke.Key, out _);
+        }
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -39,9 +46,6 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
 
             foreach (var smoke in smokes.Keys.Where(v => v.X == @event.X && v.Y == @event.Y && v.Z == @event.Z))
                 smokes.TryRemove(smoke, out _);
@@ -100,6 +104,8 @@ namespace src.player.skills
                     int damage = smokeDamage;
                     if (thrower != null && eventPlayer.Index != thrower.Index && pawn.TeamNum == thrower.TeamNum)
                     {
+                        if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire")) continue;
+
                         damage = (int)MathF.Round(smokeDamage * SkillUtils.GetTeamDamageMultiplier(skillName));
                         if (damage <= 0) continue;
                     }
@@ -167,10 +173,11 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Index, out _);
+            RemoveOwnerSmokes(player.Index);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17, int grenadeLimit = 1, float dmgReductionForTeamates = 0.5f, float soundVolume = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17, int grenadeLimit = 1, float dmgReductionForTeamates = 0.5f, float soundVolume = .3f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float SoundVolume { get; set; } = soundVolume;
             public int SmokeDamage { get; set; } = smokeDamage;
@@ -178,6 +185,7 @@ namespace src.player.skills
             public int TickCooldown { get; set; } = tickCooldown;
             public int GrenadeLimit { get; set; } = grenadeLimit;
             public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
+            public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

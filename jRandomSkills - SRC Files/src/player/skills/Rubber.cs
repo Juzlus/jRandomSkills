@@ -42,6 +42,8 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (playersToSlow.IsEmpty) return;
+
             foreach (var item in playersToSlow)
             {
                 var playerIndex = item.Key;

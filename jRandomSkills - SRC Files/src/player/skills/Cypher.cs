@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -292,18 +292,15 @@ namespace src.player.skills
             return camera;
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            if (string.IsNullOrEmpty(param.Entity.Name)) return;
-            if (!param.Entity.Name.StartsWith("CypherCamera_")) return;
+            if (string.IsNullOrEmpty(damagedEntity.Entity.Name)) return;
+            if (!damagedEntity.Entity.Name.StartsWith("CypherCamera_")) return;
 
-            var nameParams = param.Entity.Name.Split('_')[2];
+            var nameParams = damagedEntity.Entity.Name.Split('_')[2];
             _ = uint.TryParse(nameParams, out uint userIndex);
             if (userIndex == 0) return;
 

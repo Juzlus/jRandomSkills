@@ -12,6 +12,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Berserker;
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -35,19 +36,18 @@ namespace src.player.skills
             return Math.Max(1, Math.Min(maxValue, newValue));
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
-            CCSPlayerPawn victimPawn = new(param.Handle);
+            CCSPlayerPawn attackerPawn = new(damageInfo.Attacker.Value.Handle);
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
 
             if (attackerPawn.DesignerName != "player" || victimPawn.DesignerName != "player")
                 return;
+
+            if (SkillUtils.IsFriendlyFireBlocked(skillName, damageInfo, victimPawn)) return;
 
             if (attackerPawn == null || attackerPawn.Controller?.Value == null || victimPawn == null || victimPawn.Controller?.Value == null)
                 return;
@@ -60,7 +60,7 @@ namespace src.player.skills
             if (playerInfo.Skill == skillName)
             {
                 float damageMultiplier = CalculateNewVelocity(attackerPawn, SkillsInfo.GetValue<float>(skillName, "maxDamageVelocity"));
-                param2.Damage *= damageMultiplier;
+                damageInfo.Damage *= damageMultiplier;
             }
         }
 
@@ -90,18 +90,20 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            float maxSpeedVelocity = SkillsInfo.GetValue<float>(skillName, "maxSpeedVelocity");
+
+            foreach (var player in holderBuffer)
             {
                 if (!Instance.IsPlayerValid(player)) continue;
-
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
 
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || playerPawn.VelocityModifier == 0) continue;
 
                 var buttons = player.Buttons;
-                float newSpeedVelocity = CalculateNewVelocity(playerPawn, SkillsInfo.GetValue<float>(skillName, "maxSpeedVelocity"));
+                float newSpeedVelocity = CalculateNewVelocity(playerPawn, maxSpeedVelocity);
 
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newSpeedVelocity;
@@ -109,15 +111,18 @@ namespace src.player.skills
                 if (jumpedPlayers.TryGetValue(player.Index, out var time) && time > Server.TickCount)
                     continue;
 
+                if (playerPawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) continue;
+
                 if (!((PlayerFlags)player.Flags).HasFlag(PlayerFlags.FL_ONGROUND))
                     playerPawn.AbsVelocity.Z = Math.Min(playerPawn.AbsVelocity.Z, 10);
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc2929", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxSpeedVelocity = 2f, float maxDamageVelocity = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc2929", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxSpeedVelocity = 2f, float maxDamageVelocity = 2f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float MaxSpeedVelocity { get; set; } = maxSpeedVelocity;
             public float MaxDamageVelocity { get; set; } = maxDamageVelocity;
+        public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

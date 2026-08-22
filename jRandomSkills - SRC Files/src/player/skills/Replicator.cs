@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -136,18 +136,15 @@ namespace src.player.skills
             replica.DispatchSpawn();
         }
 
-        public static void OnTakeDamage(DynamicHook h)
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
-            CEntityInstance param = h.GetParam<CEntityInstance>(0);
-            CTakeDamageInfo param2 = h.GetParam<CTakeDamageInfo>(1);
-
-            if (param == null || param.Entity == null || param2 == null || param2.Attacker == null || param2.Attacker.Value == null)
+            if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 
-            if (string.IsNullOrEmpty(param.Entity.Name)) return;
-            if (!param.Entity.Name.StartsWith("Replica_")) return;
+            if (string.IsNullOrEmpty(damagedEntity.Entity.Name)) return;
+            if (!damagedEntity.Entity.Name.StartsWith("Replica_")) return;
 
-            var replica = param.As<CPhysicsPropMultiplayer>();
+            var replica = damagedEntity.As<CPhysicsPropMultiplayer>();
             if (replica == null || !replica.IsValid) return;
 
             if (!consumedReplicas.TryAdd(replica.Index, 0)) return;
@@ -157,7 +154,7 @@ namespace src.player.skills
             var owner = GetReplicaOwner(replica.Index);
             EntityManager.DestroyEntity(replica.Index);
 
-            CCSPlayerPawn attackerPawn = new(param2.Attacker.Value.Handle);
+            CCSPlayerPawn attackerPawn = new(damageInfo.Attacker.Value.Handle);
             if (attackerPawn.DesignerName != "player")
                 return;
 

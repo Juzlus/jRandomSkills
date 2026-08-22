@@ -12,6 +12,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Flash;
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
+        private static readonly List<CCSPlayerController> holderBuffer = [];
 
         public static void LoadSkill()
         {
@@ -75,13 +76,14 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            foreach (var player in PlayerManager.GetTickPlayers())
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            if (holderBuffer.Count == 0) return;
+
+            foreach (var player in holderBuffer)
             {
                 if (!Instance.IsPlayerValid(player)) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
-
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || playerPawn.VelocityModifier == 0) continue;
 
@@ -92,6 +94,8 @@ namespace src.player.skills
 
                 if (jumpedPlayers.TryGetValue(player.Index, out var time) && time > Server.TickCount)
                     continue;
+
+                if (playerPawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) continue;
 
                 if (!((PlayerFlags)player.Flags).HasFlag(PlayerFlags.FL_ONGROUND))
                     playerPawn.AbsVelocity.Z = Math.Min(playerPawn.AbsVelocity.Z, 10);

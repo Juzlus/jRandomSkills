@@ -18,6 +18,7 @@ namespace src.utils
         private static readonly string playersLanguageFileName = "playersLanguage.json";
         private static readonly string configsFolderPath = Path.Combine(jRandomSkills.Instance.ModuleDirectory, "configs");
         private static ConcurrentDictionary<ulong, string> _playersLanguage = [];
+        private static string _lastSavedPlayersJson = string.Empty;
         private static readonly string geoliteFilePath = Path.Combine(jRandomSkills.Instance.ModuleDirectory, "packages", "GeoLite2-Country.mmdb");
 
         private static string defaultLangCode = "en";
@@ -47,6 +48,7 @@ namespace src.utils
         {
             _translations.Clear();
             _playersLanguage.Clear();
+            _lastSavedPlayersJson = string.Empty;
             _skillNameCache.Clear();
             _skillDescCache.Clear();
             SetLangCode();
@@ -324,16 +326,78 @@ namespace src.utils
                 return;
 
             var jsonText = File.ReadAllText(filePath);
-            _playersLanguage = JsonConvert.DeserializeObject<ConcurrentDictionary<ulong, string>>(jsonText) ?? [];
+            if (string.IsNullOrWhiteSpace(jsonText))
+                return;
+
+            bool legacyFormat = false;
+            var loaded = new ConcurrentDictionary<ulong, string>();
+
+            try
+            {
+                var root = Newtonsoft.Json.Linq.JObject.Parse(jsonText);
+                foreach (var property in root.Properties())
+                {
+                    if (property.Value is Newtonsoft.Json.Linq.JArray steamIds)
+                    {
+                        foreach (var steamId in steamIds)
+                            if (ulong.TryParse(steamId.ToString(), out ulong grouped) && grouped != 0)
+                                loaded[grouped] = property.Name;
+                    }
+                    else
+                    {
+                        legacyFormat = true;
+                        if (ulong.TryParse(property.Name, out ulong flat) && flat != 0)
+                            loaded[flat] = property.Value.ToString();
+                    }
+                }
+            }
+            catch
+            {
+                Server.PrintToConsole($"[jRandomSkills] {playersLanguageFileName} could not be parsed, starting empty.");
+                return;
+            }
+
+            _playersLanguage = loaded;
+
+            if (legacyFormat)
+            {
+                Server.PrintToConsole($"[jRandomSkills] {playersLanguageFileName} converted to the grouped format ({_playersLanguage.Count} players).");
+                SavePlayersLanguage();
+            }
+            else
+                _lastSavedPlayersJson = BuildPlayersJson();
+        }
+
+        private static string BuildPlayersJson()
+        {
+            var grouped = new SortedDictionary<string, List<string>>(StringComparer.Ordinal);
+
+            foreach (var entry in _playersLanguage)
+            {
+                if (entry.Key == 0 || string.IsNullOrEmpty(entry.Value)) continue;
+
+                if (!grouped.TryGetValue(entry.Value, out var steamIds))
+                    grouped[entry.Value] = steamIds = [];
+
+                steamIds.Add(entry.Key.ToString());
+            }
+
+            foreach (var steamIds in grouped.Values)
+                steamIds.Sort(StringComparer.Ordinal);
+
+            return JsonConvert.SerializeObject(grouped);
         }
 
         private static void SavePlayersLanguage()
         {
+            var json = BuildPlayersJson();
+
+            if (json == null || json == _lastSavedPlayersJson)
+                return;
+
             Directory.CreateDirectory(configsFolderPath);
-            string filePath = Path.Combine(configsFolderPath, playersLanguageFileName);
-            var json = JsonConvert.SerializeObject(_playersLanguage);
-            if (json != null)
-                File.WriteAllText(filePath, json);
+            File.WriteAllText(Path.Combine(configsFolderPath, playersLanguageFileName), json);
+            _lastSavedPlayersJson = json;
         }
 
         private static string? GetLangCodeFromFile(ulong? playerSteamID)
@@ -346,7 +410,9 @@ namespace src.utils
 
         public static void ChangePlayerLanguage(CCSPlayerController? player, string language)
         {
-            if (player == null || !player.IsValid) return;
+            if (player == null || !player.IsValid || player.SteamID == 0) return;
+            if (string.IsNullOrEmpty(language)) return;
+
             _playersLanguage.AddOrUpdate(player.SteamID, language, (k, v) => language);
             SavePlayersLanguage();
         }
