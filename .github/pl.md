@@ -42,8 +42,8 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 - **Adres**: `jRandomSkills@pukawka.pl`
 - **Hasło**: `public`
 - **Godziny otwarcia**: `00:00-19:00`
-- **Połącz URL**: `steam://connect/51.38.122.215:27215/public`
-- **Połącz**: `connect 51.38.122.215:27215; password public`
+- ~~**Połącz URL**: `steam://connect/51.38.122.215:27215/public`~~
+- ~~**Połącz**: `connect 51.38.122.215:27215; password public`~~
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
@@ -338,9 +338,12 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
         },
 
         "HtmlHudCustomisation": {        // Ustawienia zmiany kolorów i rozmiarów czcionek
-            ...                          // xxxl: 64px, xxl: 40px, xl: 32px
-        }                                // l: 24px, ml: 20px, m: 18px
-        ...                              // sm: 16px, s: 12px, xs: 8px
+                                         // xxxl: 64px, xxl: 40px, xl: 32px
+                                         // l: 24px, ml: 20px, m: 18px
+            ...                          // sm: 16px, s: 12px, xs: 8px
+            "WSADMenuVisibleItems": 3    // Liczba widocznych wierszy
+        }
+        ...
     },
 ```
 
@@ -404,6 +407,85 @@ Plugin korzysta z zawartości następujących projektów:
 [THANKS]
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.3.b8</b></summary>
+
+- #### Wspólne systemy
+    - **PlayerManager.FillSkillHolders** - Lista posiadaczy umiejętności jest teraz pobierana z indeksu graczy zamiast skanowania wszystkich kontrolerów w każdym ticku. Usuwa to pełną pętlę po graczach wykonywaną wcześniej przez dziesięć umiejętności.
+    - **PlayerManager.GetControllerByPawn** - Dodano cache mapujący pawn na kontroler, odświeżany raz na tick. Zastępuje to liniowe wyszukiwanie celu obserwatora.
+    - **PlayerManager.IsServerIdle** - Sprawdzanie bezczynności serwera jest teraz cachowane na tick i współdzielone przez logowanie debugowe oraz wydajnościowe.
+    - **SkillUtils.IsFriendlyFireBlocked** - Metoda przyjmuje teraz umiejętność, dzięki czemu klucz `FriendlyFire` dla konkretnej umiejętności oraz convary serwera są rozwiązywane w jednym miejscu. Przeciążenie działające wyłącznie na convarach pozostaje dla umiejętności działających po stronie ofiary.
+    - **SkillUtils.TerminateRound** - Metoda przyjmuje teraz gracza, który zakończył rundę, i wypłaca pieniądze za zakończenie rundy, których silnik nie przyznaje przy zakończeniu rundy przez plugin.
+
+- #### Wydajność
+    - **OnTick(hud)** - Średni koszt zmniejszony o 17% względem poprzedniej wersji.
+    - **CheckTransmit** - Średni koszt zmniejszony o 25%, a maksymalny o 39%.
+    - **OnTick(skills)** - Maksymalny koszt zmniejszony o 62%.
+    - **Host stalls** - Liczba rzeczywistych zawieszeń serwera przy połączonych graczach spadła z sześciu do dwóch na przestrzeni 785 rund.
+    - **DecoyRing** - Tworzenie obręczy zostało rozłożone na cztery klatki zamiast generowania całego pierścienia w jednym ticku.
+    - **Czternaście umiejętności** - `OnTick` natychmiast kończy działanie, jeśli dana umiejętność nie posiada żadnego stanu.
+    - **Berserker, Mistrz Ostrza, Królik, Oko Demona, Flash, Pawel Jumper, Pilot, Trutka, Szybkostrzelność, Radarowiec, Regeneracja** - Przełączono na współdzieloną listę posiadaczy umiejętności, a odczyty konfiguracji przeniesiono poza pętle wykonywane dla każdego gracza.
+
+- #### Poprawki
+    - **Grawitacyjny Wabik** - Usunięto przywracanie grawitacji do sztywnej wartości `1.0` po opuszczeniu pola, które permanentnie psuło **Astronautę**. Teraz zapisywana i przywracana jest własna wartość grawitacji każdego pawna.
+    - **PsychicDefusing** - Po przydzieleniu umiejętności po podłożeniu bomby jej pozycja pozostawała nieustawiona. Zapamiętana pozycja wskazywała również bezpośrednio na encję bomby i stawała się nieprawidłowa po jej usunięciu. Naprawiono także pomijanie konfiguracji, gdy pawn nie był jeszcze gotowy.
+    - **PsychicDefusing, Krucha Bomba** - Zwycięskie drużyny nie otrzymywały pieniędzy, gdy plugin kończył rundę. Zwycięzcy otrzymują teraz wypłatę zgodną z odpowiednimi convarami `cash_*`, a bonus za rozbrojenie jest dodawany osobno.
+    - **Ogień Przyjacielski** - Po zakończeniu rundy `mp_autokick` jest teraz przywracane do swojej domyślnej wartości.
+    - **Toksyczny Dym, Leczący Dym** - Dym nadal zadawał obrażenia lub leczył po utracie umiejętności przez właściciela. Po wygaśnięciu mogły również pozostawać dymy, których właściciel nie posiadał już danej umiejętności. **Leczący Dym** nie śledził wcześniej właściciela w ogóle.
+    - **Granat EMP** - Celownik i radar pozostawały zablokowane na zawsze, ponieważ `OnTick` przestaje być wywoływany, gdy nikt nie posiada umiejętności, a timer blokady nie wygasał.
+    - **Nóż do Rzucania** - Utrata umiejętności po wyrzuceniu noża niszczyła nóż bez zwracania go graczowi.
+    - **Tylko Głowa, Pancerz Reaktywny** - Obie umiejętności ignorowały obrażenia od upadku i obrażenia ze świata, które nie posiadają atakującego gracza.
+    - **Hazardzista** - Odświeżenie zużywało jednorazową możliwość zamiast losować dwie nowe umiejętności. Wiersz odświeżania tracił również prefiks koloru przez wrapper kierunku tekstu.
+    - **Berserker, Flash** - Ograniczenie prędkości spadania mogło działać podczas noclipu.
+    - **Wybuchowa Beczka** - Beczka pojawiała się początkowo bez modelu, który był dodawany dopiero klatkę później. Model jest teraz przekazywany przez `CEntityKeyValues` już podczas tworzenia encji.
+    - **Szybkie Rączki** - Dodano cooldown, domyślnie pięć sekund, wraz z licznikiem na HUD. Cooldown rozpoczyna się dopiero wtedy, gdy magazynek faktycznie zostanie przeładowany.
+    - **Konfiguracja** - Migracja brakujących kluczy schodzi teraz również do zagnieżdżonych sekcji, dzięki czemu wykrywane są m.in. klucze znajdujące się w `HtmlHudCustomisation`.
+
+- #### Hook obrażeń
+    - **OnEntityTakeDamagePre / OnEntityTakeDamagePost** - Zastąpiono przestarzały hook `CBaseEntity_TakeDamageOldFunc` w 27 plikach.
+    - **Obrażenia od sojuszników** - Nowy hook wykonuje się przed wyzerowaniem obrażeń drużynowych przez silnik, dlatego modyfikatory po stronie atakującego wymagają teraz jawnych zabezpieczeń. Dodano je do: **Jednostrzałowca, Cuttera, Skrytobójcy, Żołnierza, Berserkera, Nemezisa i Karającego**.
+    - **FriendlyFire** - Dodano nowy klucz `FriendlyFire` do dwunastu umiejętności. Domyślnie ma wartość `true`. Ustawienie `false` powoduje, że umiejętność nie wpływa na członków własnej drużyny, tak jak wcześniej działało to w **Długim Nożu** i **Zabójczym Flashu**. Obejmuje to zarówno modyfikatory obrażeń, jak i materiały wybuchowe, które wcześniej jedynie zmniejszały obrażenia zadawane sojusznikom.
+
+- #### Menu
+    - **WSADMenuVisibleItems** - Dodano nowe ustawienie zastępujące sztywną liczbę trzech widocznych wierszy menu. Wartość jest ograniczana do zakresu od 1 do 10.
+    - **Menu WSAD** - Ostatni wiersz menu zachowuje teraz prefiks koloru `#RRGGBB` zamiast tracić go przez wrapper kierunku tekstu.
+
+- #### Migracja konfiguracji
+    - **skillsInfo.json** - Brakujące klucze są teraz zapisywane do pliku podczas jego ładowania zamiast być jedynie ustawiane domyślnie w pamięci. Istniejące wartości pozostają bez zmian.
+    - **playersLanguage.json** - Gracze są teraz grupowani według języka zamiast posiadania osobnego wiersza dla każdego gracza. Zmniejsza to plik dla 10 000 graczy o około 20%. Stare pliki są konwertowane przy ładowaniu, a nieprawidłowe SteamID są usuwane.
+
+- #### Debug
+    - **Próbki wydajności** - Oprócz średniej i maksimum raportowane są teraz `p50`, `p95` oraz `p99`.
+    - **Próbkowanie umiejętności** - Każda umiejętność jest teraz próbkowana, zamiast logowania wyłącznie wywołań przekraczających dwie milisekundy. Pomiar był wykonywany wcześniej, ale raportowanie odrzucało wyniki poniżej tego progu.
+    - **Kontekst obciążenia** - Linie agregujące zawierają teraz liczbę graczy, żywych graczy, botów, aktywnych umiejętności oraz rund, dzięki czemu sesje można porównywać przy różnych poziomach obciążenia.
+    - **ENTITIES** - Śledzone encje są teraz rozbijane według typu.
+    - **STALL** - Linie zawierają tick, liczbę śledzonych encji oraz kontekst obciążenia, co ułatwia odróżnienie pauz podczas ładowania mapy od rzeczywistych zawieszeń.
+    - **DMGHOOK** - Raportuje, jak często na hooku obrażeń poprawnie rozpoznawany jest atakujący oraz umiejętność.
+    - **Bezczynny serwer** - Gdy serwer jest pusty, nic nie jest zapisywane poza liniami cyklu życia oraz informacjami o dołączaniu i rozłączaniu graczy.
+
+- #### Stabilność i start serwera
+    - **Crash podczas startu** - Naprawiono crash serwera z włączonym `PerfMode` lub `DebugMode`, który występował przy pierwszej umiejętności podczas uruchamiania. `PerfLog.Sample` wywoływał `IsServerIdle()` przy każdym `SkillAction`, a metoda próbowała skanować listę graczy, zanim serwer był jeszcze gotowy. Była to regresja wprowadzona wraz z blokadą logowania dla bezczynnego serwera w b8.
+    - **PlayerManager** - Dodano flagę `serverActive` ustawianą podczas rozpoczęcia mapy. `IsServerIdle`, `GetTickPlayers` oraz `GetTickBomb` nie odwołują się już do gry przed uruchomieniem mapy.
+    - **Komendy** - `zmienmape` oraz jeden chiński alias znajdowały się na liście dwukrotnie, co powodowało dwukrotną natywną rejestrację tej samej nazwy komendy. Usunięto duplikaty z wartości domyślnych oraz dodano zabezpieczenie przed duplikatami również w konfiguracjach użytkowników.
+
+- #### Czat
+    - **Ogłoszenie umiejętności** - Umiejętności członków drużyny są teraz wyświetlane jako pierwsze, a opis własnej umiejętności jako ostatni, dzięki czemu pozostaje na dole czatu i nie jest od razu wypychany przez kolejne wiadomości.
+    - **SetRandomSkill** - Nie pozostawia już otwartego pola czatu, gdy gracz posiada członków drużyny.
+
+- #### Poprawki debugowania
+    - **PerfLog** - `p50`, `p95` i `p99` zwracały wcześniej górną granicę przedziału histogramu zamiast rzeczywistej próbki. Mogło to powodować raportowanie wartości wyższej niż `max`. Problem występował w 74% okien podczas 6,5-godzinnej sesji, np. `avg=0.06ms p99=8.00ms max=4.68ms`. Percentyle są teraz obliczane na podstawie rzeczywistych próbek z danego okna. Szacowanie na podstawie histogramu jest używane tylko jako awaryjne rozwiązanie w przypadku przepełnienia bufora, z interpolacją wewnątrz przedziału i ograniczeniem wyniku do `max`.
+    - **EntityManager** - Już śledzona encja mogła otrzymać drugi wpis `+`, przez co liczba utworzeń i usunięć przestawała się zgadzać, a log encji wyglądał jak wyciek pamięci. Ponowna rejestracja loguje teraz `~ oldType -> newType`, jeśli typ encji się zmienił, i nic nie loguje, jeśli pozostał taki sam.
+    - **Duszek, Ninja, C4 Kamuflaż** - Ukrywająca encja była rejestrowana dwukrotnie, najpierw jako `prop_dynamic`, a następnie jako `empty_prop`. Teraz jest śledzona pod prawidłową nazwą od momentu utworzenia dzięki nowemu parametrowi `trackAs` w `CreateTrackedDynamicProp`.
+
+- #### Czyszczenie kodu
+    - **Ostrzeżenia kompilatora** - Wszystkie dwanaście ostrzeżeń zostało usuniętych. Build jest czysty.
+    - **SkillUtils.SetPlayerCollisions** - Usunięto, ponieważ metoda zaczynała się od bezwarunkowego `return`.
+    - **Aliasy hooka obrażeń** - Usunięto nieużywane lokalne zmienne `param` i `param2`, które pozostały po migracji w 27 plikach.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#53](https://github.com/Juzlus/jRandomSkills/pull/53). Dziękujemy ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b7</b></summary>

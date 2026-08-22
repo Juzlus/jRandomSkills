@@ -42,8 +42,8 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 - **Address**: `jRandomSkills@pukawka.pl`
 - **Password**: `public`
 - **Opening Hours**: `22:00-17:00 UTC`
-- **Connect URL**: `steam://connect/51.38.122.215:27215/public`
-- **Connect**: `connect 51.38.122.215:27215; password public`
+- ~~**Connect URL**: `steam://connect/51.38.122.215:27215/public`~~
+- ~~**Connect**: `connect 51.38.122.215:27215; password public`~~
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
@@ -338,9 +338,12 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         },
         
         "HtmlHudCustomisation": {        // Settings for changing colours and font sizes
-            ...                          // xxxl: 64px, xxl: 40px, xl: 32px
-        }                                // l: 24px, ml: 20px, m: 18px
-        ...                              // sm: 16px, s: 12px, xs: 8px
+                                         // xxxl: 64px, xxl: 40px, xl: 32px
+                                         // l: 24px, ml: 20px, m: 18px
+            ...                          // sm: 16px, s: 12px, xs: 8px
+            "WSADMenuVisibleItems": 3    // Number of visible rows
+        }
+        ...
     },
 ```
 
@@ -404,6 +407,85 @@ This plugin uses content from the following projects:
 [THANKS]
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.3.b8</b></summary>
+
+- #### Shared Systems
+    - **PlayerManager.FillSkillHolders** - Skill holders are now resolved from the player index instead of scanning every controller each tick, replacing the per-skill full player loop used by ten skills.
+    - **PlayerManager.GetControllerByPawn** - Added a tick-cached pawn-to-controller map, replacing the linear observer-target scan.
+    - **PlayerManager.IsServerIdle** - Added a tick-cached idle check shared by the debug and performance writers.
+    - **SkillUtils.IsFriendlyFireBlocked** - Now takes the skill, so the per-skill `FriendlyFire` key and server convars are resolved in one place. The convar-only overload remains for victim-side skills.
+    - **SkillUtils.TerminateRound** - Now accepts the player who ended the round and pays out the round-end money that the engine skips on plugin-terminated rounds.
+
+- #### Performance
+    - **OnTick(hud)** - Average cost reduced by 17% compared to the previous build.
+    - **CheckTransmit** - Average cost reduced by 25%, with peak cost reduced by 39%.
+    - **OnTick(skills)** - Peak cost reduced by 62%.
+    - **Host stalls** - Real freezes measured with players connected dropped from six to two across 785 rounds.
+    - **DecoyRing** - Beam creation is now spread across four frames instead of spawning the entire ring in one tick.
+    - **Fourteen skills** - `OnTick` now returns immediately when the skill holds no state.
+    - **Berserker, BladeMaster, BunnyHop, DemonEye, Flash, PawelJumper, Pilot, Poison, QuickShot, RadarHack, Regeneration** - Switched to the shared skill-holder list; config reads were moved out of per-player loops.
+
+- #### Fixes
+    - **GravityDecoy** - Restored a hardcoded gravity of 1.0 when leaving the field, permanently breaking Astronaut. Each pawn's own gravity scale is now captured and restored.
+    - **PsychicDefusing** - The bomb location remained unset when the skill was assigned after the plant, the stored position pointed into the entity and became invalid once the bomb was killed, and setup was silently skipped when the pawn was not ready.
+    - **PsychicDefusing, FragileBomb** - Winning teams received no money when the plugin ended the round. Winners are now paid from the matching `cash_*` convars, with the defuser bonus applied on top.
+    - **FriendlyFire** - `mp_autokick` is now restored to its default value after the round ends.
+    - **ToxicSmoke, HealingSmoke** - Smoke continued damaging and healing after its owner lost the skill, and expiry could leave behind smokes whose owner had already lost the skill. HealingSmoke also did not track an owner at all.
+    - **EmpGrenade** - Crosshair and radar stayed jammed forever because `OnTick` stops being dispatched once nobody holds the skill and the jam timer never expired.
+    - **ThrowingKnife** - Losing the skill while the knife was thrown destroyed it without returning one to the player.
+    - **OnlyHead, ReactiveArmor** - Both ignored fall and world damage, which has no player attacker.
+    - **Gambler** - Refreshing consumed the one-shot instead of rolling two new skills, and the refresh row lost its colour prefix to the text-direction wrapper.
+    - **Berserker, Flash** - The falling-speed clamp could trigger while noclipping.
+    - **ExplodingBarrel** - The prop spawned without a model and received it a frame later; the model is now passed through `CEntityKeyValues` at spawn.
+    - **FastReload** - Added a cooldown, five seconds by default, with a HUD countdown. The cooldown only starts when a magazine is actually refilled.
+    - **Config** - Missing-key migration now descends into nested sections, so keys under `HtmlHudCustomisation` are detected.
+
+- #### Damage Hook
+    - **OnEntityTakeDamagePre / OnEntityTakeDamagePost** - Replaced the deprecated `CBaseEntity_TakeDamageOldFunc` hook across 27 files.
+    - **Teammate damage** - The new hook runs before the engine zeroes friendly fire, so attacker-side modifiers now require explicit guards. Added to OneShot, Cutter, Assassin, Soldier, Berserker, Nemesis and Punisher.
+    - **FriendlyFire** - Added a new per-skill key to twelve skills, defaulting to `true`. Setting it to `false` prevents teammates from being affected, as already supported by LongKnife and KillerFlash. This covers both damage amplifiers and explosives that previously only reduced teammate damage.
+
+- #### Menu
+    - **WSADMenuVisibleItems** - Added a new setting replacing the hardcoded three visible menu rows. The value is clamped between one and ten.
+    - **WSAD menu** - The final menu row now keeps its `#RRGGBB` colour prefix instead of losing it to the text-direction wrapper.
+
+- #### Config Migration
+    - **skillsInfo.json** - Missing keys are now written back to the file on load instead of only being defaulted in memory. Existing values are preserved.
+    - **playersLanguage.json** - Players are now grouped by language instead of using one row per player, reducing a ten-thousand-player file by 20%. Old files are converted on load and invalid SteamIDs are dropped.
+
+- #### Debug
+    - **Perf samples** - Report `p50`, `p95` and `p99` alongside the average and maximum.
+    - **Per-skill sampling** - Every skill is now sampled instead of only logging calls that exceeded two milliseconds. The measurement was already running; only the reporting threshold discarded it.
+    - **Load context** - Aggregate lines now include player, alive, bot, active-skill and round counts, allowing sessions to be compared under different loads.
+    - **ENTITIES** - Tracked entities are now broken down by type.
+    - **STALL** - Lines now include the tick, tracked entity count and load context, helping distinguish map-load pauses from genuine freezes.
+    - **DMGHOOK** - Reports how often the attacker and ability resolve on the damage hook.
+    - **Idle server** - Nothing is written while the server is empty, apart from lifecycle lines and player connects/disconnects.
+
+- #### Startup & Stability
+    - **Startup crash** - Fixed a crash on servers with `PerfMode` or `DebugMode` enabled during boot at the first skill. `PerfLog.Sample` called `IsServerIdle()` on every `SkillAction`, which scanned the player list while the server was still booting. This was a regression introduced with the idle-logging gate in b8.
+    - **PlayerManager** - Added a `serverActive` flag set on map start. `IsServerIdle`, `GetTickPlayers` and `GetTickBomb` no longer touch the game before the map is up.
+    - **Commands** - `zmienmape` and one Chinese alias were listed twice, causing the same command name to be registered natively two times. Cleaned up the defaults and added a duplicate guard to cover user configs as well.
+
+- #### Chat
+    - **Skill announcement** - Teammate skills are now shown first and your own skill description last, keeping it at the bottom of the chat instead of allowing it to scroll away.
+    - **SetRandomSkill** - No longer leaves the chat box unclosed when the player has teammates.
+
+- #### Debug Fixes
+    - **PerfLog** - `p50`, `p95` and `p99` previously returned the upper bound of the histogram bucket instead of a real sample, meaning they could report a value higher than `max`. This occurred in 74% of the windows during a 6.5-hour session (for example: `avg=0.06ms p99=8.00ms max=4.68ms`). Percentiles are now taken from the actual samples in the window. The bucket estimate is only used as a fallback when the buffer overflows, interpolated inside the bucket and clamped to `max`.
+    - **EntityManager** - An already-tracked entity could log a second `+` line, causing creates and destroys to stop matching and making the entity log look like a leak. Re-registering now logs `~ oldType -> newType` when the type changes and nothing when it does not.
+    - **Ghost, Ninja, C4Camouflage** - The hiding prop was registered twice, first as `prop_dynamic` and then as `empty_prop`. It is now tracked under the correct name from creation through the new `trackAs` parameter of `CreateTrackedDynamicProp`.
+
+- #### Cleanup
+    - **Compiler warnings** - All twelve warnings have been resolved; the build is clean.
+    - **SkillUtils.SetPlayerCollisions** - Removed because its body started with an unconditional `return`.
+    - **Damage hook aliases** - Removed the unused `param` and `param2` locals left behind by the migration across 27 files.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#53](https://github.com/Juzlus/jRandomSkills/pull/53). Thanks to ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b7</b></summary>
