@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -17,19 +17,46 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void PlayerHurt(EventPlayerHurt @event)
+        private const string infernoDamage = "inferno";
+
+        private static bool IsInfernoDamage(CTakeDamageInfo damageInfo)
         {
-            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            int damage = @event.DmgHealth;
-            string weapon = @event.Weapon;
+            var ability = damageInfo.Ability?.Value;
+            if (ability != null && ability.IsValid && ability.DesignerName == infernoDamage) return true;
 
-            if (weapon != "inferno" || !Instance.IsPlayerValid(victim)) return;
-            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
+            var inflictor = damageInfo.Inflictor?.Value;
+            return inflictor != null && inflictor.IsValid && inflictor.DesignerName == infernoDamage;
+        }
 
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+        public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
+        {
+            if (damagedEntity == null || !damagedEntity.IsValid || damageInfo == null) return;
+            if (damageInfo.Damage <= 0 || !IsInfernoDamage(damageInfo)) return;
 
-            var pawn = victim!.PlayerPawn.Value;
-            SkillUtils.AddHealth(pawn, (int)(damage * SkillsInfo.GetValue<float>(skillName, "regenerationMultiplier")));
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
+            if (!victimPawn.IsValid || victimPawn.DesignerName != "player") return;
+
+            var victimController = victimPawn.Controller?.Value;
+            if (victimController == null || !victimController.IsValid) return;
+
+            var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
+            if (victim == null || !victim.IsValid) return;
+
+            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+
+            float damage = damageInfo.Damage;
+            float net = damage * (SkillsInfo.GetValue<float>(skillName, "regenerationMultiplier") - 1f);
+
+            if (net < 0)
+            {
+                damageInfo.Damage = -net;
+                return;
+            }
+
+            damageInfo.Damage = 0;
+
+            int heal = (int)MathF.Round(net);
+            if (heal > 0) SkillUtils.AddHealth(victimPawn, heal);
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)

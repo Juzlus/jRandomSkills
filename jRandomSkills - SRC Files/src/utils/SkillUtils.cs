@@ -619,6 +619,34 @@ namespace src.utils
                 .Cast<CCSPlayerController>()];
         }
 
+        private static readonly ConcurrentDictionary<uint, int> healthBeforeHit = [];
+
+        public static void TrackHealthBeforeHit(CBaseEntity? damagedEntity, CTakeDamageInfo? damageInfo)
+        {
+            if (damagedEntity == null || damageInfo == null || damageInfo.Damage <= 0) return;
+
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
+            if (!victimPawn.IsValid || victimPawn.DesignerName != "player") return;
+
+            var victimController = victimPawn.Controller?.Value;
+            if (victimController == null || !victimController.IsValid) return;
+
+            var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
+            if (victim == null || !victim.IsValid) return;
+
+            healthBeforeHit[victim.Index] = victimPawn.Health;
+        }
+
+        public static int CapToVictimHealth(CCSPlayerController? victim, int dmgHealth)
+        {
+            if (victim == null || !victim.IsValid) return dmgHealth;
+            if (!healthBeforeHit.TryGetValue(victim.Index, out int healthBefore) || healthBefore <= 0) return dmgHealth;
+
+            return dmgHealth > healthBefore ? healthBefore : dmgHealth;
+        }
+
+        public static void ClearHealthBeforeHit() => healthBeforeHit.Clear();
+
         public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, KillfeedIcons? killfeedIcon = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)

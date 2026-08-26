@@ -7,6 +7,7 @@ using RayTraceAPI;
 using System.Drawing;
 using System.Numerics;
 using TraceOptions = RayTraceAPI.TraceOptions;
+using TraceResult = RayTraceAPI.TraceResult;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.utils

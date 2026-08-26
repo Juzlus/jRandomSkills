@@ -302,13 +302,43 @@ namespace src.player.skills
             return shooter != null && shooter.IsValid ? shooter : null;
         }
 
+        private static void AbsorbWithClone(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
+        {
+            if (damageInfo.Damage <= 0) return;
+
+            CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
+            if (!victimPawn.IsValid || victimPawn.DesignerName != "player") return;
+
+            var victimController = victimPawn.Controller?.Value;
+            if (victimController == null || !victimController.IsValid) return;
+
+            var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
+            if (victim == null || !victim.IsValid) return;
+
+            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+            if (!playersInfo.TryGetValue(victim.Index, out var playerSkill)) return;
+
+            bool hasClone = playerSkill.CloneProp != null;
+            if (!hasClone && playerSkill.LastHit + 4 <= Server.TickCount) return;
+
+            damageInfo.Damage = 0;
+
+            if (!hasClone) return;
+
+            KillClone(playerSkill);
+            playerSkill.LastHit = Server.TickCount;
+        }
+
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
             if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null)
                 return;
 
-            if (string.IsNullOrEmpty(damagedEntity.Entity.Name)) return;
-            if (!damagedEntity.Entity.Name.StartsWith("IanaClone_")) return;
+            if (string.IsNullOrEmpty(damagedEntity.Entity.Name) || !damagedEntity.Entity.Name.StartsWith("IanaClone_"))
+            {
+                AbsorbWithClone(damagedEntity, damageInfo);
+                return;
+            }
 
             var nameParams = damagedEntity.Entity.Name.Split('_')[2];
             _ = uint.TryParse(nameParams, out uint userIndex);
@@ -354,26 +384,6 @@ namespace src.player.skills
                     KillfeedIcons? killfeed = KillfeedIconsExtensions.FromWeaponName(damageInfo.Ability?.Value?.DesignerName);
                     SkillUtils.TakeHealth(playerPawn, (int)dealDamage, GetShooter(damageInfo), killfeed ?? KillfeedIcons.Leg);
                 }
-            }
-        }
-
-        public static void PlayerHurt(EventPlayerHurt @event)
-        {
-            var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (victim == null || !victim.IsValid) return;
-
-            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
-
-            if (playersInfo.TryGetValue(victim.Index, out var playerSkill))
-            {
-                if (playerSkill.CloneProp != null)
-                {
-                    KillClone(playerSkill);
-                    playerSkill.LastHit = Server.TickCount;
-                }
-
-                if (playerSkill.LastHit + 4 > Server.TickCount)
-                    SkillUtils.RestoreHealth(victim);
             }
         }
 
