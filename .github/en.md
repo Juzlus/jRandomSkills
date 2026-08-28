@@ -409,6 +409,25 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.3.b9</b></summary>
+
+- #### General
+    - Updated core dependencies: `CounterStrikeSharp` to **1.0.373**
+    - **Config** - The `Rifle`, `Pistol` and `Grenade` weapon pools grew every time the config was loaded, so removed weapons came back on the next start.
+    - **Use button** - Skills no longer trigger when a CT presses `Use` while looking at a planted C4, so the skill key no longer competes with the defuse key.
+
+- #### Skill Fixes
+    - **Pyro** - Fire damage killed the holder at low health. The regeneration now runs before the damage is applied instead of after.
+    - **Iana** - The clone did not absorb a lethal hit, same cause as Pyro.
+    - **Dracula** - Lifesteal used the raw damage, so an AWP headshot healed for 400. It is now capped to the health the victim actually had, works on the killing blow, and can no longer leave the attacker alive at 0 HP.
+    - **RobinHood** - Stolen money used the raw damage and a hardcoded 16000 cap. It is now capped to the victim's real health, works on the killing blow, and respects `mp_maxmoney`. The victim loses exactly what the attacker gains.
+    - **Voodoo** - Reflected damage used the raw damage, now capped to the victim's real health.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#56](https://github.com/Juzlus/jRandomSkills/pull/56). Thanks to ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.3.b8</b></summary>
 
 - #### Shared Systems

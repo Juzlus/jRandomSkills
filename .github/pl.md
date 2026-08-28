@@ -408,6 +408,27 @@ Plugin korzysta z zawartości następujących projektów:
 
 ## 📋 Lista Zmian
 
+## 📋 Changelog
+
+<details>
+<summary><b>v1.2.3.b9</b></summary>
+
+- #### Ogólne
+    - Zaktualizowano główne zależności: `CounterStrikeSharp` do **1.0.373**
+    - **Config** - Pule broni `Rifle`, `Pistol` i `Grenade` powiększały się za każdym razem, gdy konfiguracja była wczytywana, przez co usunięte bronie pojawiały się ponownie przy kolejnym uruchomieniu.
+    - **Przycisk Use** - Umiejętności nie są już aktywowane, gdy CT naciska `Use`, patrząc na podłożone C4, dzięki czemu klawisz umiejętności nie konkuruje już z klawiszem rozbrajania.
+
+- #### Poprawki mocy
+    - **Pyro** - Obrażenia od ognia zabijały posiadacza przy niskim poziomie zdrowia. Regeneracja jest teraz wykonywana przed zadaniem obrażeń, zamiast po nich.
+    - **Hologram** - Klon nie pochłaniał śmiertelnego trafienia, z tego samego powodu co w przypadku Pyro.
+    - **Drakula** - Kradzież życia korzystała z surowych obrażeń, przez co trafienie w głowę z AWP leczyło za 400 HP. Wartość jest teraz ograniczona do faktycznej ilości zdrowia ofiary, działa również przy zabójczym trafieniu i nie może już pozostawić atakującego przy 0 HP.
+    - **Robin Hood** - Skradzione pieniądze były obliczane na podstawie surowych obrażeń i miały sztywny limit 16000. Teraz ich ilość jest ograniczona do faktycznego poziomu zdrowia ofiary, działa również przy zabójczym trafieniu i uwzględnia `mp_maxmoney`. Ofiara traci dokładnie tyle, ile zyskuje atakujący.
+    - **Voodoo** - Odbite obrażenia były obliczane na podstawie surowych obrażeń. Teraz są ograniczone do faktycznej ilości zdrowia ofiary.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#56](https://github.com/Juzlus/jRandomSkills/pull/56). Dziękujemy ByDexterTR!**
+
+</details>
+
 <details>
 <summary><b>v1.2.3.b8</b></summary>
 
