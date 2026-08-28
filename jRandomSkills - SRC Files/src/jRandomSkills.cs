@@ -22,7 +22,7 @@ namespace src
         public IEnumerable<jSkill_PlayerInfo> SkillPlayer => PlayerManager.GetAllPlayers();
         public Random Random => Random.Shared;
         public CCSGameRules? GameRules { get; set; }
-        private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
+        private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl", "panorama/layout/btn_alert.vxml_c"];
         public IWasdMenuManager? MenuManager;
         // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
         public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.3.b9";
+        public override string ModuleVersion => "HUD TEST";
 
         public override void Load(bool hotReload)
         {

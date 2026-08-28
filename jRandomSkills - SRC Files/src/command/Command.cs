@@ -2,8 +2,10 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using jRandomSkills;
 using src.menu;
 using src.player;
 using src.utils;
@@ -433,6 +435,25 @@ namespace src.command
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_HUD(CCSPlayerController? player, CommandInfo command)
         {
+            var customHud = Utilities.CreateEntityByName<CBaseEntity>("custom_hud_layout");
+
+            if (customHud == null)
+                return;
+
+            using var keyValues = new CEntityKeyValues();
+            keyValues.SetString("layout", "panorama/layout/btn_alert.vxml_c");
+
+            customHud.DispatchSpawn(keyValues);
+
+            uint slot = (uint)player.Slot;
+
+            CustomHudNatives? _customHud = new();
+            _customHud.SetDialogVariableStringForPlayer(customHud, slot, "MainMenuWatchAlertText", "alert_value", "HELLO FROM CSHARP");
+            player.PrintToChat(" {ChatColors.Green}Custom HUD layout created and variable set!");
+
+
+
+            return;
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_hud {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.HudCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
