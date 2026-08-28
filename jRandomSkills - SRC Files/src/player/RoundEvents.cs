@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -182,6 +182,7 @@ namespace src.player
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
 
                 Fortnite.skillInThisRound = false;
+                SkillUtils.ClearHealthBeforeHit();
 
                 EntityManager.SuppressKills = true;
                 try

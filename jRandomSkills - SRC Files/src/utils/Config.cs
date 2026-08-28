@@ -290,8 +290,11 @@ namespace src.utils
 
         public class WeaponPools
         {
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public required List<string> Rifle { get; set; }
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public required List<string> Pistol { get; set; }
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public required List<string> Grenade { get; set; }
         }
 

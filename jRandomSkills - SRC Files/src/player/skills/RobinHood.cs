@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -15,16 +16,18 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        private static int GetMaxMoney() => ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
+
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-            var damage = @event.DmgHealth;
-            if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
+            if (!Instance.IsPlayerValid(attacker) || victim == null || !victim.IsValid || attacker == victim) return;
 
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (attackerInfo?.Skill != skillName) return;
 
+            int damage = SkillUtils.CapToVictimHealth(victim, @event.DmgHealth);
             int moneyToSteal = damage * SkillsInfo.GetValue<int>(skillName, "moneyMultiplier");
             StealMoney(victim!, attacker!, moneyToSteal);
         }
@@ -35,11 +38,17 @@ namespace src.player.skills
             var attackerMoneyServices = attacker?.InGameMoneyServices;
             if (victimMoneyServices == null || attackerMoneyServices == null) return;
 
-            var moneyToAdd = victimMoneyServices.Account < money ? victimMoneyServices.Account : money;
-            victimMoneyServices.Account = Math.Max(victimMoneyServices.Account - money, 0);
+            int maxMoney = GetMaxMoney();
+            int headroom = Math.Max(maxMoney - attackerMoneyServices.Account, 0);
+
+            int transfer = Math.Min(money, victimMoneyServices.Account);
+            transfer = Math.Min(transfer, headroom);
+            if (transfer <= 0) return;
+
+            victimMoneyServices.Account -= transfer;
             Utilities.SetStateChanged(victim!, "CCSPlayerController", "m_pInGameMoneyServices");
 
-            attackerMoneyServices.Account = Math.Min(attackerMoneyServices.Account + moneyToAdd, 16000);
+            attackerMoneyServices.Account += transfer;
             Utilities.SetStateChanged(attacker!, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 

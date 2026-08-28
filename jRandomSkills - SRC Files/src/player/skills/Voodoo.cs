@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
@@ -138,7 +138,7 @@ namespace src.player.skills
                 if (victimPawn == null || !victimPawn.IsValid || victimPawn.Health <= 0) return;
                 if (victimPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-                int reflected = (int)MathF.Round(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "reflectPercent"));
+                int reflected = (int)MathF.Round(SkillUtils.CapToVictimHealth(owner, @event.DmgHealth) * SkillsInfo.GetValue<float>(skillName, "reflectPercent"));
                 if (reflected < 1) return;
 
                 SkillUtils.TakeHealth(victimPawn, reflected, owner, KillfeedIcons.Fist);

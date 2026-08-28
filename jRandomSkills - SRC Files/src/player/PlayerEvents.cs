@@ -798,6 +798,8 @@ namespace src.player
                             return;
                         }
 
+                        if (designer == "planted_c4" && player.Team == CsTeam.CounterTerrorist) return;
+
                         if (designer.Contains("button") || designer.Contains("weapon") || designer.Contains("blocker")) return;
                     }
                 }

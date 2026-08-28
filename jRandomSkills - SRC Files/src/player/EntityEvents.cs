@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -89,6 +89,7 @@ namespace src.player
             lock (setLock)
             {
                 CountDamageResolution(info);
+                SkillUtils.TrackHealthBeforeHit(entity, info);
 
                 object[] args = [entity, info];
                 DispatchOnTakeDamage(entity, info, args);
