@@ -148,10 +148,15 @@ namespace src.utils
 
             if (ammo == 1) return;
 
+            uint weaponIndex = weapon.Value.Index;
+
             jRandomSkills.Instance.AddTimer(.1f, () =>
             {
-                if (weapon == null || !weapon.IsValid || weapon.Value == null || !weapon.Value.IsValid) return;
-                weapon.Value.Clip1 = 1;
+                var tracked = Utilities.GetEntityFromIndex<CBasePlayerWeapon>((int)weaponIndex);
+                if (tracked == null || !tracked.IsValid || tracked.DesignerName != itemString) return;
+
+                tracked.Clip1 = 1;
+                Utilities.SetStateChanged(tracked, "CBasePlayerWeapon", "m_iClip1");
             }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
