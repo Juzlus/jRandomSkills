@@ -21,6 +21,32 @@ namespace src.utils
 {
     public static class SkillUtils
     {
+        private static readonly ConcurrentDictionary<string, ConVar> cvarCache = [];
+
+        public static ConVar? Cvar(string name)
+        {
+            if (cvarCache.TryGetValue(name, out var cached)) return cached;
+
+            var cvar = ConVar.Find(name);
+            if (cvar != null) cvarCache[name] = cvar;
+            return cvar;
+        }
+
+        public static T CvarValue<T>(string name, T fallback) where T : unmanaged
+        {
+            var cvar = Cvar(name);
+            if (cvar == null) return fallback;
+
+            try { return cvar.GetPrimitiveValue<T>(); }
+            catch { return fallback; }
+        }
+
+        public static string CvarString(string name, string fallback)
+        {
+            var cvar = Cvar(name);
+            return cvar == null ? fallback : cvar.StringValue;
+        }
+
         private static Lazy<T?> LazySig<T>(string name, Func<string, T> factory) where T : class =>
             new(() =>
             {
@@ -82,9 +108,9 @@ namespace src.utils
 
             try
             {
-                if (ConVar.Find("mp_halftime")?.GetPrimitiveValue<bool>() != true) return false;
+                if (!CvarValue("mp_halftime", false)) return false;
 
-                int maxRounds = ConVar.Find("mp_maxrounds")?.GetPrimitiveValue<int>() ?? 0;
+                int maxRounds = CvarValue("mp_maxrounds", 0);
                 return maxRounds > 0 && maxRounds / 2 == gameRules.TotalRoundsPlayed;
             }
             catch
@@ -310,6 +336,62 @@ namespace src.utils
             return (HitGroup_t)Marshal.ReadInt32(hitGroupData, 56);
         }
 
+        private const float DefaultHeadshotMultiplier = 4f;
+        private const float StomachMultiplier = 1.25f;
+        private const float LegMultiplier = 0.75f;
+
+        public static float GetAppliedDamageScale(CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (info == null || victimPawn == null || !victimPawn.IsValid) return 1f;
+
+            var hitGroup = GetHitGroup(info);
+            var vdata = GetWeaponVData(info);
+
+            float scale = hitGroup switch
+            {
+                HitGroup_t.HITGROUP_HEAD => vdata != null && vdata.HeadshotMultiplier > 0 ? vdata.HeadshotMultiplier : DefaultHeadshotMultiplier,
+                HitGroup_t.HITGROUP_STOMACH => StomachMultiplier,
+                HitGroup_t.HITGROUP_LEFTLEG or HitGroup_t.HITGROUP_RIGHTLEG => LegMultiplier,
+                _ => 1f,
+            };
+
+            if (vdata == null || vdata.ArmorRatio <= 0 || vdata.ArmorRatio >= 1f) return scale;
+            if (victimPawn.ArmorValue <= 0) return scale;
+            if (!ArmorCovers(hitGroup, victimPawn)) return scale;
+
+            return scale * vdata.ArmorRatio;
+        }
+
+        public static float PredictAppliedDamage(CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (info == null) return 0f;
+            return info.Damage * GetAppliedDamageScale(info, victimPawn);
+        }
+
+        public static bool IsPredictedLethal(CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (victimPawn == null || !victimPawn.IsValid) return false;
+            return PredictAppliedDamage(info, victimPawn) >= victimPawn.Health;
+        }
+
+        private static bool ArmorCovers(HitGroup_t hitGroup, CCSPlayerPawn victimPawn) => hitGroup switch
+        {
+            HitGroup_t.HITGROUP_LEFTLEG or HitGroup_t.HITGROUP_RIGHTLEG => false,
+            HitGroup_t.HITGROUP_HEAD => victimPawn.ItemServices?.As<CCSPlayer_ItemServices>()?.HasHelmet ?? false,
+            _ => true,
+        };
+
+        private static CCSWeaponBaseVData? GetWeaponVData(CTakeDamageInfo info)
+        {
+            var ability = info.Ability?.Value;
+            if (ability == null || !ability.IsValid) return null;
+
+            var weapon = ability.As<CCSWeaponBase>();
+            if (weapon == null || !weapon.IsValid) return null;
+
+            return weapon.GetVData<CCSWeaponBaseVData>();
+        }
+
         public static void CreateHEGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
             HEGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
@@ -341,8 +423,8 @@ namespace src.utils
             if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return false; // non-player inflictor
             if (attackerPawn.TeamNum != victimPawn.TeamNum) return false;    // enemy -> real damage
 
-            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
-            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            bool ff = CvarValue("mp_friendlyfire", false);
+            bool tae = CvarValue("mp_teammates_are_enemies", false);
             return !ff && !tae; // same team + FF off -> engine will zero this damage
         }
 
@@ -351,8 +433,8 @@ namespace src.utils
             if (!IsSameTeamHit(info, victimPawn)) return false;
             if (!SkillsInfo.GetValue<bool>(skill, "friendlyFire")) return true;
 
-            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
-            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            bool ff = CvarValue("mp_friendlyfire", false);
+            bool tae = CvarValue("mp_teammates_are_enemies", false);
             return !ff && !tae;
         }
 
@@ -1199,17 +1281,17 @@ namespace src.utils
         private static void AwardRoundEndMoney(CsTeam winnerTeam, CCSPlayerController? bonusPlayer = null)
         {
             int winnerReward = winnerTeam == CsTeam.CounterTerrorist
-                ? ConVar.Find("cash_team_win_by_defusing_bomb")?.GetPrimitiveValue<int>() ?? 3500
-                : ConVar.Find("cash_team_terrorist_win_bomb")?.GetPrimitiveValue<int>() ?? 3500;
+                ? CvarValue("cash_team_win_by_defusing_bomb", 3500)
+                : CvarValue("cash_team_terrorist_win_bomb", 3500);
 
             if (winnerReward <= 0) return;
 
-            int maxMoney = ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
+            int maxMoney = CvarValue("mp_maxmoney", 16000);
             int personalBonus = bonusPlayer == null
                 ? 0
                 : winnerTeam == CsTeam.CounterTerrorist
-                    ? ConVar.Find("cash_player_defused_bomb")?.GetPrimitiveValue<int>() ?? 300
-                    : ConVar.Find("cash_player_bomb_planted")?.GetPrimitiveValue<int>() ?? 300;
+                    ? CvarValue("cash_player_defused_bomb", 300)
+                    : CvarValue("cash_player_bomb_planted", 300);
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -1232,10 +1314,10 @@ namespace src.utils
         {
             if (jRandomSkills.Instance == null || jRandomSkills.Instance.GameRules == null) return;
             int totalRoundsPlayed = ctScore + tScore;
-            int maxRounds = ConVar.Find("mp_maxrounds")?.GetPrimitiveValue<int>() ?? 24;
+            int maxRounds = CvarValue("mp_maxrounds", 24);
             int halfRounds = maxRounds / 2;
-            int overtimeMaxRounds = ConVar.Find("mp_overtime_maxrounds")?.GetPrimitiveValue<int>() ?? 6;
-            int overtimeLimit = ConVar.Find("mp_overtime_limit")?.GetPrimitiveValue<int>() ?? 1;
+            int overtimeMaxRounds = CvarValue("mp_overtime_maxrounds", 6);
+            int overtimeLimit = CvarValue("mp_overtime_limit", 1);
 
             var gameRulesProxy = jRandomSkills.Instance.GameRules;
             gameRulesProxy.TotalRoundsPlayed = totalRoundsPlayed;

@@ -21,6 +21,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
+            if (!SkillUtils.FiresBullets(@event.Weapon)) return;
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
             if (Heavyweight.Resists(victim)) return;
@@ -29,8 +30,9 @@ namespace src.player.skills
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
                 {
                     var victimPawn = victim.PlayerPawn?.Value;
-                    if (victimPawn != null)
-                        victimPawn.AbsVelocity.Z = 300f;
+                    if (victimPawn == null || !victimPawn.IsValid || victimPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+
+                    victimPawn.AbsVelocity.Z = 300f;
                 }
         }
 

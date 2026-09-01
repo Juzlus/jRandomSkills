@@ -294,10 +294,14 @@ namespace src.player
             }
         }
 
+        private static bool IsEventAlive(GameEvent? @event) => @event != null && @event.Handle != nint.Zero;
+
         private static HookResult WeaponEquip(EventItemEquip @event, GameEventInfo info)
         {
             lock (setLock)
             {
+                if (!IsEventAlive(@event)) return HookResult.Continue;
+
                 DispatchToActiveSkills("WeaponEquip", @event);
                 return HookResult.Continue;
             }
@@ -307,6 +311,8 @@ namespace src.player
         {
             lock (setLock)
             {
+                if (!IsEventAlive(@event)) return HookResult.Continue;
+
                 DispatchToActiveSkills("WeaponPickup", @event);
                 return HookResult.Continue;
             }
@@ -584,7 +590,7 @@ namespace src.player
                 string welcomeMsg = player.GetTranslationWithoutIlliterate("welcome_message", "welcome");
                 foreach (string line in welcomeMsg.Split("\n"))
                     player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}\u202A{player.PlayerName}\u202C{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
-                                            .Replace("{SERVER_NAME}", $" {ChatColors.Red}{ConVar.Find("hostname")?.StringValue ?? "Default Server"}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
+                                            .Replace("{SERVER_NAME}", $" {ChatColors.Red}{SkillUtils.CvarString("hostname", "Default Server")}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{VERSION}", $" {ChatColors.Red}v{Instance.ModuleVersion}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{SKILLS_COUNT}", $" {ChatColors.Red}{SkillData.Skills.Count - 1}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{AUTHOR1}", $" {ChatColors.Red}Jakub Bartosik (D3X){ChatColors.Green} ({ChatColors.Red}https://github.com/jakubbartosik/dRandomSkills{ChatColors.Green})", StringComparison.OrdinalIgnoreCase)

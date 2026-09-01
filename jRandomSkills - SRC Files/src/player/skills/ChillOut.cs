@@ -84,7 +84,7 @@ namespace src.player.skills
             float currentTime = Server.CurrentTime;
             float extraTime = SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
 
-            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.Team == CsTeam.Terrorist))
+            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.Team == CsTeam.Terrorist))
             {
                 if (player == null || !player.IsValid) continue;
 

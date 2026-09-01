@@ -28,6 +28,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
+            if (!SkillUtils.FiresBullets(@event.Weapon)) return;
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
             if (Heavyweight.Resists(victim)) return;

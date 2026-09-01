@@ -29,9 +29,12 @@ namespace src.utils
             {
                 var newConfig = new SkillsInfoModel();
 
+                Instance.Logger.LogInformation("skillsInfo path: {Path} (exists={Exists}, defaults built={Built})",
+                    configPath, File.Exists(configPath), newConfig.Count);
+
                 if (!File.Exists(configPath))
                 {
-                    Instance.Logger.LogInformation("Config file does not exist. Create a new skills info file...");
+                    Instance.Logger.LogError("skillsInfo.json NOT FOUND at the path above; a fresh file with defaults is being written.");
                     SaveConfig(newConfig);
                     return config = newConfig;
                 }
@@ -45,6 +48,7 @@ namespace src.utils
 
                     var root = JsonConvert.DeserializeObject<JArray>(json);
                     bool needsRewrite = root == null;
+                    bool populateFailed = false;
                     var present = new HashSet<string>(StringComparer.Ordinal);
 
                     if (root != null)
@@ -61,21 +65,40 @@ namespace src.utils
                             if (skillObj is JObject current && HasMissingKeys(current, instance))
                                 needsRewrite = true;
 
-                            JsonConvert.PopulateObject(skillObj.ToString(), instance);
+                            try
+                            {
+                                JsonConvert.PopulateObject(skillObj.ToString(), instance);
+                            }
+                            catch (Exception ex)
+                            {
+                                populateFailed = true;
+                                Instance.Logger.LogError("skillsInfo.json: \"{Name}\" could not be read ({Message}); its defaults are kept.", name, ex.Message);
+                            }
                         }
 
                     if (newConfig.Any(s => !string.IsNullOrEmpty(s.Name) && !present.Contains(s.Name)))
                         needsRewrite = true;
 
-                    if (needsRewrite)
+                    Instance.Logger.LogInformation("skillsInfo.json read: {Read} entries, {Matched} matched a known skill, rewrite={Rewrite}",
+                        root?.Count ?? 0, present.Count, needsRewrite);
+
+                    if (populateFailed)
+                        Instance.Logger.LogError("skillsInfo.json was not rewritten because some entries failed to load; fix them before reloading.");
+                    else if (needsRewrite)
                     {
                         SaveConfig(newConfig);
                         Instance.Logger.LogInformation("skillsInfo.json was missing keys; rewritten with the defaults filled in.");
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Instance.Logger.LogError("Error when loading the skills info file.");
+                    Instance.Logger.LogError("Error when loading the skills info file: {Message}", ex.Message);
+
+                    if (config != null)
+                    {
+                        Instance.Logger.LogError("skillsInfo.json was not applied; the previously loaded skill settings are kept.");
+                        return config;
+                    }
                 }
 
                 return config = newConfig;
@@ -104,12 +127,11 @@ namespace src.utils
                     string tempPath = $"{configPath}.temp";
                     File.WriteAllText(tempPath, json);
 
-                    File.Copy(tempPath, configPath, overwrite: true);
-                    File.Delete(tempPath);
+                    File.Move(tempPath, configPath, overwrite: true);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Instance.Logger.LogError("Error when saving the skills info file.");
+                    Instance.Logger.LogError("Error when saving the skills info file: {Message}", ex.Message);
                 }
             }
         }

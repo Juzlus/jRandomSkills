@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -20,7 +19,17 @@ namespace src.player
 {
     public static partial class Event
     {
-        private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
+        private static bool IsVip(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid || player.IsBot) return false;
+
+            string flag = Config.LoadedConfig.VIPFlag;
+            if (string.IsNullOrWhiteSpace(flag)) return false;
+
+            return AdminManager.PlayerHasPermissions(player, flag);
+        }
+
+        private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode, bool vip)
         {
             if (candidates == null || candidates.Count == 0) return noneSkill;
 
@@ -31,7 +40,7 @@ namespace src.player
 
             for (int attempt = 0; attempt < attempts; attempt++)
             {
-                var (roll, rolled) = RarityManager.RollRarity();
+                var (roll, rolled) = RarityManager.RollRarity(vip);
                 string rolledName = rolled.ToString();
 
                 filtered.Clear();
@@ -92,7 +101,7 @@ namespace src.player
                 }
 
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
-                int freezetime = ConVar.Find("mp_freezetime")?.GetPrimitiveValue<Int32>() ?? 0;
+                int freezetime = SkillUtils.CvarValue("mp_freezetime", 0);
                 freezeTimeEnd = DateTime.Now.AddSeconds(freezetime + (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0));
 
                 setSkillTimer?.Kill();
@@ -212,7 +221,7 @@ namespace src.player
 
                 PlayerManager.Clear();
 
-                ConVar.Find("sv_legacy_jump")?.SetValue("1");
+                SkillUtils.Cvar("sv_legacy_jump")?.SetValue("1");
             }
         }
 
@@ -348,7 +357,7 @@ namespace src.player
                 if (skillList.Count == 0) skills.Clear();
             }
 
-            var randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode);
+            var randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode, IsVip(player));
 
             if (gameMode == Config.GameModes.NoRepeat)
             {
@@ -686,7 +695,7 @@ namespace src.player
                             else assignmentCounts[sp.Skill] = 1;
                         }
 
-                        randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode);
+                        randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode, IsVip(player));
                     }
                     else if (gameMode == Config.GameModes.TeamSkills)
                         randomSkill = player.Team == CsTeam.Terrorist ? tSkill : ctSkill;

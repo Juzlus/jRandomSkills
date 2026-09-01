@@ -26,23 +26,30 @@ namespace src.player.skills
         }
 
         private static bool roundEnded;
+        private static readonly ConcurrentDictionary<uint, byte> owedKnife = [];
 
         public static void NewRound()
         {
             roundEnded = false;
             KillAllKnives();
+            owedKnife.Clear();
         }
 
         public static void RoundEnd()
         {
             roundEnded = true;
-            KillAllKnives();
+            KillAllKnives(rememberOwed: true);
         }
 
-        private static void KillAllKnives()
+        private static void KillAllKnives(bool rememberOwed = false)
         {
             foreach (var knifeInfo in knivesInfo.Values.ToArray())
+            {
+                if (rememberOwed && knifeInfo.IsDropped)
+                    owedKnife[knifeInfo.PlayerIndex] = 0;
+
                 DisableKnifeSkill(knifeInfo);
+            }
 
             knivesInfo.Clear();
         }
@@ -155,18 +162,24 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            if (player == null || !player.IsValid) return;
+
+            bool wasDropped = owedKnife.TryRemove(player.Index, out _);
+
             if (knivesInfo.TryRemove(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null)
             {
-                bool wasDropped = knifeInfo.IsDropped;
+                wasDropped |= knifeInfo.IsDropped;
                 DisableKnifeSkill(knifeInfo);
-
-                if (wasDropped && player != null && player.IsValid && player.PawnIsAlive)
-                    player.GiveNamedItem("weapon_knife");
             }
+
+            if (wasDropped && player.PawnIsAlive)
+                player.GiveNamedItem("weapon_knife");
         }
 
         public static void PlayerDisconnect(uint playerIndex)
         {
+            owedKnife.TryRemove(playerIndex, out _);
+
             if (knivesInfo.TryRemove(playerIndex, out KnifeInfo? knifeInfo) && knifeInfo != null)
                 DisableKnifeSkill(knifeInfo);
         }
