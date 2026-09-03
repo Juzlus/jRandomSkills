@@ -170,7 +170,7 @@ namespace src.player.skills
 
             foreach (var (info, viewer) in infoList)
             {
-                if (viewer == null || !viewer.IsValid) continue;
+                if (viewer == null || !viewer.IsValid || !viewer.PawnIsAlive) continue;
 
                 foreach (var kvp in targetVolumes)
                 {

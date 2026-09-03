@@ -802,6 +802,7 @@ namespace src.utils
 
                 var pawn = controller.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
+                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) continue;
 
                 hidden.Add(new HiddenPawn(controller.Index, controller.Team, pawn, bombOwnerIndex == controller.Index, ResolveCarriedIndexes(pawn)));
             }

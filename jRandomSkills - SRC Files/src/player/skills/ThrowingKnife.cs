@@ -444,7 +444,7 @@ namespace src.player.skills
 
             foreach (var (info, player) in infoList)
             {
-                if (player == null || !player.IsValid) continue;
+                if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
 
                 uint viewerIndex = PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index;
 
