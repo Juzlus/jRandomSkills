@@ -213,7 +213,7 @@ namespace src.utils
             }
         }
 
-        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, bool disableOnPistolRound = false)
+        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, bool disableOnPistolRound = false, int minPlayer = 0)
         {
             public bool NeedsTeammates { get; set; } = needsTeammates;
             public bool DisableOnFreezeTime { get; set; } = disableOnFreezeTime;
@@ -226,6 +226,7 @@ namespace src.utils
             public float? DescriptionHudDuration { get; set; } = descriptionHudDuration;
             public string RequiredPermission { get; set; } = requiredPermission;
             public int MaxPerServer { get; set; } = maxPerServer;
+            public int MinPlayer { get; set; } = minPlayer;
             public string Rarity { get; set; } = rarity.ToString();
         }
 

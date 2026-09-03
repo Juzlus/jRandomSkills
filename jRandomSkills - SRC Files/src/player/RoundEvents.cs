@@ -292,6 +292,7 @@ namespace src.player
             public required HashSet<Skills> CtOnly { get; init; }
             public required HashSet<Skills> TOnly { get; init; }
             public required HashSet<Skills> PistolRoundBanned { get; init; }
+            public required HashSet<Skills> MinPlayerBanned { get; init; }
             public required int TerroristCount { get; init; }
             public required int CounterTerroristCount { get; init; }
         }
@@ -316,6 +317,7 @@ namespace src.player
                 PistolRoundBanned = SkillUtils.IsPistolRound()
                     ? ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.DisableOnPistolRound).Select(s => s.Name))
                     : [],
+                MinPlayerBanned = ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.MinPlayer > 0 && validPlayers.Count < s.MinPlayer).Select(s => s.Name)),
                 TerroristCount = validPlayers.Count(p => p.Team == CsTeam.Terrorist),
                 CounterTerroristCount = validPlayers.Count(p => p.Team == CsTeam.CounterTerrorist),
             };
@@ -351,6 +353,9 @@ namespace src.player
             if (ctx.PistolRoundBanned.Count != 0)
                 skillList.RemoveAll(s => ctx.PistolRoundBanned.Contains(s.Skill));
 
+            if (ctx.MinPlayerBanned.Count != 0)
+                skillList.RemoveAll(s => ctx.MinPlayerBanned.Contains(s.Skill));
+
             if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out HashSet<Skills>? skills))
             {
                 skillList.RemoveAll(s => skills.Contains(s.Skill));
@@ -383,6 +388,7 @@ namespace src.player
             if (def == null) return false;
             if (def.DisableOnPistolRound && SkillUtils.IsPistolRound()) return false;
             if (def.NeedsTeammates && validPlayers.Count(p => p.Team == player.Team) == 1) return false;
+            if (def.MinPlayer > 0 && validPlayers.Count < def.MinPlayer) return false;
             if (def.MaxPerServer >= 0 && assignmentCounts.TryGetValue(pick.Skill, out var c) && c >= def.MaxPerServer) return false;
 
             return true;
@@ -680,6 +686,10 @@ namespace src.player
 
                         if (SkillUtils.IsPistolRound())
                             skillList.RemoveAll(s => SkillsInfo.GetValue<bool>(s.Skill, "disableOnPistolRound"));
+
+                        SkillsInfo.DefaultSkillInfo[] skillsMinPlayer = [.. SkillsInfo.LoadedConfig.Where(s => s.MinPlayer > 0 && validPlayers.Count < s.MinPlayer)];
+                        if (skillsMinPlayer.Length != 0)
+                            skillList.RemoveAll(s => skillsMinPlayer.Any(s2 => s2.Name == s.Skill.ToString()));
 
                         if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out HashSet<Skills>? skills))
                         {

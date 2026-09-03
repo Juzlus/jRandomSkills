@@ -62,7 +62,7 @@ namespace src.player.skills
 
             foreach (var (info, player) in infoList)
             {
-                if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
+                if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;

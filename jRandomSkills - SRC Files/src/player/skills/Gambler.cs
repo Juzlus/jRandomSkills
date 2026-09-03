@@ -138,6 +138,11 @@ namespace src.player.skills
             else
                 skillList.RemoveAll(s => Event.terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
 
+            int playerCount = PlayerManager.GetTickPlayers().Count(p => p != null && p.IsValid && !p.IsHLTV && (p.Team == CsTeam.Terrorist || p.Team == CsTeam.CounterTerrorist));
+            SkillsInfo.DefaultSkillInfo[] skillsMinPlayer = SkillsInfo.LoadedConfig.Where(s => s.MinPlayer > 0 && playerCount < s.MinPlayer).ToArray();
+            if (skillsMinPlayer.Length != 0)
+                skillList.RemoveAll(s => skillsMinPlayer.Any(s2 => s2.Name == s.Skill.ToString()));
+
             return skillList.Count == 0 ? [Event.noneSkill] : skillList;
         }
 
