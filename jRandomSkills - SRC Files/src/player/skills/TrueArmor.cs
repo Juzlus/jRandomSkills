@@ -87,10 +87,15 @@ namespace src.player.skills
             if (!restored.HasHelmet) return;
 
             var itemServices = victimPawn.ItemServices?.As<CCSPlayer_ItemServices>();
-            if (itemServices == null || itemServices.HasHelmet) return;
+            if (itemServices != null && !itemServices.HasHelmet)
+                itemServices.HasHelmet = true;
 
-            itemServices.HasHelmet = true;
-            Utilities.SetStateChanged(victim, "CCSPlayerController", "m_bPawnHasHelmet");
+            var owner = victimPawn.Controller.Value?.As<CCSPlayerController>();
+            if (owner != null && owner.IsValid && !owner.PawnHasHelmet)
+            {
+                owner.PawnHasHelmet = true;
+                Utilities.SetStateChanged(owner, "CCSPlayerController", "m_bPawnHasHelmet");
+            }
         }
 
         private readonly record struct PendingArmor(int Armor, bool HasHelmet);
