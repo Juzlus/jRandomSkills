@@ -150,6 +150,27 @@ namespace src.player.skills
             }
         }
 
+        public static void WeaponEquip(EventItemEquip @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
+        }
+
+        public static void WeaponPickup(EventItemPickup @event)
+        {
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            var weapon = @event.Item;
+            if (string.IsNullOrEmpty(weapon) || weapon != "decoy") return;
+
+            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+                SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
+        }
+
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;

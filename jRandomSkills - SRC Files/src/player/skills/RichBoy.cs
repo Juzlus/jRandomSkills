@@ -1,8 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
+using System.Collections.Concurrent;
 using static src.jRandomSkills;
 
 namespace src.player.skills
@@ -11,48 +11,49 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.RichBoy;
 
+        private static readonly ConcurrentDictionary<uint, int> accountBeforeBonus = [];
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        private static int GetMaxMoney() => ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
+        private static int GetMaxMoney() => SkillUtils.CvarValue("mp_maxmoney", 16000);
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo == null) return;
-            int moneyBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minMoney"), SkillsInfo.GetValue<int>(skillName, "maxMoney"));
+            if (player == null || !player.IsValid) return;
 
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
+            int moneyBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minMoney"), SkillsInfo.GetValue<int>(skillName, "maxMoney"));
             moneyBonus = Math.Min(moneyBonus, GetMaxMoney() - moneyServices.Account);
+            if (moneyBonus <= 0) return;
 
-            playerInfo.SkillChance = moneyBonus;
-            AddMoney(player, moneyBonus);
+            accountBeforeBonus[player.Index] = moneyServices.Account;
+
+            moneyServices.Account += moneyBonus;
+            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo == null) return;
+            if (player == null || !player.IsValid) return;
+            if (!accountBeforeBonus.TryRemove(player.Index, out int accountBefore)) return;
 
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            int money = Math.Abs((int)playerInfo.SkillChance! - moneyServices.CashSpentThisRound);
-            AddMoney(player, -money, 3000);
+            if (moneyServices.Account <= accountBefore) return;
+
+            moneyServices.Account = accountBefore;
+            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
-        private static void AddMoney(CCSPlayerController player, int money, int minimum = 0)
+        public static void PlayerDisconnect(uint playerIndex)
         {
-            if (player == null || !player.IsValid) return;
-            var moneyServices = player.InGameMoneyServices;
-            if (moneyServices == null) return;
-
-            moneyServices.Account = Math.Clamp(moneyServices.Account + money, minimum, GetMaxMoney());
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            accountBeforeBonus.TryRemove(playerIndex, out _);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#D4AF37", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int minMoney = 5000, int maxMoney = 15000) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

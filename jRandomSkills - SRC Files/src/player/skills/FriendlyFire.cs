@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -32,7 +31,7 @@ namespace src.player.skills
             if (!SkillsInfo.GetValue<bool>(skillName, "manageAutoKick")) return false;
 
             bool live;
-            try { live = ConVar.Find("mp_autokick")?.GetPrimitiveValue<bool>() ?? false; }
+            try { live = SkillUtils.CvarValue("mp_autokick", false); }
             catch { return false; }
 
             if (!live) return false;

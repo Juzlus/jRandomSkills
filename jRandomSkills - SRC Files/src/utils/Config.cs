@@ -24,9 +24,11 @@ namespace src.utils
             {
                 var newConfig = new SettingsModel();
 
+                Instance.Logger.LogInformation("config path: {Path} (exists={Exists})", configPath, File.Exists(configPath));
+
                 if (!File.Exists(configPath))
                 {
-                    Instance.Logger.LogInformation("Config file does not exist. Create a new config file...");
+                    Instance.Logger.LogError("config.json NOT FOUND at the path above; a fresh file with defaults is being written.");
                     SaveConfig(newConfig);
                     debugFlags = DebugCategories.Parse(newConfig.DebugMode);
                     return config = newConfig;
@@ -43,17 +45,42 @@ namespace src.utils
                     if (HasMissingKeys(json) || IsLegacyDebugMode(json))
                         SaveConfig(newConfig);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Instance.Logger.LogError("Error when loading the config file.");
+                    Instance.Logger.LogError("Error when loading the config file: {Message}", ex.Message);
+
+                    if (config != null)
+                    {
+                        Instance.Logger.LogError("config.json was not applied; the previously loaded settings are kept.");
+                        return config;
+                    }
                 }
 
                 if (newConfig.DisplayAlwaysDescription)
                     newConfig.SkillDescriptionDuration = 9999;
 
                 debugFlags = DebugCategories.Parse(newConfig.DebugMode);
+                ApplyRarityTables(newConfig);
                 return config = newConfig;
             }
+        }
+
+        private static void ApplyRarityTables(SettingsModel model)
+        {
+            RarityManager.SetRarityPercentages(ToRarityTable(model.SkillsChance));
+            RarityManager.SetVipRarityPercentages(ToRarityTable(model.VIPSkillsChance));
+        }
+
+        private static Dictionary<Rarity, float> ToRarityTable(Dictionary<string, float>? source)
+        {
+            var table = new Dictionary<Rarity, float>();
+            if (source == null) return table;
+
+            foreach (var kv in source)
+                if (Enum.TryParse<Rarity>(kv.Key, true, out var rarity))
+                    table[rarity] = kv.Value;
+
+            return table;
         }
 
         private static bool HasMissingKeys(string json)
@@ -111,12 +138,11 @@ namespace src.utils
                     string tempPath = $"{configPath}.temp";
                     File.WriteAllText(tempPath, json);
 
-                    File.Copy(tempPath, configPath, overwrite: true);
-                    File.Delete(tempPath);
+                    File.Move(tempPath, configPath, overwrite: true);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Instance.Logger.LogError("Error when saving the config file.");
+                    Instance.Logger.LogError("Error when saving the config file: {Message}", ex.Message);
                 }
             }
         }
@@ -146,6 +172,11 @@ namespace src.utils
             public bool TraceRayBeam { get; set; }
             public string DisableHUDOnDeathPermission { get; set; }
             public bool DisableSkillsOnRoundEnd { get; set; }
+            public string VIPFlag { get; set; }
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public Dictionary<string, float> SkillsChance { get; set; }
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public Dictionary<string, float> VIPSkillsChance { get; set; }
             public int? CurseSkillPerPlayer { get; set; }
             public bool ShowDecoyRing { get; set; }
             public WeaponPools Weapons { get; set; }
@@ -179,6 +210,25 @@ namespace src.utils
                 HideHudForOtherPlugins = true;
                 DisableHUDOnDeathPermission = "@jRandomSkills/death";
                 DisableSkillsOnRoundEnd = false;
+                VIPFlag = "@css/vip";
+
+                SkillsChance = new Dictionary<string, float>
+                {
+                    ["Common"] = 0.70f,
+                    ["Uncommon"] = 0.14f,
+                    ["Rare"] = 0.10f,
+                    ["Epic"] = 0.05f,
+                    ["Legendary"] = 0.01f,
+                };
+
+                VIPSkillsChance = new Dictionary<string, float>
+                {
+                    ["Common"] = 0.55f,
+                    ["Uncommon"] = 0.23f,
+                    ["Rare"] = 0.14f,
+                    ["Epic"] = 0.07f,
+                    ["Legendary"] = 0.01f,
+                };
                 CurseSkillPerPlayer = null;
                 ShowDecoyRing = true;
 

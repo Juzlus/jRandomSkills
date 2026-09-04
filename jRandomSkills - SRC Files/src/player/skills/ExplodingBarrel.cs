@@ -240,7 +240,7 @@ namespace src.player.skills
                 damageInfo.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
             }
 
-            if (owner != null && damageInfo.Damage >= victimPawn.Health)
+            if (owner != null && SkillUtils.IsPredictedLethal(damageInfo, victimPawn))
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 

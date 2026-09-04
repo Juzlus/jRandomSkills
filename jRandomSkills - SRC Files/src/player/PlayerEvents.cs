@@ -294,10 +294,14 @@ namespace src.player
             }
         }
 
+        private static bool IsEventAlive(GameEvent? @event) => @event != null && @event.Handle != nint.Zero;
+
         private static HookResult WeaponEquip(EventItemEquip @event, GameEventInfo info)
         {
             lock (setLock)
             {
+                if (!IsEventAlive(@event)) return HookResult.Continue;
+
                 DispatchToActiveSkills("WeaponEquip", @event);
                 return HookResult.Continue;
             }
@@ -307,6 +311,8 @@ namespace src.player
         {
             lock (setLock)
             {
+                if (!IsEventAlive(@event)) return HookResult.Continue;
+
                 DispatchToActiveSkills("WeaponPickup", @event);
                 return HookResult.Continue;
             }
@@ -584,7 +590,7 @@ namespace src.player
                 string welcomeMsg = player.GetTranslationWithoutIlliterate("welcome_message", "welcome");
                 foreach (string line in welcomeMsg.Split("\n"))
                     player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}\u202A{player.PlayerName}\u202C{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
-                                            .Replace("{SERVER_NAME}", $" {ChatColors.Red}{ConVar.Find("hostname")?.StringValue ?? "Default Server"}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
+                                            .Replace("{SERVER_NAME}", $" {ChatColors.Red}{SkillUtils.CvarString("hostname", "Default Server")}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{VERSION}", $" {ChatColors.Red}v{Instance.ModuleVersion}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{SKILLS_COUNT}", $" {ChatColors.Red}{SkillData.Skills.Count - 1}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{AUTHOR1}", $" {ChatColors.Red}Jakub Bartosik (D3X){ChatColors.Green} ({ChatColors.Red}https://github.com/jakubbartosik/dRandomSkills{ChatColors.Green})", StringComparison.OrdinalIgnoreCase)
@@ -776,6 +782,7 @@ namespace src.player
                     if (pawn.AbsOrigin == null || pawn.AbsRotation == null) return;
 
                     if (pawn.IsDefusing) return;
+                    if (IsAimingAtPlantedBomb(player, pawn)) return;
 
                     Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
                     Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * 80;
@@ -807,6 +814,35 @@ namespace src.player
                 Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}", DebugCategory.Skill);
                 Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
             }
+        }
+
+        private const float BombBlockRange = 100f;
+        private const float BombBlockCos = 0.7071f;
+
+        private static bool IsAimingAtPlantedBomb(CCSPlayerController player, CCSPlayerPawn pawn)
+        {
+            if (player.Team != CsTeam.CounterTerrorist) return false;
+            if (pawn.AbsOrigin == null) return false;
+
+            foreach (var bomb in Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4"))
+            {
+                if (bomb == null || !bomb.IsValid || bomb.AbsOrigin == null) continue;
+                if (!bomb.BombTicking || bomb.BombDefused) continue;
+
+                float dx = bomb.AbsOrigin.X - pawn.AbsOrigin.X;
+                float dy = bomb.AbsOrigin.Y - pawn.AbsOrigin.Y;
+                float dz = bomb.AbsOrigin.Z - (pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
+
+                float distance = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
+                if (distance > BombBlockRange || distance <= 0.01f) continue;
+
+                var forward = SkillUtils.GetForwardVector(pawn.EyeAngles);
+                float dot = (forward.X * dx + forward.Y * dy + forward.Z * dz) / distance;
+
+                if (dot >= BombBlockCos) return true;
+            }
+
+            return false;
         }
 
         private static HookResult BulletImpact(EventBulletImpact @event, GameEventInfo info)

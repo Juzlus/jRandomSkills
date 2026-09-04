@@ -156,8 +156,8 @@ namespace src.player.skills
             Vector newPos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 30);
             QAngle newAngle = new(playerPawn.AbsRotation.X, playerPawn.AbsRotation.Y, playerPawn.AbsRotation.Z);
 
-            emptyProp.Teleport(newPos, newAngle);
             emptyProp.DispatchSpawn();
+            emptyProp.Teleport(newPos, newAngle);
 
             Utilities.SetStateChanged(emptyProp, "CBaseEntity", "m_CBodyComponent");
 

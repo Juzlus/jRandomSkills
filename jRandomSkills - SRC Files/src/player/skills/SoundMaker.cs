@@ -75,25 +75,27 @@ namespace src.player.skills
                 }
             }
 
-            if (emitter == null)
-            {
-                foreach (var p in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid))
-                    um.Recipients.Remove(p);
-                return;
-            }
+            List<CCSPlayerController> allowed = [];
 
-            foreach (var recipient in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid))
-            {
-                bool hasSkill = SkillPlayerInfo.ContainsKey(recipient.Index);
+            if (emitter != null)
+                foreach (var recipient in um.Recipients)
+                {
+                    if (recipient == null || !recipient.IsValid) continue;
+                    if (recipient.Team == emitter.Team) continue;
 
-                var bot = PlayerManager.GetPlayerEvent(recipient);
-                bool botSkill = bot != null && SkillPlayerInfo.ContainsKey(bot.Index);
+                    bool hasSkill = SkillPlayerInfo.ContainsKey(recipient.Index);
 
-                bool isTeammate = recipient.Team == emitter.Team;
+                    var bot = PlayerManager.GetPlayerEvent(recipient);
+                    bool botSkill = bot != null && bot.IsValid && SkillPlayerInfo.ContainsKey(bot.Index);
 
-                if ((!hasSkill && !botSkill) || isTeammate)
-                    um.Recipients.Remove(recipient);
-            }
+                    if (!hasSkill && !botSkill) continue;
+
+                    allowed.Add(recipient);
+                }
+
+            um.Recipients.Clear();
+            foreach (var recipient in allowed)
+                um.Recipients.Add(recipient);
         }
 
         public static void OnTick()
