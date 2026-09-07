@@ -32,6 +32,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return;
 
             if (attacker!.Index == victim!.Index) return;
+            if (!SkillUtils.FiresBullets(@event.Weapon)) return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);

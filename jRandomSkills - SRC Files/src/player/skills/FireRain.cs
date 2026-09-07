@@ -11,9 +11,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.FireRain;
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
-        private static int rainTick = -1;
-        private static CCSPlayerPawn? rainThrower;
-        private static byte rainTeam = (byte)CsTeam.None;
+        private static readonly ConcurrentDictionary<int, ConcurrentQueue<RainBatch>> rainBatches = [];
         private static readonly ConcurrentDictionary<uint, (uint ThrowerRaw, byte Team)> rainMolotovs = [];
 
         public static void LoadSkill()
@@ -25,6 +23,7 @@ namespace src.player.skills
         public static void NewRound()
         {
             KillAllDecoys();
+            rainBatches.Clear();
             rainMolotovs.Clear();
             DecoyRing.ClearAll(skillName);
         }
@@ -53,10 +52,6 @@ namespace src.player.skills
 
             const float spawnHeight = 1500.0f;
             const float approachDistance = 600.0f;
-
-            rainTick = Server.TickCount;
-            rainThrower = pawn;
-            rainTeam = player.TeamNum;
 
             float startAngle = Random.Shared.NextSingle() * MathF.Tau;
 
@@ -88,10 +83,12 @@ namespace src.player.skills
 
             if (!foundPosition || skyCenter == null)
             {
+                QueueRain(pawn, player.TeamNum, grenadeGroundCount);
                 CreateMolotovSplash(targetPos, grenadeGroundCount, player.TeamNum);
                 return;
             }
 
+            QueueRain(pawn, player.TeamNum, grenadeCount);
             CreateMolotovRaid(targetPos, skyCenter, grenadeCount, player.TeamNum);
         }
 
@@ -202,24 +199,45 @@ namespace src.player.skills
             }
         }
 
+        private sealed class RainBatch
+        {
+            public required CCSPlayerPawn Thrower;
+            public required byte Team;
+            public int Remaining;
+        }
+
+        private static void QueueRain(CCSPlayerPawn thrower, byte team, int count)
+        {
+            rainBatches.GetOrAdd(Server.TickCount, static _ => new ConcurrentQueue<RainBatch>())
+                .Enqueue(new RainBatch { Thrower = thrower, Team = team, Remaining = count });
+        }
+
+        private static void ConsumeOne(ConcurrentQueue<RainBatch> queue, RainBatch batch)
+        {
+            if (--batch.Remaining > 0) return;
+            queue.TryDequeue(out _);
+        }
+
         public static void OnEntitySpawned(CEntityInstance entity)
         {
             var name = entity.DesignerName;
 
             if (name == "molotov_projectile")
             {
-                if (Server.TickCount != rainTick) return;
+                if (!rainBatches.TryGetValue(Server.TickCount, out var queue) || !queue.TryPeek(out var batch)) return;
 
-                var thrower = rainThrower;
-                if (thrower == null || !thrower.IsValid) return;
+                var thrower = batch.Thrower;
+                if (thrower == null || !thrower.IsValid) { ConsumeOne(queue, batch); return; }
 
                 var molotov = entity.As<CMolotovProjectile>();
-                if (molotov == null || !molotov.IsValid) return;
+                if (molotov == null || !molotov.IsValid) { ConsumeOne(queue, batch); return; }
 
-                molotov.TeamNum = rainTeam;
+                ConsumeOne(queue, batch);
+
+                molotov.TeamNum = batch.Team;
                 molotov.Thrower.Raw = thrower.EntityHandle.Raw;
                 molotov.OwnerEntity.Raw = thrower.EntityHandle.Raw;
-                rainMolotovs[molotov.Index] = (thrower.EntityHandle.Raw, rainTeam);
+                rainMolotovs[molotov.Index] = (thrower.EntityHandle.Raw, batch.Team);
 
                 Server.NextWorldUpdate(() =>
                 {

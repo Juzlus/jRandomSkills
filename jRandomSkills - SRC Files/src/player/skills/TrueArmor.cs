@@ -12,7 +12,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.TrueArmor;
 
         private static readonly ConcurrentDictionary<uint, byte> holders = [];
-        private static readonly ConcurrentDictionary<uint, int> pending = [];
+        private static readonly ConcurrentDictionary<uint, PendingArmor> pending = [];
 
         public static void LoadSkill()
         {
@@ -62,13 +62,16 @@ namespace src.player.skills
 
             info.Damage = damage - absorbed;
 
-            pending[victim.Index] = (int)MathF.Round(armor - absorbed);
+            int restoredArmor = (int)MathF.Round(armor - absorbed);
+            bool hadHelmet = victimPawn.ItemServices?.As<CCSPlayer_ItemServices>()?.HasHelmet ?? false;
+
+            pending[victim.Index] = new PendingArmor(restoredArmor, hadHelmet);
             victimPawn.ArmorValue = 0;
 
             Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
 
             Debug.WriteToDebug($"[TrueArmor] {victim.PlayerName}: raw={damage:0.#} absorbed={absorbed:0.#} " +
-                $"passed={info.Damage:0.#} armor={armor}->{pending[victim.Index]} hp={victimPawn.Health}", DebugCategory.Damage);
+                $"passed={info.Damage:0.#} armor={armor}->{restoredArmor} helmet={hadHelmet} hp={victimPawn.Health}", DebugCategory.Damage);
         }
 
         public static void OnTakeDamagePost(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, CTakeDamageResult damageResult)
@@ -76,11 +79,26 @@ namespace src.player.skills
             if (pending.IsEmpty) return;
 
             if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out _)) return;
-            if (!pending.TryRemove(victim!.Index, out int restored)) return;
+            if (!pending.TryRemove(victim!.Index, out var restored)) return;
 
-            victimPawn!.ArmorValue = restored;
+            victimPawn!.ArmorValue = restored.Armor;
             Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
+
+            if (!restored.HasHelmet) return;
+
+            var itemServices = victimPawn.ItemServices?.As<CCSPlayer_ItemServices>();
+            if (itemServices != null && !itemServices.HasHelmet)
+                itemServices.HasHelmet = true;
+
+            var owner = victimPawn.Controller.Value?.As<CCSPlayerController>();
+            if (owner != null && owner.IsValid && !owner.PawnHasHelmet)
+            {
+                owner.PawnHasHelmet = true;
+                Utilities.SetStateChanged(owner, "CCSPlayerController", "m_bPawnHasHelmet");
+            }
         }
+
+        private readonly record struct PendingArmor(int Armor, bool HasHelmet);
 
         private static bool TryResolveVictim(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, out CCSPlayerController? victim, out CCSPlayerPawn? pawn, out CTakeDamageInfo? info)
         {

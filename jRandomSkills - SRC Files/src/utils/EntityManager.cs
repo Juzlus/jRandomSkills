@@ -264,7 +264,8 @@ namespace src.utils
         }
 
         // Dying entities stay out of transmit until the engine processes the kill (Event.CheckTransmit).
-        private static readonly ConcurrentDictionary<uint, DateTime> recentlyDestroyed = new();
+        private readonly record struct DyingEntity(DateTime Expires, uint HandleRaw);
+        private static readonly ConcurrentDictionary<uint, DyingEntity> recentlyDestroyed = new();
 
         public static List<uint> GetRecentlyDestroyedSnapshot()
         {
@@ -274,8 +275,20 @@ namespace src.utils
             var result = new List<uint>();
             foreach (var kvp in recentlyDestroyed)
             {
-                if (now > kvp.Value) recentlyDestroyed.TryRemove(kvp.Key, out _);
-                else result.Add(kvp.Key);
+                if (now > kvp.Value.Expires)
+                {
+                    recentlyDestroyed.TryRemove(kvp.Key, out _);
+                    continue;
+                }
+
+                var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)kvp.Key);
+                if (entity == null || !entity.IsValid || entity.EntityHandle.Raw != kvp.Value.HandleRaw)
+                {
+                    recentlyDestroyed.TryRemove(kvp.Key, out _);
+                    continue;
+                }
+
+                result.Add(kvp.Key);
             }
             return result;
         }
@@ -297,7 +310,7 @@ namespace src.utils
                 var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
                 if (entity != null && entity.IsValid)
                 {
-                    recentlyDestroyed[entityIndex] = DateTime.UtcNow.AddSeconds(delay + 2.0);
+                    recentlyDestroyed[entityIndex] = new DyingEntity(DateTime.UtcNow.AddSeconds(delay + 0.5), entity.EntityHandle.Raw);
                     // Detach first so no follower is left on a freed parent.
                     entity.AcceptInput("ClearParent");
                     entity.AddEntityIOEvent("Kill", entity, delay: delay);

@@ -1,5 +1,4 @@
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -86,7 +85,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int flashbangLimit = ConVar.Find("ammo_grenade_limit_flashbang")?.GetPrimitiveValue<int>() ?? 2;
+            int flashbangLimit = SkillUtils.CvarValue("ammo_grenade_limit_flashbang", 2);
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
 
             if (grenadeLimit > flashbangLimit)

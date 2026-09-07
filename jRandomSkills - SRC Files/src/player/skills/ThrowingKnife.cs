@@ -26,6 +26,7 @@ namespace src.player.skills
         }
 
         private static bool roundEnded;
+        private static readonly ConcurrentDictionary<uint, byte> owedKnife = [];
 
         public static void NewRound()
         {
@@ -36,13 +37,27 @@ namespace src.player.skills
         public static void RoundEnd()
         {
             roundEnded = true;
-            KillAllKnives();
+            KillAllKnives(rememberOwed: true);
+
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
+                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
+                if (CheckHasKnife(player)) continue;
+
+                owedKnife[player.Index] = 0;
+            }
         }
 
-        private static void KillAllKnives()
+        private static void KillAllKnives(bool rememberOwed = false)
         {
             foreach (var knifeInfo in knivesInfo.Values.ToArray())
+            {
+                if (rememberOwed && knifeInfo.IsDropped)
+                    owedKnife[knifeInfo.PlayerIndex] = 0;
+
                 DisableKnifeSkill(knifeInfo);
+            }
 
             knivesInfo.Clear();
         }
@@ -155,18 +170,69 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            if (player == null || !player.IsValid) return;
+
+            bool wasDropped = owedKnife.ContainsKey(player.Index);
+
             if (knivesInfo.TryRemove(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null)
             {
-                bool wasDropped = knifeInfo.IsDropped;
+                wasDropped |= knifeInfo.IsDropped;
                 DisableKnifeSkill(knifeInfo);
-
-                if (wasDropped && player != null && player.IsValid && player.PawnIsAlive)
-                    player.GiveNamedItem("weapon_knife");
             }
+
+            if (!wasDropped) return;
+
+            if (!player.PawnIsAlive)
+            {
+                owedKnife[player.Index] = 0;
+                ScheduleRepay(player.Index, 0);
+                return;
+            }
+
+            if (!CheckHasKnife(player))
+                player.GiveNamedItem("weapon_knife");
+
+            owedKnife.TryRemove(player.Index, out _);
+        }
+
+        private const int RepayAttempts = 10;
+
+        private static void ScheduleRepay(uint playerIndex, int attempt)
+        {
+            if (attempt >= RepayAttempts)
+            {
+                owedKnife.TryRemove(playerIndex, out _);
+                return;
+            }
+
+            Instance.AddTimer(1f, () =>
+            {
+                if (!owedKnife.ContainsKey(playerIndex)) return;
+
+                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (player == null || !player.IsValid)
+                {
+                    owedKnife.TryRemove(playerIndex, out _);
+                    return;
+                }
+
+                if (!player.PawnIsAlive)
+                {
+                    ScheduleRepay(playerIndex, attempt + 1);
+                    return;
+                }
+
+                if (!CheckHasKnife(player))
+                    player.GiveNamedItem("weapon_knife");
+
+                owedKnife.TryRemove(playerIndex, out _);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
         {
+            owedKnife.TryRemove(playerIndex, out _);
+
             if (knivesInfo.TryRemove(playerIndex, out KnifeInfo? knifeInfo) && knifeInfo != null)
                 DisableKnifeSkill(knifeInfo);
         }

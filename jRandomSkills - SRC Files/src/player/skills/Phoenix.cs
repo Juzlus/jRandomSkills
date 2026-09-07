@@ -11,7 +11,6 @@ namespace src.player.skills
     public class Phoenix : ISkill
     {
         private const Skills skillName = Skills.Phoenix;
-        private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> phoenixTicks = new();
 
         public static void LoadSkill()
@@ -53,11 +52,7 @@ namespace src.player.skills
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
-            float effectiveDamage = damageInfo.Damage;
-            if (SkillUtils.GetHitGroup(damageInfo) == HitGroup_t.HITGROUP_HEAD)
-                effectiveDamage *= GetHeadshotMultiplier(damageInfo);
-
-            if (effectiveDamage < victimPawn.Health) return;
+            if (!SkillUtils.IsPredictedLethal(damageInfo, victimPawn)) return;
 
             if (TryConsumeRevive(victim, victimPawn))
                 damageInfo.Damage = 0;
@@ -97,20 +92,6 @@ namespace src.player.skills
             });
 
             return true;
-        }
-
-        private static float GetHeadshotMultiplier(CTakeDamageInfo info)
-        {
-            var ability = info.Ability?.Value;
-            if (ability == null || !ability.IsValid) return DefaultHeadshotMultiplier;
-
-            var weapon = ability.As<CCSWeaponBase>();
-            if (weapon == null || !weapon.IsValid) return DefaultHeadshotMultiplier;
-
-            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
-            if (vdata == null || vdata.HeadshotMultiplier <= 0) return DefaultHeadshotMultiplier;
-
-            return vdata.HeadshotMultiplier;
         }
 
         public static void EnableSkill(CCSPlayerController player)

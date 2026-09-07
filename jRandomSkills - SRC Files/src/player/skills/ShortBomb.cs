@@ -1,6 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.jRandomSkills;
@@ -17,7 +16,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            defaultC4Timer = ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 40;
+            defaultC4Timer = SkillUtils.CvarValue("mp_c4timer", 40);
         }
 
         public static void EnableSkill(CCSPlayerController player)

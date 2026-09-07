@@ -15,13 +15,13 @@ namespace src.player.skills
         private const Skills skillName = Skills.ExplosiveShot;
 
         private static readonly QAngle angle = new(5, 10, -4);
-        private static int lastTick = 0;
-        private static byte pendingTeam = (byte)CsTeam.None;
-        private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
+        private static readonly ConcurrentDictionary<uint, int> lastTickByPlayer = [];
+        private static readonly ConcurrentDictionary<int, ConcurrentQueue<(byte Team, uint Owner)>> nades = [];
 
         public static void NewRound()
         {
             nades.Clear();
+            lastTickByPlayer.Clear();
         }
 
         public static void LoadSkill()
@@ -43,9 +43,8 @@ namespace src.player.skills
 
         private static void SpawnExplosion(Vector vector, CCSPlayerController player)
         {
-            lastTick = Server.TickCount;
-            pendingTeam = player.TeamNum;
-            nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Index), (_, _) => (player.TeamNum, player.Index));
+            lastTickByPlayer[player.Index] = Server.TickCount;
+            nades.GetOrAdd(Server.TickCount, static _ => new ConcurrentQueue<(byte, uint)>()).Enqueue((player.TeamNum, player.Index));
             SkillUtils.CreateHEGrenadeProjectile(vector, angle, new Vector(0, 0, 0), player.TeamNum);
         }
 
@@ -64,14 +63,16 @@ namespace src.player.skills
                 if (!(NearlyEquals(angle.X, heProjectile.AbsRotation.X) && NearlyEquals(angle.Y, heProjectile.AbsRotation.Y) && NearlyEquals(angle.Z, heProjectile.AbsRotation.Z)))
                     return;
 
+                if (!nades.TryGetValue(spawnTick, out var queue) || !queue.TryDequeue(out var source)) return;
+                if (queue.IsEmpty) nades.TryRemove(spawnTick, out _);
+
                 heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.TeamNum = pendingTeam;
+                heProjectile.TeamNum = source.Team;
                 heProjectile.Damage = SkillsInfo.GetValue<float>(skillName, "damage");
                 heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "damageRadius");
                 heProjectile.DetonateTime = 0;
 
-                if (nades.TryRemove(spawnTick, out var source))
-                    heProjectile.Globalname = $"explosiveshot_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
+                heProjectile.Globalname = $"explosiveshot_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
             });
         }
 
@@ -112,7 +113,7 @@ namespace src.player.skills
             var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
             if (owner != null && !owner.IsValid) owner = null;
 
-            if (owner != null && damageInfo.Damage >= victimPawn.Health)
+            if (owner != null && SkillUtils.IsPredictedLethal(damageInfo, victimPawn))
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
         }
 
@@ -120,10 +121,11 @@ namespace src.player.skills
 
         public static void BulletImpact(EventBulletImpact @event)
         {
-            if (lastTick == Server.TickCount) return;
-
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
+
+            // One explosion per player per tick: a shotgun reports every pellet as its own impact.
+            if (lastTickByPlayer.TryGetValue(player.Index, out int last) && last == Server.TickCount) return;
 
             var pos = new Vector(@event.X, @event.Y, @event.Z);
 

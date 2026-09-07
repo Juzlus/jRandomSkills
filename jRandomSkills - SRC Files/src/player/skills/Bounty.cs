@@ -1,6 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -152,7 +151,7 @@ namespace src.player.skills
                 killerEvent.PrintToChat($" {ChatColors.Green}{killerEvent.GetTranslation("bounty_claimed_info", victim.PlayerName, reward)}");
         }
 
-        private static int GetMaxMoney() => ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
+        private static int GetMaxMoney() => SkillUtils.CvarValue("mp_maxmoney", 16000);
 
         private static bool GiveMoney(CCSPlayerController player, int amount)
         {

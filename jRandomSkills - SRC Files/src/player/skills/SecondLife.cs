@@ -11,7 +11,6 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
-        private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<nint, int> usedThisRound = [];
         private static readonly object setLock = new();
 
@@ -45,11 +44,7 @@ namespace src.player.skills
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
-            float effectiveDamage = damageInfo.Damage;
-            if (SkillUtils.GetHitGroup(damageInfo) == HitGroup_t.HITGROUP_HEAD)
-                effectiveDamage *= GetHeadshotMultiplier(damageInfo);
-
-            if (effectiveDamage < victimPawn.Health) return;
+            if (!SkillUtils.IsPredictedLethal(damageInfo, victimPawn)) return;
 
             if (usedThisRound.TryGetValue(victim.Handle, out int savedTick))
             {
@@ -60,20 +55,6 @@ namespace src.player.skills
 
             if (TryConsumeRevive(victim, victimPawn))
                 damageInfo.Damage = 0;
-        }
-
-        private static float GetHeadshotMultiplier(CTakeDamageInfo info)
-        {
-            var ability = info.Ability?.Value;
-            if (ability == null || !ability.IsValid) return DefaultHeadshotMultiplier;
-
-            var weapon = ability.As<CCSWeaponBase>();
-            if (weapon == null || !weapon.IsValid) return DefaultHeadshotMultiplier;
-
-            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
-            if (vdata == null || vdata.HeadshotMultiplier <= 0) return DefaultHeadshotMultiplier;
-
-            return vdata.HeadshotMultiplier;
         }
 
         public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn)

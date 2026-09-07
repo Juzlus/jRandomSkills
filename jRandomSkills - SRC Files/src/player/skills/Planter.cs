@@ -1,6 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -20,7 +19,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            defaultC4Timer = ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 40;
+            defaultC4Timer = SkillUtils.CvarValue("mp_c4timer", 40);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -96,7 +95,7 @@ namespace src.player.skills
             float currentTime = Server.CurrentTime;
             bool hudFrame = SkillUtils.IsHudFrame();
 
-            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.Team == CsTeam.Terrorist))
+            foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.Team == CsTeam.Terrorist))
             {
                 if (!Instance.IsPlayerValid(player)) continue;
 

@@ -1,6 +1,5 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
@@ -20,7 +19,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            defaultNoSpread = ConVar.Find("weapon_accuracy_nospread")?.GetPrimitiveValue<bool>() ?? false;
+            defaultNoSpread = SkillUtils.CvarValue("weapon_accuracy_nospread", false);
         }
 
         public static void NewRound()

@@ -11,7 +11,6 @@ namespace src.player.skills
     public class ReZombie : ISkill
     {
         private const Skills skillName = Skills.ReZombie;
-        private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> zombies = [];
         private static readonly object setLock = new();
 
@@ -88,11 +87,7 @@ namespace src.player.skills
             // Friendly-fire-off teammate hit deals 0 damage; don't zombify over a hit that never lands.
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
-            float effectiveDamage = damageInfo.Damage;
-            if (SkillUtils.GetHitGroup(damageInfo) == HitGroup_t.HITGROUP_HEAD)
-                effectiveDamage *= GetHeadshotMultiplier(damageInfo);
-
-            if (effectiveDamage < victimPawn.Health) return; // survivable, let it through
+            if (!SkillUtils.IsPredictedLethal(damageInfo, victimPawn)) return; // survivable, let it through
 
             if (TryBecomeZombie(victim, victimPawn))
                 damageInfo.Damage = 0;
@@ -136,20 +131,6 @@ namespace src.player.skills
                 a: alpha,
                 duration: 200,
                 holdTime: 600);
-        }
-
-        private static float GetHeadshotMultiplier(CTakeDamageInfo info)
-        {
-            var ability = info.Ability?.Value;
-            if (ability == null || !ability.IsValid) return DefaultHeadshotMultiplier;
-
-            var weapon = ability.As<CCSWeaponBase>();
-            if (weapon == null || !weapon.IsValid) return DefaultHeadshotMultiplier;
-
-            var vdata = weapon.GetVData<CCSWeaponBaseVData>();
-            if (vdata == null || vdata.HeadshotMultiplier <= 0) return DefaultHeadshotMultiplier;
-
-            return vdata.HeadshotMultiplier;
         }
 
         private static void DropAllBotWeapons(CCSPlayerController player)

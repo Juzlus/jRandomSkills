@@ -114,7 +114,8 @@ namespace src.player.skills
                     (WeaponInfo[]? playerWeapon, bool playerC4) = GetWeapons(player);
                     (WeaponInfo[]? enemyWeapon, bool enemyC4) = GetWeapons(enemy);
 
-                    if (playerWeapon == null || !playerWeapon.Any(w => weapons.Contains(w.Name)))
+                    if (playerWeapon == null || !playerWeapon.Any(w => weapons.Contains(w.Name))
+                        || enemyWeapon == null || !enemyWeapon.Any(w => weapons.Contains(w.Name)))
                     {
                         skillInfo.FindedEnemy = true;
                         skillInfo.HaveWeapon = false;
@@ -268,7 +269,12 @@ namespace src.player.skills
 
         private static CCSPlayerController? GetRandomEnemy(CCSPlayerController player)
         {
-            CCSPlayerController[] enemies = [.. PlayerManager.GetTickPlayers().FindAll(e => e.Team != player.Team && e.PlayerPawn?.Value?.Health > 0)];
+            CCSPlayerController[] enemies = [.. PlayerManager.GetTickPlayers().FindAll(e =>
+                e != null && e.IsValid
+                && e.Team != player.Team && e.Team != CsTeam.Spectator && e.Team != CsTeam.None
+                && e.LifeState == (byte)LifeState_t.LIFE_ALIVE
+                && e.PlayerPawn?.Value != null && e.PlayerPawn.Value.IsValid
+                && e.PlayerPawn.Value.Health > 0)];
             if (enemies.Length == 0) return null;
             return enemies[Instance.Random.Next(enemies.Length)];
         }
