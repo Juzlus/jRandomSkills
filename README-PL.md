@@ -329,7 +329,23 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
         "TraceRayBeam": false,           // Włącz widoczność ścieżki dla 'Długi Nóż', 'Długi Zeus'
         "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Wyłącz HUD po śmierci dla graczy z tym uprawnieniem
         "DisableSkillsOnRoundEnd": false,// Wyłącz wszystkie umiejętności na koniec rundy (gdy widoczne jest podsumowanie)
-        "CurseSkillPerPlayer": null,     // Maksymalna liczba efektów na gracza
+        "VIPFlag": "@css/vip",           // Gracze z tym uprawnieniem korzystają z tabeli szans VIP
+        "SkillsChance": {                // Rozkład szans rzadkości umiejętności dla zwykłych graczy. Wartości procentowe i ułamki są obsługiwane i normalizowane do 100%
+            "Common": 0.7,
+            "Uncommon": 0.14,
+            "Rare": 0.1,
+            "Epic": 0.05,
+            "Legendary": 0.01
+        },
+        "VIPSkillsChance": {             // Rozkład szans rzadkości umiejętności dla graczy VIP. Wartości procentowe i ułamki są obsługiwane i normalizowane do 100%
+            "Common": 0.55,
+            "Uncommon": 0.23,
+            "Rare": 0.14,
+            "Epic": 0.07,
+            "Legendary": 0.01
+        },
+        "CurseSkillPerPlayer": null,     // Maksymalna liczba efektów przypadających na jednego gracza
+        "ShowDecoyRing": true,           // Pokazuje pierścień wokół wabików
 
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Język domyślny: en, pl, fr, pt-br, zh
@@ -369,6 +385,7 @@ Wszystkie sypermoce można dostosować w pliku **`config.cfg`** / **`skillsInfo.
                                       // -1 = nigdy nie ukrywaj opisu,
                                       // >= 0 = czas wyświetlania w sekundach.
         "RequiredPermission": "",     // Wymagane uprawnienie
+        "MinPlayer": 0,               // Minimalna liczba graczy wymagana na serwerze (0 wyłącza limit)
         "MaxPerServer": -1,           // Maksymalna liczba graczy, którzy mogą posiadać tę 
                                       // umiejętność na serwerze (-1 dla "nieograniczona")
         "Rarity": "Common"            // Poziom rzadkości umiejętności:
@@ -405,7 +422,7 @@ Plugin korzysta z zawartości następujących projektów:
 <div align="center">
 
 <table>
-  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
   <tr><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
 </table>
 
@@ -424,6 +441,73 @@ Plugin korzysta z zawartości następujących projektów:
 </div>
 
 ## 📋 Lista Zmian
+
+<details>
+<summary><b>v1.2.4.b1</b></summary>
+
+- #### Ogólne
+    - **Wyszukiwanie ConVar** - Wyniki `ConVar.Find` są teraz cachowane po nazwie w `SkillUtils`. Zmieniono wszystkie 25 miejsc użycia.
+    - **Ładowanie konfiguracji** - Uszkodzony `skillsInfo.json` nie resetuje już wszystkich ustawień do wartości domyślnych. Błędne wpisy zachowują obecne ustawienia i blokują przepisywanie konfiguracji.
+    - **Zapisywanie konfiguracji** - Zastąpiono kopiowanie i usuwanie atomową zmianą nazwy pliku, aby przerwany zapis nie pozostawiał uszkodzonej konfiguracji.
+    - **Diagnostyka konfiguracji** - Ładowanie loguje teraz ścieżkę, status pliku, liczbę wpisów, rozpoznane umiejętności, informację o przepisaniu oraz rzeczywisty wyjątek.
+    - **Przycisk Use (umiejętności CT)** - Umiejętności nie aktywują się już w pobliżu podłożonej bomby C4. Odległość i kierunek patrzenia są sprawdzane bezpośrednio.
+    - **SkillUtils.UpdateGrenadeCount** - Naprawiono opóźniony reset magazynka, który mógł zmodyfikować broń zajmującą później ten sam slot.
+
+- #### Wspólne systemy
+    - **SkillUtils.IsPredictedLethal** - Dodano wspólne sprawdzanie śmiertelności uwzględniające mnożniki trafienia, `ArmorRatio` i poprawne działanie pancerza. Zastępuje trzy osobne sprawdzenia oparte wyłącznie na headshotach.
+
+- #### Poprawki mocy
+    - **Re-Zombie, Feniks, Druga Szansa** - Naprawiono traktowanie trafień w brzuch zadających 80–100% HP jako nieśmiertelnych dzięki użyciu wspólnego sprawdzania śmiertelności.
+    - **Strzał Wybuchowy, Ludzka Bomba, Wybuchowa Beczka, Strzał Wybuchowy** - Przyznawanie zabójstw przez eksplozje uwzględnia teraz pochłanianie obrażeń przez pancerz.
+    - **Strzał Wybuchowy** - Stan właściciela i drużyny pocisku jest teraz przechowywany osobno dla każdego gracza i ticka, zapobiegając konfliktom przy jednoczesnym użyciu oraz wielokrotnym eksplozjom od śrutu.
+    - **Deszcz Ognia** - Dane rzucającego, drużyny i liczby granatów są teraz przechowywane w osobnych paczkach dla każdego ticka, zapobiegając konfliktom między graczami.
+    - **Bogacz** - Usuwanie bonusu przywraca teraz konto na podstawie zapisanego stanu sprzed bonusu zamiast `CashSpentThisRound`.
+    - **Robin Hood, Bogacz, Zlecenie Śmierci** - Nagrody respektują teraz limit `mp_maxmoney`.
+    - **Prawdziwy Pancerz** - Stan hełmu jest zapisywany i przywracany razem z wartością pancerza.
+    - **Grawitacyjny Wabik** - Dodano obsługę `WeaponEquip` i `WeaponPickup`, aby liczba wabików była poprawnie aktualizowana.
+    - **Katapulta, Odpychacz, Cień, Gumowe Kule** - Umiejętności reagują teraz wyłącznie na obrażenia od pocisków.
+    - **Nóż do Rzucania** - Noże rzucone pod koniec rundy są teraz śledzone osobno i odtwarzane w następnej rundzie.
+    - **Samowolka, Wyluzowany, Lupa** - Gracze są teraz sprawdzani pod kątem poprawności przed odczytem `Team`/`PawnIsAlive`.
+    - **Zamiana Broni** - Obaj gracze są sprawdzani przed zabraniem broni, a niewłaściwi, martwi i obserwujący gracze nie mogą być już wybrani jako cel.
+    - **Cichociemny, Duszek, C4 Kamuflaż** - Naprawiono crash klienta (`FATAL ERROR: CopyExistingEntity: missing client entity`) przy śmierci ukrytego gracza w pobliżu. Ukryte postacie są przywracane do snapshotu sieciowego w tym samym ticku.
+    - **Cichociemny, Duszek, C4 Kamuflaż, Glaz, Stópkarz, Wallhack, Nóż do Rzucania, Koszmar** - Martwi gracze nie są już traktowani jako obserwatorzy, co zapobiega wyciekom widoczności i desynchronizacji sieci.
+    - **Wallhack, Stópkarz, Nóż do Rzucania, Koszmar** - Martwi gracze nie widzą już konturów Wallhacka, śladów Stópkarza, poświat Noży do Rzucania ani obszarów Koszmaru.
+    - **Dźwiękowiec** - Naprawiono odtwarzanie krzyku graczom, którzy nie posiadają tej umiejętności.
+
+- #### Stabilność
+    - **CheckTransmit (Cichociemny, Duszek, C4 Kamuflaż)** - Uchwyty umierających encji są teraz przechowywane wraz z czasem wygaśnięcia i usuwane po ponownym użyciu indeksu, naprawiając `CopyExistingEntity: missing client entity`.
+    - **WeaponEquip, WeaponPickup** - Pomijane jest wywołanie, gdy inny plugin przejmuje pre-hook i pozostawia puste zdarzenie.
+
+- #### Plik `Config.json`
+    - **SkillsChance, VIPSkillsChance** - Dodano konfigurowalne tabele szans rzadkości do `config.json`. Procenty i ułamki są normalizowane do 100%.
+    - **VIPFlag** - Dodano domyślną flagę `@css/vip`; pozostawienie jej pustej wyłącza tabelę szans VIP.
+    - **Wszystkie umiejętności** - Dodano `MinPlayer` do `skillsInfo.json`. Umiejętność wymaga teraz określonej minimalnej liczby graczy na serwerze. `0` (domyślnie) wyłącza limit. Dotyczy losowania, spóźnionych dołączeń oraz ponownego losowania przez Hazardzistę.
+
+- #### Lokalizacja
+    - **Katapulta, Odpychacz, Cień** - Tureckie opisy wyjaśniają teraz, czego dotyczy podana wartość procentowa.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#57](https://github.com/Juzlus/jRandomSkills/pull/57). Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
+<summary><b>v1.2.3.b9</b></summary>
+
+- #### Ogólne
+    - Zaktualizowano główne zależności: `CounterStrikeSharp` do **1.0.373**
+    - **Config** - Pule broni `Rifle`, `Pistol` i `Grenade` powiększały się za każdym razem, gdy konfiguracja była wczytywana, przez co usunięte bronie pojawiały się ponownie przy kolejnym uruchomieniu.
+    - **Przycisk Use** - Umiejętności nie są już aktywowane, gdy CT naciska `Use`, patrząc na podłożone C4, dzięki czemu klawisz umiejętności nie konkuruje już z klawiszem rozbrajania.
+
+- #### Poprawki mocy
+    - **Pyro** - Obrażenia od ognia zabijały posiadacza przy niskim poziomie zdrowia. Regeneracja jest teraz wykonywana przed zadaniem obrażeń, zamiast po nich.
+    - **Hologram** - Klon nie pochłaniał śmiertelnego trafienia, z tego samego powodu co w przypadku Pyro.
+    - **Drakula** - Kradzież życia korzystała z surowych obrażeń, przez co trafienie w głowę z AWP leczyło za 400 HP. Wartość jest teraz ograniczona do faktycznej ilości zdrowia ofiary, działa również przy zabójczym trafieniu i nie może już pozostawić atakującego przy 0 HP.
+    - **Robin Hood** - Skradzione pieniądze były obliczane na podstawie surowych obrażeń i miały sztywny limit 16000. Teraz ich ilość jest ograniczona do faktycznego poziomu zdrowia ofiary, działa również przy zabójczym trafieniu i uwzględnia `mp_maxmoney`. Ofiara traci dokładnie tyle, ile zyskuje atakujący.
+    - **Voodoo** - Odbite obrażenia były obliczane na podstawie surowych obrażeń. Teraz są ograniczone do faktycznej ilości zdrowia ofiary.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#56](https://github.com/Juzlus/jRandomSkills/pull/56). Dziękujemy ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b8</b></summary>

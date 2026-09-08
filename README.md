@@ -329,7 +329,23 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         "TraceRayBeam": false,           // Enable trail visibility for 'Long Knife', 'Long Zeus'
         "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Disable the HUD after death for players with this permission
         "DisableSkillsOnRoundEnd": false,// Disable all skills at the end of the round (when the summary is visible)
+        "VIPFlag": "@css/vip",           // Players with this permission use the VIP skill rarity distribution
+        "SkillsChance": {                // Skill rarity distribution for regular players. Percentages and fractions are supported and normalized to 100%
+            "Common": 0.7,
+            "Uncommon": 0.14,
+            "Rare": 0.1,
+            "Epic": 0.05,
+            "Legendary": 0.01
+        },
+        "VIPSkillsChance": {             // Skill rarity distribution for players with the VIP flag. Percentages and fractions are supported and normalized to 100%
+            "Common": 0.55,
+            "Uncommon": 0.23,
+            "Rare": 0.14,
+            "Epic": 0.07,
+            "Legendary": 0.01
+        },
         "CurseSkillPerPlayer": null,     // Maximum number of effects per player
+        "ShowDecoyRing": true,           // Show the ring around decoys
         
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Default language: en, pl, fr, pt-br, zh
@@ -369,6 +385,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                       // -1 = never hide the description,
                                       // >= 0 = display duration in seconds.
         "RequiredPermission": "",     // Required permission
+        "MinPlayer": 0,               // Minimum number of players required on the server (0 to disable the limit)
         "MaxPerServer": -1,           // Maximum number of players allowed to have
                                       // this skill on the server (-1 for unlimited)
         "Rarity": "Common"            // Rarity tier of the skill:
@@ -405,7 +422,7 @@ This plugin uses content from the following projects:
 <div align="center">
 
 <table>
-  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
+  <tr><td align="center"><a href="https://github.com/Juzlus"><img src="https://avatars.githubusercontent.com/u/41649887?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Juzlus"/><br/><sub><b>Juzlus</b></sub></a></td><td align="center"><a href="https://github.com/ByDexterTR"><img src="https://avatars.githubusercontent.com/u/46813962?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="ByDexterTR"/><br/><sub><b>ByDexterTR</b></sub></a></td><td align="center"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="github-actions[bot]"/><br/><sub><b>github-actions[bot]</b></sub></a></td><td align="center"><a href="https://github.com/vinicius-trev"><img src="https://avatars.githubusercontent.com/u/36710856?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vinicius-trev"/><br/><sub><b>vinicius-trev</b></sub></a></td><td align="center"><a href="https://github.com/jakubbartosik"><img src="https://avatars.githubusercontent.com/u/87545618?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="jakubbartosik"/><br/><sub><b>jakubbartosik</b></sub></a></td><td align="center"><a href="https://github.com/Ericzzrbb"><img src="https://avatars.githubusercontent.com/u/108861549?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Ericzzrbb"/><br/><sub><b>Ericzzrbb</b></sub></a></td></tr>
   <tr><td align="center"><a href="https://github.com/brkvlr"><img src="https://avatars.githubusercontent.com/u/50466021?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="brkvlr"/><br/><sub><b>brkvlr</b></sub></a></td><td align="center"><a href="https://github.com/vladimir214sd"><img src="https://avatars.githubusercontent.com/u/159032035?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="vladimir214sd"/><br/><sub><b>vladimir214sd</b></sub></a></td><td align="center"><a href="https://github.com/felyjyn"><img src="https://avatars.githubusercontent.com/u/25257673?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="felyjyn"/><br/><sub><b>felyjyn</b></sub></a></td><td align="center"><a href="https://github.com/Enrory"><img src="https://avatars.githubusercontent.com/u/29148418?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="Enrory"/><br/><sub><b>Enrory</b></sub></a></td><td align="center"><a href="https://github.com/213sdfsdgf"><img src="https://avatars.githubusercontent.com/u/144595146?v=4&s=75" width="75" height="75" style="border-radius:50%" alt="213sdfsdgf"/><br/><sub><b>213sdfsdgf</b></sub></a></td></tr>
 </table>
 
@@ -424,6 +441,73 @@ This plugin uses content from the following projects:
 </div>
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.4.b1</b></summary>
+
+- #### General
+    - **ConVar lookups** - `ConVar.Find` results are now cached by name in `SkillUtils`. All 25 call sites converted.
+    - **Config loading** - Malformed `skillsInfo.json` no longer resets all settings to defaults. Failed entries keep current settings and prevent config rewriting.
+    - **Config writing** - Replaced copy-and-delete with an atomic rename to prevent half-written configs.
+    - **Config diagnostics** - Load now logs the resolved path, file status, entry counts, known skills, rewrite status and the actual exception.
+    - **Use button (CT skills)** - Skills no longer trigger near planted C4. Range and aim are checked directly.
+    - **SkillUtils.UpdateGrenadeCount** - Fixed delayed clip reset affecting a weapon that replaced the original inventory slot.
+
+- #### Shared Systems
+    - **SkillUtils.IsPredictedLethal** - Added a shared lethality check with hitgroup multipliers, `ArmorRatio` and correct armor coverage, replacing three duplicated headshot-only checks.
+
+- #### Skill Fixes
+    - **ReZombie, Phoenix, Second Life** - Fixed stomach hits between 80–100% HP being treated as survivable by using the shared lethality check.
+    - **Blast Shot, Death Bomb, Exploding Barrel, Explosive Shot** - Explosion kill credit now accounts for armor.
+    - **Explosive Shot** - Projectile owner/team state is now tracked per player and tick, preventing conflicts between simultaneous users and duplicate pellet explosions.
+    - **Fire Rain** - Thrower/team/count state is now stored in per-tick batches, preventing conflicts between simultaneous users.
+    - **Rich Boy** - Bonus removal now restores the account from a pre-bonus snapshot instead of `CashSpentThisRound`.
+    - **Robin Hood, Rich Boy, Bounty** - Rewards now respect `mp_maxmoney`.
+    - **True Armor** - Helmet state is saved and restored alongside armor.
+    - **Gravity Decoy** - Added `WeaponEquip` and `WeaponPickup` handlers to keep the grenade count correct.
+    - **Catapult, Push, Shade, Rubber** - Now react only to bullet damage.
+    - **Throwing Knife** - Thrown knives at round end are tracked separately and replaced next round.
+    - **Planter, Chill Out, Magnifier** - Players are validated before reading `Team`/`PawnIsAlive`.
+    - **Weapons Swap** - Both players are validated before removing weapons, and invalid/dead/spectating enemies can no longer be selected.
+    - **Ninja, Ghost, C4 Camouflage** - Fixed client crash (`FATAL ERROR: CopyExistingEntity: missing client entity`) when a hidden player died nearby. Hidden pawns are restored to the network snapshot on the same tick.
+    - **Ninja, Ghost, C4 Camouflage, Glaz, Jackal, Wallhack, Throwing Knife, Nightmare** - Dead players are no longer treated as viewers, preventing visibility leaks and network desync.
+    - **Wallhack, Jackal, Throwing Knife, Nightmare** - Dead players no longer see Wallhack outlines, Jackal trails, Throwing Knife glows or Nightmare volumes.
+    - **Sound Maker** - Fixed the scream playing for players without the skill.
+
+- #### Stability
+    - **CheckTransmit (Ninja, Ghost, C4 Camouflage)** - Dying entity handles are now tracked with their expiry and removed when indexes are recycled, fixing `CopyExistingEntity: missing client entity`.
+    - **WeaponEquip, WeaponPickup** - Skip dispatch when another plugin supersedes the pre-hook and leaves the event null.
+
+- #### Config
+    - **SkillsChance, VIPSkillsChance** - Added configurable rarity distribution tables to `config.json`, percentages and fractions are normalized to 100%.
+    - **VIPFlag** - Added with default `@css/vip`, empty disables the VIP rarity table.
+    - **All skills** - Added `MinPlayer` to `skillsInfo.json`. Skills require the configured minimum number of players on the server. `0` (default) disables the limit. Applies to normal draws, late joiners and Gambler rerolls.
+
+- #### Localization
+    - **Catapult, Push, Shade** - Turkish descriptions now clarify what the percentage applies to.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#57](https://github.com/Juzlus/jRandomSkills/pull/57). Thanks to ByDexterTR!**
+
+</details>
+
+<details>
+<summary><b>v1.2.3.b9</b></summary>
+
+- #### General
+    - Updated core dependencies: `CounterStrikeSharp` to **1.0.373**
+    - **Config** - The `Rifle`, `Pistol` and `Grenade` weapon pools grew every time the config was loaded, so removed weapons came back on the next start.
+    - **Use button** - Skills no longer trigger when a CT presses `Use` while looking at a planted C4, so the skill key no longer competes with the defuse key.
+
+- #### Skill Fixes
+    - **Pyro** - Fire damage killed the holder at low health. The regeneration now runs before the damage is applied instead of after.
+    - **Iana** - The clone did not absorb a lethal hit, same cause as Pyro.
+    - **Dracula** - Lifesteal used the raw damage, so an AWP headshot healed for 400. It is now capped to the health the victim actually had, works on the killing blow, and can no longer leave the attacker alive at 0 HP.
+    - **RobinHood** - Stolen money used the raw damage and a hardcoded 16000 cap. It is now capped to the victim's real health, works on the killing blow, and respects `mp_maxmoney`. The victim loses exactly what the attacker gains.
+    - **Voodoo** - Reflected damage used the raw damage, now capped to the victim's real health.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#56](https://github.com/Juzlus/jRandomSkills/pull/56). Thanks to ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b8</b></summary>
