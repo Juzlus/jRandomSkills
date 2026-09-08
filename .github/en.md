@@ -329,7 +329,23 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
         "TraceRayBeam": false,           // Enable trail visibility for 'Long Knife', 'Long Zeus'
         "DisableHUDOnDeathPermission": "@jRandomSkills/death",  // Disable the HUD after death for players with this permission
         "DisableSkillsOnRoundEnd": false,// Disable all skills at the end of the round (when the summary is visible)
+        "VIPFlag": "@css/vip",           // Players with this permission use the VIP skill rarity distribution
+        "SkillsChance": {                // Skill rarity distribution for regular players. Percentages and fractions are supported and normalized to 100%
+            "Common": 0.7,
+            "Uncommon": 0.14,
+            "Rare": 0.1,
+            "Epic": 0.05,
+            "Legendary": 0.01
+        },
+        "VIPSkillsChance": {             // Skill rarity distribution for players with the VIP flag. Percentages and fractions are supported and normalized to 100%
+            "Common": 0.55,
+            "Uncommon": 0.23,
+            "Rare": 0.14,
+            "Epic": 0.07,
+            "Legendary": 0.01
+        },
         "CurseSkillPerPlayer": null,     // Maximum number of effects per player
+        "ShowDecoyRing": true,           // Show the ring around decoys
         
         "LanguageSystem": {
             "DefaultLangCode": "en",     // Default language: en, pl, fr, pt-br, zh
@@ -369,6 +385,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                       // -1 = never hide the description,
                                       // >= 0 = display duration in seconds.
         "RequiredPermission": "",     // Required permission
+        "MinPlayer": 0,               // Minimum number of players required on the server (0 to disable the limit)
         "MaxPerServer": -1,           // Maximum number of players allowed to have
                                       // this skill on the server (-1 for unlimited)
         "Rarity": "Common"            // Rarity tier of the skill:
@@ -407,6 +424,54 @@ This plugin uses content from the following projects:
 [THANKS]
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.4.b1</b></summary>
+
+- #### General
+    - **ConVar lookups** - `ConVar.Find` results are now cached by name in `SkillUtils`. All 25 call sites converted.
+    - **Config loading** - Malformed `skillsInfo.json` no longer resets all settings to defaults. Failed entries keep current settings and prevent config rewriting.
+    - **Config writing** - Replaced copy-and-delete with an atomic rename to prevent half-written configs.
+    - **Config diagnostics** - Load now logs the resolved path, file status, entry counts, known skills, rewrite status and the actual exception.
+    - **Use button (CT skills)** - Skills no longer trigger near planted C4. Range and aim are checked directly.
+    - **SkillUtils.UpdateGrenadeCount** - Fixed delayed clip reset affecting a weapon that replaced the original inventory slot.
+
+- #### Shared Systems
+    - **SkillUtils.IsPredictedLethal** - Added a shared lethality check with hitgroup multipliers, `ArmorRatio` and correct armor coverage, replacing three duplicated headshot-only checks.
+
+- #### Skill Fixes
+    - **ReZombie, Phoenix, Second Life** - Fixed stomach hits between 80–100% HP being treated as survivable by using the shared lethality check.
+    - **Blast Shot, Death Bomb, Exploding Barrel, Explosive Shot** - Explosion kill credit now accounts for armor.
+    - **Explosive Shot** - Projectile owner/team state is now tracked per player and tick, preventing conflicts between simultaneous users and duplicate pellet explosions.
+    - **Fire Rain** - Thrower/team/count state is now stored in per-tick batches, preventing conflicts between simultaneous users.
+    - **Rich Boy** - Bonus removal now restores the account from a pre-bonus snapshot instead of `CashSpentThisRound`.
+    - **Robin Hood, Rich Boy, Bounty** - Rewards now respect `mp_maxmoney`.
+    - **True Armor** - Helmet state is saved and restored alongside armor.
+    - **Gravity Decoy** - Added `WeaponEquip` and `WeaponPickup` handlers to keep the grenade count correct.
+    - **Catapult, Push, Shade, Rubber** - Now react only to bullet damage.
+    - **Throwing Knife** - Thrown knives at round end are tracked separately and replaced next round.
+    - **Planter, Chill Out, Magnifier** - Players are validated before reading `Team`/`PawnIsAlive`.
+    - **Weapons Swap** - Both players are validated before removing weapons, and invalid/dead/spectating enemies can no longer be selected.
+    - **Ninja, Ghost, C4 Camouflage** - Fixed client crash (`FATAL ERROR: CopyExistingEntity: missing client entity`) when a hidden player died nearby. Hidden pawns are restored to the network snapshot on the same tick.
+    - **Ninja, Ghost, C4 Camouflage, Glaz, Jackal, Wallhack, Throwing Knife, Nightmare** - Dead players are no longer treated as viewers, preventing visibility leaks and network desync.
+    - **Wallhack, Jackal, Throwing Knife, Nightmare** - Dead players no longer see Wallhack outlines, Jackal trails, Throwing Knife glows or Nightmare volumes.
+    - **Sound Maker** - Fixed the scream playing for players without the skill.
+
+- #### Stability
+    - **CheckTransmit (Ninja, Ghost, C4 Camouflage)** - Dying entity handles are now tracked with their expiry and removed when indexes are recycled, fixing `CopyExistingEntity: missing client entity`.
+    - **WeaponEquip, WeaponPickup** - Skip dispatch when another plugin supersedes the pre-hook and leaves the event null.
+
+- #### Config
+    - **SkillsChance, VIPSkillsChance** - Added configurable rarity distribution tables to `config.json`, percentages and fractions are normalized to 100%.
+    - **VIPFlag** - Added with default `@css/vip`, empty disables the VIP rarity table.
+    - **All skills** - Added `MinPlayer` to `skillsInfo.json`. Skills require the configured minimum number of players on the server. `0` (default) disables the limit. Applies to normal draws, late joiners and Gambler rerolls.
+
+- #### Localization
+    - **Catapult, Push, Shade** - Turkish descriptions now clarify what the percentage applies to.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#57](https://github.com/Juzlus/jRandomSkills/pull/57). Thanks to ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.3.b9</b></summary>
