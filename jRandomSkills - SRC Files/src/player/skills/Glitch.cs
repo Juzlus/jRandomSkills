@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -148,7 +148,7 @@ namespace src.player.skills
                 if (target != null && target.IsValid)
                 {
                     SkillUtils.SetRadarDisabled(target, ownerTag, false);
-                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    if (target.PawnIsAlive)
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("glitch_disable_info"));
                 }
                 glitchedPlayers.TryRemove(targetIndex, out _);

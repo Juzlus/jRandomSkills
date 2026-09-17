@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -168,7 +168,7 @@ namespace src.player.skills
                         Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
                     }
 
-                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    if (target.PawnIsAlive)
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("magnifier_disable_info"));
                 }
                 playersWithFov.TryRemove(targetIndex, out _);

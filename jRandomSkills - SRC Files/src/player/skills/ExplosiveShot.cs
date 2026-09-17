@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -121,6 +121,8 @@ namespace src.player.skills
 
         public static void BulletImpact(EventBulletImpact @event)
         {
+            if (SkillsInfo.GetValue<bool>(skillName, "disableOnFreezeTime") && SkillUtils.IsFreezeTime()) return;
+
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 

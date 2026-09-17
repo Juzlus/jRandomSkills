@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -150,7 +150,7 @@ namespace src.player.skills
                     if (target != null && target.IsValid)
                     {
                         SetUpPostProcessing(target, true);
-                        if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                        if (target.PawnIsAlive)
                             target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("darkness_disable_info"));
                     }
                     playersInDark.TryRemove(targetIndex, out _);

@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -166,7 +166,7 @@ namespace src.player.skills
                     SetCrosshair(target1, true);
                     SetCrosshair(target2, true);
 
-                    if (target1.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    if (target1.PawnIsAlive)
                         target1.PrintToChat($" {ChatColors.Green}" + target1.GetTranslation("jammer_disable_info"));
                 }
                 jammedPlayers.TryRemove(targetIndex, out _);

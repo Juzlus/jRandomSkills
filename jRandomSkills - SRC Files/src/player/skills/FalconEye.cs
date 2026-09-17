@@ -85,17 +85,38 @@ namespace src.player.skills
 
         private static void ChangeCamera(CCSPlayerController player, bool forceToDefault = false)
         {
-            uint orginalCameraRaw;
-            uint newCameraRaw;
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
-            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
+            bool tracked = cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0;
+
+            if (forceToDefault)
+            {
+                if (tracked)
+                {
+                    pawn.CameraServices.ViewEntity.Raw = cameraInfo.Item1;
+                    Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+                }
+
+                BlockWeapon(player, false);
+                return;
+            }
+
+            uint orginalCameraRaw;
+            uint newCameraRaw;
+
+            if (tracked)
             {
                 orginalCameraRaw = cameraInfo.Item1;
 
                 var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
-                if (camera == null || !camera.IsValid) return;
+                if (camera == null || !camera.IsValid)
+                {
+                    pawn.CameraServices.ViewEntity.Raw = orginalCameraRaw;
+                    Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+                    BlockWeapon(player, false);
+                    return;
+                }
 
                 newCameraRaw = camera.EntityHandle.Raw;
             }
@@ -108,7 +129,7 @@ namespace src.player.skills
             if (newCameraRaw == 0)
                 return;
 
-            bool defaultCam = forceToDefault || (pawn.CameraServices.ViewEntity.Raw != orginalCameraRaw);
+            bool defaultCam = pawn.CameraServices.ViewEntity.Raw != orginalCameraRaw;
             pawn!.CameraServices!.ViewEntity.Raw = defaultCam ? orginalCameraRaw : newCameraRaw;
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
             BlockWeapon(player, !defaultCam);

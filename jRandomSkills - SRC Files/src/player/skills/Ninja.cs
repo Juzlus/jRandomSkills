@@ -56,6 +56,11 @@ namespace src.player.skills
             UpdateNinja(player);
         }
 
+        public static void RevealOnDeath(uint playerIndex)
+        {
+            invisiblePlayers.TryRemove(playerIndex, out _);
+        }
+
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
             if (invisiblePlayers.IsEmpty) return;

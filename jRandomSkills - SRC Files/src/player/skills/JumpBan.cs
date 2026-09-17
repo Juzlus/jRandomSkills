@@ -41,8 +41,15 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             if (!bannedPlayers.TryGetValue(player.Index, out _)) return;
-            bannedPlayers.AddOrUpdate(player.Index, Server.TickCount + 10, (k, v) => Server.TickCount + 10);
+
+            var pawn = player.PlayerPawn.Value;
+            if (pawn.AbsVelocity != null && pawn.AbsVelocity.Z > 0)
+                pawn.AbsVelocity.Z = 0;
+
+            bannedPlayers.AddOrUpdate(player.Index, Server.TickCount + JumpBlockTicks, (k, v) => Server.TickCount + JumpBlockTicks);
         }
+
+        private const int JumpBlockTicks = 24;
 
         public static void OnTick()
         {
@@ -59,8 +66,8 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
 
-                if (time > Server.TickCount)
-                    pawn.AbsVelocity.Z = -100;
+                if (time > Server.TickCount && pawn.AbsVelocity != null && pawn.AbsVelocity.Z > -300)
+                    pawn.AbsVelocity.Z = -300;
             }
 
             if (Server.TickCount % 32 != 0) return;
@@ -149,7 +156,7 @@ namespace src.player.skills
                 bannedPlayers.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
-                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                if (target != null && target.IsValid)
                     target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("jumpban_disable_info"));
             }
 

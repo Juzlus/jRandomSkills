@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
@@ -53,6 +53,7 @@ namespace src.player.skills
             if (SkillPlayerInfo.IsEmpty) return;
 
             float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
+            bool freezeTime = SkillUtils.IsFreezeTime();
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -67,7 +68,7 @@ namespace src.player.skills
                 var buttons = player.Buttons;
                 bool isAttack2 = (buttons & PlayerButtons.Attack2) != 0;
 
-                if (skillInfo.CanUse && isAttack2)
+                if (skillInfo.CanUse && isAttack2 && !freezeTime)
                 {
                     var weapon = playerPawn.WeaponServices?.ActiveWeapon?.Value;
                     

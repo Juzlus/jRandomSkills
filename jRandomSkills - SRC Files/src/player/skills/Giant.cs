@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -194,7 +194,7 @@ namespace src.player.skills
             if (!notify) return;
 
             var targetEvent = PlayerManager.GetPlayerFromEvent(target);
-            if (targetEvent != null && targetEvent.IsValid && targetEvent.PawnIsAlive && !SkillUtils.IsFreezeTime())
+            if (targetEvent != null && targetEvent.IsValid && targetEvent.PawnIsAlive)
                 targetEvent.PrintToChat($" {ChatColors.Green}" + targetEvent.GetTranslation("giant_disable_info"));
         }
 

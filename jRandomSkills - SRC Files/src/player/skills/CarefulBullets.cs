@@ -211,7 +211,7 @@ namespace src.player.skills
                 targetToPlayer.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
-                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                if (target != null && target.IsValid && target.PawnIsAlive)
                     target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("carefulbullets_disable_info"));
             }
 
