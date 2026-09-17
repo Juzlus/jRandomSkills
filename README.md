@@ -443,6 +443,26 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.4.b2</b></summary>
+
+- #### General
+    - **Ninja, Ghost, C4 Camouflage** - Hidden players are now revealed in the `player_death` pre-hook, preventing `CopyExistingEntity: missing client entity` crashes.
+    - **DisableOnFreezeTime** - Passive damage skills (Cypher, Exploding Barrel, Explosive Shot, Fortnite, Iana, Illusionist and Replicator, etc.) now also respect the setting.
+    - **Skill distribution** - One disconnecting player can no longer stop skill assignment for everyone else; If no skills are assigned, the system retries up to 6 times every 0.5s and logs the reason for failure.
+
+- #### Skill Fixes
+    - **No Recoil** - Changed the way no recoil is applied to prevent it from affecting other players.
+    - **Falcon Eye** - Weapons no longer remain locked after a round ends while the camera is active.
+    - **Jump Ban** - Jumping is now fully blocked by clearing upward velocity and extending the effect duration; The message confirming that jumping is available again now displays correctly.
+    - **Blast Shot** - Grenades can no longer be thrown during freeze time.
+    - **Sound Maker** - Phantom screams no longer come from `0 0 0` and are only sent to living enemies.
+    - **Careful Bullets, Darkness, Deaf, Expensive Ammo, Giant, Glitch, Jammer, Jet Kick, Jump Curse, Magnifier, Nightmare, Poison, Primary Ban, Wild Throw** - The message confirming that the effect ended now displays correctly.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#58](https://github.com/Juzlus/jRandomSkills/pull/58). Thanks to ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.4.b1</b></summary>
 
 - #### General

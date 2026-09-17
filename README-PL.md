@@ -443,6 +443,26 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.4.b2</b></summary>
+
+- #### Ogólne
+    - **Ninja, Duszek, C4 Kamuflaż** - Ukryci gracze są teraz ujawniani w `player_death` pre-hooku, co zapobiega crashom `CopyExistingEntity: missing client entity`.
+    - **DisableOnFreezeTime** - Umiejętności zadające obrażenia (Kamera, Wybuchowa Beczka, Strzał Wybuchowy, Fortnite, Hologram, Iluzjonista, Replikator itd.) teraz również respektują to ustawienie.
+    - **Skill distribution** - Rozłączający się gracz nie może już przerwać przydzielania mocy pozostałym; jeśli żadna moc nie zostanie przydzielona, system ponawia próbę do 6 razy co 0,5 s i zapisuje przyczynę w logach.
+
+- #### Poprawki mocy
+    - **Skupienie** - Zmieniono sposób nakładania braku odrzutu, aby nie wpływał na innych graczy.
+    - **Oko Sokoła** - Broń nie pozostaje już zablokowana po zakończeniu rundy, gdy kamera jest aktywna.
+    - **Beznogi** - Skakanie jest teraz całkowicie blokowane przez wyzerowanie prędkości pionowej i wydłużenie czasu działania; wiadomość o ponownym odblokowaniu skoku wyświetla się poprawnie.
+    - **Mocne Uderzenie** - Granatów nie można już rzucać podczas freeze time.
+    - **Dźwiękowiec** - Duchy krzyków nie pojawiają się już w `0 0 0` i są wysyłane wyłącznie do żywych przeciwników.
+    - **Ostrożne Pociski, Mrok, Głuchy, Droga Amunicja, Olbrzym, Glitch, Zakłócacz, Odrzutowy Kop, Klątwa Skakania, Lupa, Koszmar, Trutka, Brak Karabinów, Dzikie Rzuty** - Wiadomość informująca o zakończeniu efektu wyświetla się teraz poprawnie.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#58](https://github.com/Juzlus/jRandomSkills/pull/58). Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.4.b1</b></summary>
 
 - #### Ogólne
