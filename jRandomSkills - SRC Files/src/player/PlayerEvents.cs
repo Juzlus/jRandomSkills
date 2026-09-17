@@ -20,6 +20,9 @@ namespace src.player
     public static partial class Event
     {
         private static Timer? setSkillTimer = null;
+        private const int MaxSetSkillRetries = 6;
+        private static int setSkillRetries;
+        private static int gameRulesPolls;
         private static DateTime freezeTimeEnd = DateTime.MinValue;
         private static bool isTransmitRegistered = false;
         public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillsInfo.GetValue<string>(Skills.None, "color"), false);
@@ -681,6 +684,10 @@ namespace src.player
             {
                 var victim = @event.Userid;
                 if (victim == null || !victim.IsValid) return HookResult.Continue;
+
+                Ninja.RevealOnDeath(victim.Index);
+                Ghost.RevealOnDeath(victim.Index);
+                C4Camouflage.RevealOnDeath(victim.Index);
 
                 if (!SkillUtils.TryConsumeKillCredit(victim.Index, out uint attackerIndex, out string? weapon))
                     return HookResult.Continue;

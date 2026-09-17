@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -147,7 +147,7 @@ namespace src.player.skills
                     RemoveVolume(targetIndex);
 
                     var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
-                    if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    if (target != null && target.IsValid && target.PawnIsAlive)
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("nightmare_disable_info"));
                 }
 

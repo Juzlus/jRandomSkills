@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
@@ -142,7 +142,7 @@ namespace src.player.skills
                 bannedPlayers.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
-                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                if (target != null && target.IsValid && target.PawnIsAlive)
                 {
                     target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("primaryban_disable_info"));
                     SetWeaponAttack(target, false);

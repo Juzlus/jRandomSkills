@@ -77,7 +77,7 @@ namespace src.player.skills
 
             List<CCSPlayerController> allowed = [];
 
-            if (emitter != null)
+            if (emitter != null && CanEmit(emitter, out _))
                 foreach (var recipient in um.Recipients)
                 {
                     if (recipient == null || !recipient.IsValid) continue;
@@ -110,21 +110,45 @@ namespace src.player.skills
 
             float volume = SkillsInfo.GetValue<float>(skillName, "soundVolume");
 
-            foreach (var player in PlayerManager.GetTickPlayers()
-                .Where(p => p != null && p.IsValid && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0))
+            foreach (var player in PlayerManager.GetTickPlayers())
             {
+                if (!CanEmit(player, out var pawn)) continue;
+
                 var entities = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
 
                 if (entities.Count == 0)
                 {
-                    player.PlayerPawn.Value!.EmitSound(soundEventName, volume: volume);
+                    pawn!.EmitSound(soundEventName, volume: volume);
                     continue;
                 }
 
                 var entity = Utilities.GetEntityFromIndex<CDynamicProp>((int)entities[0]);
-                if (entity != null && entity.IsValid)
-                    entity.EmitSound(soundEventName, volume: volume);
+                if (entity == null || !entity.IsValid || IsAtWorldOrigin(entity.AbsOrigin)) continue;
+
+                entity.EmitSound(soundEventName, volume: volume);
             }
+        }
+
+        private static bool CanEmit(CCSPlayerController? player, out CCSPlayerPawn? pawn)
+        {
+            pawn = null;
+
+            if (player == null || !player.IsValid || player.IsHLTV) return false;
+            if (player.Team != CsTeam.Terrorist && player.Team != CsTeam.CounterTerrorist) return false;
+
+            var playerPawn = player.PlayerPawn?.Value;
+            if (playerPawn == null || !playerPawn.IsValid) return false;
+            if (playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || playerPawn.Health <= 0) return false;
+            if (IsAtWorldOrigin(playerPawn.AbsOrigin)) return false;
+
+            pawn = playerPawn;
+            return true;
+        }
+
+        private static bool IsAtWorldOrigin(Vector? origin)
+        {
+            if (origin == null) return true;
+            return MathF.Abs(origin.X) < 1f && MathF.Abs(origin.Y) < 1f && MathF.Abs(origin.Z) < 1f;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int cooldown = 2, float soundVolume = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

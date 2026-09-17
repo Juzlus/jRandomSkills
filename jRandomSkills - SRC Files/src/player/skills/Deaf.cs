@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -139,7 +139,7 @@ namespace src.player.skills
                 deafPlayers.TryRemove(targetIndex, out _);
 
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
-                if (target != null && target.IsValid && target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                if (target != null && target.IsValid && target.PawnIsAlive)
                     target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("deaf_disable_info"));
             }
 

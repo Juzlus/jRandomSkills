@@ -26,7 +26,19 @@ namespace src.player
             string flag = Config.LoadedConfig.VIPFlag;
             if (string.IsNullOrWhiteSpace(flag)) return false;
 
-            return AdminManager.PlayerHasPermissions(player, flag);
+            return HasPermission(player, flag);
+        }
+
+        private static bool HasPermission(CCSPlayerController player, string permission)
+        {
+            try
+            {
+                return AdminManager.PlayerHasPermissions(player, permission);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode, bool vip)
@@ -88,6 +100,7 @@ namespace src.player
             {
                 bool isWarmup = Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true;
                 isTransmitRegistered = false;
+                setSkillRetries = 0;
                 SkillUtils.ClearKillCredits();
                 SkillUtils.ClearCurses();
                 Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -336,7 +349,7 @@ namespace src.player
             List<jSkill_SkillInfo> skillList = [.. ctx.BaseList];
 
             if (!player.IsBot && ctx.RequiredPermissions.Count != 0)
-                skillList.RemoveAll(s => ctx.RequiredPermissions.TryGetValue(s.Skill, out var perm) && !AdminManager.PlayerHasPermissions(player, perm));
+                skillList.RemoveAll(s => ctx.RequiredPermissions.TryGetValue(s.Skill, out var perm) && !HasPermission(player, perm));
 
             if (gameMode != Config.GameModes.FullRandom)
                 skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
@@ -419,11 +432,18 @@ namespace src.player
                     var skillPlayer = PlayerManager.GetPlayerByIndex(player.Index);
                     if (skillPlayer == null) continue;
 
-                    var pick = PickSkillForPlayer(player, skillPlayer, ctx, assignmentCounts, gameMode);
-                    nextRoundPicks[player.Index] = pick;
+                    try
+                    {
+                        var pick = PickSkillForPlayer(player, skillPlayer, ctx, assignmentCounts, gameMode);
+                        nextRoundPicks[player.Index] = pick;
 
-                    if (pick.Skill != Skills.None)
-                        assignmentCounts[pick.Skill] = assignmentCounts.TryGetValue(pick.Skill, out var c) ? c + 1 : 1;
+                        if (pick.Skill != Skills.None)
+                            assignmentCounts[pick.Skill] = assignmentCounts.TryGetValue(pick.Skill, out var c) ? c + 1 : 1;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteToDebug($"PrecomputeSkills failed for {skillPlayer.PlayerName}: {ex.Message}", DebugCategory.Skill);
+                    }
                 }
             }
             PerfLog.End("PrecomputeSkills total", perfStart, 2.0);
@@ -450,6 +470,12 @@ namespace src.player
                 : DateTime.Now.AddSeconds(skillDescriptionHudExpired.Value);
         }
 
+        private static int CountConnectedPlayers()
+        {
+            try { return Utilities.GetPlayers().Count(p => p != null && p.IsValid && !p.IsHLTV); }
+            catch { return 0; }
+        }
+
         private static void SetSkillCore()
         {
             setSkillTimer = null;
@@ -460,10 +486,15 @@ namespace src.player
                 // GameRules null = not ready; keep polling so skills land right after warmup ends.
                 if (Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true)
                 {
+                    if (++gameRulesPolls % 10 == 0)
+                        Debug.WriteToDebug($"SetSkill waiting: gameRules={(Instance.GameRules == null ? "null" : "warmup")}, poll {gameRulesPolls}.", DebugCategory.Skill);
+
                     setSkillTimer?.Kill();
                     setSkillTimer = Instance.AddTimer(1f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     return;
                 }
+
+                gameRulesPolls = 0;
 
                 var validPlayers = Utilities.GetPlayers()
                     .Where(p => p != null && p.IsValid && !p.IsHLTV)
@@ -501,6 +532,7 @@ namespace src.player
                 }
 
                 PickContext? pickContext = null;
+                int assigned = 0;
 
                 foreach (var player in validPlayers)
                 {
@@ -586,6 +618,7 @@ namespace src.player
 
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{SkillNames.Get(randomSkill.Skill)}\".", DebugCategory.Skill);
                     UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
+                    assigned++;
 
                     if (randomSkill.Display)
                         Instance?.AddTimer(.6f, () =>
@@ -626,6 +659,20 @@ namespace src.player
                 }
 
                 nextRoundPicks.Clear();
+
+                if (assigned == 0 && CountConnectedPlayers() > 0)
+                {
+                    if (setSkillRetries < MaxSetSkillRetries)
+                    {
+                        setSkillRetries++;
+                        Debug.WriteToDebug($"SetSkill assigned nothing (valid={validPlayers.Count}, connected={CountConnectedPlayers()}); retry {setSkillRetries}/{MaxSetSkillRetries} in .5s.", DebugCategory.Skill);
+                        setSkillTimer = Instance?.AddTimer(.5f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                    }
+                    else
+                        Debug.WriteToDebug($"SetSkill assigned nothing (valid={validPlayers.Count}, connected={CountConnectedPlayers()}) and gave up after {MaxSetSkillRetries} retries.", DebugCategory.Skill);
+                }
+                else
+                    setSkillRetries = 0;
             }
         }
 
@@ -668,7 +715,7 @@ namespace src.player
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                         skillList.RemoveAll(s => s?.Skill == Skills.None);
                         if (!player.IsBot)
-                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !HasPermission(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
 
                         if (gameMode != Config.GameModes.FullRandom)
                             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);

@@ -185,6 +185,8 @@ namespace src.player.skills
 
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
         {
+            if (SkillsInfo.GetValue<bool>(skillName, "disableOnFreezeTime") && SkillUtils.IsFreezeTime()) return;
+
             if (damagedEntity == null || damagedEntity.Entity == null || damageInfo == null || damageInfo.Attacker == null || damageInfo.Attacker.Value == null)
                 return;
 

@@ -135,7 +135,7 @@ namespace src.player.skills
                 var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
                 if (target != null && target.IsValid)
                 {
-                    if (target.PawnIsAlive && !SkillUtils.IsFreezeTime())
+                    if (target.PawnIsAlive)
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("jetkick_disable_info"));
                 }
                 targetedPlayers.TryRemove(targetIndex, out _);
