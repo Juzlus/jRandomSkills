@@ -98,6 +98,7 @@ namespace src.player
                     !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
                     Instance.SkillAction("Fortnite", "OnTakeDamage", args);
 
+                SkillUtils.ApplyNativeKill(entity, info);
                 return HookResult.Continue;
             }
         }

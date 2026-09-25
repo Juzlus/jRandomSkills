@@ -1,7 +1,6 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using RayTraceAPI;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -104,19 +103,7 @@ namespace src.player.skills
 
         private static void DestroyWire(uint beamIndex)
         {
-            var beam = Utilities.GetEntityFromIndex<CBeam>((int)beamIndex);
-            if (beam != null && beam.IsValid)
-            {
-                beam.Width = 0;
-                beam.EndWidth = 0;
-                beam.Render = Color.FromArgb(0, 0, 0, 0);
-
-                Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
-                Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
-                Utilities.SetStateChanged(beam, "CBaseModelEntity", "m_clrRender");
-            }
-
-            EntityManager.DestroyEntity(beamIndex);
+            EntityManager.DestroyBeam(beamIndex);
         }
 
         public static void UseSkill(CCSPlayerController player)
@@ -175,7 +162,7 @@ namespace src.player.skills
             Vector rightDir = SkillUtils.GetForwardVector(new QAngle(0, yaw - 90, 0));
             Vector leftDir = SkillUtils.GetForwardVector(new QAngle(0, yaw + 90, 0));
 
-            ulong wallMask = (ulong)InteractionLayers.MASK_WORLD_ONLY;
+            ulong wallMask = RayTrace.WorldOnlyMask;
 
             var rightHit = RayTrace.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
             var leftHit = RayTrace.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);

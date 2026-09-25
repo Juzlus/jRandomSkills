@@ -1,8 +1,7 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
-using RayTraceAPI;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -22,7 +21,7 @@ namespace src.player.skills
         private static readonly List<Flight> flights = [];
         private static readonly object flightLock = new();
         private static readonly Color tracerColor = Color.FromArgb(170, 255, 226, 140);
-        private static readonly ulong worldOnlyMask = (ulong)InteractionLayers.MASK_WORLD_ONLY;
+        private static readonly ulong worldOnlyMask = RayTrace.WorldOnlyMask;
 
         public static void LoadSkill()
         {

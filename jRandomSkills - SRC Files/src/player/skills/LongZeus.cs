@@ -10,10 +10,12 @@ namespace src.player.skills
     public class LongZeus : ISkill
     {
         private const Skills skillName = Skills.LongZeus;
+        private const string shockParticle = "particles/blood_impact/impact_taser_bodyfx.vpcf";
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            Instance.AddToManifest(shockParticle);
         }
 
         public unsafe static void WeaponFire(EventWeaponFire @event)
@@ -40,7 +42,12 @@ namespace src.player.skills
             if (target.Handle == player.Handle) return;
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
 
-            SkillUtils.TakeHealth(target.PlayerPawn.Value, 9999, player, KillfeedIcons.Taser);
+            var targetPawn = target.PlayerPawn.Value;
+            if (targetPawn == null || !targetPawn.IsValid) return;
+
+            EntityManager.CreateEntityParticle(player.Index, shockParticle, targetPawn);
+            SkillUtils.RegisterNativeKill(targetPawn, pawn, activeWeapon, DamageTypes_t.DMG_SHOCK);
+            SkillUtils.TakeHealth(targetPawn, 9999);
         }
 
         public static void EnableSkill(CCSPlayerController player)

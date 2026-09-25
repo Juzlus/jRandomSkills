@@ -42,6 +42,7 @@ namespace src.player
 
         private static void OnMapStart(string mapName)
         {
+            skills.NoRecoil.ForgetSpread();
             PlayerManager.SetServerActive(true);
             Instance.GameRules = null;
             Event.OnMapChange();
@@ -50,6 +51,8 @@ namespace src.player
 
         private static void OnMapEnd()
         {
+            skills.NoRecoil.RestoreSpread();
+            skills.NoRecoil.ForgetSpread();
             PerfLog.Info("===== MAP END (clean map change) =====");
             Debug.WriteToDebug("===== MAP END (clean map change) =====");
             BotManager.Stop();

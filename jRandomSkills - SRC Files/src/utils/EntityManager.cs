@@ -1,10 +1,12 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.player;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using static src.jRandomSkills;
 
 namespace src.utils
@@ -132,6 +134,67 @@ namespace src.utils
             catch (Exception ex)
             {
                 LogEntityError($"CreateTrackedParticleSystem: {ex.Message}");
+                return null;
+            }
+        }
+
+        public static CParticleSystem? CreateTracer(uint playerIndex, string particleName, Vector start, Vector end, float lifetime = 1f)
+        {
+            try
+            {
+                if (OverBudget()) return null;
+                var particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system");
+                if (particle == null || !particle.IsValid) return null;
+
+                particle.EffectName = particleName;
+                particle.StartActive = true;
+                particle.Teleport(start);
+
+                var controlPoint = new Vector(particle.Handle + Schema.GetSchemaOffset("CParticleSystem", "m_vServerControlPoints"));
+                controlPoint.X = end.X;
+                controlPoint.Y = end.Y;
+                controlPoint.Z = end.Z;
+                particle.ServerControlPointAssignments[0] = 1;
+
+                particle.DispatchSpawn();
+
+                RegisterEntity(particle.Index, playerIndex, "tracer");
+                ScheduleAutoDestroy(particle.Index, lifetime);
+                return particle;
+            }
+            catch (Exception ex)
+            {
+                LogEntityError($"CreateTracer: {ex.Message}");
+                return null;
+            }
+        }
+
+        public static CParticleSystem? CreateEntityParticle(uint playerIndex, string particleName, CBaseEntity target, float lifetime = 5f)
+        {
+            try
+            {
+                if (OverBudget() || target.AbsOrigin == null) return null;
+                var particle = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system");
+                if (particle == null || !particle.IsValid) return null;
+
+                particle.EffectName = particleName;
+                particle.StartActive = true;
+                particle.Teleport(target.AbsOrigin);
+
+                nint controlPointEnts = particle.Handle + Schema.GetSchemaOffset("CParticleSystem", "m_hControlPointEnts");
+                Marshal.WriteInt32(controlPointEnts, (int)target.EntityHandle.Raw);
+                Marshal.WriteInt32(controlPointEnts + 4, (int)target.EntityHandle.Raw);
+
+                particle.DispatchSpawn();
+                particle.AcceptInput("SetParent", target, particle, "!activator");
+
+                RegisterEntity(particle.Index, playerIndex, "particle_system");
+                ScheduleAutoDestroy(particle.Index, lifetime);
+                return particle;
+            }
+            catch (Exception ex)
+            {
+                LogEntityError($"CreateEntityParticle: {ex.Message}");
                 return null;
             }
         }
@@ -295,7 +358,7 @@ namespace src.utils
 
         public static bool SuppressKills = false;
 
-        public static bool DestroyEntity(uint entityIndex, float delay = 0.1f)
+        public static bool DestroyEntity(uint entityIndex, float delay = 0.1f, bool hideFromTransmit = true)
         {
             bool wasTracked = trackedEntities.TryRemove(entityIndex, out var removed);
 
@@ -310,7 +373,8 @@ namespace src.utils
                 var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
                 if (entity != null && entity.IsValid)
                 {
-                    recentlyDestroyed[entityIndex] = new DyingEntity(DateTime.UtcNow.AddSeconds(delay + 0.5), entity.EntityHandle.Raw);
+                    if (hideFromTransmit)
+                        recentlyDestroyed[entityIndex] = new DyingEntity(DateTime.UtcNow.AddSeconds(delay + 0.5), entity.EntityHandle.Raw);
                     // Detach first so no follower is left on a freed parent.
                     entity.AcceptInput("ClearParent");
                     entity.AddEntityIOEvent("Kill", entity, delay: delay);
@@ -346,7 +410,7 @@ namespace src.utils
                 LogEntityError($"DestroyBeam {entityIndex}: {ex.Message}");
             }
 
-            bool killed = DestroyEntity(entityIndex);
+            bool killed = DestroyEntity(entityIndex, hideFromTransmit: false);
 
             if (!SuppressKills)
                 Server.NextFrame(() =>
