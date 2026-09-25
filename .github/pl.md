@@ -442,7 +442,7 @@ Plugin korzysta z zawartości następujących projektów:
     - **Krucha Bomba** - Podłożone bomby są teraz wykrywane poprawnie, a trajektoria pocisku jest prawidłowo sprawdzana.
     - **"Linka z Drutu** - Wiązki są teraz poprawnie usuwane po zmianie umiejętności.
 
-**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#58](https://github.com/Juzlus/jRandomSkills/pull/58). Dziękujemy ByDexterTR!**
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#61](https://github.com/Juzlus/jRandomSkills/pull/61). Dziękujemy ByDexterTR!**
 
 </details>
 
