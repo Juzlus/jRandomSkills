@@ -223,9 +223,14 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
             Game csgo
         ```
 3. Install **CounterStrikeSharp**.
-    - Download [CounterStrikeSharp-With-Runtime](https://github.com/roflmuffin/CounterStrikeSharp/releases) (v1.0.375 or newer).
+    - Download [CounterStrikeSharp-With-Runtime](https://github.com/roflmuffin/CounterStrikeSharp/releases).
     - Extract it to the `C2Server/game/csgo/` folder.
-4. Install **jRandomSkills**
+4. Install **Ray-Trace**
+    - Download [RayTrace-CSS-API](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
+    - Extract folder `conterstrikesharp` to the `CS2Server/game/csgo/addons/` folder.
+    - Download [RayTrace-MM](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
+    - Extract it to the `CS2Server/game/csgo/addons/` folder.
+5. Install **jRandomSkills**
     - Download [jRandomSkills](https://github.com/Juzlus/jRandomSkills/releases)
 
 ## </> Server Commands
@@ -436,6 +441,27 @@ This plugin uses content from the following projects:
 </div>
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.4.b3</b></summary>
+
+- #### General
+    - Updated compatibility with **CounterStrikeSharp v1.0.375**.
+    - **Removed RayTrace-CSS-API / RayTrace-MM** (ray tracing is now built into CounterStrikeSharp).
+    - **Updated gamedata** signatures and offsets for Windows/Linux.
+    - Skill distribution failures are now logged and retried.
+    - Spectators without a pawn are excluded from connected-player checks.
+
+- #### Skill Fixes
+    - **No Recoil** - Spread and inaccuracy are now disabled server-side for accurate shots.
+    - **Long Zeus** - Kills now correctly count as Zeus kills, including killfeed, sound and ragdoll effects.
+    - **Long Knife** - Long-range hits now show a tracer.
+    - **Fragile Bomb** - Planted bombs are detected reliably and bullet paths are checked correctly.
+    - **Tripwire** - Beams are now removed correctly when the skill changes.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#61](https://github.com/Juzlus/jRandomSkills/pull/61). Thanks to ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.4.b2</b></summary>

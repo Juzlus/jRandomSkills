@@ -443,6 +443,27 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.4.b3</b></summary>
+
+- #### Ogólne
+    - Zaktualizowano kompatybilność z **CounterStrikeSharp v1.0.375**.
+    - **Usunięto RayTrace-CSS-API / RayTrace-MM** (ray tracing jest teraz wbudowany w CounterStrikeSharp).
+    - **Zaktualizowano gamedata** - sygnatury i offsety dla Windows/Linux.
+    - Obserwatorzy bez pawna nie są już uwzględniani podczas sprawdzania liczby połączonych graczy.
+    - Błędy podczas przydzielania umiejętności są teraz obserwowane i ponawiane.
+
+- #### Poprawki mocy
+    - **Skupienie** - Rozrzut i niecelność są teraz wyłączane również po stronie serwera, zapewniając celniejsze strzały.
+    - **Długi Zeus** - Zabójstwa są teraz poprawnie zaliczane jako zabójstwa z Zeusa, wraz z killfeedem, dźwiękiem i efektami ragdolla.
+    - **Długi Nóż** - Trafienia z dużego dystansu pokazują teraz ślad.
+    - **Krucha Bomba** - Podłożone bomby są teraz wykrywane poprawnie, a trajektoria pocisku jest prawidłowo sprawdzana.
+    - **"Linka z Drutu** - Wiązki są teraz poprawnie usuwane po zmianie umiejętności.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#58](https://github.com/Juzlus/jRandomSkills/pull/58). Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.4.b2</b></summary>
 
 - #### Ogólne
