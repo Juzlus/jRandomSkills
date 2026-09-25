@@ -1,44 +1,43 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
-using RayTraceAPI;
 using System.Drawing;
 using System.Numerics;
-using TraceOptions = RayTraceAPI.TraceOptions;
-using TraceResult = RayTraceAPI.TraceResult;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.utils
 {
     public static class RayTrace
     {
-        private static PluginCapability<CRayTraceInterface> RayTraceInterface { get; } = new("raytrace:craytraceinterface");
+        public const ulong WorldOnlyMask = (ulong)(Contents.Solid | Contents.Window | Contents.PassBullets);
 
-        private static bool missingModuleLogged;
+        private static bool traceFailureLogged;
 
-        private static CRayTraceInterface? GetInterface()
+        public static bool IsAvailable => true;
+
+        private static bool TryTraceHull(Vector startPos, Vector endPos, Vector mins, Vector maxs, CBaseEntity? ignore, ulong mask, ulong contents, out TraceResult result)
         {
             try
             {
-                var rayTrace = RayTraceInterface.Get();
-                if (rayTrace != null) return rayTrace;
+                result = Trace.TraceHullShape(startPos, endPos, mins, maxs, ignore, new TraceOptions
+                {
+                    InteractsWith = (Contents)mask,
+                    InteractsExclude = (Contents)contents,
+                });
+                return true;
             }
-            catch { }
-
-            if (!missingModuleLogged)
+            catch (Exception ex)
             {
-                missingModuleLogged = true;
-                Server.PrintToConsole("[jRandomSkills] RayTrace module not found - skills that need it do nothing: " +
-                    "LongZeus, LongKnife, Iana, Cypher, Noclip, Shade (and the skill-use button's aim check). " +
-                    "Install RayTrace-CSS-API and RayTrace-MM: https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases");
+                result = default;
+                if (!traceFailureLogged)
+                {
+                    traceFailureLogged = true;
+                    Server.PrintToConsole($"[jRandomSkills] Native trace failed: {ex.Message}");
+                }
+                return false;
             }
-
-            return null;
         }
-
-        public static bool IsAvailable => GetInterface() != null;
 
         public static CustomTraceResult? TraceShape(CCSPlayerController player, Vector startPos, Vector endPos, ulong? mask = null, ulong? contents = null)
         {
@@ -53,54 +52,39 @@ namespace src.utils
                 playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
-            var rayTrace = GetInterface();
-            if (rayTrace == null)
-                return null;
-
             if (mask == null)
             {
                 try
                 {
                     if (playerPawn.Collision?.CollisionAttribute != null)
                     {
-                        mask = playerPawn.Collision.CollisionAttribute.InteractsWith | (ulong)InteractionLayers.Hitboxes;
-                        mask &= ~(ulong)InteractionLayers.PlayerClip;
+                        mask = playerPawn.Collision.CollisionAttribute.InteractsWith | (ulong)Contents.Hitbox;
+                        mask &= ~(ulong)Contents.PlayerClip;
                     }
                     else
-                        mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Hitboxes);
+                        mask = (ulong)(Contents.Solid | Contents.Hitbox);
                 }
                 catch
                 {
-                    mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Hitboxes);
+                    mask = (ulong)(Contents.Solid | Contents.Hitbox);
                 }
             }
             contents ??= 0;
 
             bool drawBeam = Config.LoadedConfig.TraceRayBeam;
 
-            TraceOptions options = new()
-            {
-                InteractsWith = (ulong)mask,
-                InteractsExclude = (ulong)contents,
-                DrawBeam = drawBeam == true ? 1 : 0,
-            };
-
             Vector mins = new(-0.5f, -0.5f, -0.5f);
             Vector maxs = new(0.5f, 0.5f, 0.5f);
 
-            TraceResult result = default;
-
-            try
-            {
-                rayTrace.TraceHullShape(startPos, endPos, mins, maxs, playerPawn, options, out result);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[jRandomSkills] A memory error was caught during RayTrace: {ex.Message}");
+            if (!TryTraceHull(startPos, endPos, mins, maxs, playerPawn, (ulong)mask, (ulong)contents, out var result))
                 return null;
-            }
 
-            return new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
+            var traced = new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
+
+            if (drawBeam)
+                CreateBeamLine(startPos, new Vector(traced.EndPosX, traced.EndPosY, traced.EndPosZ), traced.DidHit ? Color.Red : Color.Green);
+
+            return traced;
         }
 
         public static CustomTraceResult? EyeTrace(CCSPlayerController player)
@@ -136,10 +120,6 @@ namespace src.utils
                 playerPawn.CBodyComponent?.SceneNode == null)
                 return null;
 
-            var rayTrace = GetInterface();
-            if (rayTrace == null)
-                return null;
-
             Vector safeMins = mins ?? playerPawn.Collision.Mins;
             Vector safeMaxs = maxs ?? playerPawn.Collision.Maxs;
 
@@ -148,26 +128,8 @@ namespace src.utils
 
             bool drawBeam = Config.LoadedConfig.TraceRayBeam;
 
-            TraceResult result = default;
-            TraceOptions options = new()
-            {
-                InteractsWith = safeMask,
-                InteractsExclude = safeContents,
-                DrawBeam = drawBeam == true ? 1 : 0,
-            };
-
-            CEntityInstance? entityToIgnore = (playerPawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
-                                      ? playerPawn
-                                      : null;
-
-            try
-            {
-                rayTrace.TraceHullShape(startPos, endPos, safeMins, safeMaxs, entityToIgnore, options, out result);
-            }
-            catch (Exception)
-            {
+            if (!TryTraceHull(startPos, endPos, safeMins, safeMaxs, playerPawn, safeMask, safeContents, out var result))
                 return null;
-            }
 
             if (drawBeam)
             {
@@ -260,6 +222,12 @@ namespace src.utils
 
         public static bool HitEntityByDesignerName<T>(this CustomTraceResult result, out T? entity, string designerName, DesignerNameMatchType matchType = DesignerNameMatchType.Equals) where T : CEntityInstance
         {
+            if (result.HitEntity == IntPtr.Zero)
+            {
+                entity = null;
+                return false;
+            }
+
             T? val = (T?)Activator.CreateInstance(typeof(T), result.HitEntity);
             if ((object?)val != null && matchType switch
             {
@@ -279,6 +247,12 @@ namespace src.utils
 
         public static bool HitEntity(this CustomTraceResult result, out CBaseEntity? entity)
         {
+            if (result.HitEntity == IntPtr.Zero)
+            {
+                entity = null;
+                return false;
+            }
+
             CEntityInstance entityInstance = new(result.HitEntity);
             if (string.IsNullOrEmpty(entityInstance.DesignerName))
             {

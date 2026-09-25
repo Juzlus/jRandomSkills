@@ -6,7 +6,6 @@ using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
-using RayTraceAPI;
 using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
@@ -108,6 +107,7 @@ namespace src.player
             TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
             TryUnhook(() => Instance.UnhookUserMessage(208, PlayerMakeSound));
             TryUnhook(() => Instance.RemoveListener<CheckTransmit>(CheckTransmit));
+            TryUnhook(NoRecoil.RestoreSpread);
         }
 
         private static void TryUnhook(Action unhook)
@@ -507,6 +507,7 @@ namespace src.player
         private static void OnTick()
         {
             ReportStall();
+            NoRecoil.RestoreSpread();
 
             long perfStart = PerfLog.Start();
             lock (setLock)
@@ -794,7 +795,7 @@ namespace src.player
                     Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
                     Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * 80;
 
-                    ulong mask = (ulong)(InteractionLayers.MASK_WORLD_ONLY | InteractionLayers.Player | InteractionLayers.NPC);
+                    ulong mask = RayTrace.WorldOnlyMask | (ulong)(Contents.Player | Contents.Npc);
                     ulong contents = 0;
                     var result = RayTrace.TraceShape(player, eyePos, endPos, mask, contents);
 

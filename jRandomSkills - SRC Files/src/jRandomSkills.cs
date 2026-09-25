@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.4.b2";
+        public override string ModuleVersion => "1.2.4.b3";
 
         public override void Load(bool hotReload)
         {
@@ -280,9 +280,6 @@ namespace src
                 { "WASDMenuAPI", "./WASDMenuAPI.dll" },
                 { "MaxMind", "./MaxMind.Db.dll" },
                 { "GeoLite2", "./packages/GeoLite2-Country.mmdb" },
-                { "RayTraceApi", "./../../shared/RayTraceApi/RayTraceApi.dll" },
-                { "RayTraceImpl", "./../../plugins/RayTraceImpl/RayTraceImpl.dll" },
-                { "RayTrace MetaMod", "./../../../metamod/RayTrace.vdf" },
                 { "jRandomSkills gamedata", "./../../gamedata/jRandomSkills.gamedata.json" }
             };
 

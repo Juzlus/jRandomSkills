@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using RayTraceAPI;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -341,7 +340,7 @@ namespace src.player.skills
             Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + playerPawn.ViewOffset.Z);
             Vector endPos = eyePos + SkillUtils.GetForwardVector(playerPawn.V_angle) * 4096f;
 
-            ulong mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Window | InteractionLayers.PassBullets);
+            ulong mask = (ulong)(Contents.Solid | Contents.Window | Contents.PassBullets);
             var result = RayTrace.TraceShape(player, eyePos, endPos, mask);
 
             if (result.HasValue && result.Value.HitWorld(out _))
@@ -370,7 +369,7 @@ namespace src.player.skills
             Vector endPos = cameraVector + SkillUtils.GetForwardVector(new QAngle(0, playerPawn.V_angle.Y + 180, 0)) * -5;
             cameraVector += SkillUtils.GetForwardVector(new QAngle(0, playerPawn.V_angle.Y + 180, 0)) * 5;
 
-            ulong mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Window | InteractionLayers.PassBullets);
+            ulong mask = (ulong)(Contents.Solid | Contents.Window | Contents.PassBullets);
             var result = RayTrace.TraceShape(player, cameraVector, endPos, mask);
 
             if (result.HasValue && result.Value.HitWorld(out _))

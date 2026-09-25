@@ -482,9 +482,48 @@ namespace src.utils
             return true;
         }
 
+        public static void CreateTracer(CCSPlayerController player, string particleName, CustomTraceResult result)
+        {
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
+
+            Vector forward = GetForwardVector(pawn.EyeAngles);
+            Vector start = new(pawn.AbsOrigin.X + forward.X * 16, pawn.AbsOrigin.Y + forward.Y * 16, pawn.AbsOrigin.Z + pawn.ViewOffset.Z - 6);
+            Vector end = new(result.EndPos.X, result.EndPos.Y, result.EndPos.Z);
+
+            EntityManager.CreateTracer(player.Index, particleName, start, end);
+        }
+
         public static void ClearKillCredits()
         {
             pendingKillCredits.Clear();
+            pendingNativeKills.Clear();
+        }
+
+        private static readonly ConcurrentDictionary<uint, (uint AttackerHandle, uint InflictorHandle, DamageTypes_t DamageType, int ExpiryTick)> pendingNativeKills = [];
+
+        public static void RegisterNativeKill(CCSPlayerPawn victimPawn, CBaseEntity attacker, CBaseEntity inflictor, DamageTypes_t damageType)
+        {
+            pendingNativeKills[victimPawn.Index] = (attacker.EntityHandle.Raw, inflictor.EntityHandle.Raw, damageType, Server.TickCount + 64);
+        }
+
+        public static void ApplyNativeKill(CEntityInstance victim, CTakeDamageInfo info)
+        {
+            if (pendingNativeKills.IsEmpty) return;
+            if (!pendingNativeKills.TryGetValue(victim.Index, out var kill)) return;
+
+            if (kill.ExpiryTick < Server.TickCount)
+            {
+                pendingNativeKills.TryRemove(victim.Index, out _);
+                return;
+            }
+
+            if (info.Attacker.Value?.Handle != victim.Handle) return;
+
+            pendingNativeKills.TryRemove(victim.Index, out _);
+            info.Attacker.Raw = kill.AttackerHandle;
+            info.Inflictor.Raw = kill.InflictorHandle;
+            info.BitsDamageType = kill.DamageType;
         }
 
         private static readonly HashSet<string> bulletWeapons = new(StringComparer.Ordinal)

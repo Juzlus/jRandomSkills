@@ -1,30 +1,55 @@
-﻿using RayTraceAPI;
+﻿using CounterStrikeSharp.API.Modules.Utils;
 using System.Numerics;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace jRandomSkills.src.utils
 {
-    public struct CustomTraceResult(TraceResult result, Vector startPos, ulong mask, ulong contents, bool drawBeam)
+    public struct CustomTraceResult
     {
-        public float StartPosX = startPos.X;
-        public float StartPosY = startPos.Y;
-        public float StartPosZ = startPos.Z;
+        public float StartPosX;
+        public float StartPosY;
+        public float StartPosZ;
 
-        public float EndPosX = result.EndPosX;
-        public float EndPosY = result.EndPosY;
-        public float EndPosZ = result.EndPosZ;
+        public float EndPosX;
+        public float EndPosY;
+        public float EndPosZ;
 
-        public nint HitEntity = result.HitEntity;
-        public float Fraction = result.Fraction;
-        public int AllSolid = result.AllSolid;
+        public nint HitEntity;
+        public float Fraction;
+        public int AllSolid;
 
-        public float NormalX = result.NormalX;
-        public float NormalY = result.NormalY;
-        public float NormalZ = result.NormalZ;
+        public float NormalX;
+        public float NormalY;
+        public float NormalZ;
 
-        public ulong InteractsWith = mask;
-        public ulong InteractsExclude = contents;
-        public bool DrawBeam = drawBeam;
+        public ulong InteractsWith;
+        public ulong InteractsExclude;
+        public bool DrawBeam;
+
+        public CustomTraceResult(TraceResult result, Vector startPos, ulong mask, ulong contents, bool drawBeam)
+        {
+            StartPosX = startPos.X;
+            StartPosY = startPos.Y;
+            StartPosZ = startPos.Z;
+
+            var end = result.EndPos;
+            EndPosX = end.X;
+            EndPosY = end.Y;
+            EndPosZ = end.Z;
+
+            var normal = result.Normal;
+            NormalX = normal.X;
+            NormalY = normal.Y;
+            NormalZ = normal.Z;
+
+            HitEntity = result.HitEntity().Handle;
+            Fraction = result.Fraction;
+            AllSolid = result.IsAllSolid ? 1 : 0;
+
+            InteractsWith = mask;
+            InteractsExclude = contents;
+            DrawBeam = drawBeam;
+        }
 
         public readonly Vector3 StartPos => new(StartPosX, StartPosY, StartPosZ);
         public readonly Vector3 EndPos => new(EndPosX, EndPosY, EndPosZ);

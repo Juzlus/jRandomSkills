@@ -7,7 +7,6 @@ using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
-using RayTraceAPI;
 using src.player.skills;
 using src.utils;
 using System.Collections.Concurrent;
@@ -98,14 +97,14 @@ namespace src.player
         {
             lock (setLock)
             {
-                bool isWarmup = Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true;
+                bool isWarmup = IsWarmupPeriod();
                 isTransmitRegistered = false;
                 setSkillRetries = 0;
                 SkillUtils.ClearKillCredits();
                 SkillUtils.ClearCurses();
                 Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist))
+                foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && InPlayingTeam(p)))
                 {
                     var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (skillPlayer == null) continue;
@@ -115,18 +114,21 @@ namespace src.player
 
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
                 int freezetime = SkillUtils.CvarValue("mp_freezetime", 0);
-                freezeTimeEnd = DateTime.Now.AddSeconds(freezetime + (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0));
+                int introDelay = IsTeamIntroPeriod() ? 7 : 0;
+                freezeTimeEnd = DateTime.Now.AddSeconds(freezetime + introDelay);
 
                 setSkillTimer?.Kill();
 
                 if (isWarmup)
                 {
                     setSkillTimer = Instance?.AddTimer(1f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                    Debug.WriteToDebug("RoundStart: warmup, SetSkill scheduled in 1.00s.", DebugCategory.Round);
                     return HookResult.Continue;
                 }
 
-                float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
+                float timeToDraw = introDelay + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
                 setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                Debug.WriteToDebug($"RoundStart: SetSkill scheduled in {timeToDraw:F2}s (freezetime={freezetime}, intro={introDelay}, timer={(setSkillTimer == null ? "null" : "ok")}).", DebugCategory.Round);
                 return HookResult.Continue;
             }
         }
@@ -293,7 +295,22 @@ namespace src.player
         private static void SetSkill()
         {
             long perfStart = PerfLog.Start();
-            SetSkillCore();
+
+            try
+            {
+                SetSkillCore();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteToDebug($"SetSkill threw: {ex}", DebugCategory.Skill);
+
+                if (setSkillRetries < MaxSetSkillRetries)
+                {
+                    setSkillRetries++;
+                    setSkillTimer = Instance?.AddTimer(.5f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                }
+            }
+
             PerfLog.End("SetSkill total", perfStart, 2.0);
         }
 
@@ -472,8 +489,44 @@ namespace src.player
 
         private static int CountConnectedPlayers()
         {
-            try { return Utilities.GetPlayers().Count(p => p != null && p.IsValid && !p.IsHLTV); }
+            try
+            {
+                return Utilities.GetPlayers().Count(p =>
+                {
+                    if (p == null || !p.IsValid || p.IsHLTV) return false;
+                    var pawn = p.PlayerPawn?.Value;
+                    return pawn != null && pawn.IsValid;
+                });
+            }
             catch { return 0; }
+        }
+
+        private static bool InPlayingTeam(CCSPlayerController player)
+        {
+            try { return player.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; }
+            catch { return false; }
+        }
+
+        private static bool IsWarmupPeriod()
+        {
+            try
+            {
+                var gameRules = Instance?.GameRules;
+                if (gameRules == null || gameRules.Handle == IntPtr.Zero) return true;
+                return gameRules.WarmupPeriod;
+            }
+            catch { return true; }
+        }
+
+        private static bool IsTeamIntroPeriod()
+        {
+            try
+            {
+                var gameRules = Instance?.GameRules;
+                if (gameRules == null || gameRules.Handle == IntPtr.Zero) return false;
+                return gameRules.TeamIntroPeriod;
+            }
+            catch { return false; }
         }
 
         private static void SetSkillCore()
@@ -484,7 +537,7 @@ namespace src.player
                 if (Instance == null) return;
 
                 // GameRules null = not ready; keep polling so skills land right after warmup ends.
-                if (Instance.GameRules == null || Instance.GameRules.WarmupPeriod == true)
+                if (IsWarmupPeriod())
                 {
                     if (++gameRulesPolls % 10 == 0)
                         Debug.WriteToDebug($"SetSkill waiting: gameRules={(Instance.GameRules == null ? "null" : "warmup")}, poll {gameRulesPolls}.", DebugCategory.Skill);

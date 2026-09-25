@@ -15,6 +15,7 @@ namespace src.player.skills
         private const string victimSound = "Player.DamageBody.Victim";
         private const string heavyHitSound = "Weapon_Knife.Hit.Heavy.Flesh";
         private const string lightHitSound = "Weapon_Knife.Hit.Light.Flesh";
+        private const string tracerParticle = "particles/weapons/cs_weapon_fx/weapon_tracers_rifle_wisp.vpcf";
 
         private static bool hooked = false;
         private const int actionCode = 503;
@@ -30,6 +31,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            Instance.AddToManifest(tracerParticle);
         }
 
         public static void NewRound()
@@ -112,6 +114,9 @@ namespace src.player.skills
             var result = RayTrace.EyeTrace(player);
             if (result == null || !result.HasValue)
                 return;
+
+            if (result.Value.Distance() > 70)
+                SkillUtils.CreateTracer(player, tracerParticle, result.Value);
 
             if (!result.Value.HitPlayer(out CCSPlayerController? target) || target == null)
                 return;

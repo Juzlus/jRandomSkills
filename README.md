@@ -223,14 +223,9 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
             Game csgo
         ```
 3. Install **CounterStrikeSharp**.
-    - Download [CounterStrikeSharp-With-Runtime](https://github.com/roflmuffin/CounterStrikeSharp/releases).
+    - Download [CounterStrikeSharp-With-Runtime](https://github.com/roflmuffin/CounterStrikeSharp/releases) (v1.0.375 or newer).
     - Extract it to the `C2Server/game/csgo/` folder.
-4. Install **Ray-Trace**
-    - Download [RayTrace-CSS-API](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
-    - Extract folder `conterstrikesharp` to the `CS2Server/game/csgo/addons/` folder.
-    - Download [RayTrace-MM](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
-    - Extract it to the `CS2Server/game/csgo/addons/` folder.
-5. Install **jRandomSkills**
+4. Install **jRandomSkills**
     - Download [jRandomSkills](https://github.com/Juzlus/jRandomSkills/releases)
 
 ## </> Server Commands

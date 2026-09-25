@@ -17,6 +17,27 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, byte> holders = [];
         private static readonly ConcurrentDictionary<uint, string> originalNoSpreadValues = [];
 
+        private sealed class SpreadPatch(CCSWeaponBaseVData vdata)
+        {
+            public readonly CCSWeaponBaseVData VData = vdata;
+            public readonly CFiringModeFloat[] Fields =
+            [
+                vdata.Spread, vdata.InaccuracyCrouch, vdata.InaccuracyStand, vdata.InaccuracyJump,
+                vdata.InaccuracyLand, vdata.InaccuracyLadder, vdata.InaccuracyFire, vdata.InaccuracyMove
+            ];
+            public readonly float[] Values = new float[16];
+            public int Count;
+            public float JumpInitial;
+            public float JumpApex;
+            public float Reload;
+            public bool Active;
+        }
+
+        private static readonly Dictionary<nint, SpreadPatch> spreadPatches = [];
+        private static readonly List<SpreadPatch> activePatches = [];
+        private static readonly Dictionary<nint, CCSWeaponBaseVData> wantedVData = [];
+        private static readonly HashSet<nint> blockedVData = [];
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -81,6 +102,106 @@ namespace src.player.skills
                 originalNoSpreadValues.TryRemove(player.Index, out _);
             }
             catch { }
+        }
+
+        public static void OnTick()
+        {
+            if (holders.IsEmpty) return;
+
+            wantedVData.Clear();
+            blockedVData.Clear();
+
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
+
+                var vdata = GetActiveWeaponVData(player);
+                if (vdata == null) continue;
+
+                bool isHolder = holders.ContainsKey(player.Index) && PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName;
+                if (isHolder)
+                    wantedVData[vdata.Handle] = vdata;
+                else
+                    blockedVData.Add(vdata.Handle);
+            }
+
+            foreach (var (handle, vdata) in wantedVData)
+            {
+                if (!blockedVData.Contains(handle))
+                    PatchSpread(vdata);
+            }
+        }
+
+        private static CCSWeaponBaseVData? GetActiveWeaponVData(CCSPlayerController player)
+        {
+            var weapon = player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            if (weapon == null || !weapon.IsValid) return null;
+
+            var vdata = weapon.As<CCSWeaponBase>().VData;
+            return vdata == null || vdata.Handle == IntPtr.Zero ? null : vdata;
+        }
+
+        private static void PatchSpread(CCSWeaponBaseVData vdata)
+        {
+            if (!spreadPatches.TryGetValue(vdata.Handle, out var patch))
+            {
+                patch = new SpreadPatch(vdata);
+                spreadPatches[vdata.Handle] = patch;
+            }
+
+            if (patch.Active) return;
+
+            int index = 0;
+            foreach (var field in patch.Fields)
+            {
+                var values = field.Values;
+                for (int i = 0; i < values.Length && index < patch.Values.Length; i++)
+                {
+                    patch.Values[index++] = values[i];
+                    values[i] = 0f;
+                }
+            }
+
+            patch.Count = index;
+            patch.JumpInitial = vdata.InaccuracyJumpInitial;
+            patch.JumpApex = vdata.InaccuracyJumpApex;
+            patch.Reload = vdata.InaccuracyReload;
+
+            vdata.InaccuracyJumpInitial = 0f;
+            vdata.InaccuracyJumpApex = 0f;
+            vdata.InaccuracyReload = 0f;
+
+            patch.Active = true;
+            activePatches.Add(patch);
+        }
+
+        public static void RestoreSpread()
+        {
+            if (activePatches.Count == 0) return;
+
+            foreach (var patch in activePatches)
+            {
+                int index = 0;
+                foreach (var field in patch.Fields)
+                {
+                    var values = field.Values;
+                    for (int i = 0; i < values.Length && index < patch.Count; i++)
+                        values[i] = patch.Values[index++];
+                }
+
+                patch.VData.InaccuracyJumpInitial = patch.JumpInitial;
+                patch.VData.InaccuracyJumpApex = patch.JumpApex;
+                patch.VData.InaccuracyReload = patch.Reload;
+                patch.Active = false;
+            }
+
+            activePatches.Clear();
+        }
+
+        public static void ForgetSpread()
+        {
+            activePatches.Clear();
+            spreadPatches.Clear();
         }
 
         public static void WeaponFire(EventWeaponFire @event)
