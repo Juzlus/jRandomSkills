@@ -795,7 +795,7 @@ namespace src.player
                     Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
                     Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * 80;
 
-                    ulong mask = RayTrace.WorldOnlyMask | (ulong)(Contents.Player | Contents.Npc);
+                    ulong mask = (ulong)Masks.SolidBrushOnly | (ulong)(Contents.Player | Contents.Npc);
                     ulong contents = 0;
                     var result = RayTrace.TraceShape(player, eyePos, endPos, mask, contents);
 

@@ -21,7 +21,7 @@ namespace src.player.skills
         private static readonly List<Flight> flights = [];
         private static readonly object flightLock = new();
         private static readonly Color tracerColor = Color.FromArgb(170, 255, 226, 140);
-        private static readonly ulong worldOnlyMask = RayTrace.WorldOnlyMask;
+        private static readonly ulong worldOnlyMask = (ulong)Masks.SolidBrushOnly;
 
         public static void LoadSkill()
         {

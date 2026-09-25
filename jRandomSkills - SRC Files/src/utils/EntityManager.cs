@@ -467,7 +467,7 @@ namespace src.utils
             DestroyAllTracked();
         }
 
-        private static void ScheduleAutoDestroy(uint entityIndex, float? seconds)
+        public static void ScheduleAutoDestroy(uint entityIndex, float? seconds)
         {
             if (seconds is not > 0) return;
             Instance?.AddTimer(seconds.Value, () => DestroyEntity(entityIndex), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);

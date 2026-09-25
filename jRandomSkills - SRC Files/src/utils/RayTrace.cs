@@ -10,10 +10,9 @@ namespace src.utils
 {
     public static class RayTrace
     {
-        public const ulong WorldOnlyMask = (ulong)(Contents.Solid | Contents.Window | Contents.PassBullets);
 
         private static bool traceFailureLogged;
-
+        
         public static bool IsAvailable => true;
 
         private static bool TryTraceHull(Vector startPos, Vector endPos, Vector mins, Vector maxs, CBaseEntity? ignore, ulong mask, ulong contents, out TraceResult result)
@@ -208,6 +207,9 @@ namespace src.utils
             beam.EndPos.Z = end.Z;
 
             beam.DispatchSpawn();
+
+            EntityManager.RegisterEntity(beam.Index, int.MaxValue, "beam");
+            EntityManager.ScheduleAutoDestroy(beam.Index, 10);
         }
 
         public static float Distance(this CustomTraceResult result)

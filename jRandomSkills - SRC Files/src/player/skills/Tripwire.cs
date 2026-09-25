@@ -162,7 +162,7 @@ namespace src.player.skills
             Vector rightDir = SkillUtils.GetForwardVector(new QAngle(0, yaw - 90, 0));
             Vector leftDir = SkillUtils.GetForwardVector(new QAngle(0, yaw + 90, 0));
 
-            ulong wallMask = RayTrace.WorldOnlyMask;
+            ulong wallMask = (ulong)Masks.SolidBrushOnly;
 
             var rightHit = RayTrace.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
             var leftHit = RayTrace.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
