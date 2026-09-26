@@ -554,7 +554,7 @@ namespace src.utils
             Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
             Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow,
-            Skills.Voodoo, Skills.Nemesis, Skills.Bounty
+            Skills.Voodoo, Skills.Nemesis, Skills.Bounty, Skills.Mute, Skills.Marked
         ];
 
         private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);

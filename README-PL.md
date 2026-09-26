@@ -47,12 +47,13 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Aktualne Supermoce (154)
+## ✨ Aktualne Supermoce (164)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
 | Nazwa                | Opis                                                                                                              | Czas dnowienia  |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------- |
+| Adrenalina           | Każde zabójstwo przywraca 25 punktów zdrowia i daje ci przypływ prędkości na 5 sekund                             | 5 s             |
 | Aim Lock             | Kliknij [css_useSkill], aby wycelować na najbliższego wroga                                                       | 20 s            |
 | Aimbot               | Każdy twój trafiony pocisk liczy się jako strzał w głowę                                                          | -               |
 | Analfabeta           | Dopóki żyjesz, Twoi wrogowie nie potrafią czytać                                                                  | -               |
@@ -104,9 +105,11 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Kamera               | Kliknij [css_useSkill], aby utworzyć lub przełączyć się na kamerę                                                 | 30 s            |
 | Karający             | Gromadzisz część otrzymanych obrażeń i uwalniasz je przy następnym strzale.                                       | 0.5x            |
 | Katapulta            | Masz losową szansę na podrzucenie wroga                                                                           | (20 - 40)%      |
+| Kieszonkowiec        | Każde trafienie wroga kradnie mu 150$                                                                             | 150$            |
 | Klej                 | Twoje granaty przyklejają się do ścian                                                                            | -               |
 | Klątwa Skakania      | Wybrany przeciwnik skacze za każdym razem, gdy skaczą jego sojusznicy                                             | -               |
 | Koszmar              | Wywołaj u wybranego przeciwnika przerażającą wizję                                                                | -               |
+| Kowal                | Otrzymujesz kamizelkę i hełm, a twój pancerz regeneruje się z czasem                                              | -               |
 | Królik               | Otrzymujesz auto "BunnyHopa"                                                                                      | -               |
 | Krucha Bomba         | Strzelanie do bomby powoduje jej uszkodzenie                                                                      | -               |
 | Krótka Bomba         | Bomba wybucha znacznie szybciej                                                                                   | -               |
@@ -126,6 +129,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Mocne Uderzenie      | Naciśnij Attack2 na MP5, aby wystrzelić granat HE                                                                 | 10 s            |
 | Mrok                 | Nadaje efekt ciemności wybranemu przeciwnikowi                                                                    | -               |
 | Naprowadzane Granaty | Twoje granaty, z wyjątkiem dymnych, są przyciągane do wrogów                                                      | -               |
+| Naznaczony           | Wybierz wroga, który otrzymuje o 35% więcej obrażeń, dopóki żyjesz                                                | 1.35x           |
 | Nemezis              | Oznaczony gracz otrzymuje dodatkowe obrażenia.                                                                    | +0.25x          |
 | Nieskończone Ammo    | Otrzymujesz nieskończoną ilość amunicji do wszystkich broni                                                       | -               |
 | Nieważkość           | Twoje granaty nie podlegają grawitacji i lecą szybciej                                                            | -               |
@@ -165,6 +169,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Resp Wroga           | Kliknij [css_useSkill], aby teleportować się na resp wroga                                                        | 15 s            |
 | Robin Hood           | Zadanie obrażeń przeciwnikowi powoduje kradzież jego pieniędzy                                                    | -               |
 | Rozbrojenie          | Masz losową szansę na wyrzucenie broni wroga po trafieniu                                                         | (20 - 35)%      |
+| Rozpęd               | Każde zabójstwo w tej rundzie zwiększa twoje obrażenia o 15% (maks. 5 razy)                                       | +15%            |
 | Rykoszet             | Twoje pociski odbijają się od ścian i nadal mogą trafić przeciwników                                              | -               |
 | Samowolka            | Bombę można podłożyć w dowolnym miejscu, a czas detonacji wynosi 60 sekund                                        | -               |
 | Saper                | Możesz szybciej podłożyć bombę i ją rozbroić                                                                      | -               |
@@ -175,9 +180,14 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Spadek Rodzinny      | Gdy członek drużyny ginie, możesz przejąć jego umiejętność                                                        | -               |
 | Strzał Wybuchowy     | Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania                                                 | (15 - 30)%      |
 | Stópkarz             | Wybierasz gracza, który pozostawi za sobą ślad                                                                    | -               |
+| Szklane Działo       | Zadajesz wrogom o 75% więcej obrażeń, ale otrzymujesz o 50% więcej obrażeń                                        | 1.75x / 1.5x    |
 | Szpieg               | Na początku rundy otrzymujesz model postaci przeciwnika                                                           | -               |
 | Szybkie Rączki       | Kliknij [css_useSkill], aby przeładować broń, którą obecnie trzymasz                                              | -               |
 | Szybkostrzelność     | Wszystkie pociski są wystrzeliwane bardzo szybko                                                                  | -               |
+| Wybuchowy Kurczak    | Kliknij [css_useSkill], aby wypuścić kurczaka, który goni najbliższego wroga i wybucha                            | 20 s            |
+| Wyciszenie           | Wybierz wroga, który nie może używać czatu głosowego, dopóki żyjesz                                               | -               |
+| Zbieracz             | Każde zabójstwo uzupełnia amunicję twoich broni i może dać ci granat                                              | -               |
+| Łowca Głów           | Zabójstwa strzałem w głowę przywracają ci pełne zdrowie i pancerz                                                 | -               |
 | Święty Granat Ręczny | Twoje granaty HE zadają podwójne obrażenia i mają podwójny zasięg                                                 | -               |
 | Teleport do drużyny  | Naciśnij [css_useSkill], aby teleportować się do członka drużyny, na którego patrzysz                             | 15 s            |
 | Teleporter           | Zamieniasz się miejscami z trafionym przeciwnikiem                                                                | -               |

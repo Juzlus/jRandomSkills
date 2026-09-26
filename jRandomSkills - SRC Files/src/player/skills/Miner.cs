@@ -39,7 +39,7 @@ namespace src.player.skills
                     continue;
                 }
 
-                if (nade.CreateTime + 3 > currentTime) return;
+                if (nade.CreateTime + 3 > currentTime) continue;
                 Vector currentPos = new(nade.AbsOrigin.X, nade.AbsOrigin.Y, nade.AbsOrigin.Z);
 
                 foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.TeamNum != nade.TeamNum))

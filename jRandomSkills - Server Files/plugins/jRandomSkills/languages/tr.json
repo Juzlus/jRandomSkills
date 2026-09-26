@@ -613,6 +613,47 @@
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 anında şarj olur",
 
+  "adrenaline": "Adrenalin",
+  "adrenaline_desc": "Her öldürme 25 can yeniler ve 5 saniyeliğine hız kazandırır",
+
+  "blacksmith": "Demirci",
+  "blacksmith_desc": "Yelek ve kask alırsın, zırhın zamanla yenilenir",
+
+  "explosivechicken": "Patlayıcı Tavuk",
+  "explosivechicken_desc": "[css_useSkill] ile en yakın düşmanı kovalayıp patlayan bir tavuk sal",
+  "explosivechicken_hud_active": "Tavuk canı: {0}",
+  "explosivechicken_already_active": "Tavuğun zaten koşuyor!",
+  "explosivechicken_blocked": "Tavuğu salmak için yer yok",
+
+  "glasscannon": "Cam Top",
+  "glasscannon_desc": "Düşmanlara %75 daha fazla hasar verirsin ama %50 daha fazla hasar alırsın",
+
+  "headhunter": "Kafa Avcısı",
+  "headhunter_desc": "Kafadan öldürmeler canını ve zırhını tamamen yeniler",
+  "headhunter_heal_info": "Kafadan vuruş! Canın tamamen yenilendi.",
+
+  "marked": "İşaretli",
+  "marked_desc": "Sen hayattayken %35 daha fazla hasar alacak bir düşman seç",
+  "marked_player_info": "'{0}' adlı oyuncu işaretlendi.",
+  "marked_enemy_info": "İşaretlendin! Daha fazla hasar alıyorsun.",
+  "marked_select_info": "İşaretlenecek oyuncuyu seç:",
+
+  "momentum": "İvme",
+  "momentum_desc": "Bu raunttaki her öldürme hasarını %15 artırır (en fazla 5 kez)",
+
+  "mute": "Sessiz",
+  "mute_desc": "Sen hayattayken sesli sohbeti kullanamayacak bir düşman seç",
+  "mute_player_info": "'{0}' adlı oyuncu susturuldu.",
+  "mute_enemy_info": "Susturuldun! Takımın seni duyamıyor.",
+  "mute_disable_info": "Sesli sohbeti tekrar kullanabilirsin.",
+  "mute_select_info": "Susturulacak oyuncuyu seç:",
+
+  "pickpocket": "Yankesici",
+  "pickpocket_desc": "Düşmana yaptığın her isabet ondan 150$ çalar",
+
+  "scavenger": "Leşçi",
+  "scavenger_desc": "Her öldürme silahlarının mermisini doldurur ve sana bomba verebilir",
+
   "your_skill": "Yeteneğin",
   "enemy_skill": "Düşmanın yeteneği",
   "observer_skill": "Yeteneği",
@@ -629,6 +670,7 @@
   "duplicate_player": "Aynı isimde birden fazla oyuncu bulundu.",
   "selectplayerskill_command": "Sohbete /t yazın",
   "selectplayerskill_incorrect_enemy_index": "Seçilecek oyuncu yok.",
+  "selectplayerskill_used_info": "Yeteneğin zaten kullanıldı.",
   "curse_limit_info": "'{0}' üzerindeki lanet sınırı doldu, başka bir oyuncu seç",
 
   "skill_not_found_setskill": "Böyle bir yetenek yok",

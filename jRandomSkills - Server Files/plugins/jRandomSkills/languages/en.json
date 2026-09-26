@@ -613,6 +613,47 @@
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 instantly recharges",
 
+  "adrenaline": "Adrenaline",
+  "adrenaline_desc": "Each kill restores 25 health and gives you a burst of speed for 5 seconds",
+
+  "blacksmith": "Blacksmith",
+  "blacksmith_desc": "You get a kevlar vest and helmet, and your armor regenerates over time",
+
+  "explosivechicken": "Explosive Chicken",
+  "explosivechicken_desc": "Click [css_useSkill] to release a chicken that chases the nearest enemy and explodes",
+  "explosivechicken_hud_active": "Chicken HP: {0}",
+  "explosivechicken_already_active": "Your chicken is already running!",
+  "explosivechicken_blocked": "There is no room to release the chicken",
+
+  "glasscannon": "Glass Cannon",
+  "glasscannon_desc": "You deal 75% more damage to enemies, but take 50% more damage",
+
+  "headhunter": "Headhunter",
+  "headhunter_desc": "Headshot kills restore you to full health and armor",
+  "headhunter_heal_info": "Headshot! You are back to full health.",
+
+  "marked": "Marked",
+  "marked_desc": "Choose an enemy who takes 35% more damage while you are alive",
+  "marked_player_info": "Player '{0}' has been marked.",
+  "marked_enemy_info": "You have been marked! You take more damage.",
+  "marked_select_info": "Select a player to mark:",
+
+  "momentum": "Momentum",
+  "momentum_desc": "Each kill this round increases your damage by 15% (up to 5 stacks)",
+
+  "mute": "Mute",
+  "mute_desc": "Choose an enemy who cannot use voice chat while you are alive",
+  "mute_player_info": "Player '{0}' has been muted.",
+  "mute_enemy_info": "You have been muted! Your team can't hear you.",
+  "mute_disable_info": "You can use voice chat again.",
+  "mute_select_info": "Select a player to mute:",
+
+  "pickpocket": "Pickpocket",
+  "pickpocket_desc": "Every hit on an enemy steals $150 from them",
+
+  "scavenger": "Scavenger",
+  "scavenger_desc": "Each kill refills your guns' ammo and may give you a grenade",
+
   "your_skill": "Your current skill",
   "enemy_skill": "Enemy's skill",
   "observer_skill": "Player's skill",
@@ -629,6 +670,7 @@
   "duplicate_player": "More than one player found with the same name.",
   "selectplayerskill_command": "Type /t",
   "selectplayerskill_incorrect_enemy_index": "No players were found to select.",
+  "selectplayerskill_used_info": "Your skill has already been used.",
   "curse_limit_info": "The curse limit for {0} has been reached",
 
   "skill_not_found_setskill": "No such CHATCOLORS.REDskill found",
