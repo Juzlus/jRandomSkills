@@ -221,7 +221,7 @@ namespace src
 
         private static async void PrintInfoToConsole()
         {
-            string? versionFromGithub = await GetLatestVersion();
+            var (versionFromGithub, noReleases) = await GetLatestVersion();
             var diffrentConfig = JsonSerializer.Serialize(Config.LoadedConfig) != JsonSerializer.Serialize(new Config.SettingsModel());
             var diffrentSkillsInfo = JsonSerializer.Serialize(SkillsInfo.LoadedConfig) != JsonSerializer.Serialize(new SkillsInfo.SkillsInfoModel());
 
@@ -237,7 +237,12 @@ namespace src
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write($"\njRandomSkills ");
 
-            if (versionFromGithub == null)
+            if (noReleases)
+            {
+                Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Yellow;
+                Console.Write($"v{Instance.ModuleVersion} (no releases published on github yet)");
+            }
+            else if (versionFromGithub == null)
             {
                 Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Yellow;
                 Console.Write($"v{Instance.ModuleVersion} (failed to get version from github)");
@@ -261,7 +266,7 @@ namespace src
                 Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Red;
                 Console.WriteLine($"\n#########################################################");
                 Console.WriteLine($"# Download the new version from:                        #");
-                Console.WriteLine($"# https://github.com/Juzlus/jRandomSkills/releases      #");
+                Console.WriteLine($"# https://github.com/{UpdateRepository}/releases".PadRight(56) + "#");
                 Console.WriteLine($"#########################################################");
             }
 
@@ -361,23 +366,31 @@ namespace src
             Console.ResetColor();
         }
 
-        private static async Task<string?> GetLatestVersion()
+        // Repository checked for new releases at startup (this fork, not the upstream plugin).
+        private const string UpdateRepository = "MBDEVSPACE/cspowers";
+
+        private static async Task<(string? Version, bool NoReleases)> GetLatestVersion()
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("jRandomSkills", "1.0"));
-            const string URL = "https://api.github.com/repos/Juzlus/jRandomSkills/releases/latest";
+            string url = $"https://api.github.com/repos/{UpdateRepository}/releases/latest";
 
             try
             {
-                string response = await client.GetStringAsync(URL);
-                using JsonDocument doc = JsonDocument.Parse(response);
+                using var response = await client.GetAsync(url);
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return (null, true);
+                if (!response.IsSuccessStatusCode)
+                    return (null, false);
+
+                using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 if (doc.RootElement.TryGetProperty("tag_name", out JsonElement value))
-                    return value.GetString()?.Replace("v", "");
-                return null;
+                    return (value.GetString()?.TrimStart('v', 'V'), false);
+                return (null, false);
             }
             catch (Exception)
             {
-                return null;
+                return (null, false);
             }
         }
 
