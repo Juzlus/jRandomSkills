@@ -47,6 +47,16 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
+## 🔁 Wbudowany Tryb Retake
+Ta wersja zawiera też trzy pluginy autorstwa [B3none](https://github.com/B3none), więc jedna instalacja daje serwer retake z supermocami:
+- **[Retakes](https://github.com/B3none/cs2-retakes)** (GPLv3): bomba jest podłożona na starcie rundy, a CT odbijają bombsite. Obsługuje spawny, kolejkę, balans drużyn, automatyczne podłożenie i zapasowy przydział broni. Ustawienia są w `configs/retakes.json`, a spawny w `map_config/`. Wszystkie komendy działają jak wcześniej (`!forcebombsite`, `!scramble`, `!showspawns`, `!voices`, ...), podobnie jak convar `retakes_enabled`.
+- **[Instadefuse](https://github.com/B3none/cs2-instadefuse)** (GPLv3): jeśli wszyscy terroryści nie żyją, a przy bombie nie ma granatu ani ognia, rozbrojenie jest natychmiastowe. Jeśli zostało za mało czasu, bomba od razu wybucha.
+- **Clutch Announce**: ogłasza, gdy ostatni żywy gracz drużyny wygrywa rundę (np. 1v3). To napisana od nowa wersja tego samego pomysłu co [cs2-clutch-announce](https://github.com/B3none/cs2-clutch-announce).
+
+Każdy moduł można wyłączyć w sekcji `Modules` w `configs/config.json`. Gdy działa tryb retake, supermoce wymagające kupowania, noszenia lub podkładania bomby albo zwykłych spawnów nie są losowane (`Modules.Retakes.IncompatibleSkills`), a `!swap`/`!shuffle` są wyłączone, bo drużynami zarządza retake.
+
+Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń osobne pluginy RetakesPlugin, InstadefusePlugin lub ClutchAnnouncePlugin, aby nic nie działało podwójnie.
+
 ## ✨ Aktualne Supermoce (164)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>

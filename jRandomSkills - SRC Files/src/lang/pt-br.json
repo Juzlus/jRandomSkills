@@ -671,6 +671,7 @@
   "selectplayerskill_command": "Digite /t",
   "selectplayerskill_incorrect_enemy_index": "Não foram encontrados jogadores para selecionar.",
   "selectplayerskill_used_info": "Sua habilidade já foi usada.",
+  "retakes_teams_managed": "Os times são gerenciados pelo modo retake. Peça a um admin para usar !scramble.",
   "curse_limit_info": "O limite de maldições para {0} foi atingido",
 
   "skill_not_found_setskill": "Nenhuma habilidade CHATCOLORS.RED encontrada",

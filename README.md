@@ -47,6 +47,16 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
+## 🔁 Bundled Retakes Mode
+This build also includes three plugins by [B3none](https://github.com/B3none), so a single install gives you a retakes server with superpowers:
+- **[Retakes](https://github.com/B3none/cs2-retakes)** (GPLv3): the bomb is planted at round start and CTs retake the site. It handles spawns, queue, team balance, auto plant and a fallback weapon allocation. Its settings live in `configs/retakes.json` and its spawns in `map_config/`. All its commands work as before (`!forcebombsite`, `!scramble`, `!showspawns`, `!voices`, ...), as does the `retakes_enabled` convar.
+- **[Instadefuse](https://github.com/B3none/cs2-instadefuse)** (GPLv3): if every terrorist is dead and no grenade or fire is near the bomb, the defuse is instant. If there isn't enough time left, the bomb explodes right away.
+- **Clutch Announce**: announces when the last player alive on a team wins the round (for example 1v3). It's a rewrite of the same idea as [cs2-clutch-announce](https://github.com/B3none/cs2-clutch-announce).
+
+Each one can be switched off under `Modules` in `configs/config.json`. While retakes is running, skills that need buying, carrying or planting the bomb, or normal spawns are left out of the draw (`Modules.Retakes.IncompatibleSkills`), and `!swap`/`!shuffle` are disabled because retakes manages the teams.
+
+Install: copy the `shared` folder along with `plugins` and `gamedata`, and remove any standalone RetakesPlugin, InstadefusePlugin or ClutchAnnouncePlugin so nothing runs twice.
+
 ## ✨ Current Skills (164)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>

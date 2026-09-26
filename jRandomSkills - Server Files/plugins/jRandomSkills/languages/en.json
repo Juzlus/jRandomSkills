@@ -671,6 +671,7 @@
   "selectplayerskill_command": "Type /t",
   "selectplayerskill_incorrect_enemy_index": "No players were found to select.",
   "selectplayerskill_used_info": "Your skill has already been used.",
+  "retakes_teams_managed": "Teams are managed by the retakes mode. Ask an admin to use !scramble.",
   "curse_limit_info": "The curse limit for {0} has been reached",
 
   "skill_not_found_setskill": "No such CHATCOLORS.REDskill found",

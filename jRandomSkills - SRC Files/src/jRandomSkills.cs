@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.command;
+using src.modules;
 using src.player;
 using src.utils;
 using System.Collections.Concurrent;
@@ -24,6 +25,8 @@ namespace src
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
         public IWasdMenuManager? MenuManager;
+        public RetakesPlugin.RetakesPlugin? Retakes { get; private set; }
+        public bool IsRetakesActive => Retakes?.IsPluginEnabled == true;
         // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
         public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
         public static readonly ConcurrentDictionary<string, byte> SkillsUsedThisMap = new();
@@ -47,6 +50,7 @@ namespace src
             WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
             LoadAllSkills();
             PlayerManager.SyncWithPlugin(Instance);
+            LoadModules(hotReload);
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
 
@@ -64,8 +68,33 @@ namespace src
 
             Event.Unload();
             Debug.Unload();
+            Retakes?.Unload(hotReload);
 
             base.Unload(hotReload);
+        }
+
+        private void LoadModules(bool hotReload)
+        {
+            var modules = Config.LoadedConfig.Modules;
+
+            if (modules.Retakes.Enabled)
+            {
+                Retakes = new RetakesPlugin.RetakesPlugin(this);
+                Retakes.Load(hotReload);
+            }
+
+            if (modules.Instadefuse.Enabled)
+                new InstadefuseModule(this).Load();
+
+            if (modules.ClutchAnnounce.Enabled)
+                new ClutchAnnounceModule(this).Load();
+        }
+
+        // Skills that don't work in the retakes mode (buying, carrying/planting the bomb, normal spawns).
+        public static bool IsSkillBlockedByMode(Skills skill)
+        {
+            var retakes = Config.LoadedConfig.Modules.Retakes;
+            return Instance.IsRetakesActive && retakes.DisableIncompatibleSkills && retakes.IncompatibleSkills.Contains(SkillNames.Get(skill));
         }
 
         internal void AddToManifest(string prop)

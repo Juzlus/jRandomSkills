@@ -278,5 +278,34 @@
       "Alias": "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数",
       "Permissions": "@jRandomSkills/owner"
     }
+  },
+  "Modules": {
+    "Retakes": {
+      "Enabled": true,
+      "DisableIncompatibleSkills": true,
+      "IncompatibleSkills": [
+        "AreaReaper",
+        "Bankrupt",
+        "Bounty",
+        "C4Camouflage",
+        "ChillOut",
+        "EnemySpawn",
+        "ExpensiveAmmo",
+        "HotBomb",
+        "MoneySwap",
+        "Pickpocket",
+        "Planter",
+        "RichBoy",
+        "ShortBomb"
+      ]
+    },
+    "Instadefuse": {
+      "Enabled": true,
+      "InfernoThreatRadius": 250.0
+    },
+    "ClutchAnnounce": {
+      "Enabled": true,
+      "MinimumEnemies": 1
+    }
   }
 }

@@ -671,6 +671,7 @@
   "selectplayerskill_command": "Wpisz /t",
   "selectplayerskill_incorrect_enemy_index": "Nie znaleziono graczy do wyboru.",
   "selectplayerskill_used_info": "Twoja umiejętność została już użyta.",
+  "retakes_teams_managed": "Drużynami zarządza tryb retake. Poproś admina o użycie !scramble.",
   "curse_limit_info": "Osiągnięto limit klątw dla {0}",
 
   "skill_not_found_setskill": "Nie znaleziono takiej CHATCOLORS.REDsupermocy",

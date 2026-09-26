@@ -671,6 +671,7 @@
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
   "selectplayerskill_used_info": "Votre compétence a déjà été utilisée.",
+  "retakes_teams_managed": "Les équipes sont gérées par le mode retake. Demandez à un admin d'utiliser !scramble.",
   "curse_limit_info": "La limite de malédictions pour {0} a été atteinte",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",

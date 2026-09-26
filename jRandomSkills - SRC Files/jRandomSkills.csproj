@@ -28,6 +28,10 @@
 	<!-- Relative path to the WASDMenuAPI source code -->
     <ItemGroup>
         <ProjectReference Include="..\WASDMenuAPI - SRC Files\WASDMenuAPI.csproj" />
+        <!-- Loaded from addons/counterstrikesharp/shared at runtime, so it is not copied next to the plugin -->
+        <ProjectReference Include="..\RetakesPluginShared - SRC Files\RetakesPluginShared.csproj">
+            <Private>false</Private>
+        </ProjectReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -52,6 +56,10 @@
         <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills</ServerDLL>
         <SourceGamedataDir>$(MSBuildProjectDirectory)\src\gamedata</SourceGamedataDir>
 		<ServerGamedataDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\gamedata</ServerGamedataDir>
+        <SourceModulesLangDir>$(MSBuildProjectDirectory)\src\modules\lang</SourceModulesLangDir>
+        <ServerModulesLangDir>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\jRandomSkills\lang</ServerModulesLangDir>
+        <SourceRetakesSharedDLL>$(MSBuildProjectDirectory)\..\RetakesPluginShared - SRC Files\bin\$(Configuration)\$(TargetFramework)</SourceRetakesSharedDLL>
+        <ServerRetakesSharedDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\shared\RetakesPluginShared</ServerRetakesSharedDLL>
     </PropertyGroup>
 
     <!-- Copy language files to server directory -->
@@ -88,4 +96,19 @@
 		<MakeDir Directories="$(ServerGamedataDir)" Condition="!Exists('$(ServerGamedataDir)')" />
 		<Copy SourceFiles="@(GamedataFiles)" DestinationFiles="@(GamedataFiles->'$(ServerGamedataDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
 	</Target>
+
+    <!-- Copy retakes/instadefuse/clutch-announce language files (read through the CounterStrikeSharp localizer) -->
+    <Target Name="CopyModulesLangFilesToServer" AfterTargets="Build">
+        <ItemGroup>
+            <ModulesLangFiles Include="$(SourceModulesLangDir)\*.json" />
+        </ItemGroup>
+        <MakeDir Directories="$(ServerModulesLangDir)" Condition="!Exists('$(ServerModulesLangDir)')" />
+        <Copy SourceFiles="@(ModulesLangFiles)" DestinationFolder="$(ServerModulesLangDir)" SkipUnchangedFiles="false" />
+    </Target>
+
+    <!-- Copy the RetakesPluginShared API into the shared folder -->
+    <Target Name="CopyRetakesSharedToServer" AfterTargets="Build">
+        <MakeDir Directories="$(ServerRetakesSharedDLL)" Condition="!Exists('$(ServerRetakesSharedDLL)')" />
+        <Copy SourceFiles="$(SourceRetakesSharedDLL)\RetakesPluginShared.dll" DestinationFolder="$(ServerRetakesSharedDLL)" SkipUnchangedFiles="false" />
+    </Target>
 </Project>

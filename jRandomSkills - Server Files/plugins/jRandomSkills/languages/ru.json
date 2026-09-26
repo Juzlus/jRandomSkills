@@ -671,6 +671,7 @@
   "selectplayerskill_command": "Введите /t",
   "selectplayerskill_incorrect_enemy_index": "Игроки для выбора не найдены.",
   "selectplayerskill_used_info": "Ваша способность уже использована.",
+  "retakes_teams_managed": "Командами управляет режим ретейков. Попросите админа использовать !scramble.",
   "curse_limit_info": "Достигнут лимит проклятий для {0}",
 
   "skill_not_found_setskill": "Навык не найден",

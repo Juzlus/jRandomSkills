@@ -671,6 +671,7 @@
   "selectplayerskill_command": "Sohbete /t yazın",
   "selectplayerskill_incorrect_enemy_index": "Seçilecek oyuncu yok.",
   "selectplayerskill_used_info": "Yeteneğin zaten kullanıldı.",
+  "retakes_teams_managed": "Takımlar retake modu tarafından yönetiliyor. Bir yöneticiden !scramble kullanmasını iste.",
   "curse_limit_info": "'{0}' üzerindeki lanet sınırı doldu, başka bir oyuncu seç",
 
   "skill_not_found_setskill": "Böyle bir yetenek yok",

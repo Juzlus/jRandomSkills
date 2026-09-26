@@ -660,6 +660,7 @@
   "selectplayerskill_command": "输入 /t",
   "selectplayerskill_incorrect_enemy_index": "未找到可供选择的玩家。",
   "selectplayerskill_used_info": "你的技能已经使用过了。",
+  "retakes_teams_managed": "队伍由回防模式管理。请让管理员使用 !scramble。",
   "curse_limit_info": "已达到 {0} 的诅咒效果上限",
 
   "skill_not_found_setskill": "未找到 CHATCOLORS.RED 技能",
