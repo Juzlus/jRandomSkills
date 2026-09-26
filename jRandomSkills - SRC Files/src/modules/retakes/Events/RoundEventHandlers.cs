@@ -20,6 +20,7 @@ public class RoundEventHandlers
     private readonly AllocationService _allocationService;
     private readonly AnnouncementService _announcementService;
     private readonly bool _isAutoPlantEnabled;
+    private readonly bool _isInstantPlantEnabled;
     private readonly bool _enableFallbackAllocation;
     private readonly bool _enableFallbackBombsiteAnnouncement;
     private readonly Random _random;
@@ -30,7 +31,7 @@ public class RoundEventHandlers
     private CsTeam _lastRoundWinner = CsTeam.None;
     private Bombsite? _forcedBombsite;
 
-    public RoundEventHandlers(RetakesPlugin plugin, GameManager gameManager, SpawnManager spawnManager, BreakerManager? breakerManager, AllocationService allocationService, AnnouncementService announcementService, bool isAutoPlantEnabled, bool enableFallbackAllocation, bool enableFallbackBombsiteAnnouncement, Random random)
+    public RoundEventHandlers(RetakesPlugin plugin, GameManager gameManager, SpawnManager spawnManager, BreakerManager? breakerManager, AllocationService allocationService, AnnouncementService announcementService, bool isAutoPlantEnabled, bool isInstantPlantEnabled, bool enableFallbackAllocation, bool enableFallbackBombsiteAnnouncement, Random random)
     {
         _plugin = plugin;
         _gameManager = gameManager;
@@ -39,6 +40,7 @@ public class RoundEventHandlers
         _allocationService = allocationService;
         _announcementService = announcementService;
         _isAutoPlantEnabled = isAutoPlantEnabled;
+        _isInstantPlantEnabled = isInstantPlantEnabled;
         _enableFallbackAllocation = enableFallbackAllocation;
         _enableFallbackBombsiteAnnouncement = enableFallbackBombsiteAnnouncement;
         _random = random;
@@ -146,7 +148,17 @@ public class RoundEventHandlers
         _currentBombsite = _forcedBombsite ?? (_random.Next(0, 2) == 0 ? Bombsite.A : Bombsite.B);
         _gameManager.ResetPlayerScores();
 
-        _planter = _spawnManager.HandleRoundSpawns(_currentBombsite, _gameManager.QueueManager.ActivePlayers);
+        try
+        {
+            _planter = _spawnManager.HandleRoundSpawns(_currentBombsite, _gameManager.QueueManager.ActivePlayers);
+        }
+        catch (Exception ex)
+        {
+            // Usually a map config without enough spawns for this many players on the chosen site.
+            Logger.LogException("Round", ex);
+            Server.PrintToChatAll($"{_plugin.Localizer["retakes.prefix"]} Not enough retakes spawns for bombsite {_currentBombsite}; add more with !showspawns / !addspawn.");
+            _planter = null;
+        }
 
         if (_enableFallbackBombsiteAnnouncement)
         {
@@ -250,6 +262,43 @@ public class RoundEventHandlers
         return HookResult.Continue;
     }
 
+    public HookResult OnBombBeginPlant(EventBombBeginplant @event, GameEventInfo info)
+    {
+        if (_isAutoPlantEnabled || !_isInstantPlantEnabled)
+        {
+            return HookResult.Continue;
+        }
+
+        var player = @event.Userid;
+        if (!PlayerHelper.IsValid(player))
+        {
+            return HookResult.Continue;
+        }
+
+        // The C4 sets its arming deadline when planting starts; move it to now so the plant completes on its next think.
+        Server.NextFrame(() =>
+        {
+            if (!PlayerHelper.IsValid(player))
+            {
+                return;
+            }
+
+            var weapon = player!.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            if (weapon == null || !weapon.IsValid || weapon.DesignerName != "weapon_c4")
+            {
+                return;
+            }
+
+            var c4 = weapon.As<CC4>();
+            if (c4.StartedArming)
+            {
+                c4.ArmedTime = Server.CurrentTime;
+            }
+        });
+
+        return HookResult.Continue;
+    }
+
     public HookResult OnBombPlanted(EventBombPlanted @event, GameEventInfo info)
     {
         Logger.LogInfo("Round", "Bomb planted");
@@ -286,8 +335,17 @@ public class RoundEventHandlers
 
         if (_planter != null && PlayerHelper.IsValid(_planter))
         {
-            BombService.PlantTickingBomb(_planter, _currentBombsite);
-            Logger.LogInfo("Round", $"Auto-planted bomb at {_currentBombsite}");
+            try
+            {
+                BombService.PlantTickingBomb(_planter, _currentBombsite);
+                Logger.LogInfo("Round", $"Auto-planted bomb at {_currentBombsite}");
+            }
+            catch (Exception ex)
+            {
+                // Let the planter plant normally instead of leaving the round without a bomb.
+                Logger.LogException("Round", ex);
+                PlayerHelper.GiveAndSwitchToBomb(_planter);
+            }
         }
         else
         {

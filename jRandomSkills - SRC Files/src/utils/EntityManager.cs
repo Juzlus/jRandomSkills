@@ -30,6 +30,8 @@ namespace src.utils
 
         public static bool OverBudget()
         {
+            if (EntitySafety.SpawningBlocked) return true;
+
             int tick = Server.TickCount;
             if (tick - _cachedCountTick > 64 || tick < _cachedCountTick)
             {
@@ -303,6 +305,7 @@ namespace src.utils
         {
             try
             {
+                if (OverBudget()) return null;
                 var beam = Utilities.CreateEntityByName<CBeam>("beam");
                 if (beam == null || !beam.IsValid) return null;
 

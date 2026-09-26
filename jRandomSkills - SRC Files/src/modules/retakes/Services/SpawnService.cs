@@ -37,6 +37,12 @@ public static class SpawnService
 
     public static void ShowSpawn(Spawn spawn)
     {
+        // Spawn editor markers are spawned entities; skip them where spawning would crash the server.
+        if (src.utils.EntitySafety.SpawningBlocked)
+        {
+            return;
+        }
+
         // Create player model
         var model = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
         if (model == null || !model.IsValid)

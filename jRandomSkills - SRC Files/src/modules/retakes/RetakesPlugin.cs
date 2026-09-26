@@ -194,6 +194,7 @@ public class RetakesPlugin
         RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+        RegisterEventHandler<EventBombBeginplant>(OnBombBeginPlant);
         RegisterEventHandler<EventBombPlanted>(OnBombPlanted, HookMode.Pre);
         RegisterEventHandler<EventBombDefused>(OnBombDefused);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect, HookMode.Pre);
@@ -312,7 +313,8 @@ public class RetakesPlugin
                 _breakerManager,
                 _allocationService,
                 _announcementService,
-                Config.Bomb.IsAutoPlantEnabled,
+                Config.Bomb.IsAutoPlantEnabled && !src.utils.EntitySafety.SpawningBlocked,
+                Config.Bomb.IsInstantPlantEnabled,
                 Config.Game.EnableFallbackAllocation,
                 Config.MapConfig.EnableFallbackBombsiteAnnouncement,
                 _random
@@ -483,6 +485,16 @@ public class RetakesPlugin
         }
 
         return _playerEventHandlers?.OnPlayerDeath(@event, info) ?? HookResult.Continue;
+    }
+
+    private HookResult OnBombBeginPlant(EventBombBeginplant @event, GameEventInfo info)
+    {
+        if (!IsPluginEnabled)
+        {
+            return HookResult.Continue;
+        }
+
+        return _roundEventHandlers?.OnBombBeginPlant(@event, info) ?? HookResult.Continue;
     }
 
     private HookResult OnBombPlanted(EventBombPlanted @event, GameEventInfo info)

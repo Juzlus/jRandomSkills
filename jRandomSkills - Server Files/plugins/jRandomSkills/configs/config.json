@@ -279,6 +279,41 @@
       "Permissions": "@jRandomSkills/owner"
     }
   },
+  "EntitySpawnSafety": {
+    "Mode": "Auto",
+    "VerifiedGameVersions": [
+      "1.41.8.2"
+    ],
+    "Skills": [
+      "C4Camouflage",
+      "Chicken",
+      "Cypher",
+      "ExplodingBarrel",
+      "ExplosiveChicken",
+      "FalconEye",
+      "Flashlight",
+      "Fortnite",
+      "Ghost",
+      "Grapple",
+      "HealingChicken",
+      "Iana",
+      "Illusionist",
+      "Jackal",
+      "LongKnife",
+      "LongZeus",
+      "Nightmare",
+      "Ninja",
+      "Pilot",
+      "Replicator",
+      "Rewind",
+      "Ricochet",
+      "Spectator",
+      "ThirdEye",
+      "ThrowingKnife",
+      "Tripwire",
+      "Wallhack"
+    ]
+  },
   "Modules": {
     "Retakes": {
       "Enabled": true,
