@@ -339,7 +339,7 @@ namespace src.player
 
             return new PickContext
             {
-                BaseList = [.. SkillData.Skills.Where(s => s != null && s.Skill != Skills.None)],
+                BaseList = [.. SkillData.Skills.Where(s => s != null && s.Skill != Skills.None && !IsSkillBlockedByMode(s.Skill))],
                 RequiredPermissions = perms,
                 NeedsTeammates = ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).Select(s => s.Name)),
                 CtOnly = ToSkillSet(counterterroristSkills.Select(s => s.Name)),
@@ -409,6 +409,7 @@ namespace src.player
         {
             if (pick.Skill == Skills.None) return true;
             if (!SkillData.Skills.Any(s => s.Skill == pick.Skill)) return false;
+            if (IsSkillBlockedByMode(pick.Skill)) return false;
 
             string name = SkillNames.Get(pick.Skill);
             if (player.Team == CsTeam.Terrorist && counterterroristSkills.Any(s => s.Name == name)) return false;
@@ -560,17 +561,17 @@ namespace src.player
                 if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
                 {
                     List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
-                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || IsSkillBlockedByMode(s.Skill) || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     tSkill = tSkills.Count == 0 ? noneSkill : tSkills[Instance.Random.Next(tSkills.Count)];
 
                     List<jSkill_SkillInfo> ctSkills = [.. SkillData.Skills];
-                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || IsSkillBlockedByMode(s.Skill) || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[Instance.Random.Next(ctSkills.Count)];
                 }
                 else if (Config.LoadedConfig.GameMode == (int)Config.GameModes.SameSkills)
                 {
                     List<jSkill_SkillInfo> allSkills = [.. SkillData.Skills];
-                    allSkills.RemoveAll(s => s.Skill == allSkill.Skill || s.Skill == Skills.None || !allTeamsSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    allSkills.RemoveAll(s => s.Skill == allSkill.Skill || s.Skill == Skills.None || IsSkillBlockedByMode(s.Skill) || !allTeamsSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     allSkill = allSkills.Count == 0 ? noneSkill : allSkills[Instance.Random.Next(allSkills.Count)];
                 }
                 else if (Config.LoadedConfig.GameMode == (int)Config.GameModes.Debug && debugSkills.Count == 0)
@@ -738,11 +739,11 @@ namespace src.player
                 if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
                 {
                     List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
-                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || IsSkillBlockedByMode(s.Skill) || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     tSkill = tSkills.Count == 0 ? noneSkill : tSkills[0];
 
                     List<jSkill_SkillInfo> ctSkills = [.. SkillData.Skills];
-                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || IsSkillBlockedByMode(s.Skill) || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[0];
                 }
 
@@ -766,7 +767,7 @@ namespace src.player
                     else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                     {
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-                        skillList.RemoveAll(s => s?.Skill == Skills.None);
+                        skillList.RemoveAll(s => s == null || s.Skill == Skills.None || IsSkillBlockedByMode(s.Skill));
                         if (!player.IsBot)
                             skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !HasPermission(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
 

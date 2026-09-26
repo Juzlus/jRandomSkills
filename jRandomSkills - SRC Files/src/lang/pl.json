@@ -654,6 +654,30 @@
   "scavenger": "Zbieracz",
   "scavenger_desc": "Każde zabójstwo uzupełnia amunicję twoich broni i może dać ci granat",
 
+  "bombguardian": "Strażnik Bomby",
+  "bombguardian_desc": "Otrzymujesz o 30% mniej obrażeń, gdy jesteś blisko podłożonej bomby",
+  "bombguardian_hud_active": "Pilnujesz bomby: -30% obrażeń",
+
+  "bombsense": "Wyczucie Bomby",
+  "bombsense_desc": "HUD pokazuje, jak blisko bomby jest najbliższy CT, i ostrzega, gdy bomba jest rozbrajana",
+  "bombsense_hud": "Najbliższy CT od bomby: {0}",
+  "bombsense_defusing": "Bomba jest rozbrajana!",
+
+  "boobytrap": "Pułapka",
+  "boobytrap_desc": "Pierwszy CT, który zacznie rozbrajać bombę, zostaje oślepiony i otrzymuje 40 obrażeń",
+  "boobytrap_enemy_info": "Bomba była zaminowana!",
+
+  "clutchmaster": "Mistrz Clutchy",
+  "clutchmaster_desc": "Gdy zostajesz ostatni żywy w drużynie, dostajesz +50 HP i zadajesz o 30% więcej obrażeń",
+  "clutchmaster_active_info": "Czas na clutcha! +50 HP i +30% obrażeń.",
+
+  "defuseshield": "Tarcza Sapera",
+  "defuseshield_desc": "Otrzymujesz o 50% mniej obrażeń podczas rozbrajania bomby",
+
+  "entryrush": "Szybkie Wejście",
+  "entryrush_desc": "Przez pierwsze 8 sekund rundy poruszasz się o 35% szybciej i otrzymujesz o 25% mniej obrażeń",
+  "entryrush_hud": "Szybkie wejście: {0}s",
+
   "your_skill": "Twoja aktualna moc",
   "enemy_skill": "Supermoc przeciwnika",
   "observer_skill": "Moc gracza",
@@ -671,6 +695,7 @@
   "selectplayerskill_command": "Wpisz /t",
   "selectplayerskill_incorrect_enemy_index": "Nie znaleziono graczy do wyboru.",
   "selectplayerskill_used_info": "Twoja umiejętność została już użyta.",
+  "retakes_teams_managed": "Drużynami zarządza tryb retake. Poproś admina o użycie !scramble.",
   "curse_limit_info": "Osiągnięto limit klątw dla {0}",
 
   "skill_not_found_setskill": "Nie znaleziono takiej CHATCOLORS.REDsupermocy",

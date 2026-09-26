@@ -654,6 +654,30 @@
   "scavenger": "Plünderer",
   "scavenger_desc": "Jeder Kill füllt die Munition deiner Waffen auf und gibt dir eventuell eine Granate",
 
+  "bombguardian": "Bombenwächter",
+  "bombguardian_desc": "Du erleidest 30% weniger Schaden, solange du nahe der gelegten Bombe bist",
+  "bombguardian_hud_active": "Du bewachst die Bombe: -30% Schaden",
+
+  "bombsense": "Bombengespür",
+  "bombsense_desc": "Dein HUD zeigt, wie nah der nächste CT an der Bombe ist, und warnt dich, wenn sie entschärft wird",
+  "bombsense_hud": "Nächster CT zur Bombe: {0}",
+  "bombsense_defusing": "Die Bombe wird entschärft!",
+
+  "boobytrap": "Sprengfalle",
+  "boobytrap_desc": "Der erste CT, der die Bombe entschärft, wird geblendet und erleidet 40 Schaden",
+  "boobytrap_enemy_info": "Die Bombe war mit einer Sprengfalle versehen!",
+
+  "clutchmaster": "Clutch-Meister",
+  "clutchmaster_desc": "Wenn du als Letzter deines Teams lebst, erhältst du +50 HP und verursachst 30% mehr Schaden",
+  "clutchmaster_active_info": "Clutch-Zeit! +50 HP und +30% Schaden.",
+
+  "defuseshield": "Entschärfungsschild",
+  "defuseshield_desc": "Du erleidest 50% weniger Schaden, während du die Bombe entschärfst",
+
+  "entryrush": "Sturmangriff",
+  "entryrush_desc": "In den ersten 8 Sekunden der Runde bist du 35% schneller und erleidest 25% weniger Schaden",
+  "entryrush_hud": "Sturmangriff: {0}s",
+
   "your_skill": "Deine aktuelle Fertigkeit",
   "enemy_skill": "Fähigkeit des Gegners",
   "observer_skill": "Fähigkeit des Spielers",
@@ -671,6 +695,7 @@
   "selectplayerskill_command": "Gib /t ein",
   "selectplayerskill_incorrect_enemy_index": "Es wurden keine Spieler gefunden, die ausgewählt werden können.",
   "selectplayerskill_used_info": "Deine Fähigkeit wurde bereits benutzt.",
+  "retakes_teams_managed": "Die Teams werden vom Retake-Modus verwaltet. Bitte einen Admin, !scramble zu verwenden.",
   "curse_limit_info": "Das Fluchlimit für {0} wurde erreicht",
 
   "skill_not_found_setskill": "Keine solche CHATCOLORS.REDskill gefunden",

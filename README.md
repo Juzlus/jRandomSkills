@@ -47,7 +47,17 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Current Skills (164)
+## 🔁 Bundled Retakes Mode
+This build also includes three plugins by [B3none](https://github.com/B3none), so a single install gives you a retakes server with superpowers:
+- **[Retakes](https://github.com/B3none/cs2-retakes)** (GPLv3): the bomb is planted at round start and CTs retake the site. It handles spawns, queue, team balance, auto plant and a fallback weapon allocation. Its settings live in `configs/retakes.json` and its spawns in `map_config/`. All its commands work as before (`!forcebombsite`, `!scramble`, `!showspawns`, `!voices`, ...), as does the `retakes_enabled` convar.
+- **[Instadefuse](https://github.com/B3none/cs2-instadefuse)** (GPLv3): if every terrorist is dead and no grenade or fire is near the bomb, the defuse is instant. If there isn't enough time left, the bomb explodes right away.
+- **Clutch Announce**: announces when the last player alive on a team wins the round (for example 1v3). It's a rewrite of the same idea as [cs2-clutch-announce](https://github.com/B3none/cs2-clutch-announce).
+
+Each one can be switched off under `Modules` in `configs/config.json`. While retakes is running, skills that need money, carrying or planting the bomb, normal spawns or the round timer are left out of the draw (`Modules.Retakes.IncompatibleSkills`). Six skills are made for retakes: Bomb Guardian, Bomb Sense and Booby Trap (T), Defuse Shield and Entry Rush (CT) and Clutch Master (both). Bomb Guardian and Bomb Sense are only drawn while retakes runs (`Modules.Retakes.RetakesOnlySkills`), and `!swap`/`!shuffle` are disabled because retakes manages the teams.
+
+Install: copy the `shared` folder along with `plugins` and `gamedata`, and remove any standalone RetakesPlugin, InstadefusePlugin or ClutchAnnouncePlugin so nothing runs twice.
+
+## ✨ Current Skills (170)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -67,6 +77,9 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Blacksmith        | You get a kevlar vest and helmet, and your armor regenerates over time                             | -                |
 | Blademaster       | While holding a knife, you have a high chance to deflect a shot                                    | -                |
 | Blast Shot        | Press Attack2 with the MP5 to fire an HE grenade                                                   | 10 s             |
+| Bomb Guardian     | You take 30% less damage while you are near the planted bomb                                       | 0.7x             |
+| Bomb Sense        | Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused      | -                |
+| Booby Trap        | The first CT to start defusing the bomb is blinded and takes 40 damage                             | 40 HP            |
 | Bounty            | Put a price on an enemy's head; whoever kills them takes the money                                 | 300$             |
 | Bunny             | You get auto "BunnyHop"                                                                            | -                |
 | C4 Camouflage     | You are invisible while holding the bomb                                                           | -                |
@@ -75,12 +88,14 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Chameleon         | The first player you kill gives you their skill                                                    | -                |
 | Chicken           | You get a chicken model + 10% faster movement - 50 HP                                              | -                |
 | Chillout          | Planting the bomb takes significantly longer                                                       | -                |
+| Clutch Master     | When you are the last one alive on your team, you get +50 HP and deal 30% more damage              | +50 HP / 1.3x    |
 | Cutter            | Instant kill with a knife                                                                          | -                |
 | Cypher            | Click [css_useSkill] to create/switch to a camera                                                  | 30 s             |
 | Darkness          | Applies a darkness effect to a chosen enemy                                                        | -                |
 | Deactivator       | Choose a player whose skill you want to disable                                                    | -                |
 | Deaf              | Choose a player to mute all sounds for                                                             | -                |
 | Death Bomb        | You explode upon death, killing nearby players                                                     | -                |
+| Defuse Shield     | You take 50% less damage while defusing the bomb                                                   | 0.5x             |
 | Demon Eye         | You deal damage to every enemy you are looking at                                                  | 2 s              |
 | Disarmament       | You have a random chance to make an enemy drop their weapon on hit                                 | (20 - 35)%       |
 | Dash              | Perform a second jump to dash                                                                      | -                |
@@ -90,6 +105,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | EMP Grenade       | Anyone hurt by your grenade loses their radar and crosshair for a while                            | 3 s              |
 | Enemy Spawn       | Click [css_useSkill] to teleport to the enemy spawn                                                | 15 s             |
 | Enemy Spin        | You have a random chance to turn an enemy 180° when hitting them                                   | (20 - 40)%       |
+| Entry Rush        | For the first 8 seconds of the round you move 35% faster and take 25% less damage                  | 8 s              |
 | Expensive Ammo    | A chosen enemy has to pay for every shot                                                           | -                |
 | Exploding Barrel  | Click [css_useSkill] to place a barrel that explodes when shot                                     | 20 s             |
 | Explosive Chicken | Click [css_useSkill] to release a chicken that chases the nearest enemy and explodes               | 20 s             |
@@ -245,7 +261,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 
 ## </> Server Commands
 > [!TIP]
-> **Bind to use skills:** `bind x css_useSkill`
+> **Using skills:** press **E** (the `AlternativeSkillButton` option, `"Use"` by default), or bind any key yourself with `bind x css_useSkill`. E is ignored while you are defusing or looking at the planted bomb, a door, a button or a weapon.
 
 <details>
 <summary>The table below lists all available commands in the game, along with their descriptions.</summary>
@@ -321,7 +337,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // 4 - Damage
                                          // Example: '123' enables: Skill, Round and Entity
         "PerfMode": false,               // Save performance measurements to the logs folder
-        "AlternativeSkillButton": null,  // Possible buttons:
+        "AlternativeSkillButton": "Use", // Possible buttons:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",
                                          // "Moveright", "Attack2", "Run", "Reload", "Alt1",

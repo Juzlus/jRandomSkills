@@ -654,6 +654,30 @@
   "scavenger": "Leşçi",
   "scavenger_desc": "Her öldürme silahlarının mermisini doldurur ve sana bomba verebilir",
 
+  "bombguardian": "Bomba Muhafızı",
+  "bombguardian_desc": "Kurulu bombanın yakınındayken %30 daha az hasar alırsın",
+  "bombguardian_hud_active": "Bombayı koruyorsun: -%30 hasar",
+
+  "bombsense": "Bomba Sezgisi",
+  "bombsense_desc": "HUD'un en yakın CT'nin bombaya uzaklığını gösterir ve bomba imha edilirken seni uyarır",
+  "bombsense_hud": "Bombaya en yakın CT: {0}",
+  "bombsense_defusing": "Bomba imha ediliyor!",
+
+  "boobytrap": "Bubi Tuzağı",
+  "boobytrap_desc": "Bombayı imha etmeye başlayan ilk CT kör olur ve 40 hasar alır",
+  "boobytrap_enemy_info": "Bomba tuzaklanmıştı!",
+
+  "clutchmaster": "Clutch Ustası",
+  "clutchmaster_desc": "Takımında hayatta kalan son kişi olduğunda +50 can kazanır ve %30 daha fazla hasar verirsin",
+  "clutchmaster_active_info": "Clutch zamanı! +50 can ve +%30 hasar.",
+
+  "defuseshield": "İmha Kalkanı",
+  "defuseshield_desc": "Bombayı imha ederken %50 daha az hasar alırsın",
+
+  "entryrush": "Hızlı Giriş",
+  "entryrush_desc": "Raundun ilk 8 saniyesinde %35 daha hızlı hareket eder ve %25 daha az hasar alırsın",
+  "entryrush_hud": "Hızlı giriş: {0}sn",
+
   "your_skill": "Yeteneğin",
   "enemy_skill": "Düşmanın yeteneği",
   "observer_skill": "Yeteneği",
@@ -671,6 +695,7 @@
   "selectplayerskill_command": "Sohbete /t yazın",
   "selectplayerskill_incorrect_enemy_index": "Seçilecek oyuncu yok.",
   "selectplayerskill_used_info": "Yeteneğin zaten kullanıldı.",
+  "retakes_teams_managed": "Takımlar retake modu tarafından yönetiliyor. Bir yöneticiden !scramble kullanmasını iste.",
   "curse_limit_info": "'{0}' üzerindeki lanet sınırı doldu, başka bir oyuncu seç",
 
   "skill_not_found_setskill": "Böyle bir yetenek yok",

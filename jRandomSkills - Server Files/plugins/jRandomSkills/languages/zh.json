@@ -643,6 +643,30 @@
   "scavenger": "拾荒者",
   "scavenger_desc": "每次击杀会补满你的枪械弹药，并可能获得一枚手雷",
 
+  "bombguardian": "炸弹守卫",
+  "bombguardian_desc": "在已安放的炸弹附近时，你受到的伤害降低30%",
+  "bombguardian_hud_active": "守护炸弹中：伤害 -30%",
+
+  "bombsense": "炸弹感知",
+  "bombsense_desc": "你的HUD会显示离炸弹最近的CT距离，并在炸弹被拆除时提醒你",
+  "bombsense_hud": "离炸弹最近的CT：{0}",
+  "bombsense_defusing": "炸弹正在被拆除！",
+
+  "boobytrap": "诡雷",
+  "boobytrap_desc": "第一个开始拆弹的CT会被致盲并受到40点伤害",
+  "boobytrap_enemy_info": "炸弹上有诡雷！",
+
+  "clutchmaster": "残局大师",
+  "clutchmaster_desc": "当你是队伍中最后一名存活者时，获得+50生命值并造成30%额外伤害",
+  "clutchmaster_active_info": "残局时刻！+50生命值，+30%伤害。",
+
+  "defuseshield": "拆弹护盾",
+  "defuseshield_desc": "拆除炸弹时你受到的伤害降低50%",
+
+  "entryrush": "突击先锋",
+  "entryrush_desc": "回合开始的前8秒内，你的移动速度提高35%，受到的伤害降低25%",
+  "entryrush_hud": "突击先锋：{0}秒",
+
   "your_skill": "你当前的技能",
   "enemy_skill": "敌人的技能",
   "observer_skill": "玩家的技能",
@@ -660,6 +684,7 @@
   "selectplayerskill_command": "输入 /t",
   "selectplayerskill_incorrect_enemy_index": "未找到可供选择的玩家。",
   "selectplayerskill_used_info": "你的技能已经使用过了。",
+  "retakes_teams_managed": "队伍由回防模式管理。请让管理员使用 !scramble。",
   "curse_limit_info": "已达到 {0} 的诅咒效果上限",
 
   "skill_not_found_setskill": "未找到 CHATCOLORS.RED 技能",

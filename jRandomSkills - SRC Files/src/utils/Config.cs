@@ -185,6 +185,7 @@ namespace src.utils
             public ChatMessage ChatMessage { get; set; }
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }
+            public ModulesSettings Modules { get; set; }
 
             public SettingsModel()
             {
@@ -199,7 +200,7 @@ namespace src.utils
                 EnableFullForceUpdate = false;
                 DebugMode = 0;
                 PerfMode = false;
-                AlternativeSkillButton = null;
+                AlternativeSkillButton = "Use";
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;
                 SkillDescriptionDuration = 7;
@@ -335,7 +336,48 @@ namespace src.utils
                     PauseCommand = new VotingCommand(true, "pause, unpause, pausar, despausar, 暂停, 恢复", "@jRandomSkills/admin", 15, 60, 15, 2, 2),
                     SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandomSkills/owner", 15, 90, 15, 90, 2),
                 };
+
+                Modules = new ModulesSettings();
             }
+        }
+
+        public class ModulesSettings
+        {
+            // Retakes game mode (https://github.com/b3none/cs2-retakes). Its own settings live in configs/retakes.json.
+            public RetakesModuleSettings Retakes { get; set; } = new();
+            public InstadefuseModuleSettings Instadefuse { get; set; } = new();
+            public ClutchAnnounceModuleSettings ClutchAnnounce { get; set; } = new();
+        }
+
+        public class RetakesModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Skills that rely on buying, carrying/planting the bomb or on normal spawns are left out of the draw while retakes runs.
+            public bool DisableIncompatibleSkills { get; set; } = true;
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> IncompatibleSkills { get; set; } =
+            [
+                "AreaReaper", "Bankrupt", "Bounty", "C4Camouflage", "ChillOut", "EnemySpawn", "ExpensiveAmmo",
+                "HotBomb", "MoneySwap", "Pickpocket", "Planter", "Retreat", "ReturnToSender", "RichBoy",
+                "RobinHood", "ShortBomb", "Watchmaker",
+            ];
+            // Skills built around the retakes mode; they are only drawn while it runs.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> RetakesOnlySkills { get; set; } = ["BombGuardian", "BombSense"];
+        }
+
+        public class InstadefuseModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Grenades or fire closer than this to the bomb block an instant defuse.
+            public float InfernoThreatRadius { get; set; } = 250f;
+        }
+
+        public class ClutchAnnounceModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Smallest number of enemies the last player alive must face for the round win to count as a clutch.
+            public int MinimumEnemies { get; set; } = 1;
         }
 
         public class WeaponPools

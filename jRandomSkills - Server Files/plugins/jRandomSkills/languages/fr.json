@@ -654,6 +654,30 @@
   "scavenger": "Charognard",
   "scavenger_desc": "Chaque élimination recharge les munitions de vos armes et peut vous donner une grenade",
 
+  "bombguardian": "Gardien de la Bombe",
+  "bombguardian_desc": "Vous subissez 30% de dégâts en moins près de la bombe posée",
+  "bombguardian_hud_active": "Vous gardez la bombe : -30% de dégâts",
+
+  "bombsense": "Instinct de la Bombe",
+  "bombsense_desc": "Votre HUD indique la distance du CT le plus proche de la bombe et vous prévient quand elle est désamorcée",
+  "bombsense_hud": "CT le plus proche de la bombe : {0}",
+  "bombsense_defusing": "La bombe est en train d'être désamorcée !",
+
+  "boobytrap": "Piège",
+  "boobytrap_desc": "Le premier CT qui commence à désamorcer la bombe est aveuglé et subit 40 dégâts",
+  "boobytrap_enemy_info": "La bombe était piégée !",
+
+  "clutchmaster": "Maître du Clutch",
+  "clutchmaster_desc": "Quand vous êtes le dernier en vie de votre équipe, vous gagnez +50 PV et infligez 30% de dégâts en plus",
+  "clutchmaster_active_info": "C'est l'heure du clutch ! +50 PV et +30% de dégâts.",
+
+  "defuseshield": "Bouclier de Désamorçage",
+  "defuseshield_desc": "Vous subissez 50% de dégâts en moins pendant le désamorçage",
+
+  "entryrush": "Assaut Éclair",
+  "entryrush_desc": "Pendant les 8 premières secondes de la manche, vous êtes 35% plus rapide et subissez 25% de dégâts en moins",
+  "entryrush_hud": "Assaut éclair : {0}s",
+
   "your_skill": "Votre compétence",
   "enemy_skill": "Compétence de l’ennemi",
   "observer_skill": "Compétence du joueur",
@@ -671,6 +695,7 @@
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
   "selectplayerskill_used_info": "Votre compétence a déjà été utilisée.",
+  "retakes_teams_managed": "Les équipes sont gérées par le mode retake. Demandez à un admin d'utiliser !scramble.",
   "curse_limit_info": "La limite de malédictions pour {0} a été atteinte",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",
