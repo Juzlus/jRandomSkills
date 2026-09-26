@@ -98,10 +98,13 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var weapon = @event.Item;
-            if (string.IsNullOrEmpty(weapon) || weapon != "hegrenade") return;
+            if (string.IsNullOrEmpty(weapon) || (weapon != "molotov" && weapon != "incgrenade")) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
-                SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft);
+            {
+                SkillUtils.UpdateGrenadeCount(player, CsItem.Molotov, grenadesLeft);
+                SkillUtils.UpdateGrenadeCount(player, CsItem.IncendiaryGrenade, grenadesLeft);
+            }
         }
 
         public static void EnableSkill(CCSPlayerController player)

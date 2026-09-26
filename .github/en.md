@@ -47,12 +47,26 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Current Skills (154)
+## 🔁 Bundled Retakes Mode
+This build also includes three plugins by [B3none](https://github.com/B3none), so a single install gives you a retakes server with superpowers:
+- **[Retakes](https://github.com/B3none/cs2-retakes)** (GPLv3): the bomb is planted at round start and CTs retake the site. It handles spawns, queue, team balance, auto plant and a fallback weapon allocation. Its settings live in `configs/retakes.json` and its spawns in `map_config/`. All its commands work as before (`!forcebombsite`, `!scramble`, `!showspawns`, `!voices`, ...), as does the `retakes_enabled` convar.
+- **[Instadefuse](https://github.com/B3none/cs2-instadefuse)** (GPLv3): if every terrorist is dead and no grenade or fire is near the bomb, the defuse is instant. If there isn't enough time left, the bomb explodes right away.
+- **Clutch Announce**: announces when the last player alive on a team wins the round (for example 1v3). It's a rewrite of the same idea as [cs2-clutch-announce](https://github.com/B3none/cs2-clutch-announce).
+
+Each one can be switched off under `Modules` in `configs/config.json`. While retakes is running, skills that need money, carrying or planting the bomb, normal spawns or the round timer are left out of the draw (`Modules.Retakes.IncompatibleSkills`). Six skills are made for retakes: Bomb Guardian, Bomb Sense and Booby Trap (T), Defuse Shield and Entry Rush (CT) and Clutch Master (both). Bomb Guardian and Bomb Sense are only drawn while retakes runs (`Modules.Retakes.RetakesOnlySkills`), and `!swap`/`!shuffle` are disabled because retakes manages the teams.
+
+Install: copy the `shared` folder along with `plugins` and `gamedata`, and remove any standalone RetakesPlugin, InstadefusePlugin or ClutchAnnouncePlugin so nothing runs twice.
+
+> [!WARNING]
+> **CS2 updates and CounterStrikeSharp:** when CounterStrikeSharp doesn't match the installed CS2 build, spawning entities through it can crash the server. `EntitySpawnSafety` in `config.json` (`"Mode": "Auto"`) turns entity spawning off unless the CS2 version in `csgo/steam.inf` is listed in `VerifiedGameVersions`. While it is off, the 27 skills that spawn entities are left out of the draw and retakes auto-plant falls back to giving the planter the bomb. After updating CounterStrikeSharp for a new CS2 build, add that version to the list (or set `"Mode": "Off"`).
+
+## ✨ Current Skills (170)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
 | Name              | Description                                                                                        | Cooldown / Range |
 | ----------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| Adrenaline        | Each kill restores 25 health and gives you a burst of speed for 5 seconds                          | 5 s              |
 | Aimbot            | Every bullet you hit counts as a headshot                                                          | -                |
 | Aim Lock          | Click [css_useSkill] to lock your aim on the nearest enemy                                         | 20 s             |
 | Anomaly           | Click [css_useSkill] to rewind a few seconds back in time                                          | 15 s             |
@@ -63,8 +77,12 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Bankrupt          | Choose the player who will lose all their money                                                    | -                |
 | Baseball Player   | Your decoy bounces off walls and instantly kills an enemy on impact                                | -                |
 | Berserker         | You deal more damage and move faster as your health gets lower                                     | -                |
+| Blacksmith        | You get a kevlar vest and helmet, and your armor regenerates over time                             | -                |
 | Blademaster       | While holding a knife, you have a high chance to deflect a shot                                    | -                |
 | Blast Shot        | Press Attack2 with the MP5 to fire an HE grenade                                                   | 10 s             |
+| Bomb Guardian     | You take 30% less damage while you are near the planted bomb                                       | 0.7x             |
+| Bomb Sense        | Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused      | -                |
+| Booby Trap        | The first CT to start defusing the bomb is blinded and takes 40 damage                             | 40 HP            |
 | Bounty            | Put a price on an enemy's head; whoever kills them takes the money                                 | 300$             |
 | Bunny             | You get auto "BunnyHop"                                                                            | -                |
 | C4 Camouflage     | You are invisible while holding the bomb                                                           | -                |
@@ -73,12 +91,14 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Chameleon         | The first player you kill gives you their skill                                                    | -                |
 | Chicken           | You get a chicken model + 10% faster movement - 50 HP                                              | -                |
 | Chillout          | Planting the bomb takes significantly longer                                                       | -                |
+| Clutch Master     | When you are the last one alive on your team, you get +50 HP and deal 30% more damage              | +50 HP / 1.3x    |
 | Cutter            | Instant kill with a knife                                                                          | -                |
 | Cypher            | Click [css_useSkill] to create/switch to a camera                                                  | 30 s             |
 | Darkness          | Applies a darkness effect to a chosen enemy                                                        | -                |
 | Deactivator       | Choose a player whose skill you want to disable                                                    | -                |
 | Deaf              | Choose a player to mute all sounds for                                                             | -                |
 | Death Bomb        | You explode upon death, killing nearby players                                                     | -                |
+| Defuse Shield     | You take 50% less damage while defusing the bomb                                                   | 0.5x             |
 | Demon Eye         | You deal damage to every enemy you are looking at                                                  | 2 s              |
 | Disarmament       | You have a random chance to make an enemy drop their weapon on hit                                 | (20 - 35)%       |
 | Dash              | Perform a second jump to dash                                                                      | -                |
@@ -88,8 +108,10 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | EMP Grenade       | Anyone hurt by your grenade loses their radar and crosshair for a while                            | 3 s              |
 | Enemy Spawn       | Click [css_useSkill] to teleport to the enemy spawn                                                | 15 s             |
 | Enemy Spin        | You have a random chance to turn an enemy 180° when hitting them                                   | (20 - 40)%       |
+| Entry Rush        | For the first 8 seconds of the round you move 35% faster and take 25% less damage                  | 8 s              |
 | Expensive Ammo    | A chosen enemy has to pay for every shot                                                           | -                |
 | Exploding Barrel  | Click [css_useSkill] to place a barrel that explodes when shot                                     | 20 s             |
+| Explosive Chicken | Click [css_useSkill] to release a chicken that chases the nearest enemy and explodes               | 20 s             |
 | Explosive Shot    | Random chance to fire an explosive bullet while shooting                                           | (15 - 30)%       |
 | Falcon Eye        | Click [css_useSkill] to activate a bird's-eye view camera                                          | -                |
 | Fastreload        | Click [css_useSkill] to reload the weapon you are currently holding                                | -                |
@@ -103,6 +125,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Gambler           | Select a skill from the list provided                                                              | -                |
 | Ghost             | You are completely invisible                                                                       | -                |
 | Giant             | Enlarge an enemy of your choice                                                                    | (110 - 140)%     |
+| Glass Cannon      | You deal 75% more damage to enemies, but take 50% more damage                                      | 1.75x / 1.5x     |
 | Glaz              | You can see through smoke grenades                                                                 | -                |
 | Glitch            | Disables the radar for a chosen enemy                                                              | -                |
 | Glue              | Your grenades stick to walls                                                                       | -                |
@@ -110,6 +133,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Grapple Hook      | Press [css_useSkill] to fire a hook at the point you're aiming at and pull yourself there          | 10 s             |
 | Gravity Decoy     | Your decoy changes the gravity of everyone nearby                                                  | 0.5x             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
+| Headhunter        | Headshot kills restore you to full health and armor                                                | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |
 | Heavyweight       | Skills that push or slow you down have no effect on you                                            | -                |
@@ -139,8 +163,11 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Magnetic Decoy    | Your decoy attracts nearby players towards itself                                                  | -                |
 | Magneto           | All enemy grenades are repelled away from you                                                      | -                |
 | Magnifier         | Forces the enemy's screen to zoom in, reducing their field of view                                 | -                |
+| Marked            | Choose an enemy who takes 35% more damage while you are alive                                      | 1.35x            |
 | Medic             | Click [css_useSkill] to use a healing charge that restores 50 health                               | 1 s              |
 | Bomb Miner        | Your HE grenade only explodes when there is an enemy nearby                                        | -                |
+| Momentum          | Each kill this round increases your damage by 15% (up to 5 stacks)                                 | +15%             |
+| Mute              | Choose an enemy who cannot use voice chat while you are alive                                      | -                |
 | Nemesis           | The player you mark takes extra damage                                                             | +0.25x           |
 | Nightmare         | Force a chosen enemy to experience a terrifying vision                                             | -                |
 | Ninja             | Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%    | -                |
@@ -151,6 +178,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Head Only         | You only take damage to the head                                                                   | -                |
 | Pawel Jumper      | You get an extra jump                                                                              | -                |
 | Phoenix           | You have a random chance to respawn after death                                                    | (20 - 40)%       |
+| Pickpocket        | Every hit on an enemy steals $150 from them                                                        | 150$             |
 | Psychic Defusing  | When you are near the bomb, you start defusing it                                                  | 10 s             |
 | Pilot             | Fly for a limited time. Hold [USE - E] to fly                                                      | -                |
 | Free Planter      | You can plant the bomb anywhere, with a detonation time of 60 seconds                              | -                |
@@ -176,6 +204,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Robin Hood        | Dealing damage to an enemy steals their money                                                      | -                |
 | Rubber Bullets    | Your bullets significantly slow down players                                                       | -                |
 | Sapper            | You can plant and defuse bombs faster                                                              | -                |
+| Scavenger         | Each kill refills your guns' ammo and may give you a grenade                                       | -                |
 | Second Chance     | After death, you respawn with the same amount of health                                            | -                |
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                |
@@ -235,7 +264,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 
 ## </> Server Commands
 > [!TIP]
-> **Bind to use skills:** `bind x css_useSkill`
+> **Using skills:** press **E** (the `AlternativeSkillButton` option, `"Use"` by default), or bind any key yourself with `bind x css_useSkill`. E is ignored while you are defusing or looking at the planted bomb, a door, a button or a weapon.
 
 <details>
 <summary>The table below lists all available commands in the game, along with their descriptions.</summary>
@@ -311,7 +340,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // 4 - Damage
                                          // Example: '123' enables: Skill, Round and Entity
         "PerfMode": false,               // Save performance measurements to the logs folder
-        "AlternativeSkillButton": null,  // Possible buttons:
+        "AlternativeSkillButton": "Use", // Possible buttons:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",
                                          // "Moveright", "Attack2", "Run", "Reload", "Alt1",

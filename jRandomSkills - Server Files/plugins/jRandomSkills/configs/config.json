@@ -10,7 +10,7 @@
   "EnableFullForceUpdate": false,
   "DebugMode": 0,
   "PerfMode": false,
-  "AlternativeSkillButton": null,
+  "AlternativeSkillButton": "Use",
   "SkillTimeBeforeStart": 7.0,
   "SkillHudDuration": -1.0,
   "SkillDescriptionDuration": 7.0,
@@ -277,6 +277,78 @@
       "MinimumPlayersToStartVoting": 2,
       "Alias": "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数",
       "Permissions": "@jRandomSkills/owner"
+    }
+  },
+  "EntitySpawnSafety": {
+    "Mode": "Auto",
+    "VerifiedGameVersions": [
+      "1.41.8.2"
+    ],
+    "Skills": [
+      "C4Camouflage",
+      "Chicken",
+      "Cypher",
+      "ExplodingBarrel",
+      "ExplosiveChicken",
+      "FalconEye",
+      "Flashlight",
+      "Fortnite",
+      "Ghost",
+      "Grapple",
+      "HealingChicken",
+      "Iana",
+      "Illusionist",
+      "Jackal",
+      "LongKnife",
+      "LongZeus",
+      "Nightmare",
+      "Ninja",
+      "Pilot",
+      "Replicator",
+      "Rewind",
+      "Ricochet",
+      "Spectator",
+      "ThirdEye",
+      "ThrowingKnife",
+      "Tripwire",
+      "Wallhack"
+    ]
+  },
+  "Modules": {
+    "Retakes": {
+      "Enabled": true,
+      "DisableIncompatibleSkills": true,
+      "IncompatibleSkills": [
+        "AreaReaper",
+        "Bankrupt",
+        "Bounty",
+        "C4Camouflage",
+        "ChillOut",
+        "EnemySpawn",
+        "ExpensiveAmmo",
+        "HotBomb",
+        "MoneySwap",
+        "Pickpocket",
+        "Planter",
+        "Retreat",
+        "ReturnToSender",
+        "RichBoy",
+        "RobinHood",
+        "ShortBomb",
+        "Watchmaker"
+      ],
+      "RetakesOnlySkills": [
+        "BombGuardian",
+        "BombSense"
+      ]
+    },
+    "Instadefuse": {
+      "Enabled": true,
+      "InfernoThreatRadius": 250.0
+    },
+    "ClutchAnnounce": {
+      "Enabled": true,
+      "MinimumEnemies": 1
     }
   }
 }

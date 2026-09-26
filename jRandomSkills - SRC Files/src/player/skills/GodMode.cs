@@ -14,7 +14,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
-        public static bool HaveHodMode(uint playerIndex) => SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo) && skillInfo.CanUse == false;
+        public static bool HaveHodMode(uint playerIndex) => SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo) && skillInfo.HaveGodMode;
 
         public static void LoadSkill()
         {
@@ -36,9 +36,6 @@ namespace src.player.skills
                 HaveGodMode = false,
                 Cooldown = DateTime.MinValue,
             });
-
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
-                skillInfo.HaveGodMode = true;
         }
 
         public static void OnTick()

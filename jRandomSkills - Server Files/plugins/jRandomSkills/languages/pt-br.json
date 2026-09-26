@@ -613,6 +613,71 @@
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 recarrega instantaneamente",
 
+  "adrenaline": "Adrenalina",
+  "adrenaline_desc": "Cada abate restaura 25 de vida e te dá um aumento de velocidade por 5 segundos",
+
+  "blacksmith": "Ferreiro",
+  "blacksmith_desc": "Você recebe colete e capacete, e sua armadura se regenera com o tempo",
+
+  "explosivechicken": "Galinha Explosiva",
+  "explosivechicken_desc": "Clique em [css_useSkill] para soltar uma galinha que persegue o inimigo mais próximo e explode",
+  "explosivechicken_hud_active": "Vida da galinha: {0}",
+  "explosivechicken_already_active": "Sua galinha já está correndo!",
+  "explosivechicken_blocked": "Não há espaço para soltar a galinha",
+
+  "glasscannon": "Canhão de Vidro",
+  "glasscannon_desc": "Você causa 75% mais dano aos inimigos, mas recebe 50% mais dano",
+
+  "headhunter": "Caçador de Cabeças",
+  "headhunter_desc": "Abates com headshot restauram toda a sua vida e armadura",
+  "headhunter_heal_info": "Headshot! Sua vida foi restaurada.",
+
+  "marked": "Marcado",
+  "marked_desc": "Escolha um inimigo que recebe 35% mais dano enquanto você estiver vivo",
+  "marked_player_info": "O jogador '{0}' foi marcado.",
+  "marked_enemy_info": "Você foi marcado! Você recebe mais dano.",
+  "marked_select_info": "Selecione um jogador para marcar:",
+
+  "momentum": "Embalo",
+  "momentum_desc": "Cada abate nesta rodada aumenta seu dano em 15% (até 5 acúmulos)",
+
+  "mute": "Mudo",
+  "mute_desc": "Escolha um inimigo que não pode usar o chat de voz enquanto você estiver vivo",
+  "mute_player_info": "O jogador '{0}' foi silenciado.",
+  "mute_enemy_info": "Você foi silenciado! Seu time não consegue te ouvir.",
+  "mute_disable_info": "Você pode usar o chat de voz novamente.",
+  "mute_select_info": "Selecione um jogador para silenciar:",
+
+  "pickpocket": "Batedor de Carteira",
+  "pickpocket_desc": "Cada acerto em um inimigo rouba $150 dele",
+
+  "scavenger": "Saqueador",
+  "scavenger_desc": "Cada abate recarrega a munição das suas armas e pode te dar uma granada",
+
+  "bombguardian": "Guardião da Bomba",
+  "bombguardian_desc": "Você recebe 30% menos dano enquanto está perto da bomba plantada",
+  "bombguardian_hud_active": "Guardando a bomba: -30% de dano",
+
+  "bombsense": "Sentido da Bomba",
+  "bombsense_desc": "Seu HUD mostra a distância do CT mais próximo da bomba e avisa quando ela está sendo desarmada",
+  "bombsense_hud": "CT mais próximo da bomba: {0}",
+  "bombsense_defusing": "A bomba está sendo desarmada!",
+
+  "boobytrap": "Armadilha",
+  "boobytrap_desc": "O primeiro CT a começar a desarmar a bomba fica cego e recebe 40 de dano",
+  "boobytrap_enemy_info": "A bomba estava armadilhada!",
+
+  "clutchmaster": "Mestre do Clutch",
+  "clutchmaster_desc": "Quando você é o último vivo do seu time, ganha +50 de vida e causa 30% mais dano",
+  "clutchmaster_active_info": "Hora do clutch! +50 de vida e +30% de dano.",
+
+  "defuseshield": "Escudo de Desarme",
+  "defuseshield_desc": "Você recebe 50% menos dano enquanto desarma a bomba",
+
+  "entryrush": "Entrada Rápida",
+  "entryrush_desc": "Nos primeiros 8 segundos da rodada você fica 35% mais rápido e recebe 25% menos dano",
+  "entryrush_hud": "Entrada rápida: {0}s",
+
   "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
   "observer_skill": "Habilidade do jogador",
@@ -629,6 +694,8 @@
   "duplicate_player": "Mais de um jogador encontrado com o mesmo nome.",
   "selectplayerskill_command": "Digite /t",
   "selectplayerskill_incorrect_enemy_index": "Não foram encontrados jogadores para selecionar.",
+  "selectplayerskill_used_info": "Sua habilidade já foi usada.",
+  "retakes_teams_managed": "Os times são gerenciados pelo modo retake. Peça a um admin para usar !scramble.",
   "curse_limit_info": "O limite de maldições para {0} foi atingido",
 
   "skill_not_found_setskill": "Nenhuma habilidade CHATCOLORS.RED encontrada",

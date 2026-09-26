@@ -1,0 +1,23 @@
+{
+  "retakes.prefix": "[{green}RETAKES{default}]",
+  "retakes.no_permissions": "Du har ikke tillatelse til å bruke denne kommandoen.",
+  "retakes.enabled": "{red}deaktivert{default}",
+  "retakes.disabled": "{green}aktivert{default}",
+  "retakes.plugin.enabled": "Retakes-pluginen har blitt {green}aktivert{default}.",
+  "retakes.plugin.disabled": "Retakes-pluginen har blitt {red}deaktivert{default}.",
+  "retakes.queue.joined": "Du har blitt plassert i kø for å bli med.",
+  "retakes.queue.waiting": "Spillet er for øyeblikket fullt med {green}{0}{default} spillere. Du er nå i køen for å bli med.",
+  "retakes.queue.waiting_for_players": "Venter på spillere: {green}{0}{default}/{green}{1}{default}. Spillet starter når det er nok spillere.",
+  "retakes.queue.minimum_players_reached": "Det er nå nok spillere - spillet starter!",
+  "retakes.queue.replaced_by_vip": "Du har blitt erstattet av {gold}{1}{default}-spilleren {green}{0}{default}.",
+  "retakes.queue.vip_took_place": "Du har tatt {green}{0}{default}s plass i spillet fordi du er {gold}{1}{default}.",
+  "retakes.bombsite.announcement": "Retake {green}{0}{default}: {lightred}{1} Ts{default} mot {purple}{2} CTs",
+  "retakes.center.bombsite.announcement": "Retake {green}{0}{default}: {lightred}{1} Ts{default} mot {purple}{2} CTs",
+  "retakes.bombsite.plant_location": "Bomben er plantet på {green}{0}{default}.",
+  "retakes.voices.toggle": "Du har {0} stemme kunngjøringer!",
+  "retakes.teams.scramble": "Terroristene har vunnet {green}{0}{default} runder på rad. {purple}Lagene blir samlet!",
+  "retakes.teams.almost_scramble": "Terroristene har vunnet {green}{0}{default} runder på rad - hvis de vinner {green}{1} mer, {purple}vil lagene bli endret.",
+  "retakes.teams.win_streak": "Terroristene har vunnet {green}{0}{default} runder på rad!",
+  "retakes.teams.win_streak_over": "CT har sluttet en {green}{0}{default}-runders lang seiersrekke!",
+  "retakes.teams.admin_scramble": "{0} har satt lagene til å bli samlet neste runde."
+}

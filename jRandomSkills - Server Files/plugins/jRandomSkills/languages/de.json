@@ -613,6 +613,71 @@
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 lädt sich sofort wieder auf",
 
+  "adrenaline": "Adrenalin",
+  "adrenaline_desc": "Jeder Kill stellt 25 Gesundheit wieder her und gibt dir 5 Sekunden lang einen Geschwindigkeitsschub",
+
+  "blacksmith": "Schmied",
+  "blacksmith_desc": "Du erhältst Kevlarweste und Helm, und deine Rüstung regeneriert sich mit der Zeit",
+
+  "explosivechicken": "Explosives Huhn",
+  "explosivechicken_desc": "Klicke auf [css_useSkill], um ein Huhn freizulassen, das den nächsten Gegner verfolgt und explodiert",
+  "explosivechicken_hud_active": "Huhn-HP: {0}",
+  "explosivechicken_already_active": "Dein Huhn läuft bereits!",
+  "explosivechicken_blocked": "Kein Platz, um das Huhn freizulassen",
+
+  "glasscannon": "Glaskanone",
+  "glasscannon_desc": "Du fügst Gegnern 75% mehr Schaden zu, erleidest aber 50% mehr Schaden",
+
+  "headhunter": "Kopfjäger",
+  "headhunter_desc": "Kopfschuss-Kills stellen deine volle Gesundheit und Rüstung wieder her",
+  "headhunter_heal_info": "Kopfschuss! Du hast wieder volle Gesundheit.",
+
+  "marked": "Markiert",
+  "marked_desc": "Wähle einen Gegner, der 35% mehr Schaden erleidet, solange du lebst",
+  "marked_player_info": "Spieler '{0}' wurde markiert.",
+  "marked_enemy_info": "Du wurdest markiert! Du erleidest mehr Schaden.",
+  "marked_select_info": "Wähle einen Spieler zum Markieren:",
+
+  "momentum": "Schwung",
+  "momentum_desc": "Jeder Kill in dieser Runde erhöht deinen Schaden um 15% (bis zu 5 Stufen)",
+
+  "mute": "Stumm",
+  "mute_desc": "Wähle einen Gegner, der den Sprachchat nicht nutzen kann, solange du lebst",
+  "mute_player_info": "Spieler '{0}' wurde stummgeschaltet.",
+  "mute_enemy_info": "Du wurdest stummgeschaltet! Dein Team kann dich nicht hören.",
+  "mute_disable_info": "Du kannst den Sprachchat wieder nutzen.",
+  "mute_select_info": "Wähle einen Spieler zum Stummschalten:",
+
+  "pickpocket": "Taschendieb",
+  "pickpocket_desc": "Jeder Treffer an einem Gegner stiehlt ihm 150$",
+
+  "scavenger": "Plünderer",
+  "scavenger_desc": "Jeder Kill füllt die Munition deiner Waffen auf und gibt dir eventuell eine Granate",
+
+  "bombguardian": "Bombenwächter",
+  "bombguardian_desc": "Du erleidest 30% weniger Schaden, solange du nahe der gelegten Bombe bist",
+  "bombguardian_hud_active": "Du bewachst die Bombe: -30% Schaden",
+
+  "bombsense": "Bombengespür",
+  "bombsense_desc": "Dein HUD zeigt, wie nah der nächste CT an der Bombe ist, und warnt dich, wenn sie entschärft wird",
+  "bombsense_hud": "Nächster CT zur Bombe: {0}",
+  "bombsense_defusing": "Die Bombe wird entschärft!",
+
+  "boobytrap": "Sprengfalle",
+  "boobytrap_desc": "Der erste CT, der die Bombe entschärft, wird geblendet und erleidet 40 Schaden",
+  "boobytrap_enemy_info": "Die Bombe war mit einer Sprengfalle versehen!",
+
+  "clutchmaster": "Clutch-Meister",
+  "clutchmaster_desc": "Wenn du als Letzter deines Teams lebst, erhältst du +50 HP und verursachst 30% mehr Schaden",
+  "clutchmaster_active_info": "Clutch-Zeit! +50 HP und +30% Schaden.",
+
+  "defuseshield": "Entschärfungsschild",
+  "defuseshield_desc": "Du erleidest 50% weniger Schaden, während du die Bombe entschärfst",
+
+  "entryrush": "Sturmangriff",
+  "entryrush_desc": "In den ersten 8 Sekunden der Runde bist du 35% schneller und erleidest 25% weniger Schaden",
+  "entryrush_hud": "Sturmangriff: {0}s",
+
   "your_skill": "Deine aktuelle Fertigkeit",
   "enemy_skill": "Fähigkeit des Gegners",
   "observer_skill": "Fähigkeit des Spielers",
@@ -629,6 +694,8 @@
   "duplicate_player": "Mehr als ein Spieler mit demselben Namen gefunden.",
   "selectplayerskill_command": "Gib /t ein",
   "selectplayerskill_incorrect_enemy_index": "Es wurden keine Spieler gefunden, die ausgewählt werden können.",
+  "selectplayerskill_used_info": "Deine Fähigkeit wurde bereits benutzt.",
+  "retakes_teams_managed": "Die Teams werden vom Retake-Modus verwaltet. Bitte einen Admin, !scramble zu verwenden.",
   "curse_limit_info": "Das Fluchlimit für {0} wurde erreicht",
 
   "skill_not_found_setskill": "Keine solche CHATCOLORS.REDskill gefunden",

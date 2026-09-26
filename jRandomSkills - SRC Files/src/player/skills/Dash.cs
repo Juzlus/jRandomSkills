@@ -71,7 +71,7 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (player == null || !player.IsValid) return;
+                if (player == null || !player.IsValid) continue;
 
                 var eventPlayer = PlayerManager.GetPlayerEvent(player);
                 var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer!.Index);

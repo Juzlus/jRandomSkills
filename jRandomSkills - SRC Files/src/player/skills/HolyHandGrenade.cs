@@ -33,7 +33,8 @@ namespace src.player.skills
                 if (playerPawn == null || !playerPawn.IsValid) return;
 
                 var player = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.PlayerPawn.Index == playerPawn.Index);
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                if (player == null) return;
+                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
                 if (playerInfo?.Skill != skillName) return;
 
                 hegrenade.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");

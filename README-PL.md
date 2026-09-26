@@ -47,12 +47,26 @@ Dołącz do serwera testowego 3v3 i wypróbuj plugin jRandomSkills:
 
 Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Aktualne Supermoce (154)
+## 🔁 Wbudowany Tryb Retake
+Ta wersja zawiera też trzy pluginy autorstwa [B3none](https://github.com/B3none), więc jedna instalacja daje serwer retake z supermocami:
+- **[Retakes](https://github.com/B3none/cs2-retakes)** (GPLv3): bomba jest podłożona na starcie rundy, a CT odbijają bombsite. Obsługuje spawny, kolejkę, balans drużyn, automatyczne podłożenie i zapasowy przydział broni. Ustawienia są w `configs/retakes.json`, a spawny w `map_config/`. Wszystkie komendy działają jak wcześniej (`!forcebombsite`, `!scramble`, `!showspawns`, `!voices`, ...), podobnie jak convar `retakes_enabled`.
+- **[Instadefuse](https://github.com/B3none/cs2-instadefuse)** (GPLv3): jeśli wszyscy terroryści nie żyją, a przy bombie nie ma granatu ani ognia, rozbrojenie jest natychmiastowe. Jeśli zostało za mało czasu, bomba od razu wybucha.
+- **Clutch Announce**: ogłasza, gdy ostatni żywy gracz drużyny wygrywa rundę (np. 1v3). To napisana od nowa wersja tego samego pomysłu co [cs2-clutch-announce](https://github.com/B3none/cs2-clutch-announce).
+
+Każdy moduł można wyłączyć w sekcji `Modules` w `configs/config.json`. Gdy działa tryb retake, supermoce wymagające pieniędzy, noszenia lub podkładania bomby, zwykłych spawnów albo czasu rundy nie są losowane (`Modules.Retakes.IncompatibleSkills`). Sześć supermocy powstało z myślą o retake: Strażnik Bomby, Wyczucie Bomby i Pułapka (T), Tarcza Sapera i Szybkie Wejście (CT) oraz Mistrz Clutchy (obie drużyny). Strażnik Bomby i Wyczucie Bomby są losowane tylko w trybie retake (`Modules.Retakes.RetakesOnlySkills`), a `!swap`/`!shuffle` są wyłączone, bo drużynami zarządza retake.
+
+Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń osobne pluginy RetakesPlugin, InstadefusePlugin lub ClutchAnnouncePlugin, aby nic nie działało podwójnie.
+
+> [!WARNING]
+> **Aktualizacje CS2 i CounterStrikeSharp:** gdy CounterStrikeSharp nie pasuje do zainstalowanej wersji CS2, tworzenie encji przez niego może wywrócić serwer. `EntitySpawnSafety` w `config.json` (`"Mode": "Auto"`) wyłącza tworzenie encji, jeśli wersji CS2 z `csgo/steam.inf` nie ma na liście `VerifiedGameVersions`. Wtedy 27 supermocy tworzących encje nie jest losowanych, a automatyczne podłożenie bomby w retake zamienia się na zwykłe podłożenie przez gracza. Po aktualizacji CounterStrikeSharp dla nowej wersji CS2 dopisz tę wersję do listy (albo ustaw `"Mode": "Off"`).
+
+## ✨ Aktualne Supermoce (170)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
 | Nazwa                | Opis                                                                                                              | Czas dnowienia  |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------- |
+| Adrenalina           | Każde zabójstwo przywraca 25 punktów zdrowia i daje ci przypływ prędkości na 5 sekund                             | 5 s             |
 | Aim Lock             | Kliknij [css_useSkill], aby wycelować na najbliższego wroga                                                       | 20 s            |
 | Aimbot               | Każdy twój trafiony pocisk liczy się jako strzał w głowę                                                          | -               |
 | Analfabeta           | Dopóki żyjesz, Twoi wrogowie nie potrafią czytać                                                                  | -               |
@@ -104,9 +118,11 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Kamera               | Kliknij [css_useSkill], aby utworzyć lub przełączyć się na kamerę                                                 | 30 s            |
 | Karający             | Gromadzisz część otrzymanych obrażeń i uwalniasz je przy następnym strzale.                                       | 0.5x            |
 | Katapulta            | Masz losową szansę na podrzucenie wroga                                                                           | (20 - 40)%      |
+| Kieszonkowiec        | Każde trafienie wroga kradnie mu 150$                                                                             | 150$            |
 | Klej                 | Twoje granaty przyklejają się do ścian                                                                            | -               |
 | Klątwa Skakania      | Wybrany przeciwnik skacze za każdym razem, gdy skaczą jego sojusznicy                                             | -               |
 | Koszmar              | Wywołaj u wybranego przeciwnika przerażającą wizję                                                                | -               |
+| Kowal                | Otrzymujesz kamizelkę i hełm, a twój pancerz regeneruje się z czasem                                              | -               |
 | Królik               | Otrzymujesz auto "BunnyHopa"                                                                                      | -               |
 | Krucha Bomba         | Strzelanie do bomby powoduje jej uszkodzenie                                                                      | -               |
 | Krótka Bomba         | Bomba wybucha znacznie szybciej                                                                                   | -               |
@@ -122,10 +138,12 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Magnetyczny Wabik    | Twój wabik przyciąga pobliskich graczy do siebie                                                                  | -               |
 | Medyk                | Kliknij [css_useSkill], aby użyć ładunku leczniczego, który przywraca 50 punktów zdrowia                          | 1 s             |
 | Mini Majk            | Losowa wielkość postaci na początku rundy                                                                         | (60 - 95)%      |
+| Mistrz Clutchy       | Gdy zostajesz ostatni żywy w drużynie, dostajesz +50 HP i zadajesz o 30% więcej obrażeń                           | +50 HP / 1.3x   |
 | Mistrz Ostrza        | Trzymając nóż, masz dużą szansę na odparcie strzału                                                               | -               |
 | Mocne Uderzenie      | Naciśnij Attack2 na MP5, aby wystrzelić granat HE                                                                 | 10 s            |
 | Mrok                 | Nadaje efekt ciemności wybranemu przeciwnikowi                                                                    | -               |
 | Naprowadzane Granaty | Twoje granaty, z wyjątkiem dymnych, są przyciągane do wrogów                                                      | -               |
+| Naznaczony           | Wybierz wroga, który otrzymuje o 35% więcej obrażeń, dopóki żyjesz                                                | 1.35x           |
 | Nemezis              | Oznaczony gracz otrzymuje dodatkowe obrażenia.                                                                    | +0.25x          |
 | Nieskończone Ammo    | Otrzymujesz nieskończoną ilość amunicji do wszystkich broni                                                       | -               |
 | Nieważkość           | Twoje granaty nie podlegają grawitacji i lecą szybciej                                                            | -               |
@@ -156,6 +174,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Prawdziwy Pancerz    | Pancerz pochłania część otrzymywanych obrażeń zamiast zdrowia.                                                    | 0.33x           |
 | Proteza              | Ramiona i nogi są kuloodporne                                                                                     | -               |
 | Pustelnik            | Zabijanie przywraca amunicję i część zdrowia                                                                      | -               |
+| Pułapka              | Pierwszy CT, który zacznie rozbrajać bombę, zostaje oślepiony i otrzymuje 40 obrażeń                              | 40 HP           |
 | Pyro                 | Molotow przywraca zdrowie                                                                                         | -               |
 | Radarowiec           | Na radarze widać wrogów                                                                                           | -               |
 | Rambo                | Na początku rundy otrzymujesz losową ilość zdrowia                                                                | +(50 - 501) HP  |
@@ -165,6 +184,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Resp Wroga           | Kliknij [css_useSkill], aby teleportować się na resp wroga                                                        | 15 s            |
 | Robin Hood           | Zadanie obrażeń przeciwnikowi powoduje kradzież jego pieniędzy                                                    | -               |
 | Rozbrojenie          | Masz losową szansę na wyrzucenie broni wroga po trafieniu                                                         | (20 - 35)%      |
+| Rozpęd               | Każde zabójstwo w tej rundzie zwiększa twoje obrażenia o 15% (maks. 5 razy)                                       | +15%            |
 | Rykoszet             | Twoje pociski odbijają się od ścian i nadal mogą trafić przeciwników                                              | -               |
 | Samowolka            | Bombę można podłożyć w dowolnym miejscu, a czas detonacji wynosi 60 sekund                                        | -               |
 | Saper                | Możesz szybciej podłożyć bombę i ją rozbroić                                                                      | -               |
@@ -173,11 +193,20 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Skrytobójca          | Zadajesz podwójne obrażenia przeciwnikowi od tyłu                                                                 | -               |
 | Skupienie            | Brak odrzutu podczas strzelania                                                                                   | -               |
 | Spadek Rodzinny      | Gdy członek drużyny ginie, możesz przejąć jego umiejętność                                                        | -               |
+| Strażnik Bomby       | Otrzymujesz o 30% mniej obrażeń, gdy jesteś blisko podłożonej bomby                                               | 0.7x            |
 | Strzał Wybuchowy     | Losowa szansa wystrzelenia pocisku wybuchowego podczas strzelania                                                 | (15 - 30)%      |
 | Stópkarz             | Wybierasz gracza, który pozostawi za sobą ślad                                                                    | -               |
+| Szklane Działo       | Zadajesz wrogom o 75% więcej obrażeń, ale otrzymujesz o 50% więcej obrażeń                                        | 1.75x / 1.5x    |
 | Szpieg               | Na początku rundy otrzymujesz model postaci przeciwnika                                                           | -               |
 | Szybkie Rączki       | Kliknij [css_useSkill], aby przeładować broń, którą obecnie trzymasz                                              | -               |
+| Szybkie Wejście      | Przez pierwsze 8 sekund rundy poruszasz się o 35% szybciej i otrzymujesz o 25% mniej obrażeń                      | 8 s             |
 | Szybkostrzelność     | Wszystkie pociski są wystrzeliwane bardzo szybko                                                                  | -               |
+| Tarcza Sapera        | Otrzymujesz o 50% mniej obrażeń podczas rozbrajania bomby                                                         | 0.5x            |
+| Wybuchowy Kurczak    | Kliknij [css_useSkill], aby wypuścić kurczaka, który goni najbliższego wroga i wybucha                            | 20 s            |
+| Wyciszenie           | Wybierz wroga, który nie może używać czatu głosowego, dopóki żyjesz                                               | -               |
+| Wyczucie Bomby       | HUD pokazuje, jak blisko bomby jest najbliższy CT, i ostrzega, gdy bomba jest rozbrajana                          | -               |
+| Zbieracz             | Każde zabójstwo uzupełnia amunicję twoich broni i może dać ci granat                                              | -               |
+| Łowca Głów           | Zabójstwa strzałem w głowę przywracają ci pełne zdrowie i pancerz                                                 | -               |
 | Święty Granat Ręczny | Twoje granaty HE zadają podwójne obrażenia i mają podwójny zasięg                                                 | -               |
 | Teleport do drużyny  | Naciśnij [css_useSkill], aby teleportować się do członka drużyny, na którego patrzysz                             | 15 s            |
 | Teleporter           | Zamieniasz się miejscami z trafionym przeciwnikiem                                                                | -               |
@@ -235,7 +264,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 
 ## </> Komendy Serwerowe
 > [!TIP]
-> **Bind do używania supermocy:** `bind x css_useSkill`
+> **Używanie supermocy:** naciśnij **E** (opcja `AlternativeSkillButton`, domyślnie `"Use"`) albo przypisz dowolny klawisz komendą `bind x css_useSkill`. E jest ignorowane podczas rozbrajania i gdy patrzysz na podłożoną bombę, drzwi, przycisk lub broń.
 
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne komendy w grze, wraz z ich opisami.</summary>

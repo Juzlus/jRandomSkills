@@ -132,7 +132,7 @@ namespace src.command
             }
 
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
+            var skill = SkillData.Skills.FirstOrDefault(s => !IsSkillBlockedByMode(s.Skill) && (player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase)));
 
             if (skill == null)
             {
@@ -288,6 +288,11 @@ namespace src.command
         private static void Command_Swap(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_swap {command.ArgString} command.");
+            if (Instance.IsRetakesActive)
+            {
+                command.ReplyToCommand(player == null ? "Teams are managed by the retakes mode (use css_scramble)." : $" {ChatColors.Red}{player.GetTranslation("retakes_teams_managed")}");
+                return;
+            }
             if (player != null && player.IsValid)
                 if (!string.IsNullOrEmpty(config.VotingCommands.SwapCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SwapCommand.Permissions))
                 {
@@ -300,6 +305,7 @@ namespace src.command
 
         private static void Swap()
         {
+            if (Instance.IsRetakesActive) return;
             foreach (var player in Utilities.GetPlayers())
                 if (Instance.IsPlayerValid(player) && new CsTeam[] { CsTeam.CounterTerrorist, CsTeam.Terrorist }.Contains(player.Team))
                     player.SwitchTeam(player.Team == CsTeam.Terrorist ? CsTeam.CounterTerrorist : CsTeam.Terrorist);
@@ -310,6 +316,11 @@ namespace src.command
         private static void Command_Shuffle(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_shuffle {command.ArgString} command.");
+            if (Instance.IsRetakesActive)
+            {
+                command.ReplyToCommand(player == null ? "Teams are managed by the retakes mode (use css_scramble)." : $" {ChatColors.Red}{player.GetTranslation("retakes_teams_managed")}");
+                return;
+            }
             if (player != null && player.IsValid)
                 if (!string.IsNullOrEmpty(config.VotingCommands.ShuffleCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ShuffleCommand.Permissions))
                 {
@@ -322,6 +333,7 @@ namespace src.command
 
         private static void Shuffle()
         {
+            if (Instance.IsRetakesActive) return;
             var players = Utilities.GetPlayers().FindAll(p => Instance.IsPlayerValid(p) && new CsTeam[] { CsTeam.CounterTerrorist, CsTeam.Terrorist }.Contains(p.Team));
             double CTlimit = Instance.Random.Next(0, 2) == 0 ? Math.Floor(players.Count / 2.0) : Math.Ceiling(players.Count / 2.0);
 
@@ -384,6 +396,12 @@ namespace src.command
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_plantedbomb {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.PlantedBomb.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.PlantedBomb.Permissions)) return;
+
+            if (EntitySafety.SpawningBlocked)
+            {
+                command.ReplyToCommand("Entity spawning is disabled on this CS2 build (see EntitySpawnSafety in config.json).");
+                return;
+            }
 
             CPlantedC4? bomb = Utilities.CreateEntityByName<CPlantedC4>("planted_c4");
             if (bomb == null || !bomb.IsValid) return;
@@ -518,7 +536,7 @@ namespace src.command
             }
 
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
+            var skill = SkillData.Skills.FirstOrDefault(s => !IsSkillBlockedByMode(s.Skill) && (player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase)));
 
             if (skill == null)
             {

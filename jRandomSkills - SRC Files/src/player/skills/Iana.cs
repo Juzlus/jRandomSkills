@@ -26,7 +26,7 @@ namespace src.player.skills
         public static void NewRound()
         {
             foreach (var playerSkill in playersInfo.Values)
-                KillClone(playerSkill);
+                KillClone(playerSkill, false);
 
             lock (setLock)
             {
@@ -86,7 +86,7 @@ namespace src.player.skills
         {
             if (player == null) return;
             if (playersInfo.TryGetValue(player.Index, out var playerSkill))
-                KillClone(playerSkill);
+                KillClone(playerSkill, false);
             playersInfo.TryRemove(player.Index, out _);
             EntityManager.DestroyPlayerEntities(player.Index);
             SkillUtils.ResetPrintHTML(player);
@@ -106,7 +106,9 @@ namespace src.player.skills
                     playerSkill.Weapons.Add(weapon.Value.AttributeManager.Item.ItemID);
         }
 
-        private static void KillClone(PlayerSkill playerSkill)
+        // returnToClone is false when the skill is torn down (death, round reset): the player must stay where the
+        // round put them, e.g. on a retakes spawn, instead of being sent back to last round's clone.
+        private static void KillClone(PlayerSkill playerSkill, bool returnToClone = true)
         {
             var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
             if (player == null || !player.IsValid) return;
@@ -120,7 +122,7 @@ namespace src.player.skills
             if (cloneProp != null && cloneProp.IsValid && cloneProp.AbsOrigin != null && cloneProp.AbsRotation != null)
             {
                 var playerPawn = player.PlayerPawn.Value;
-                if (playerPawn != null && playerPawn.IsValid)
+                if (returnToClone && playerPawn != null && playerPawn.IsValid)
                 {
                     Vector pos = new(cloneProp.AbsOrigin.X, cloneProp.AbsOrigin.Y, cloneProp.AbsOrigin.Z);
                     Server.NextFrame(() =>
