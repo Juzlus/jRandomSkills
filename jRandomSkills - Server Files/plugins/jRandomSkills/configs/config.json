@@ -10,7 +10,7 @@
   "EnableFullForceUpdate": false,
   "DebugMode": 0,
   "PerfMode": false,
-  "AlternativeSkillButton": null,
+  "AlternativeSkillButton": "Use",
   "SkillTimeBeforeStart": 7.0,
   "SkillHudDuration": -1.0,
   "SkillDescriptionDuration": 7.0,
@@ -295,8 +295,16 @@
         "MoneySwap",
         "Pickpocket",
         "Planter",
+        "Retreat",
+        "ReturnToSender",
         "RichBoy",
-        "ShortBomb"
+        "RobinHood",
+        "ShortBomb",
+        "Watchmaker"
+      ],
+      "RetakesOnlySkills": [
+        "BombGuardian",
+        "BombSense"
       ]
     },
     "Instadefuse": {

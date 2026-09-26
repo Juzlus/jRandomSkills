@@ -90,11 +90,17 @@ namespace src
                 new ClutchAnnounceModule(this).Load();
         }
 
-        // Skills that don't work in the retakes mode (buying, carrying/planting the bomb, normal spawns).
+        // Skills that don't work in the retakes mode (buying, carrying/planting the bomb, normal spawns),
+        // and retakes-only skills while it is off.
         public static bool IsSkillBlockedByMode(Skills skill)
         {
             var retakes = Config.LoadedConfig.Modules.Retakes;
-            return Instance.IsRetakesActive && retakes.DisableIncompatibleSkills && retakes.IncompatibleSkills.Contains(SkillNames.Get(skill));
+            string name = SkillNames.Get(skill);
+
+            if (!Instance.IsRetakesActive)
+                return retakes.RetakesOnlySkills.Contains(name);
+
+            return retakes.DisableIncompatibleSkills && retakes.IncompatibleSkills.Contains(name);
         }
 
         internal void AddToManifest(string prop)

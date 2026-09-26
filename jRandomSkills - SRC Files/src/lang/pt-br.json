@@ -654,6 +654,30 @@
   "scavenger": "Saqueador",
   "scavenger_desc": "Cada abate recarrega a munição das suas armas e pode te dar uma granada",
 
+  "bombguardian": "Guardião da Bomba",
+  "bombguardian_desc": "Você recebe 30% menos dano enquanto está perto da bomba plantada",
+  "bombguardian_hud_active": "Guardando a bomba: -30% de dano",
+
+  "bombsense": "Sentido da Bomba",
+  "bombsense_desc": "Seu HUD mostra a distância do CT mais próximo da bomba e avisa quando ela está sendo desarmada",
+  "bombsense_hud": "CT mais próximo da bomba: {0}",
+  "bombsense_defusing": "A bomba está sendo desarmada!",
+
+  "boobytrap": "Armadilha",
+  "boobytrap_desc": "O primeiro CT a começar a desarmar a bomba fica cego e recebe 40 de dano",
+  "boobytrap_enemy_info": "A bomba estava armadilhada!",
+
+  "clutchmaster": "Mestre do Clutch",
+  "clutchmaster_desc": "Quando você é o último vivo do seu time, ganha +50 de vida e causa 30% mais dano",
+  "clutchmaster_active_info": "Hora do clutch! +50 de vida e +30% de dano.",
+
+  "defuseshield": "Escudo de Desarme",
+  "defuseshield_desc": "Você recebe 50% menos dano enquanto desarma a bomba",
+
+  "entryrush": "Entrada Rápida",
+  "entryrush_desc": "Nos primeiros 8 segundos da rodada você fica 35% mais rápido e recebe 25% menos dano",
+  "entryrush_hud": "Entrada rápida: {0}s",
+
   "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
   "observer_skill": "Habilidade do jogador",

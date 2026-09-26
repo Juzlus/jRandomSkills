@@ -200,7 +200,7 @@ namespace src.utils
                 EnableFullForceUpdate = false;
                 DebugMode = 0;
                 PerfMode = false;
-                AlternativeSkillButton = null;
+                AlternativeSkillButton = "Use";
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;
                 SkillDescriptionDuration = 7;
@@ -358,8 +358,12 @@ namespace src.utils
             public List<string> IncompatibleSkills { get; set; } =
             [
                 "AreaReaper", "Bankrupt", "Bounty", "C4Camouflage", "ChillOut", "EnemySpawn", "ExpensiveAmmo",
-                "HotBomb", "MoneySwap", "Pickpocket", "Planter", "RichBoy", "ShortBomb",
+                "HotBomb", "MoneySwap", "Pickpocket", "Planter", "Retreat", "ReturnToSender", "RichBoy",
+                "RobinHood", "ShortBomb", "Watchmaker",
             ];
+            // Skills built around the retakes mode; they are only drawn while it runs.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> RetakesOnlySkills { get; set; } = ["BombGuardian", "BombSense"];
         }
 
         public class InstadefuseModuleSettings

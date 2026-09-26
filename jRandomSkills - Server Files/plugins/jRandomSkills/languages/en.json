@@ -654,6 +654,30 @@
   "scavenger": "Scavenger",
   "scavenger_desc": "Each kill refills your guns' ammo and may give you a grenade",
 
+  "bombguardian": "Bomb Guardian",
+  "bombguardian_desc": "You take 30% less damage while you are near the planted bomb",
+  "bombguardian_hud_active": "Guarding the bomb: -30% damage",
+
+  "bombsense": "Bomb Sense",
+  "bombsense_desc": "Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused",
+  "bombsense_hud": "Nearest CT to the bomb: {0}",
+  "bombsense_defusing": "The bomb is being defused!",
+
+  "boobytrap": "Booby Trap",
+  "boobytrap_desc": "The first CT to start defusing the bomb is blinded and takes 40 damage",
+  "boobytrap_enemy_info": "The bomb was booby-trapped!",
+
+  "clutchmaster": "Clutch Master",
+  "clutchmaster_desc": "When you are the last one alive on your team, you get +50 HP and deal 30% more damage",
+  "clutchmaster_active_info": "Clutch time! +50 HP and +30% damage.",
+
+  "defuseshield": "Defuse Shield",
+  "defuseshield_desc": "You take 50% less damage while defusing the bomb",
+
+  "entryrush": "Entry Rush",
+  "entryrush_desc": "For the first 8 seconds of the round you move 35% faster and take 25% less damage",
+  "entryrush_hud": "Entry rush: {0}s",
+
   "your_skill": "Your current skill",
   "enemy_skill": "Enemy's skill",
   "observer_skill": "Player's skill",
