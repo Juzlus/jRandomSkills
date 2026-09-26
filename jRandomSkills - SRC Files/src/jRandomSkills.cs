@@ -94,6 +94,9 @@ namespace src
         // and retakes-only skills while it is off.
         public static bool IsSkillBlockedByMode(Skills skill)
         {
+            if (Event.IsSkillMissingHooks(skill))
+                return true;
+
             var retakes = Config.LoadedConfig.Modules.Retakes;
             string name = SkillNames.Get(skill);
 
