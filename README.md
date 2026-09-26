@@ -47,12 +47,13 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Current Skills (154)
+## ✨ Current Skills (164)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
 | Name              | Description                                                                                        | Cooldown / Range |
 | ----------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| Adrenaline        | Each kill restores 25 health and gives you a burst of speed for 5 seconds                          | 5 s              |
 | Aimbot            | Every bullet you hit counts as a headshot                                                          | -                |
 | Aim Lock          | Click [css_useSkill] to lock your aim on the nearest enemy                                         | 20 s             |
 | Anomaly           | Click [css_useSkill] to rewind a few seconds back in time                                          | 15 s             |
@@ -63,6 +64,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Bankrupt          | Choose the player who will lose all their money                                                    | -                |
 | Baseball Player   | Your decoy bounces off walls and instantly kills an enemy on impact                                | -                |
 | Berserker         | You deal more damage and move faster as your health gets lower                                     | -                |
+| Blacksmith        | You get a kevlar vest and helmet, and your armor regenerates over time                             | -                |
 | Blademaster       | While holding a knife, you have a high chance to deflect a shot                                    | -                |
 | Blast Shot        | Press Attack2 with the MP5 to fire an HE grenade                                                   | 10 s             |
 | Bounty            | Put a price on an enemy's head; whoever kills them takes the money                                 | 300$             |
@@ -90,6 +92,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Enemy Spin        | You have a random chance to turn an enemy 180° when hitting them                                   | (20 - 40)%       |
 | Expensive Ammo    | A chosen enemy has to pay for every shot                                                           | -                |
 | Exploding Barrel  | Click [css_useSkill] to place a barrel that explodes when shot                                     | 20 s             |
+| Explosive Chicken | Click [css_useSkill] to release a chicken that chases the nearest enemy and explodes               | 20 s             |
 | Explosive Shot    | Random chance to fire an explosive bullet while shooting                                           | (15 - 30)%       |
 | Falcon Eye        | Click [css_useSkill] to activate a bird's-eye view camera                                          | -                |
 | Fastreload        | Click [css_useSkill] to reload the weapon you are currently holding                                | -                |
@@ -103,6 +106,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Gambler           | Select a skill from the list provided                                                              | -                |
 | Ghost             | You are completely invisible                                                                       | -                |
 | Giant             | Enlarge an enemy of your choice                                                                    | (110 - 140)%     |
+| Glass Cannon      | You deal 75% more damage to enemies, but take 50% more damage                                      | 1.75x / 1.5x     |
 | Glaz              | You can see through smoke grenades                                                                 | -                |
 | Glitch            | Disables the radar for a chosen enemy                                                              | -                |
 | Glue              | Your grenades stick to walls                                                                       | -                |
@@ -110,6 +114,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Grapple Hook      | Press [css_useSkill] to fire a hook at the point you're aiming at and pull yourself there          | 10 s             |
 | Gravity Decoy     | Your decoy changes the gravity of everyone nearby                                                  | 0.5x             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
+| Headhunter        | Headshot kills restore you to full health and armor                                                | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |
 | Heavyweight       | Skills that push or slow you down have no effect on you                                            | -                |
@@ -139,8 +144,11 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Magnetic Decoy    | Your decoy attracts nearby players towards itself                                                  | -                |
 | Magneto           | All enemy grenades are repelled away from you                                                      | -                |
 | Magnifier         | Forces the enemy's screen to zoom in, reducing their field of view                                 | -                |
+| Marked            | Choose an enemy who takes 35% more damage while you are alive                                      | 1.35x            |
 | Medic             | Click [css_useSkill] to use a healing charge that restores 50 health                               | 1 s              |
 | Bomb Miner        | Your HE grenade only explodes when there is an enemy nearby                                        | -                |
+| Momentum          | Each kill this round increases your damage by 15% (up to 5 stacks)                                 | +15%             |
+| Mute              | Choose an enemy who cannot use voice chat while you are alive                                      | -                |
 | Nemesis           | The player you mark takes extra damage                                                             | +0.25x           |
 | Nightmare         | Force a chosen enemy to experience a terrifying vision                                             | -                |
 | Ninja             | Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%    | -                |
@@ -151,6 +159,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Head Only         | You only take damage to the head                                                                   | -                |
 | Pawel Jumper      | You get an extra jump                                                                              | -                |
 | Phoenix           | You have a random chance to respawn after death                                                    | (20 - 40)%       |
+| Pickpocket        | Every hit on an enemy steals $150 from them                                                        | 150$             |
 | Psychic Defusing  | When you are near the bomb, you start defusing it                                                  | 10 s             |
 | Pilot             | Fly for a limited time. Hold [USE - E] to fly                                                      | -                |
 | Free Planter      | You can plant the bomb anywhere, with a detonation time of 60 seconds                              | -                |
@@ -176,6 +185,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Robin Hood        | Dealing damage to an enemy steals their money                                                      | -                |
 | Rubber Bullets    | Your bullets significantly slow down players                                                       | -                |
 | Sapper            | You can plant and defuse bombs faster                                                              | -                |
+| Scavenger         | Each kill refills your guns' ammo and may give you a grenade                                       | -                |
 | Second Chance     | After death, you respawn with the same amount of health                                            | -                |
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                |

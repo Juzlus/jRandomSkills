@@ -55,7 +55,7 @@ namespace src.player.skills
             var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToArray();
             if (bombTargets.Length == 2)
             {
-                var targetSite = bombTargets[site];
+                var targetSite = bombTargets.FirstOrDefault(t => t != null && t.IsValid && t.IsBombSiteB == (site == 1));
                 if (targetSite != null && targetSite.IsValid)
                 {
                     targetSite.BombPlantedHere = true;

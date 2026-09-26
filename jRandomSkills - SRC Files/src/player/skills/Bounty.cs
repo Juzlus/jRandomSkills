@@ -106,7 +106,7 @@ namespace src.player.skills
             }
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
-            if (enemy == null || !enemy.IsValid)
+            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
                 return;

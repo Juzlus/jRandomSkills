@@ -54,9 +54,7 @@ namespace src.player.skills
                 return;
             }
 
-            string enemyId = commands[0];
-
-            if (!uint.TryParse(enemyId, out uint enemyIndex))
+            if (commands.Length == 0 || !uint.TryParse(commands[0], out uint enemyIndex))
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
@@ -64,7 +62,7 @@ namespace src.player.skills
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
-            if (enemy == null)
+            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
             {
                 player.PrintToChat($" {ChatColors.Red}" + player.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;

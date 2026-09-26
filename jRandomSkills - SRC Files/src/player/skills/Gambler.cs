@@ -104,7 +104,7 @@ namespace src.player.skills
             var skills = GetSkills(player);
             var firstSkill = skills[Instance.Random.Next(skills.Count)];
             skills.Remove(firstSkill);
-            var secondSkill = skills[Instance.Random.Next(skills.Count)];
+            var secondSkill = skills.Count > 0 ? skills[Instance.Random.Next(skills.Count)] : firstSkill;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;

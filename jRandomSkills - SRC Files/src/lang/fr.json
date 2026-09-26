@@ -613,6 +613,47 @@
   "zeus": "Zeus",
   "zeus_desc": "Le Zeus x27 se recharge instantanément",
 
+  "adrenaline": "Adrénaline",
+  "adrenaline_desc": "Chaque élimination restaure 25 points de vie et vous donne un regain de vitesse pendant 5 secondes",
+
+  "blacksmith": "Forgeron",
+  "blacksmith_desc": "Vous recevez un gilet et un casque, et votre armure se régénère avec le temps",
+
+  "explosivechicken": "Poulet Explosif",
+  "explosivechicken_desc": "Cliquez sur [css_useSkill] pour lâcher un poulet qui poursuit l'ennemi le plus proche et explose",
+  "explosivechicken_hud_active": "PV du poulet : {0}",
+  "explosivechicken_already_active": "Votre poulet court déjà !",
+  "explosivechicken_blocked": "Pas assez de place pour lâcher le poulet",
+
+  "glasscannon": "Canon de Verre",
+  "glasscannon_desc": "Vous infligez 75% de dégâts en plus aux ennemis, mais subissez 50% de dégâts en plus",
+
+  "headhunter": "Chasseur de Têtes",
+  "headhunter_desc": "Les éliminations par headshot vous rendent toute votre vie et votre armure",
+  "headhunter_heal_info": "Headshot ! Vous avez récupéré toute votre vie.",
+
+  "marked": "Marqué",
+  "marked_desc": "Choisissez un ennemi qui subit 35% de dégâts en plus tant que vous êtes en vie",
+  "marked_player_info": "Le joueur '{0}' a été marqué.",
+  "marked_enemy_info": "Vous avez été marqué ! Vous subissez plus de dégâts.",
+  "marked_select_info": "Sélectionnez un joueur à marquer :",
+
+  "momentum": "Élan",
+  "momentum_desc": "Chaque élimination de cette manche augmente vos dégâts de 15% (jusqu'à 5 cumuls)",
+
+  "mute": "Muet",
+  "mute_desc": "Choisissez un ennemi qui ne peut pas utiliser le chat vocal tant que vous êtes en vie",
+  "mute_player_info": "Le joueur '{0}' a été rendu muet.",
+  "mute_enemy_info": "Vous avez été rendu muet ! Votre équipe ne vous entend plus.",
+  "mute_disable_info": "Vous pouvez de nouveau utiliser le chat vocal.",
+  "mute_select_info": "Sélectionnez un joueur à rendre muet :",
+
+  "pickpocket": "Pickpocket",
+  "pickpocket_desc": "Chaque tir touchant un ennemi lui vole 150$",
+
+  "scavenger": "Charognard",
+  "scavenger_desc": "Chaque élimination recharge les munitions de vos armes et peut vous donner une grenade",
+
   "your_skill": "Votre compétence",
   "enemy_skill": "Compétence de l’ennemi",
   "observer_skill": "Compétence du joueur",
@@ -629,6 +670,7 @@
   "duplicate_player": "Plus d’un joueur trouvé avec le même nom.",
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
+  "selectplayerskill_used_info": "Votre compétence a déjà été utilisée.",
   "curse_limit_info": "La limite de malédictions pour {0} a été atteinte",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",

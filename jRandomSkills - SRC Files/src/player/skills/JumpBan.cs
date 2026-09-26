@@ -110,7 +110,7 @@ namespace src.player.skills
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
-            if (enemy == null || !enemy.IsValid || enemy.PlayerPawn.Value == null || !enemy.PlayerPawn.Value.IsValid)
+            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team || enemy.PlayerPawn.Value == null || !enemy.PlayerPawn.Value.IsValid)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
@@ -121,7 +121,7 @@ namespace src.player.skills
             playerInfo.SkillUsed = true;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
-            if (enemyEvent == null || !playerEvent.IsValid) return;
+            if (enemyEvent == null || !enemyEvent.IsValid) return;
 
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("jumpban_player_info", enemy.PlayerName));
             enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("jumpban_enemy_info"));
