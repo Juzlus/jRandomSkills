@@ -828,6 +828,8 @@ namespace src.player
 
                     if (pawn.IsDefusing) return;
                     if (IsAimingAtPlantedBomb(player, pawn)) return;
+                    // E also plants the bomb.
+                    if (pawn.WeaponServices?.ActiveWeapon.Value?.DesignerName == "weapon_c4") return;
 
                     Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
                     Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * 80;

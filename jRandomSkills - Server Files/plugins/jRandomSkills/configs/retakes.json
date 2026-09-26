@@ -40,7 +40,8 @@
     "EnablePlantLocationAnnouncement": false
   },
   "BombSettings": {
-    "IsAutoPlantEnabled": true
+    "IsAutoPlantEnabled": false,
+    "IsInstantPlantEnabled": true
   },
   "CommandsSettings": {
     "Admin": {
