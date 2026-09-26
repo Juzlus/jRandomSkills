@@ -57,6 +57,9 @@ Each one can be switched off under `Modules` in `configs/config.json`. While ret
 
 Install: copy the `shared` folder along with `plugins` and `gamedata`, and remove any standalone RetakesPlugin, InstadefusePlugin or ClutchAnnouncePlugin so nothing runs twice.
 
+> [!WARNING]
+> **CS2 updates and CounterStrikeSharp:** when CounterStrikeSharp doesn't match the installed CS2 build, spawning entities through it can crash the server. `EntitySpawnSafety` in `config.json` (`"Mode": "Auto"`) turns entity spawning off unless the CS2 version in `csgo/steam.inf` is listed in `VerifiedGameVersions`. While it is off, the 27 skills that spawn entities are left out of the draw and retakes auto-plant falls back to giving the planter the bomb. After updating CounterStrikeSharp for a new CS2 build, add that version to the list (or set `"Mode": "Off"`).
+
 ## ✨ Current Skills (170)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>

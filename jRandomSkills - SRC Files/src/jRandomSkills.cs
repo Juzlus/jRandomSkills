@@ -42,6 +42,7 @@ namespace src
 
             Config.LoadConfig();
             SkillsInfo.LoadSkillsInfo();
+            EntitySafety.Load();
             Localization.Load();
             Debug.Load();
             PlayerOnTick.Load();
@@ -94,7 +95,7 @@ namespace src
         // and retakes-only skills while it is off.
         public static bool IsSkillBlockedByMode(Skills skill)
         {
-            if (Event.IsSkillMissingHooks(skill))
+            if (Event.IsSkillMissingHooks(skill) || EntitySafety.IsSkillBlocked(skill))
                 return true;
 
             var retakes = Config.LoadedConfig.Modules.Retakes;

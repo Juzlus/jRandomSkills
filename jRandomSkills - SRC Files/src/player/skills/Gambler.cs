@@ -39,7 +39,7 @@ namespace src.player.skills
                 return;
             }
 
-            var skill = SkillData.Skills.FirstOrDefault(s => player.GetSkillName(s.Skill).Equals(commands[0], StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(commands[0], StringComparison.OrdinalIgnoreCase));
+            var skill = SkillData.Skills.FirstOrDefault(s => !jRandomSkills.IsSkillBlockedByMode(s.Skill) && (player.GetSkillName(s.Skill).Equals(commands[0], StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(commands[0], StringComparison.OrdinalIgnoreCase)));
             if (skill == null)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslationWithoutIlliterate("skill_not_found_setskill"));
@@ -125,7 +125,7 @@ namespace src.player.skills
             if (skillPlayer == null) return [Event.noneSkill];
 
             List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None);
+            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None || s == null || jRandomSkills.IsSkillBlockedByMode(s.Skill));
 
             if (PlayerManager.GetTickPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
             {

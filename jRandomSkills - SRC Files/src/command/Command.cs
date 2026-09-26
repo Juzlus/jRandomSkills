@@ -132,7 +132,7 @@ namespace src.command
             }
 
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
+            var skill = SkillData.Skills.FirstOrDefault(s => !IsSkillBlockedByMode(s.Skill) && (player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase)));
 
             if (skill == null)
             {
@@ -397,6 +397,12 @@ namespace src.command
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.PlantedBomb.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.PlantedBomb.Permissions)) return;
 
+            if (EntitySafety.SpawningBlocked)
+            {
+                command.ReplyToCommand("Entity spawning is disabled on this CS2 build (see EntitySpawnSafety in config.json).");
+                return;
+            }
+
             CPlantedC4? bomb = Utilities.CreateEntityByName<CPlantedC4>("planted_c4");
             if (bomb == null || !bomb.IsValid) return;
 
@@ -530,7 +536,7 @@ namespace src.command
             }
 
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
+            var skill = SkillData.Skills.FirstOrDefault(s => !IsSkillBlockedByMode(s.Skill) && (player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase)));
 
             if (skill == null)
             {

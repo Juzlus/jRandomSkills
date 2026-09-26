@@ -57,6 +57,9 @@ Każdy moduł można wyłączyć w sekcji `Modules` w `configs/config.json`. Gdy
 
 Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń osobne pluginy RetakesPlugin, InstadefusePlugin lub ClutchAnnouncePlugin, aby nic nie działało podwójnie.
 
+> [!WARNING]
+> **Aktualizacje CS2 i CounterStrikeSharp:** gdy CounterStrikeSharp nie pasuje do zainstalowanej wersji CS2, tworzenie encji przez niego może wywrócić serwer. `EntitySpawnSafety` w `config.json` (`"Mode": "Auto"`) wyłącza tworzenie encji, jeśli wersji CS2 z `csgo/steam.inf` nie ma na liście `VerifiedGameVersions`. Wtedy 27 supermocy tworzących encje nie jest losowanych, a automatyczne podłożenie bomby w retake zamienia się na zwykłe podłożenie przez gracza. Po aktualizacji CounterStrikeSharp dla nowej wersji CS2 dopisz tę wersję do listy (albo ustaw `"Mode": "Off"`).
+
 ## ✨ Aktualne Supermoce (170)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>

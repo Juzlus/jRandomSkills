@@ -186,6 +186,7 @@ namespace src.utils
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }
             public ModulesSettings Modules { get; set; }
+            public EntitySpawnSafetySettings EntitySpawnSafety { get; set; }
 
             public SettingsModel()
             {
@@ -338,7 +339,27 @@ namespace src.utils
                 };
 
                 Modules = new ModulesSettings();
+                EntitySpawnSafety = new EntitySpawnSafetySettings();
             }
+        }
+
+        public class EntitySpawnSafetySettings
+        {
+            // "Auto": block entity spawning unless the running CS2 version is listed below; "On": always block; "Off": never block.
+            public string Mode { get; set; } = "Auto";
+            // CS2 versions (csgo/steam.inf PatchVersion) verified to work with the installed CounterStrikeSharp.
+            // CounterStrikeSharp 1.0.375 targets 1.41.8.2.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> VerifiedGameVersions { get; set; } = ["1.41.8.2"];
+            // Skills that need to spawn entities; they are left out of the draw while spawning is blocked.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Skills { get; set; } =
+            [
+                "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
+                "Fortnite", "Ghost", "Grapple", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
+                "LongZeus", "Nightmare", "Ninja", "Pilot", "Replicator", "Rewind", "Ricochet", "Spectator",
+                "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",
+            ];
         }
 
         public class ModulesSettings

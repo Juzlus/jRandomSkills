@@ -313,7 +313,7 @@ public class RetakesPlugin
                 _breakerManager,
                 _allocationService,
                 _announcementService,
-                Config.Bomb.IsAutoPlantEnabled,
+                Config.Bomb.IsAutoPlantEnabled && !src.utils.EntitySafety.SpawningBlocked,
                 Config.Bomb.IsInstantPlantEnabled,
                 Config.Game.EnableFallbackAllocation,
                 Config.MapConfig.EnableFallbackBombsiteAnnouncement,
