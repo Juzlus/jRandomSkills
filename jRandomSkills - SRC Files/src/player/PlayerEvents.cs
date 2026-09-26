@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API;
+﻿using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
@@ -89,9 +90,16 @@ namespace src.player
 
             Instance.RegisterEventHandler<EventBulletImpact>(BulletImpact);
 
-            VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post);
-            VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre);
-            VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre);
+            // These come from CounterStrikeSharp's own gamedata. After a CS2 update they can fail with
+            // "Invalid function pointer" until CounterStrikeSharp is updated; the plugin keeps loading and
+            // only the skills that need the missing hook are left out of the draw.
+            startTouchHooked = TryHook("CBaseTrigger_StartTouchFunc", () => VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post));
+            endTouchHooked = TryHook("CBaseTrigger_EndTouchFunc", () => VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre));
+            canAcquireHooked = TryHook("CCSPlayer_ItemServices_CanAcquireFunc", () => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre));
+
+            var unavailable = Enum.GetValues<Skills>().Where(IsSkillMissingHooks).ToArray();
+            if (unavailable.Length > 0)
+                Instance.Logger.LogWarning("[jRandomSkills] Some CounterStrikeSharp hooks are unavailable (update CounterStrikeSharp to match the current CS2 build). These skills are disabled until then: {Skills}", string.Join(", ", unavailable));
 
             // Disabled after CS2 updates started crashing Linux servers on player join.
             // The hooked native signature is only used to block weapon drops for Iana clones.
@@ -102,12 +110,41 @@ namespace src.player
         {
             TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePre>(OnEntityTakeDamagePre));
             TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePost>(OnEntityTakeDamagePost));
-            TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
-            TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
-            TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
+            if (startTouchHooked) TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
+            if (endTouchHooked) TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
+            if (canAcquireHooked) TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
             TryUnhook(() => Instance.UnhookUserMessage(208, PlayerMakeSound));
             TryUnhook(() => Instance.RemoveListener<CheckTransmit>(CheckTransmit));
             TryUnhook(NoRecoil.RestoreSpread);
+        }
+
+        private static bool startTouchHooked;
+        private static bool endTouchHooked;
+        private static bool canAcquireHooked;
+
+        private static readonly Skills[] triggerHookSkills = [Skills.ThrowingKnife];
+        private static readonly Skills[] canAcquireHookSkills = [Skills.Iana, Skills.ReZombie, Skills.ThrowingKnife];
+
+        // True for skills whose native hook could not be installed on this server.
+        public static bool IsSkillMissingHooks(Skills skill)
+        {
+            if ((!startTouchHooked || !endTouchHooked) && triggerHookSkills.Contains(skill)) return true;
+            if (!canAcquireHooked && canAcquireHookSkills.Contains(skill)) return true;
+            return false;
+        }
+
+        private static bool TryHook(string name, Action hook)
+        {
+            try
+            {
+                hook();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Instance.Logger.LogError("[jRandomSkills] Could not hook {Name}: {Message}", name, ex.Message);
+                return false;
+            }
         }
 
         private static void TryUnhook(Action unhook)
