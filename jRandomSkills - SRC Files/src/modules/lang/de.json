@@ -25,5 +25,6 @@
   "instadefuse.successful": "{0} entschärft mit noch {green}{1} Sekunden.",
   "instadefuse.not_possible": "Instant Entschärfen ist nicht möglich, da sich eine Granate in der nähe befindet!",
   "clutch_announce.prefix": "[{green}Retakes{default}] ",
-  "clutch_announce.clutched": "Spieler {green}{0}{default} hat einen 1v{1} Clutch gewonnen!"
+  "clutch_announce.clutched": "Spieler {green}{0}{default} hat einen 1v{1} Clutch gewonnen!",
+  "retakes.plant_now": "Du hast die Bombe! Lege sie jetzt."
 }

@@ -23,6 +23,8 @@
         <PackageReference Include="MaxMind.Db" Version="5.1.0">
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <!-- Optional at runtime: loaded from addons/counterstrikesharp/shared/CS2MenuManager when installed -->
+        <PackageReference Include="CS2MenuManager" Version="1.0.43" />
     </ItemGroup>
 
 	<!-- Relative path to the WASDMenuAPI source code -->

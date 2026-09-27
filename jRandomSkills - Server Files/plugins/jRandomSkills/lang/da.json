@@ -19,5 +19,6 @@
   "retakes.teams.almost_scramble": "Terroristerne har vundet {green}{0}{default} runder i træk - hvis de vinder {green}{1} mere, {purple}bliver holdende blandet.",
   "retakes.teams.win_streak": "Terroristerne har vundet {green}{0}{default} runder i træk!",
   "retakes.teams.win_streak_over": "CT'erne har afsluttet en {green}{0}{default}-runde lang win streak!",
-  "retakes.teams.admin_scramble": "{0} har sat holdende til at blive blandet."
+  "retakes.teams.admin_scramble": "{0} har sat holdende til at blive blandet.",
+  "retakes.plant_now": "You have the bomb! Plant it now."
 }

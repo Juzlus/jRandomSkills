@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API;
+using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -82,7 +83,13 @@ namespace src
             {
                 Retakes = new RetakesPlugin.RetakesPlugin(this);
                 Retakes.Load(hotReload);
+                Logger.LogInformation("[jRandomSkills] Retakes module loaded (players spawn on the retakes site spawns; set Modules.Retakes.Enabled=false in config.json to turn it off).");
             }
+            else
+                Logger.LogWarning("[jRandomSkills] Retakes module is OFF (Modules.Retakes.Enabled=false in config.json): players use the map's normal spawns and no bomb is planted.");
+
+            if (modules.Guns.Enabled)
+                GunsModule.Load();
 
             if (modules.Instadefuse.Enabled)
                 new InstadefuseModule(this).Load();

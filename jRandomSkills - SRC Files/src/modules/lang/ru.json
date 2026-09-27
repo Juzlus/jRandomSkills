@@ -21,5 +21,6 @@
   "retakes.teams.win_streak_over": "Контр-Террористы завершили серию побед Террористов из {green}{0}{default} раундов!",
   "retakes.teams.admin_scramble": "{0} включил перемешивание команд со следующего раунда.",
   "clutch_announce.prefix": "[{green}Retakes{default}] ",
-  "clutch_announce.clutched": "Игрок {green}{0}{default} вытащил клатч 1v{1}!"
+  "clutch_announce.clutched": "Игрок {green}{0}{default} вытащил клатч 1v{1}!",
+  "retakes.plant_now": "Бомба у вас! Установите её сейчас."
 }

@@ -41,7 +41,7 @@
   },
   "BombSettings": {
     "IsAutoPlantEnabled": true,
-    "IsInstantPlantEnabled": false
+    "IsInstantPlantEnabled": true
   },
   "CommandsSettings": {
     "Admin": {

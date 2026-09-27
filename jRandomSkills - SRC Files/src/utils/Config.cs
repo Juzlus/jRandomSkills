@@ -368,6 +368,37 @@ namespace src.utils
             public RetakesModuleSettings Retakes { get; set; } = new();
             public InstadefuseModuleSettings Instadefuse { get; set; } = new();
             public ClutchAnnounceModuleSettings ClutchAnnounce { get; set; } = new();
+            public GunsModuleSettings Guns { get; set; } = new();
+        }
+
+        public class GunsModuleSettings
+        {
+            // !guns lets players pick the rifle and pistol they get each retakes round (there is no buying in retakes).
+            public bool Enabled { get; set; } = true;
+            public string Alias { get; set; } = "guns, gun, weapons, w, bronie";
+            // "CS2MenuManager": drawn by the CS2MenuManager shared library (players pick the style with !mm);
+            // "Wasd": the plugin's own WASD menu. Falls back to Wasd when the library is missing.
+            public string MenuStyle { get; set; } = "CS2MenuManager";
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> PrimaryT { get; set; } =
+            [
+                "weapon_ak47", "weapon_galilar", "weapon_sg556", "weapon_awp", "weapon_ssg08", "weapon_g3sg1",
+                "weapon_mac10", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+                "weapon_nova", "weapon_xm1014", "weapon_sawedoff", "weapon_m249", "weapon_negev",
+            ];
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> PrimaryCT { get; set; } =
+            [
+                "weapon_m4a1_silencer", "weapon_m4a1", "weapon_famas", "weapon_aug", "weapon_awp", "weapon_ssg08", "weapon_scar20",
+                "weapon_mp9", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+                "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_m249", "weapon_negev",
+            ];
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Secondary { get; set; } =
+            [
+                "weapon_deagle", "weapon_usp_silencer", "weapon_hkp2000", "weapon_glock", "weapon_p250",
+                "weapon_fiveseven", "weapon_tec9", "weapon_cz75a", "weapon_revolver", "weapon_elite",
+            ];
         }
 
         public class RetakesModuleSettings

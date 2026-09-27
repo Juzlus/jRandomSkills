@@ -19,5 +19,6 @@
   "retakes.teams.almost_scramble": "Terroristerna har vunnit {green}{0}{default} rundor i rad - vinner de {green}{1} till, {purple}så blandas lagen om.",
   "retakes.teams.win_streak": "Terroristerna har vunnit {green}{0}{default} rundor i rad!",
   "retakes.teams.win_streak_over": "Anti-terroristerna har avbrutit terroristernas {green}{0}{default} raka vinster!",
-  "retakes.teams.admin_scramble": "{0} har satt lagen att blandas om nästa runda."
+  "retakes.teams.admin_scramble": "{0} har satt lagen att blandas om nästa runda.",
+  "retakes.plant_now": "You have the bomb! Plant it now."
 }

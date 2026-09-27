@@ -23,5 +23,6 @@
   "instadefuse.prefix": "[{green}Retakes{default}] ",
   "instadefuse.unsuccessful": "{0} oli {darkred}{1} sekuntia{default} jäljessä pommin purusta.",
   "instadefuse.successful": "{0} purki pommin {green}{1} sekuntia{default} ennen räjähdystä.",
-  "instadefuse.not_possible": "Pommin pikapurku ei mahdollista, kun kranaatti on uhkana!"
+  "instadefuse.not_possible": "Pommin pikapurku ei mahdollista, kun kranaatti on uhkana!",
+  "retakes.plant_now": "You have the bomb! Plant it now."
 }

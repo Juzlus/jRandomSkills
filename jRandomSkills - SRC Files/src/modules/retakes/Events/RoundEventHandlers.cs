@@ -148,9 +148,14 @@ public class RoundEventHandlers
         _currentBombsite = _forcedBombsite ?? (_random.Next(0, 2) == 0 ? Bombsite.A : Bombsite.B);
         _gameManager.ResetPlayerScores();
 
+        // Anyone who got onto a team without going through the queue (joined before the module
+        // loaded, team menu bypassed, hot reload) would otherwise be left on the map's own spawns.
+        _gameManager.QueueManager.SyncActivePlayersFromTeams();
+
         try
         {
             _planter = _spawnManager.HandleRoundSpawns(_currentBombsite, _gameManager.QueueManager.ActivePlayers);
+            Logger.LogInfo("Round", $"Moved {_gameManager.QueueManager.ActivePlayers.Count(PlayerHelper.IsValid)} players to the {_currentBombsite} retakes spawns (planter: {_planter?.PlayerName ?? "none"})");
         }
         catch (Exception ex)
         {
@@ -250,6 +255,13 @@ public class RoundEventHandlers
         if (PlayerHelper.GetPlayerCount(CsTeam.Terrorist) > 0)
         {
             HandleAutoPlant();
+        }
+
+        if (!_isAutoPlantEnabled && _planter != null && PlayerHelper.IsValid(_planter))
+        {
+            // Auto-plant is unavailable on this server build: the planter has the bomb and plants it by hand.
+            _planter.PrintToCenterAlert(AnnouncementService.StripColors(_plugin.Localizer["retakes.plant_now"]));
+            _planter.PrintToChat($"{_plugin.Localizer["retakes.prefix"]} {_plugin.Localizer["retakes.plant_now"]}");
         }
 
         return HookResult.Continue;
