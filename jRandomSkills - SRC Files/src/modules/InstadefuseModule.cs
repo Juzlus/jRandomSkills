@@ -87,6 +87,8 @@ namespace src.modules
 
         private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
+            // Never leave anyone immune from a no-damage explosion at the end of the previous round.
+            SetEveryoneTakesDamage(true);
             _bombPlantedTime = float.NaN;
             _bombTicking = false;
             _heThreat = 0;
@@ -137,11 +139,18 @@ namespace src.modules
             {
                 Server.PrintToChatAll($" {Prefix}{_host.Localizer["instadefuse.unsuccessful", defuser.PlayerName, $"{Math.Abs(timeLeftAfterDefuse):n3}"]}");
 
+                bool noDamage = Config.LoadedConfig.Modules.Instadefuse.ExplodeWithoutDamage;
+                if (noDamage)
+                    SetEveryoneTakesDamage(false);
+
                 Server.NextFrame(() =>
                 {
                     var bomb = FindPlantedBomb();
                     if (bomb != null) bomb.C4Blow = 1.0f;
                 });
+
+                if (noDamage)
+                    _host.AddTimer(1.5f, () => SetEveryoneTakesDamage(true), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 return;
             }
 
@@ -154,6 +163,17 @@ namespace src.modules
                 bomb.DefuseCountDown = 0;
                 Server.PrintToChatAll($" {Prefix}{_host.Localizer["instadefuse.successful", defuser.PlayerName, $"{Math.Abs(bombTimeUntilDetonation):n3}"]}");
             });
+        }
+
+        private static void SetEveryoneTakesDamage(bool takesDamage)
+        {
+            foreach (var player in Utilities.GetPlayers())
+            {
+                if (player == null || !player.IsValid) continue;
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid || pawn.TakesDamage == takesDamage) continue;
+                pawn.TakesDamage = takesDamage;
+            }
         }
 
         private static bool TeamHasAlivePlayers(CsTeam team)

@@ -314,13 +314,19 @@ public class RetakesPlugin
                 _allocationService,
                 _announcementService,
                 Config.Bomb.IsAutoPlantEnabled && !src.utils.EntitySafety.SpawningBlocked,
-                Config.Bomb.IsInstantPlantEnabled,
+                Config.Bomb.IsAutoPlantEnabled && src.utils.EntitySafety.SpawningBlocked,
                 Config.Game.EnableFallbackAllocation,
                 Config.MapConfig.EnableFallbackBombsiteAnnouncement,
                 _random
             );
 
             _playerEventHandlers = new PlayerEventHandlers(this, _gameManager, _hasMutedVoices);
+
+            Utils.Logger.LogInfo("Bomb", !Config.Bomb.IsAutoPlantEnabled
+                ? "Bomb mode: manual plant (IsAutoPlantEnabled=false)"
+                : src.utils.EntitySafety.SpawningBlocked
+                    ? "Bomb mode: quick plant (auto-plant needs entity spawning, which is blocked on this CS2 build; the planter spawns with the bomb and plants with one click)"
+                    : "Bomb mode: auto-plant");
 
             // Initialize Commands
             _forceBombsiteCommand = new ForceBombsiteCommand(this, _roundEventHandlers);

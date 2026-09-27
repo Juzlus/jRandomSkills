@@ -4,13 +4,10 @@ namespace RetakesPlugin.Configs;
 
 public class BombSettings
 {
-    // Auto-plant spawns the planted_c4 entity itself. While jRandomSkills blocks entity spawning
-    // (EntitySpawnSafety in config.json) it falls back to giving the planter the bomb to plant normally.
+    // true: the bomb is planted for the T side. Auto-plant spawns the planted bomb at freeze end; while
+    // jRandomSkills blocks entity spawning (EntitySpawnSafety in config.json, CounterStrikeSharp behind the
+    // CS2 build) the planter spawns with the bomb instead and their plant finishes on the first click.
+    // false: the planter gets the bomb and plants it by hand like in a normal round.
     [JsonPropertyName("IsAutoPlantEnabled")]
     public bool IsAutoPlantEnabled { get; set; } = true;
-
-    // Only used while auto-plant is unavailable: the planter's plant finishes the moment they start it,
-    // so a single click plants the bomb.
-    [JsonPropertyName("IsInstantPlantEnabled")]
-    public bool IsInstantPlantEnabled { get; set; } = true;
 }

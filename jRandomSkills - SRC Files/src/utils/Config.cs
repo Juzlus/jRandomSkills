@@ -423,6 +423,9 @@ namespace src.utils
             public bool Enabled { get; set; } = true;
             // Grenades or fire closer than this to the bomb block an instant defuse.
             public float InfernoThreatRadius { get; set; } = 250f;
+            // When the last T is dead but there is not enough time left to defuse, the bomb explodes at once
+            // (T win) without hurting anyone instead of running out its timer.
+            public bool ExplodeWithoutDamage { get; set; } = true;
         }
 
         public class ClutchAnnounceModuleSettings

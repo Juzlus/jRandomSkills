@@ -344,7 +344,8 @@
     },
     "Instadefuse": {
       "Enabled": true,
-      "InfernoThreatRadius": 250.0
+      "InfernoThreatRadius": 250.0,
+      "ExplodeWithoutDamage": true
     },
     "ClutchAnnounce": {
       "Enabled": true,
