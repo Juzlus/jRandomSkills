@@ -39,6 +39,17 @@ public class AllocationService
 
     private void AllocateWeapons(CCSPlayerController player)
     {
+        // Weapons chosen with !guns (jRandomSkills GunsModule) take priority over the defaults below.
+        var chosenPrimary = src.modules.GunsModule.ResolvePrimary(player, _random);
+        var chosenSecondary = src.modules.GunsModule.ResolveSecondary(player, _random);
+        if (chosenPrimary != null || chosenSecondary != null)
+        {
+            player.GiveNamedItem(chosenPrimary ?? (player.Team == CsTeam.Terrorist ? "weapon_ak47" : "weapon_m4a1_silencer"));
+            player.GiveNamedItem(chosenSecondary ?? "weapon_deagle");
+            player.GiveNamedItem(CsItem.Knife);
+            return;
+        }
+
         if (player.Team == CsTeam.Terrorist)
         {
             player.GiveNamedItem(CsItem.AK47);

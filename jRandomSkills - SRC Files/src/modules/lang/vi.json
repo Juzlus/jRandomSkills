@@ -19,5 +19,6 @@
   "retakes.teams.almost_scramble": "T đã thắng {green}{0}{default} round liên tiếp - nếu thắng thêm {green}{1}, {purple}đội sẽ bị xáo trộn.",
   "retakes.teams.win_streak": "T đang có chuỗi thắng {green}{0}{default} round!",
   "retakes.teams.win_streak_over": "CT đã kết thúc chuỗi thắng {green}{0}{default} round!",
-  "retakes.teams.admin_scramble": "{0} đã thiết lập xáo trộn đội ở round tiếp theo."
+  "retakes.teams.admin_scramble": "{0} đã thiết lập xáo trộn đội ở round tiếp theo.",
+  "retakes.plant_now": "You have the bomb! Plant it now."
 }

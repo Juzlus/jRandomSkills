@@ -25,5 +25,6 @@
   "instadefuse.successful": "{0}成功拆包，炸弹还剩下{green}{1}秒{default}。",
   "instadefuse.not_possible": "无法立即拆包，存在投掷物威胁！",
   "clutch_announce.prefix": "[{green}Retakes{default}] ",
-  "clutch_announce.clutched": "玩家 {green}{0}{default} 完成了一次 1v{1} 残局！"
+  "clutch_announce.clutched": "玩家 {green}{0}{default} 完成了一次 1v{1} 残局！",
+  "retakes.plant_now": "你拿着炸弹！现在就安放。"
 }

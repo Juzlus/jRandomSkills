@@ -55,6 +55,8 @@ This build also includes three plugins by [B3none](https://github.com/B3none), s
 
 Each one can be switched off under `Modules` in `configs/config.json`. While retakes is running, skills that need money, carrying or planting the bomb, normal spawns or the round timer are left out of the draw (`Modules.Retakes.IncompatibleSkills`). Six skills are made for retakes: Bomb Guardian, Bomb Sense and Booby Trap (T), Defuse Shield and Entry Rush (CT) and Clutch Master (both). Bomb Guardian and Bomb Sense are only drawn while retakes runs (`Modules.Retakes.RetakesOnlySkills`), and `!swap`/`!shuffle` are disabled because retakes manages the teams.
 
+**Weapons:** there is no buying in retakes. Type `!guns` to open a menu and pick the T rifle, CT rifle and pistol you get every round (or `!guns ak47 deagle`); the choice is saved per player in `configs/guns.json`. The bombsite is announced in chat and on screen at round start and again after the plant.
+
 Install: copy the `shared` folder along with `plugins` and `gamedata`, and remove any standalone RetakesPlugin, InstadefusePlugin or ClutchAnnouncePlugin so nothing runs twice.
 
 > [!WARNING]

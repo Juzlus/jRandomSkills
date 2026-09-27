@@ -19,5 +19,6 @@
   "retakes.teams.almost_scramble": "Terroristák {green}{0}{default} kört nyertek egymás után - ha még nyernek {green}{1} kört, {purple}a csapatok össze lesznek keverve.",
   "retakes.teams.win_streak": "Terroristák {green}{0}{default} kört nyertek egymás után!",
   "retakes.teams.win_streak_over": "TE-k megállították a {green}{0}{default} kör hosszú győzelem sorozatot!",
-  "retakes.teams.admin_scramble": "{0} beállította, hogy a csapatok össze legyenek keverve a következő körben."
+  "retakes.teams.admin_scramble": "{0} beállította, hogy a csapatok össze legyenek keverve a következő körben.",
+  "retakes.plant_now": "You have the bomb! Plant it now."
 }

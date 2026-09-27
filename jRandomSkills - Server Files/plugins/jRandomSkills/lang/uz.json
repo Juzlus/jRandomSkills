@@ -23,5 +23,6 @@
   "instadefuse.prefix": "[{green}Retakes{default}] ",
   "instadefuse.unsuccessful": "{0} bombani zararsizlantirishga {darkred}{1} soniya{default} kechikdi.",
   "instadefuse.successful": "{0} portlashga {green}{1} soniya{default} qolganda bombani zararsizlantirdi.",
-  "instadefuse.not_possible": "Darhol zararsizlantirish mumkin emas, granata tahdidi mavjud!"
+  "instadefuse.not_possible": "Darhol zararsizlantirish mumkin emas, granata tahdidi mavjud!",
+  "retakes.plant_now": "You have the bomb! Plant it now."
 }

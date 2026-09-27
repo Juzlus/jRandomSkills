@@ -9,7 +9,8 @@ public class BombSettings
     [JsonPropertyName("IsAutoPlantEnabled")]
     public bool IsAutoPlantEnabled { get; set; } = true;
 
-    // When the planter plants by hand, finish the plant the moment they start it.
+    // Only used while auto-plant is unavailable: the planter's plant finishes the moment they start it,
+    // so a single click plants the bomb.
     [JsonPropertyName("IsInstantPlantEnabled")]
-    public bool IsInstantPlantEnabled { get; set; } = false;
+    public bool IsInstantPlantEnabled { get; set; } = true;
 }

@@ -59,6 +59,12 @@ public class AnnouncementService
         Logger.LogInfo("Announcement", $"Announced plant location: {locationName}");
     }
 
+    // Chat colour codes are control characters; they show up as junk in a center alert.
+    public static string StripColors(string text)
+    {
+        return new string(text.Where(c => c >= ' ').ToArray()).Trim();
+    }
+
     public void AnnounceBombsite(Bombsite bombsite, bool onlyCenter = false)
     {
         var numTerrorist = PlayerHelper.GetPlayerCount(CounterStrikeSharp.API.Modules.Utils.CsTeam.Terrorist);
@@ -67,11 +73,20 @@ public class AnnouncementService
         var announcementMessage = _plugin.Localizer["retakes.bombsite.announcement", bombsite.ToString(), numTerrorist, numCounterTerrorist];
         var centerAnnouncementMessage = _plugin.Localizer["retakes.center.bombsite.announcement", bombsite.ToString(), numTerrorist, numCounterTerrorist];
 
+        // jRandomSkills draws its skill HUD in the center of the screen every tick, which hides
+        // PrintToCenter text, so the on-screen announcement uses the alert box instead.
+        var centerText = StripColors(centerAnnouncementMessage);
+
         foreach (var player in Utilities.GetPlayers())
         {
             if (!onlyCenter)
             {
                 player.PrintToChat($"{_plugin.Localizer["retakes.prefix"]} {announcementMessage}");
+
+                if (_centerEnabled)
+                {
+                    player.PrintToCenterAlert(centerText);
+                }
 
                 if (_voicesEnabled && !_hasMutedVoices.Contains(player))
                 {
@@ -87,10 +102,7 @@ public class AnnouncementService
                 continue;
             }
 
-            if (player.Team == CounterStrikeSharp.API.Modules.Utils.CsTeam.CounterTerrorist)
-            {
-                player.PrintToCenter(centerAnnouncementMessage);
-            }
+            player.PrintToCenterAlert(centerText);
         }
 
         Logger.LogInfo("Announcement", $"Announced bombsite {bombsite} ({numTerrorist}T vs {numCounterTerrorist}CT)");

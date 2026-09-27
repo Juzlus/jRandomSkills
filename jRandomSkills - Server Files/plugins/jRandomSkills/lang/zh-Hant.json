@@ -21,5 +21,6 @@
   "retakes.teams.win_streak_over": "CT結束了{green}{0}{default}個回合的連勝！",
   "retakes.teams.admin_scramble": "{0}已設定下一回合重新打亂隊伍。",
   "clutch_announce.prefix": "[{green}Retakes{default}] ",
-  "clutch_announce.clutched": "玩家 {green}{0}{default} 完成了一次 1v{1} 殘局！"
+  "clutch_announce.clutched": "玩家 {green}{0}{default} 完成了一次 1v{1} 殘局！",
+  "retakes.plant_now": "你拿著炸彈！現在就安放。"
 }

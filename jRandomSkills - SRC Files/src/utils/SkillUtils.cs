@@ -1099,6 +1099,8 @@ namespace src.utils
             return designerName;
         }
 
+        public static IWasdMenuManager? MenuManager() => GetMenuManager();
+
         private static IWasdMenuManager? GetMenuManager()
         {
             if (jRandomSkills.Instance.MenuManager == null)

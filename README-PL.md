@@ -55,6 +55,8 @@ Ta wersja zawiera też trzy pluginy autorstwa [B3none](https://github.com/B3none
 
 Każdy moduł można wyłączyć w sekcji `Modules` w `configs/config.json`. Gdy działa tryb retake, supermoce wymagające pieniędzy, noszenia lub podkładania bomby, zwykłych spawnów albo czasu rundy nie są losowane (`Modules.Retakes.IncompatibleSkills`). Sześć supermocy powstało z myślą o retake: Strażnik Bomby, Wyczucie Bomby i Pułapka (T), Tarcza Sapera i Szybkie Wejście (CT) oraz Mistrz Clutchy (obie drużyny). Strażnik Bomby i Wyczucie Bomby są losowane tylko w trybie retake (`Modules.Retakes.RetakesOnlySkills`), a `!swap`/`!shuffle` są wyłączone, bo drużynami zarządza retake.
 
+**Bronie:** w retake nie ma kupowania. Wpisz `!guns` (albo `!bronie`), aby w menu wybrać karabin TT, karabin CT i pistolet, które dostajesz w każdej rundzie (lub `!guns ak47 deagle`); wybór jest zapisywany dla gracza w `configs/guns.json`. Bombsite jest ogłaszany na czacie i na ekranie na starcie rundy oraz po podłożeniu.
+
 Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń osobne pluginy RetakesPlugin, InstadefusePlugin lub ClutchAnnouncePlugin, aby nic nie działało podwójnie.
 
 > [!WARNING]

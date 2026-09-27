@@ -25,5 +25,6 @@
   "instadefuse.successful": "{0} defusou com {green}{1} segundos{default} restantes na bomba.",
   "instadefuse.not_possible": "Defuse instantâneo não é possível, há uma ameaça de granada!",
   "clutch_announce.prefix": "[{green}Retakes{default}] ",
-  "clutch_announce.clutched": "O jogador {green}{0}{default} venceu um clutch 1v{1}!"
+  "clutch_announce.clutched": "O jogador {green}{0}{default} venceu um clutch 1v{1}!",
+  "retakes.plant_now": "Tens a bomba! Planta-a agora."
 }
