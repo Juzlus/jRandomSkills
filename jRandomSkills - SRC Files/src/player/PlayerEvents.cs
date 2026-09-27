@@ -813,6 +813,7 @@ namespace src.player
                 if ((pressed & skillButton) == 0) return;
 
                 if (SkillUtils.HasMenu(player)) return;
+                if (src.modules.GunsModule.IsExternalMenuOpen(player)) return;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return;

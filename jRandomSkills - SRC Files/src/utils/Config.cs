@@ -376,6 +376,9 @@ namespace src.utils
             // !guns lets players pick the rifle and pistol they get each retakes round (there is no buying in retakes).
             public bool Enabled { get; set; } = true;
             public string Alias { get; set; } = "guns, gun, weapons, w, bronie";
+            // "CS2MenuManager": drawn by the CS2MenuManager shared library (players pick the style with !mm);
+            // "Wasd": the plugin's own WASD menu. Falls back to Wasd when the library is missing.
+            public string MenuStyle { get; set; } = "CS2MenuManager";
             [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public List<string> PrimaryT { get; set; } =
             [

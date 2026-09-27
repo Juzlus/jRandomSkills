@@ -353,6 +353,7 @@
     "Guns": {
       "Enabled": true,
       "Alias": "guns, gun, weapons, w, bronie",
+      "MenuStyle": "CS2MenuManager",
       "PrimaryT": [
         "weapon_ak47",
         "weapon_galilar",

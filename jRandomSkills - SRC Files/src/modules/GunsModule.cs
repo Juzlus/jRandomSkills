@@ -133,6 +133,37 @@ namespace src.modules
 
         private static List<string> PrimaryList(CsTeam team) => team == CsTeam.Terrorist ? Settings.PrimaryT : Settings.PrimaryCT;
 
+        internal static readonly Slot[] Slots = [Slot.PrimaryT, Slot.PrimaryCT, Slot.Secondary];
+
+        internal static List<string> WeaponsFor(Slot slot) => slot switch
+        {
+            Slot.PrimaryT => Settings.PrimaryT,
+            Slot.PrimaryCT => Settings.PrimaryCT,
+            _ => Settings.Secondary,
+        };
+
+        internal static string? CurrentChoice(CCSPlayerController player, Slot slot)
+        {
+            if (!preferences.TryGetValue(player.SteamID, out var preference)) return null;
+            return slot switch
+            {
+                Slot.PrimaryT => preference.PrimaryT,
+                Slot.PrimaryCT => preference.PrimaryCT,
+                _ => preference.Secondary,
+            };
+        }
+
+        // True while the player has a CS2MenuManager menu open (E selects there, so it must not fire the skill).
+        private static bool cs2MenuManagerBroken;
+        public static bool IsExternalMenuOpen(CCSPlayerController player)
+        {
+            if (cs2MenuManagerBroken || !Settings.Enabled || !UsesCs2MenuManager) return false;
+            try { return GunsMenuCs2Mm.IsMenuOpen(player); }
+            catch { cs2MenuManagerBroken = true; return false; }
+        }
+
+        private static bool UsesCs2MenuManager => Settings.MenuStyle.Trim().Equals("CS2MenuManager", StringComparison.OrdinalIgnoreCase);
+
         // Weapon the retakes allocation should hand out, or null to use its default.
         public static string? ResolvePrimary(CCSPlayerController player, System.Random random)
         {
@@ -160,9 +191,9 @@ namespace src.modules
 
         private static Preference GetOrCreate(CCSPlayerController player) => preferences.GetOrAdd(player.SteamID, _ => new Preference());
 
-        private enum Slot { PrimaryT, PrimaryCT, Secondary }
+        internal enum Slot { PrimaryT, PrimaryCT, Secondary }
 
-        private static void SetChoice(CCSPlayerController player, Slot slot, string weapon)
+        internal static void SetChoice(CCSPlayerController player, Slot slot, string weapon)
         {
             var preference = GetOrCreate(player);
             switch (slot)
@@ -176,7 +207,7 @@ namespace src.modules
             player.PrintToChat($" {ChatColors.Lime}{player.GetTranslationWithoutIlliterate("guns_saved", player.GetTranslationWithoutIlliterate(SlotKey(slot)), DisplayName(weapon))}");
         }
 
-        private static string SlotKey(Slot slot) => slot switch
+        internal static string SlotKey(Slot slot) => slot switch
         {
             Slot.PrimaryT => "guns_rifle_t",
             Slot.PrimaryCT => "guns_rifle_ct",
@@ -239,6 +270,21 @@ namespace src.modules
             {
                 player.PrintToChat($" {ChatColors.Red}{player.GetTranslationWithoutIlliterate("guns_menu_busy")}");
                 return;
+            }
+
+            if (UsesCs2MenuManager && !cs2MenuManagerBroken)
+            {
+                try
+                {
+                    GunsMenuCs2Mm.Open(player);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    // Library missing or incompatible on this server: use the built-in menu from now on.
+                    cs2MenuManagerBroken = true;
+                    Instance.Logger.LogWarning("[jRandomSkills] CS2MenuManager is not available ({Message}); the !guns menu uses the built-in WASD menu instead. Install CS2MenuManager or set Modules.Guns.MenuStyle to \"Wasd\".", (ex.InnerException ?? ex).Message);
+                }
             }
 
             var manager = SkillUtils.MenuManager();
