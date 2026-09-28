@@ -97,7 +97,7 @@ namespace src.command
             if (commands == null || commands.Length == 0)
                 Event.UseAllSkills(playerInfo, player);
             else
-                Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, commands]);
+                Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [player, commands]);
         }
 
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]

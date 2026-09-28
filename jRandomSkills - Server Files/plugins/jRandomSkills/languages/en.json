@@ -700,6 +700,7 @@
   "smokejumper": "Smoke Jumper",
   "smokejumper_desc": "Throw a smoke grenade to teleport to where it lands",
 
+  "combo_extra_info": "Extra skill: {0}",
   "your_skill": "Your current skill",
   "enemy_skill": "Enemy's skill",
   "observer_skill": "Player's skill",

@@ -682,12 +682,14 @@ namespace src.player
                                 if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
                                 Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill, DebugCategory.Skill);
                                 Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
+                                ComboManager.GrantRoundExtras(playerTarget, PlayerManager.GetPlayerByIndex(playerTarget.Index)!);
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
                         {
                             if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
                             Debug.WriteToDebug("Enabling skill: " + randomSkill.Skill, DebugCategory.Skill);
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
+                            ComboManager.GrantRoundExtras(playerTarget, PlayerManager.GetPlayerByIndex(playerTarget.Index)!);
                         }
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
@@ -860,9 +862,14 @@ namespace src.player
                         {
                             if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                            ComboManager.GrantRoundExtras(player, PlayerManager.GetPlayerByIndex(player.Index)!);
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     else
+                    {
                         Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                        if (PlayerManager.GetPlayerByIndex(player!.Index) is { } lateInfo && lateInfo.Skill == randomSkill.Skill)
+                            ComboManager.GrantRoundExtras(player, lateInfo);
+                    }
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{SkillNames.Get(randomSkill.Skill)}\".", DebugCategory.Skill);

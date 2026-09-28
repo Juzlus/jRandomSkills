@@ -3091,7 +3091,7 @@
     "Rarity": "Common"
   },
   {
-    "ExtraSkills": 1,
+    "ExtraSkills": 2,
     "ExcludedSkills": "AreaReaper, Bankrupt, Bounty, CarefulBullets, Chameleon, Darkness, Deactivator, Deaf, DoubleTrouble, Duplicator, ExpensiveAmmo, Gambler, Giant, Glitch, Inheritance, Jammer, JetKick, JumpBan, JumpCurse, LifeSwap, Magnifier, Marked, MoneySwap, Mute, Nemesis, Nightmare, Poison, PrimaryBan, Rage, Thief, Voodoo, WildThrow",
     "Weight": 1.0,
     "NeedsTeammates": false,

@@ -700,6 +700,7 @@
   "smokejumper": "Rauchspringer",
   "smokejumper_desc": "Wirf eine Rauchgranate, um dich dorthin zu teleportieren, wo sie landet",
 
+  "combo_extra_info": "Zusätzliche Fähigkeit: {0}",
   "your_skill": "Deine aktuelle Fertigkeit",
   "enemy_skill": "Fähigkeit des Gegners",
   "observer_skill": "Fähigkeit des Spielers",

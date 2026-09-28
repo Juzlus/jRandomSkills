@@ -700,6 +700,7 @@
   "smokejumper": "Saltador de Fumaça",
   "smokejumper_desc": "Jogue uma smoke para se teleportar para onde ela cair",
 
+  "combo_extra_info": "Habilidade extra: {0}",
   "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
   "observer_skill": "Habilidade do jogador",

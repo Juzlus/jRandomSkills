@@ -65,6 +65,9 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 ## 🎲 Skill odds
 Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `Rare`, `Epic`, `Legendary`). Each round the plugin first rolls a rarity using the percentages in `SkillsChance` in `config.json` (default 70 / 14 / 10 / 5 / 1; `VIPSkillsChance` for players with the VIP flag), then picks one skill of that rarity. Within a rarity the pick is weighted by each skill's `Weight` (default `1.0`: `2.0` makes a skill twice as likely as its peers, `0.5` half as likely). `MaxPerServer` caps how many players can hold a skill at once, and `Active: false` removes it from the draw entirely.
 
+## 🧩 Skill combos
+Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1` for the classic one-skill game). The first skill comes from the normal draw, the rest are added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Double Trouble and Rage which are combos themselves), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Double Trouble adds its own extras on top of this and Rage always comes as Wallhack + Aimbot.
+
 ## ✨ Current Skills (173)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>

@@ -700,6 +700,7 @@
   "smokejumper": "Skoczek Dymny",
   "smokejumper_desc": "Rzuć granat dymny, aby teleportować się tam, gdzie wyląduje",
 
+  "combo_extra_info": "Dodatkowa supermoc: {0}",
   "your_skill": "Twoja aktualna moc",
   "enemy_skill": "Supermoc przeciwnika",
   "observer_skill": "Moc gracza",

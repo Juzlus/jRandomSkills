@@ -315,6 +315,39 @@
       "Wallhack"
     ]
   },
+  "Combos": {
+    "SkillsPerPlayer": 2,
+    "AllowMultipleUseKeySkills": false,
+    "SoloSkills": [
+      "None",
+      "Gambler",
+      "Chameleon",
+      "Duplicator",
+      "Thief",
+      "Inheritance",
+      "Deactivator",
+      "DoubleTrouble",
+      "Rage"
+    ],
+    "ClashGroups": [
+      [ "Flash", "Berserker", "Adrenaline", "EntryRush", "Chicken", "Dwarf" ],
+      [ "Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple" ],
+      [ "Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist" ],
+      [ "Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana" ],
+      [ "GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie" ],
+      [ "AntyHead", "OnlyHead" ],
+      [ "Anomaly", "Rewind" ],
+      [ "Glue", "HomingNades", "Weightless" ],
+      [ "Baseball", "FrozenDecoy", "GravityDecoy", "MagneticDecoy", "FireRain" ],
+      [ "HealingSmoke", "ToxicSmoke", "SmokeJumper" ],
+      [ "Shade", "Teleporter", "ReturnToSender", "Behind", "Catapult", "Push" ],
+      [ "OneShot", "Aimbot", "Soldier", "GlassCannon", "Momentum", "Assassin", "Punisher" ],
+      [ "Armored", "TrueArmor", "ReactiveArmor" ],
+      [ "Cutter", "LongKnife", "ThrowingKnife" ],
+      [ "Pickpocket", "RobinHood" ],
+      [ "Wallhack", "Cypher", "FalconEye" ]
+    ]
+  },
   "Modules": {
     "Retakes": {
       "Enabled": true,

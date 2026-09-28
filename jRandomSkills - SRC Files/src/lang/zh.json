@@ -689,6 +689,7 @@
   "smokejumper": "烟雾跳跃者",
   "smokejumper_desc": "投掷烟雾弹，传送到它落地的位置",
 
+  "combo_extra_info": "额外技能：{0}",
   "your_skill": "你当前的技能",
   "enemy_skill": "敌人的技能",
   "observer_skill": "玩家的技能",

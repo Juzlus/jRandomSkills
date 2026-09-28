@@ -700,6 +700,7 @@
   "smokejumper": "Sauteur de Fumée",
   "smokejumper_desc": "Lancez une grenade fumigène pour vous téléporter là où elle atterrit",
 
+  "combo_extra_info": "Compétence supplémentaire : {0}",
   "your_skill": "Votre compétence",
   "enemy_skill": "Compétence de l’ennemi",
   "observer_skill": "Compétence du joueur",
