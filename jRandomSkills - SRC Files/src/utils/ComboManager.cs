@@ -108,6 +108,47 @@ namespace src.utils
             }
         }
 
+        // Skills the HUD should show for this player: the main skill plus extras, except that a skill whose
+        // only job is handing out others (Double Trouble) steps aside once its extras arrived.
+        public static List<Skills> HudSkills(jSkill_PlayerInfo info)
+        {
+            var list = new List<Skills>();
+            if (!(info.Skill == Skills.DoubleTrouble && info.ExtraSkills.Length > 0))
+                list.Add(info.Skill);
+            list.AddRange(info.ExtraSkills);
+            return list;
+        }
+
+        public static string HudSkillLine(CCSPlayerController player, jSkill_PlayerInfo info)
+        {
+            var parts = new List<string>();
+            foreach (var skill in HudSkills(info))
+            {
+                var data = SkillData.GetInfo(skill);
+                if (data == null) continue;
+                parts.Add($"<font color='{data.Color}'>{player.GetSkillName(skill, skill == info.Skill ? info.SkillChance : null)}</font>");
+            }
+            return string.Join(" + ", parts);
+        }
+
+        // One description, or "Name: description" per line when several skills are held.
+        public static string HudDescription(CCSPlayerController player, jSkill_PlayerInfo info)
+        {
+            var skills = HudSkills(info).Where(s => s != Skills.None).ToList();
+            if (skills.Count == 0) return "";
+            if (skills.Count == 1) return player.GetSkillDescription(skills[0], skills[0] == info.Skill ? info.SkillChance : null);
+
+            var lines = new List<string>();
+            foreach (var skill in skills)
+            {
+                var data = SkillData.GetInfo(skill);
+                string name = player.GetSkillName(skill, skill == info.Skill ? info.SkillChance : null);
+                string color = data?.Color ?? "#FFFFFF";
+                lines.Add($"<font color='{color}'>{name}</font>: {player.GetSkillDescription(skill, skill == info.Skill ? info.SkillChance : null)}");
+            }
+            return string.Join("<br>", lines);
+        }
+
         // Round draw: each extra slot (up to Combos.SkillsPerPlayer in total) is won with Combos.ExtraSkillChance.
         public static void GrantRoundExtras(CCSPlayerController player, jSkill_PlayerInfo info)
         {
