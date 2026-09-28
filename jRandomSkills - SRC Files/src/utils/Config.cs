@@ -347,9 +347,12 @@ namespace src.utils
 
         public class CombosSettings
         {
-            // How many skills every player holds each round (1 = classic, one skill). Extra skills are drawn
+            // The most skills a player can hold at once (1 = classic, one skill). Extra skills are drawn
             // from the pool and never clash with the ones already held. Double Trouble adds on top of this.
             public int SkillsPerPlayer { get; set; } = 2;
+            // Chance (0-1) that a player wins an extra skill each round; rolled once per extra slot, so with
+            // SkillsPerPlayer 3 the third skill needs two wins in a row. 0.15 = roughly every seventh round.
+            public float ExtraSkillChance { get; set; } = 0.15f;
             // Two skills fired by the use key would trigger together; keep false so a player gets at most one.
             public bool AllowMultipleUseKeySkills { get; set; } = false;
             // Skills that are never combined with anything (they change or copy the whole skill, or are combos themselves).
