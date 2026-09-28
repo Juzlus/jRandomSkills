@@ -714,7 +714,7 @@
   "your_skill": "Your current skill",
   "enemy_skill": "Enemy's skill",
   "observer_skill": "Player's skill",
-  "welcome_message": "Welcome {PLAYER} to {SERVER_NAME}!\nCurrent jRandomSkills version: {VERSION} ({SKILLS_COUNT} skills).\n\nOriginally created by:\n{AUTHOR1}\nModified and improved by:\n{AUTHOR2}\nOfficial Discord: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Welcome {PLAYER} to {SERVER_NAME}!",
   "drawing_skill": "Drawing a skill",
   "disabled_weapon": "You cannot use this weapon",
 

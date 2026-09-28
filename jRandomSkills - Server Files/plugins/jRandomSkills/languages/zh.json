@@ -703,7 +703,7 @@
   "your_skill": "你当前的技能",
   "enemy_skill": "敌人的技能",
   "observer_skill": "玩家的技能",
-  "welcome_message": "欢迎 {PLAYER} 来到 {SERVER_NAME}！\n当前 jRandomSkills 版本：{VERSION}（{SKILLS_COUNT} 个技能）。\n\n最初由以下人员创建：\n{AUTHOR1}\n由以下人员修改和改进：\n{AUTHOR2}\n官方Discord：https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "欢迎 {PLAYER} 来到 {SERVER_NAME}！",
   "drawing_skill": "抽取技能",
   "disabled_weapon": "你无法使用这把武器",
 

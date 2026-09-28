@@ -714,7 +714,7 @@
   "your_skill": "Ваш текущий навык",
   "enemy_skill": "Навык врага",
   "observer_skill": "Навык игрока",
-  "welcome_message": "Добро пожаловать {PLAYER} на {SERVER_NAME}!\nТекущая версия jRandomSkills: {VERSION} ({SKILLS_COUNT} навыков).\n\nОригинал создан:\n{AUTHOR1}\nМодифицирован и улучшен:\n{AUTHOR2}\nОфициальный Discord: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Добро пожаловать {PLAYER} на {SERVER_NAME}!",
   "drawing_skill": "Получение навыка",
   "disabled_weapon": "Вы не можете использовать это оружие",
 

@@ -317,7 +317,7 @@
   },
   "Combos": {
     "SkillsPerPlayer": 2,
-    "ExtraSkillChance": 0.15,
+    "ExtraSkillChance": 0.0,
     "AllowMultipleUseKeySkills": false,
     "SoloSkills": [
       "None",
@@ -348,6 +348,14 @@
       [ "Pickpocket", "RobinHood" ],
       [ "Wallhack", "Cypher", "FalconEye" ]
     ]
+  },
+  "ServerInfo": {
+    "Lines": [
+      "Server By : Tired",
+      "Hosting By ORI",
+      "Shavo GAY"
+    ],
+    "AdvertIntervalSeconds": 300
   },
   "Modules": {
     "Retakes": {

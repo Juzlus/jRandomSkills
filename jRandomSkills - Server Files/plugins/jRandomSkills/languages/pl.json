@@ -714,7 +714,7 @@
   "your_skill": "Twoja aktualna moc",
   "enemy_skill": "Supermoc przeciwnika",
   "observer_skill": "Moc gracza",
-  "welcome_message": "Witaj {PLAYER} na serwerze {SERVER_NAME}!\nAktualna wersja jRandomSkills: {VERSION} ({SKILLS_COUNT} supermocy).\n\nPierwotnie plugin stworzona przez:\n{AUTHOR1}\nZmodyfikowany i ulepszony przez:\n{AUTHOR2}\nOficjalny discord: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Witaj {PLAYER} na serwerze {SERVER_NAME}!",
   "drawing_skill": "Losowanie mocy",
   "disabled_weapon": "Nie możesz używać tej broni",
 

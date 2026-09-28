@@ -714,7 +714,7 @@
   "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
   "observer_skill": "Habilidade do jogador",
-  "welcome_message": "Bem-vindo {PLAYER} ao {SERVER_NAME}!\nVersão atual do jRandomSkills: {VERSION} ({SKILLS_COUNT} habilidades).\n\nCriado originalmente por:\n{AUTHOR1}\nModificado e aprimorado por:\n{AUTHOR2}\nDiscord oficial: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Bem-vindo {PLAYER} ao {SERVER_NAME}!",
   "drawing_skill": "Sorteando uma habilidade",
   "disabled_weapon": "Você não pode usar esta arma",
 
