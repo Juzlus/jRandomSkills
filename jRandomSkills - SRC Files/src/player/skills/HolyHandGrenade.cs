@@ -35,7 +35,7 @@ namespace src.player.skills
                 var player = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.PlayerPawn.Index == playerPawn.Index);
                 if (player == null) return;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
-                if (playerInfo?.Skill != skillName) return;
+                if (playerInfo?.HasSkill(skillName) != true) return;
 
                 hegrenade.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");
                 hegrenade.DmgRadius *= SkillsInfo.GetValue<float>(skillName, "damageRadiusMultiplier");
@@ -51,7 +51,7 @@ namespace src.player.skills
             if (weapon != "hegrenade") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

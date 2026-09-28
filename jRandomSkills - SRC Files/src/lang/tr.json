@@ -690,6 +690,16 @@
   "guns_usage": "Kullanım: !guns menüyü açar, ya da !guns <tüfek> [tabanca], örn. !guns ak47 deagle",
   "guns_menu_busy": "Önce mevcut menünü kapat.",
 
+  "doubletrouble": "Çifte Bela",
+  "doubletrouble_desc": "Bu yeteneğe ek olarak rastgele ikinci bir yetenek alırsın",
+  "doubletrouble_extra_info": "İkinci yeteneğin: {0}",
+
+  "rage": "Öfke",
+  "rage_desc": "Düşmanları duvarların arkasından görürsün ve her isabet kafadan vuruş sayılır",
+
+  "smokejumper": "Duman Zıplayıcısı",
+  "smokejumper_desc": "Düştüğü yere ışınlanmak için bir sis bombası at",
+
   "your_skill": "Yeteneğin",
   "enemy_skill": "Düşmanın yeteneği",
   "observer_skill": "Yeteneği",

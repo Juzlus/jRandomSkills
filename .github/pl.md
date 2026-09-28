@@ -62,7 +62,10 @@ Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń os
 > [!WARNING]
 > **Aktualizacje CS2 i CounterStrikeSharp:** gdy CounterStrikeSharp nie pasuje do zainstalowanej wersji CS2, tworzenie encji przez niego może wywrócić serwer. `EntitySpawnSafety` w `config.json` (`"Mode": "Auto"`) wyłącza tworzenie encji, jeśli wersji CS2 z `csgo/steam.inf` nie ma na liście `VerifiedGameVersions`. Wtedy 27 supermocy tworzących encje nie jest losowanych, a automatyczne podłożenie bomby w retake zamienia się na zwykłe podłożenie przez gracza. Po aktualizacji CounterStrikeSharp dla nowej wersji CS2 dopisz tę wersję do listy (albo ustaw `"Mode": "Off"`).
 
-## ✨ Aktualne Supermoce (170)
+## 🎲 Szanse na supermoce
+Każda supermoc ma `Rarity` w `configs/skillsInfo.json` (`Common`, `Uncommon`, `Rare`, `Epic`, `Legendary`). W każdej rundzie plugin najpierw losuje rzadkość według procentów z `SkillsChance` w `config.json` (domyślnie 70 / 14 / 10 / 5 / 1; `VIPSkillsChance` dla graczy z flagą VIP), a potem jedną supermoc o tej rzadkości. W obrębie rzadkości losowanie jest ważone przez `Weight` każdej supermocy (domyślnie `1.0`: `2.0` to dwa razy większa szansa niż u pozostałych, `0.5` dwa razy mniejsza). `MaxPerServer` ogranicza, ilu graczy może mieć daną supermoc naraz, a `Active: false` całkiem usuwa ją z losowania.
+
+## ✨ Aktualne Supermoce (173)
 <details>
 <summary>Poniższa tabela przedstawia wszystkie dostępne supermoce w grze, wraz z ich opisami.</summary>
 
@@ -102,6 +105,7 @@ Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń os
 | Feniks               | Masz losową szansę na odrodzenie się po śmierci                                                                   | (20 - 40)%      |
 | Flash                | Losowa prędkość postaci na początku rundy                                                                         | (1.2 - 3.0)x    |
 | Fortnite             | Kliknij [css_useSkill], aby stworzyć barykadę, którą można zniszczyć                                              | 2 s             |
+| Furia                | Widzisz wrogów przez ściany, a każde trafienie liczy się jako strzał w głowę                                      | -               |
 | Glaz                 | Widzisz przez granaty dymne                                                                                       | -               |
 | Glitch               | Wyłączasz radar wybranemu przeciwnikowi                                                                           | -               |
 | Gorąca Bomba         | Dopóki żyjesz, bomba zadaje obrażenia osobie, która ją niesie                                                     | -               |
@@ -173,6 +177,7 @@ Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń os
 | Papito               | Kliknij [css_useSkill], aby zamienić aktualną broń na AWP                                                         | 0 s             |
 | Pawel Jumper         | Otrzymujesz dodatkowy skok                                                                                        | -               |
 | Pilot                | Latanie przez określony czas. Przytrzymaj [USE - E], aby latać                                                    | -               |
+| Podwójny Kłopot      | Oprócz tej supermocy dostajesz drugą, losową                                                                      | -               |
 | Prawdziwy Pancerz    | Pancerz pochłania część otrzymywanych obrażeń zamiast zdrowia.                                                    | 0.33x           |
 | Proteza              | Ramiona i nogi są kuloodporne                                                                                     | -               |
 | Pustelnik            | Zabijanie przywraca amunicję i część zdrowia                                                                      | -               |
@@ -192,6 +197,7 @@ Instalacja: skopiuj folder `shared` razem z `plugins` i `gamedata` oraz usuń os
 | Saper                | Możesz szybciej podłożyć bombę i ją rozbroić                                                                      | -               |
 | Scyzoryk             | Natychmiastowe zabójstwo nożem                                                                                    | -               |
 | Skarbówka            | Wybierasz gracza, z którym chcesz zamienić się pieniędzmi                                                         | -               |
+| Skoczek Dymny        | Rzuć granat dymny, aby teleportować się tam, gdzie wyląduje                                                       | 2 smokes        |
 | Skrytobójca          | Zadajesz podwójne obrażenia przeciwnikowi od tyłu                                                                 | -               |
 | Skupienie            | Brak odrzutu podczas strzelania                                                                                   | -               |
 | Spadek Rodzinny      | Gdy członek drużyny ginie, możesz przejąć jego umiejętność                                                        | -               |

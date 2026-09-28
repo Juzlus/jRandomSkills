@@ -25,7 +25,7 @@ namespace src.player.skills
             if (attacker!.Team == victim.Team) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var pawn = attacker.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;

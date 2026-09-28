@@ -690,6 +690,16 @@
   "guns_usage": "Uso: !guns abre o menu, ou !guns <rifle> [pistola], ex.: !guns ak47 deagle",
   "guns_menu_busy": "Feche seu menu atual primeiro.",
 
+  "doubletrouble": "Problema em Dobro",
+  "doubletrouble_desc": "Você recebe uma segunda habilidade aleatória além desta",
+  "doubletrouble_extra_info": "Sua segunda habilidade: {0}",
+
+  "rage": "Fúria",
+  "rage_desc": "Você vê inimigos através das paredes e cada acerto conta como headshot",
+
+  "smokejumper": "Saltador de Fumaça",
+  "smokejumper_desc": "Jogue uma smoke para se teleportar para onde ela cair",
+
   "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
   "observer_skill": "Habilidade do jogador",

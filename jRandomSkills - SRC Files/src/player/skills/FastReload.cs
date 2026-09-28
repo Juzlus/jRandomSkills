@@ -56,7 +56,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
                 if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
 
                 UpdateHUD(player, skillInfo);
@@ -85,7 +85,7 @@ namespace src.player.skills
             if (playerPawn?.CBodyComponent == null) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;

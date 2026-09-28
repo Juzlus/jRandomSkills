@@ -317,7 +317,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
             if (victim == null || !victim.IsValid) return;
 
-            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+            if (PlayerManager.GetPlayerByIndex(victim.Index)?.HasSkill(skillName) != true) return;
             if (!playersInfo.TryGetValue(victim.Index, out var playerSkill)) return;
 
             bool hasClone = playerSkill.CloneProp != null;
@@ -442,7 +442,7 @@ namespace src.player.skills
             if (string.IsNullOrEmpty(weaponName)) return false;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return false;
+            if (playerInfo?.HasSkill(skillName) != true) return false;
 
             if (!playersInfo.TryGetValue(player.Index, out var playerSkill)) return false;
             if (playerSkill.CloneProp == null || playerSkill.Weapons.Contains(econItem.ItemID)) return false;

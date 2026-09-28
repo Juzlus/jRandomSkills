@@ -788,24 +788,24 @@ namespace src.utils
                 playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) return false;
 
-                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
+                if (playerInfo.HasSkill(Skills.Jester) && Jester.GetJesterInfo(player.Index)?.Active == true)
                     return false;
 
-                if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
+                if (playerInfo.HasSkill(Skills.GodMode) && GodMode.HaveHodMode(player.Index))
                     return false;
 
-                if (playerInfo.Skill == Skills.Armored)
+                if (playerInfo.HasSkill(Skills.Armored))
                     damage = (int)Math.Round(damage * (playerInfo.SkillChance ?? 1f));
             }
 
             int newHealth = (int)(pawn.Health - damage);
             if (newHealth <= 0 && playerInfo != null)
             {
-                if (playerInfo.Skill == Skills.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
+                if (playerInfo.HasSkill(Skills.SecondLife) && SecondLife.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
+                if (playerInfo.HasSkill(Skills.Phoenix) && Phoenix.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
+                if (playerInfo.HasSkill(Skills.ReZombie) && ReZombie.TryBecomeZombie(victim, pawn))
                     return true;
             }
 

@@ -357,7 +357,7 @@ namespace src.utils
             [
                 "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
                 "Fortnite", "Ghost", "Grapple", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
-                "LongZeus", "Nightmare", "Ninja", "Pilot", "Replicator", "Rewind", "Ricochet", "Spectator",
+                "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
                 "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",
             ];
         }

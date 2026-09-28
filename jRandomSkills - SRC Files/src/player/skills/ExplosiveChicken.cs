@@ -192,7 +192,7 @@ namespace src.player.skills
                 if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 if (hudFrame)
                     UpdateHUD(player, skillInfo);

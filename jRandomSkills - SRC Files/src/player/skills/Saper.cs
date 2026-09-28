@@ -21,7 +21,7 @@ namespace src.player.skills
             if (Instance.IsPlayerValid(player))
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.HasSkill(skillName) == true)
                 {
                     var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
                     if (plantedBomb != null)
@@ -40,7 +40,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
             {
                 var bomb = PlayerManager.GetTickBomb();
                 if (bomb != null && bomb.IsValid)

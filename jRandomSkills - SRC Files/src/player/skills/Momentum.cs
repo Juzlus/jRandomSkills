@@ -54,7 +54,7 @@ namespace src.player.skills
             foreach (var (index, count) in stacks)
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(index);
-                if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (playerInfo == null || playerInfo.HasSkill(skillName) == false) continue;
 
                 playerInfo.PrintHTML = count > 0
                     ? $"<font color='#FFA500'>+{Math.Round(count * perKill * 100)}%</font>"

@@ -23,7 +23,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid) return;
 
             // Glass: every source of damage hurts the holder more.
-            if (PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index)?.Skill == skillName)
+            if (PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index)?.HasSkill(skillName) == true)
                 damageInfo.Damage *= SkillsInfo.GetValue<float>(skillName, "damageTakenMultiplier");
 
             var attackerEnt = damageInfo.Attacker?.Value;
@@ -36,7 +36,7 @@ namespace src.player.skills
             if (attacker == null || attacker.Team == victim.Team) return;
 
             // Cannon: the holder's hits on enemies deal more damage.
-            if (PlayerManager.GetPlayerByIndex(attacker.Index)?.Skill == skillName)
+            if (PlayerManager.GetPlayerByIndex(attacker.Index)?.HasSkill(skillName) == true)
                 damageInfo.Damage *= SkillsInfo.GetValue<float>(skillName, "damageDealtMultiplier");
         }
 

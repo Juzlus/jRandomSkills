@@ -690,6 +690,16 @@
   "guns_usage": "Użycie: !guns otwiera menu, albo !guns <karabin> [pistolet], np. !guns ak47 deagle",
   "guns_menu_busy": "Najpierw zamknij obecne menu.",
 
+  "doubletrouble": "Podwójny Kłopot",
+  "doubletrouble_desc": "Oprócz tej supermocy dostajesz drugą, losową",
+  "doubletrouble_extra_info": "Twoja druga supermoc: {0}",
+
+  "rage": "Furia",
+  "rage_desc": "Widzisz wrogów przez ściany, a każde trafienie liczy się jako strzał w głowę",
+
+  "smokejumper": "Skoczek Dymny",
+  "smokejumper_desc": "Rzuć granat dymny, aby teleportować się tam, gdzie wyląduje",
+
   "your_skill": "Twoja aktualna moc",
   "enemy_skill": "Supermoc przeciwnika",
   "observer_skill": "Moc gracza",

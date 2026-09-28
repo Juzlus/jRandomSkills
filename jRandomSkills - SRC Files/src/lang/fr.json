@@ -690,6 +690,16 @@
   "guns_usage": "Utilisation : !guns ouvre le menu, ou !guns <fusil> [pistolet], ex. !guns ak47 deagle",
   "guns_menu_busy": "Fermez d'abord votre menu actuel.",
 
+  "doubletrouble": "Double Peine",
+  "doubletrouble_desc": "Vous recevez une deuxième compétence aléatoire en plus de celle-ci",
+  "doubletrouble_extra_info": "Votre deuxième compétence : {0}",
+
+  "rage": "Rage",
+  "rage_desc": "Vous voyez les ennemis à travers les murs et chaque tir compte comme un headshot",
+
+  "smokejumper": "Sauteur de Fumée",
+  "smokejumper_desc": "Lancez une grenade fumigène pour vous téléporter là où elle atterrit",
+
   "your_skill": "Votre compétence",
   "enemy_skill": "Compétence de l’ennemi",
   "observer_skill": "Compétence du joueur",

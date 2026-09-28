@@ -48,7 +48,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return;
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
@@ -64,7 +64,7 @@ namespace src.player.skills
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return false;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return false;
 
             if (phoenixTicks.TryGetValue(victim.Index, out int savedTick) && savedTick + 4 > Server.TickCount)
                 return true;

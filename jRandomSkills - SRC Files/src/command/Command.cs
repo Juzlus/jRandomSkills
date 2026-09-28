@@ -95,7 +95,7 @@ namespace src.command
             Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill}", DebugCategory.Skill);
 
             if (commands == null || commands.Length == 0)
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                Event.UseAllSkills(playerInfo, player);
             else
                 Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, commands]);
         }
@@ -148,7 +148,7 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
             if (skillPlayer != null)
             {
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+                Event.DisableAllSkills(skillPlayer, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
@@ -553,7 +553,7 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
             if (skillPlayer != null)
             {
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+                Event.DisableAllSkills(skillPlayer, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
@@ -696,7 +696,7 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer!.Index);
             if (skillPlayer == null) return;
 
-            Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+            Event.DisableAllSkills(skillPlayer, targetPlayer);
             skillPlayer.Skill = skill.Skill;
             skillPlayer.SpecialSkill = Skills.None;
 

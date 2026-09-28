@@ -129,6 +129,13 @@ namespace src.player
                         infoLine = player.GetTranslationWithoutIlliterate("your_skill");
                         skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
 
+                        foreach (var extra in skillPlayer.ExtraSkills)
+                        {
+                            var extraInfo = SkillData.GetInfo(extra);
+                            if (extraInfo != null)
+                                skillLine += $" + <font color='{extraInfo.Color}'>{player.GetSkillName(extra)}</font>";
+                        }
+
                         if (skillInfo.Skill != Skills.None)
                         {
                             remainingLine = string.IsNullOrEmpty(skillPlayer.PrintHTML)

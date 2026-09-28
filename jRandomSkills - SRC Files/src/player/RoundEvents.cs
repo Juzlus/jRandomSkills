@@ -74,7 +74,7 @@ namespace src.player
                 }
 
                 if (filtered.Count > 0)
-                    return filtered[Random.Shared.Next(filtered.Count)];
+                    return PickWeighted(filtered);
             }
 
             var fallback = candidates.Where(s =>
@@ -88,9 +88,27 @@ namespace src.player
             }).ToList();
 
             if (fallback.Count > 0)
-                return fallback[Random.Shared.Next(fallback.Count)];
+                return PickWeighted(fallback);
 
-            return candidates[Random.Shared.Next(candidates.Count)];
+            return PickWeighted(candidates);
+        }
+
+        // Random pick honouring each skill's Weight from skillsInfo.json.
+        private static jSkill_SkillInfo PickWeighted(List<jSkill_SkillInfo> list)
+        {
+            double total = 0;
+            foreach (var s in list)
+                total += Math.Max(0, SkillsInfo.GetSkillConfig(s.Skill)?.Weight ?? 1f);
+
+            if (total <= 0) return list[Random.Shared.Next(list.Count)];
+
+            double roll = Random.Shared.NextDouble() * total;
+            foreach (var s in list)
+            {
+                roll -= Math.Max(0, SkillsInfo.GetSkillConfig(s.Skill)?.Weight ?? 1f);
+                if (roll <= 0) return s;
+            }
+            return list[^1];
         }
 
         private static HookResult RoundStart(EventRoundStart @event, GameEventInfo info)
@@ -157,15 +175,18 @@ namespace src.player
                     var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (playerInfo == null) continue;
 
-                    ActiveSkillsThisRound.TryAdd(playerInfo.Skill.ToString(), 0);
-                    SkillsUsedThisMap.TryAdd(playerInfo.Skill.ToString(), 0);
+                    foreach (var held in playerInfo.AllSkills())
+                    {
+                        ActiveSkillsThisRound.TryAdd(held.ToString(), 0);
+                        SkillsUsedThisMap.TryAdd(held.ToString(), 0);
+                    }
                     if (playerInfo.SpecialSkill != noneSkill.Skill)
                     {
                         ActiveSkillsThisRound.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
                         SkillsUsedThisMap.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
                     }
 
-                    Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
+                    DisableAllSkills(playerInfo, player);
 
                     playerInfo.Skill = noneSkill.Skill;
                     playerInfo.SpecialSkill = noneSkill.Skill;
@@ -633,7 +654,7 @@ namespace src.player
                         player.PrintToChat($"{SkillData.Skills.Count - debugSkills.Count}/{SkillData.Skills.Count}");
                     }
 
-                    Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                    DisableAllSkills(skillPlayer, player);
                     skillPlayer.Skill = randomSkill.Skill;
                     skillPlayer.SpecialSkill = Skills.None;
 
@@ -822,7 +843,7 @@ namespace src.player
                     }
                 }
 
-                Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                DisableAllSkills(skillPlayer, player);
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
 

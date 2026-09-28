@@ -35,7 +35,7 @@ namespace src.player.skills
             if (attacker == null) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-            if (playerInfo == null || playerInfo.Skill != skillName) return;
+            if (playerInfo == null || playerInfo.HasSkill(skillName) == false) return;
 
             if (!SkillUtils.IsBulletDamage(damageInfo)) return;
 

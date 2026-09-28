@@ -65,7 +65,7 @@ namespace src.player.skills
                 if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-                bool isJackalOwner = playerInfo?.Skill == skillName;
+                bool isJackalOwner = playerInfo?.HasSkill(skillName) == true;
 
                 if (!isJackalOwner)
                 {
@@ -77,7 +77,7 @@ namespace src.player.skills
                         if (observed != null && observed.IsValid)
                         {
                             var observedInfo = PlayerManager.GetPlayerByIndex(observed.Index);
-                            if (observedInfo?.Skill == skillName)
+                            if (observedInfo?.HasSkill(skillName) == true)
                                 isJackalOwner = true;
                         }
                     }

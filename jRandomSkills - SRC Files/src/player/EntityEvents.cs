@@ -95,7 +95,7 @@ namespace src.player
                 DispatchOnTakeDamage(entity, info, args);
 
                 if (Fortnite.skillInThisRound == true &&
-                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
+                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.HasSkill(Skills.Fortnite)))
                     Instance.SkillAction("Fortnite", "OnTakeDamage", args);
 
                 SkillUtils.ApplyNativeKill(entity, info);
@@ -189,7 +189,8 @@ namespace src.player
 
                 var activeSkills = Instance.SkillPlayer
                     .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
+                    .SelectMany(p => p.AllSkills())
+                    .Select(s => s.ToString())
                     .Distinct();
 
                 bool block = false;

@@ -118,7 +118,7 @@ namespace src.player.skills
                 var vdata = GetActiveWeaponVData(player);
                 if (vdata == null) continue;
 
-                bool isHolder = holders.ContainsKey(player.Index) && PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName;
+                bool isHolder = holders.ContainsKey(player.Index) && PlayerManager.GetPlayerByIndex(player.Index)?.HasSkill(skillName) == true;
                 if (isHolder)
                     wantedVData[vdata.Handle] = vdata;
                 else
@@ -211,7 +211,7 @@ namespace src.player.skills
             if (!holders.ContainsKey(player.Index)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             ResetWeaponState(player);
             ResetViewPunch(player);

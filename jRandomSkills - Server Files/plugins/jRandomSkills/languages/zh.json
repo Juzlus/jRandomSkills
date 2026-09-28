@@ -679,6 +679,16 @@
   "guns_usage": "用法：!guns 打开菜单，或 !guns <步枪> [手枪]，例如 !guns ak47 deagle",
   "guns_menu_busy": "请先关闭当前菜单。",
 
+  "doubletrouble": "双重麻烦",
+  "doubletrouble_desc": "在这个技能之外，你再随机获得一个技能",
+  "doubletrouble_extra_info": "你的第二个技能：{0}",
+
+  "rage": "狂怒",
+  "rage_desc": "你可以透视墙后的敌人，并且每次命中都算作爆头",
+
+  "smokejumper": "烟雾跳跃者",
+  "smokejumper_desc": "投掷烟雾弹，传送到它落地的位置",
+
   "your_skill": "你当前的技能",
   "enemy_skill": "敌人的技能",
   "observer_skill": "玩家的技能",

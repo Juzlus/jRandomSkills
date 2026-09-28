@@ -58,7 +58,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo == null) return;
 
-            if (playerInfo.Skill == skillName)
+            if (playerInfo.HasSkill(skillName))
             {
                 float damageMultiplier = CalculateNewVelocity(attackerPawn, SkillsInfo.GetValue<float>(skillName, "maxDamageVelocity"));
                 damageInfo.Damage *= damageMultiplier;

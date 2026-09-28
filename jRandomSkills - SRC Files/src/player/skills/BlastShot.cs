@@ -58,7 +58,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || !playerPawn.IsValid) continue;

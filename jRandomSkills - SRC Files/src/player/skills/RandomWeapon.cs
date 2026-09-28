@@ -34,7 +34,7 @@ namespace src.player.skills
             foreach (var player in players)
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName && SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                if (playerInfo?.HasSkill(skillName) == true && SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                     UpdateHUD(player, skillInfo);
             }
         }

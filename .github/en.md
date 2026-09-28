@@ -62,7 +62,10 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 > [!WARNING]
 > **CS2 updates and CounterStrikeSharp:** when CounterStrikeSharp doesn't match the installed CS2 build, spawning entities through it can crash the server. `EntitySpawnSafety` in `config.json` (`"Mode": "Auto"`) turns entity spawning off unless the CS2 version in `csgo/steam.inf` is listed in `VerifiedGameVersions`. While it is off, the 27 skills that spawn entities are left out of the draw and retakes auto-plant falls back to giving the planter the bomb. After updating CounterStrikeSharp for a new CS2 build, add that version to the list (or set `"Mode": "Off"`).
 
-## ✨ Current Skills (170)
+## 🎲 Skill odds
+Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `Rare`, `Epic`, `Legendary`). Each round the plugin first rolls a rarity using the percentages in `SkillsChance` in `config.json` (default 70 / 14 / 10 / 5 / 1; `VIPSkillsChance` for players with the VIP flag), then picks one skill of that rarity. Within a rarity the pick is weighted by each skill's `Weight` (default `1.0`: `2.0` makes a skill twice as likely as its peers, `0.5` half as likely). `MaxPerServer` caps how many players can hold a skill at once, and `Active: false` removes it from the draw entirely.
+
+## ✨ Current Skills (173)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -104,6 +107,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Demon Eye         | You deal damage to every enemy you are looking at                                                  | 2 s              |
 | Disarmament       | You have a random chance to make an enemy drop their weapon on hit                                 | (20 - 35)%       |
 | Dash              | Perform a second jump to dash                                                                      | -                |
+| Double Trouble    | You get a second random skill on top of this one                                                   | -                |
 | Dracula           | Hitting an enemy restores health equal to a percentage of the damage dealt                         | -                |
 | Duplicator        | Choose a player to copy their skill                                                                | -                |
 | Dwarf             | Random character size at the start of the round                                                    | (60 - 95)%       |
@@ -190,6 +194,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Pusher            | You have a random chance to push an enemy back when hitting them                                   | 100%             |
 | Punisher          | You bank part of the damage you take and add it to your next hit                                   | 0.5x             |
 | Pyro              | Molotov restores health                                                                            | -                |
+| Rage              | You see enemies through walls and every hit counts as a headshot                                   | -                |
 | Rapid Fire        | All bullets are fired very quickly                                                                 | -                |
 | Radar Hack        | Enemies are visible on the radar                                                                   | -                |
 | Rambo             | You receive a random amount of health at the start of the round                                    | +(50 - 501) HP   |
@@ -211,6 +216,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                |
 | Silent            | Your footsteps and jumps are silent to other players                                               | -                |
+| Smoke Jumper      | Throw a smoke grenade to teleport to where it lands                                                | 2 smokes         |
 | Smoker            | Your smoke grenades never run out                                                                  | -                |
 | Sniper Elite      | Click [css_useSkill] to swap your current weapon for an AWP                                        | 0 s              |
 | Soldier           | You have a random damage multiplier                                                                | (1.15 - 1.35)x   |

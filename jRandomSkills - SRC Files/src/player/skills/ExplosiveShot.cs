@@ -132,7 +132,7 @@ namespace src.player.skills
             var pos = new Vector(@event.X, @event.Y, @event.Z);
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo == null || playerInfo.Skill != skillName) return;
+            if (playerInfo == null || playerInfo.HasSkill(skillName) == false) return;
 
             if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
                 SpawnExplosion(pos, player);

@@ -174,9 +174,30 @@ namespace src.player
             var seen = new HashSet<Skills>();
             foreach (var p in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, methodName, args);
+                if (p.IsDrawing) continue;
+                foreach (var skill in p.AllSkills())
+                    if (seen.Add(skill))
+                        InvokeSkill(skill, methodName, args);
             }
+        }
+
+        // Turns a player's skill (and any extra skills) off and clears them; use instead of a bare DisableSkill.
+        public static void DisableAllSkills(jSkill_PlayerInfo info, CCSPlayerController player)
+        {
+            Instance.SkillAction(info.Skill.ToString(), "DisableSkill", [player]);
+
+            var extras = info.ExtraSkills;
+            if (extras.Length == 0) return;
+            info.ExtraSkills = [];
+            foreach (var extra in extras)
+                Instance.SkillAction(extra.ToString(), "DisableSkill", [player]);
+        }
+
+        public static void UseAllSkills(jSkill_PlayerInfo info, CCSPlayerController player)
+        {
+            Instance.SkillAction(info.Skill.ToString(), "UseSkill", [player]);
+            foreach (var extra in info.ExtraSkills)
+                Instance.SkillAction(extra.ToString(), "UseSkill", [player]);
         }
 
         private static void ReleaseCursesTargeting(uint victimIndex)
@@ -206,10 +227,9 @@ namespace src.player
         {
             var seen = new HashSet<Skills>();
             foreach (var p in Instance.SkillPlayer)
-            {
-                if (!seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, "CheckTransmit", args);
-            }
+                foreach (var skill in p.AllSkills())
+                    if (seen.Add(skill))
+                        InvokeSkill(skill, "CheckTransmit", args);
         }
 
         private static void DispatchOnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, object[] args, bool post = false)
@@ -219,15 +239,20 @@ namespace src.player
 
             foreach (var p in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+                if (p.IsDrawing) continue;
 
-                if (Array.IndexOf(lateDamageSkills, p.Skill) >= 0)
+                foreach (var skill in p.AllSkills())
                 {
-                    (deferred ??= []).Add(p.Skill);
-                    continue;
-                }
+                    if (!seen.Add(skill)) continue;
 
-                InvokeOnTakeDamage(p.Skill, damagedEntity, damageInfo, args, post);
+                    if (Array.IndexOf(lateDamageSkills, skill) >= 0)
+                    {
+                        (deferred ??= []).Add(skill);
+                        continue;
+                    }
+
+                    InvokeOnTakeDamage(skill, damagedEntity, damageInfo, args, post);
+                }
             }
 
             if (deferred == null) return;
@@ -554,8 +579,9 @@ namespace src.player
                 foreach (var p in Instance.SkillPlayer)
                 {
                     if (p.IsDrawing) continue;
-                    if (_activeSkillsSet.Add(p.Skill))
-                        _activeSkillsList.Add(p.Skill);
+                    foreach (var skill in p.AllSkills())
+                        if (_activeSkillsSet.Add(skill))
+                            _activeSkillsList.Add(skill);
                 }
 
                 _activeSkillsList.Sort(_tickOrderCmp);
@@ -650,7 +676,7 @@ namespace src.player
                 var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return HookResult.Continue;
 
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                DisableAllSkills(skillPlayer, player);
 
                 uint leavingIndex = player.Index;
 
@@ -773,7 +799,7 @@ namespace src.player
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
-                Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
+                DisableAllSkills(playerInfo, victim);
 
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (attacker == null || victim == attacker) return HookResult.Continue;
@@ -860,7 +886,7 @@ namespace src.player
                 }
 
                 Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}", DebugCategory.Skill);
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                UseAllSkills(playerInfo, player);
             }
         }
 
