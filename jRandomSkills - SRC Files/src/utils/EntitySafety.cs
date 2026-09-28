@@ -28,10 +28,27 @@ namespace src.utils
 
             if (SpawningBlocked)
                 Instance.Logger.LogWarning(
-                    "[jRandomSkills] Entity spawning is disabled (EntitySpawnSafety.Mode={Mode}, CS2 {Version}, verified: {Verified}). " +
-                    "Skills that spawn entities are not drawn and retakes auto-plant falls back to a normal plant. " +
-                    "After updating CounterStrikeSharp for this CS2 build, add the version to EntitySpawnSafety.VerifiedGameVersions or set Mode to \"Off\".",
-                    settings.Mode, GameVersion ?? "unknown", string.Join(", ", settings.VerifiedGameVersions));
+                    "[jRandomSkills] Entity spawning is disabled (EntitySpawnSafety.Mode={Mode}, CS2 {Version}, CounterStrikeSharp {Css}, verified CS2 versions: {Verified}). " +
+                    "Skills that spawn entities are not drawn and retakes auto-plant falls back to the planter placing the bomb with one click. " +
+                    "Hands-free auto-plant needs a CounterStrikeSharp built for this CS2 version: update CounterStrikeSharp, then add \"{Version}\" to EntitySpawnSafety.VerifiedGameVersions or set Mode to \"Off\".",
+                    settings.Mode, GameVersion ?? "unknown", CounterStrikeSharpVersion ?? "unknown", string.Join(", ", settings.VerifiedGameVersions));
+        }
+
+        // Version of the CounterStrikeSharp the server runs (the API assembly is loaded from the server install).
+        public static string? CounterStrikeSharpVersion
+        {
+            get
+            {
+                try
+                {
+                    var info = typeof(CounterStrikeSharp.API.Core.BasePlugin).Assembly
+                        .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                        .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
+                        .FirstOrDefault()?.InformationalVersion;
+                    return info?.Split('+')[0];
+                }
+                catch { return null; }
+            }
         }
 
         public static bool IsSkillBlocked(Skills skill)

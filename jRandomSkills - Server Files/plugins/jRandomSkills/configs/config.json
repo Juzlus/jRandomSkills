@@ -317,6 +317,7 @@
   },
   "Combos": {
     "SkillsPerPlayer": 2,
+    "ExtraSkillChance": 0.15,
     "AllowMultipleUseKeySkills": false,
     "SoloSkills": [
       "None",

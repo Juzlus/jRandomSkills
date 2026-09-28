@@ -108,12 +108,22 @@ namespace src.utils
             }
         }
 
-        // Round draw: everyone gets Combos.SkillsPerPlayer skills in total.
+        // Round draw: each extra slot (up to Combos.SkillsPerPlayer in total) is won with Combos.ExtraSkillChance.
         public static void GrantRoundExtras(CCSPlayerController player, jSkill_PlayerInfo info)
         {
-            int extra = Settings.SkillsPerPlayer - 1;
-            if (extra <= 0 || info.Skill == Skills.None || IsSolo(info.Skill)) return;
-            GrantExtras(player, info, extra);
+            int slots = Settings.SkillsPerPlayer - 1;
+            if (slots <= 0 || info.Skill == Skills.None || IsSolo(info.Skill)) return;
+
+            float chance = Math.Clamp(Settings.ExtraSkillChance, 0f, 1f);
+            int won = 0;
+            for (int i = 0; i < slots; i++)
+            {
+                if (Instance.Random.NextDouble() >= chance) break;
+                won++;
+            }
+
+            if (won > 0)
+                GrantExtras(player, info, won);
         }
     }
 }
