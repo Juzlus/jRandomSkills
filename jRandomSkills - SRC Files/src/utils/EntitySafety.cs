@@ -22,9 +22,12 @@ namespace src.utils
             {
                 "on" => true,
                 "off" => false,
-                // Auto: only trust builds someone has verified with the installed CounterStrikeSharp.
-                _ => GameVersion != null && !settings.VerifiedGameVersions.Contains(GameVersion),
+                // Auto: trust the CS2 build the installed CounterStrikeSharp was released for, plus any the admin verified.
+                _ => GameVersion != null && !settings.VerifiedGameVersions.Contains(GameVersion) && !MatchesInstalledCounterStrikeSharp(GameVersion),
             };
+
+            if (!SpawningBlocked)
+                Instance.Logger.LogInformation("[jRandomSkills] Entity spawning enabled (CS2 {Version}, CounterStrikeSharp {Css}).", GameVersion ?? "unknown", CounterStrikeSharpVersion ?? "unknown");
 
             if (SpawningBlocked)
                 Instance.Logger.LogWarning(
@@ -32,6 +35,23 @@ namespace src.utils
                     "Skills that spawn entities are not drawn and retakes auto-plant falls back to the planter placing the bomb with one click. " +
                     "Hands-free auto-plant needs a CounterStrikeSharp built for this CS2 version: update CounterStrikeSharp, then add \"{Version}\" to EntitySpawnSafety.VerifiedGameVersions or set Mode to \"Off\".",
                     settings.Mode, GameVersion ?? "unknown", CounterStrikeSharpVersion ?? "unknown", string.Join(", ", settings.VerifiedGameVersions));
+        }
+
+        // CS2 build each CounterStrikeSharp release was made for (from its release notes). A newer CS2 hotfix
+        // than the one listed is not assumed to work: 1.0.375 (for 1.41.8.2) crashed on 1.41.8.5.
+        private static readonly Dictionary<string, string[]> CounterStrikeSharpTargets = new()
+        {
+            ["1.0.372"] = ["1.41.6.9"],
+            ["1.0.373"] = ["1.41.7.7"],
+            ["1.0.374"] = ["1.41.7.7"],
+            ["1.0.375"] = ["1.41.8.2"],
+            ["1.0.376"] = ["1.41.8.4"],
+        };
+
+        private static bool MatchesInstalledCounterStrikeSharp(string gameVersion)
+        {
+            var css = CounterStrikeSharpVersion;
+            return css != null && CounterStrikeSharpTargets.TryGetValue(css, out var targets) && targets.Contains(gameVersion);
         }
 
         // Version of the CounterStrikeSharp the server runs (the API assembly is loaded from the server install).
