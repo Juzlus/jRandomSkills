@@ -714,7 +714,7 @@
   "your_skill": "Votre compétence",
   "enemy_skill": "Compétence de l’ennemi",
   "observer_skill": "Compétence du joueur",
-  "welcome_message": "Bienvenue {PLAYER} sur {SERVER_NAME}!\nVersion actuelle de jRandomSkills : {VERSION} ({SKILLS_COUNT} compétences).\n\nCréé à l’origine par :\n{AUTHOR1}\nModifié et amélioré par :\n{AUTHOR2}\nDiscord officiel : https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Bienvenue {PLAYER} sur {SERVER_NAME} !",
   "drawing_skill": "Attribution d’une compétence",
   "disabled_weapon": "Vous ne pouvez pas utiliser cette arme",
 

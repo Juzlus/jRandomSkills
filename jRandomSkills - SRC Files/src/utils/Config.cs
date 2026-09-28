@@ -188,6 +188,7 @@ namespace src.utils
             public ModulesSettings Modules { get; set; }
             public EntitySpawnSafetySettings EntitySpawnSafety { get; set; }
             public CombosSettings Combos { get; set; }
+            public ServerInfoSettings ServerInfo { get; set; }
 
             public SettingsModel()
             {
@@ -342,7 +343,22 @@ namespace src.utils
                 Modules = new ModulesSettings();
                 EntitySpawnSafety = new EntitySpawnSafetySettings();
                 Combos = new CombosSettings();
+                ServerInfo = new ServerInfoSettings();
             }
+        }
+
+        public class ServerInfoSettings
+        {
+            // Lines shown to a player right after the welcome line when they join, and repeated in chat to
+            // everyone every AdvertIntervalSeconds (0 disables the repeat). Chat colour codes are allowed.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Lines { get; set; } =
+            [
+                "Server By : Tired",
+                "Hosting By ORI",
+                "Shavo GAY",
+            ];
+            public int AdvertIntervalSeconds { get; set; } = 300;
         }
 
         public class CombosSettings
@@ -352,7 +368,7 @@ namespace src.utils
             public int SkillsPerPlayer { get; set; } = 2;
             // Chance (0-1) that a player wins an extra skill each round; rolled once per extra slot, so with
             // SkillsPerPlayer 3 the third skill needs two wins in a row. 0.15 = roughly every seventh round.
-            public float ExtraSkillChance { get; set; } = 0.15f;
+            public float ExtraSkillChance { get; set; } = 0f;
             // Two skills fired by the use key would trigger together; keep false so a player gets at most one.
             public bool AllowMultipleUseKeySkills { get; set; } = false;
             // Skills that are never combined with anything (they change or copy the whole skill, or are combos themselves).

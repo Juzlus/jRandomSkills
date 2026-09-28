@@ -44,6 +44,7 @@ namespace src
             Config.LoadConfig();
             SkillsInfo.LoadSkillsInfo();
             EntitySafety.Load();
+            ServerInfo.Load();
             Localization.Load();
             Debug.Load();
             PlayerOnTick.Load();

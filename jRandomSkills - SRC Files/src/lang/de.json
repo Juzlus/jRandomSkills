@@ -714,7 +714,7 @@
   "your_skill": "Deine aktuelle Fertigkeit",
   "enemy_skill": "Fähigkeit des Gegners",
   "observer_skill": "Fähigkeit des Spielers",
-  "welcome_message": "Willkommen {PLAYER} bei {SERVER_NAME}",
+  "welcome_message": "Willkommen {PLAYER} bei {SERVER_NAME}!",
   "drawing_skill": "Eine Fertigkeit zeichnen",
   "disabled_weapon": "Du kannst diese Waffe nicht verwenden",
 

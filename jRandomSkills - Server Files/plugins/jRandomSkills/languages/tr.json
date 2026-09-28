@@ -714,7 +714,7 @@
   "your_skill": "Yeteneğin",
   "enemy_skill": "Düşmanın yeteneği",
   "observer_skill": "Yeteneği",
-  "welcome_message": "{PLAYER}, {SERVER_NAME} sunucusuna hoş geldin!\nGüncel jRandomSkills versiyonu: {VERSION} ({SKILLS_COUNT} yetenek).\n\nOrijinal yapımcı:\n{AUTHOR1}\nGeliştiren:\n{AUTHOR2}\nResmi Discord: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "{PLAYER}, {SERVER_NAME} sunucusuna hoş geldin!",
   "drawing_skill": "Yetenek çarkı dönüyor...",
   "disabled_weapon": "Bu silahı kullanamazsın",
 
