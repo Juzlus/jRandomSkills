@@ -68,7 +68,7 @@ Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `
 ## 🧩 Skill combos
 Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1` for the classic one-skill game). The first skill comes from the normal draw, the rest are added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Double Trouble and Rage which are combos themselves), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Double Trouble adds its own extras on top of this and Rage always comes as Wallhack + Aimbot.
 
-## ✨ Current Skills (173)
+## ✨ Current Skills (176)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -88,6 +88,7 @@ Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1`
 | Blacksmith        | You get a kevlar vest and helmet, and your armor regenerates over time                             | -                |
 | Blademaster       | While holding a knife, you have a high chance to deflect a shot                                    | -                |
 | Blast Shot        | Press Attack2 with the MP5 to fire an HE grenade                                                   | 10 s             |
+| Blink             | Click [css_useSkill] to teleport a short distance in the direction you look                        | 2 charges / 8 s  |
 | Bomb Guardian     | You take 30% less damage while you are near the planted bomb                                       | 0.7x             |
 | Bomb Sense        | Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused      | -                |
 | Booby Trap        | The first CT to start defusing the bomb is blinded and takes 40 damage                             | 40 HP            |
@@ -142,6 +143,7 @@ Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1`
 | Grapple Hook      | Press [css_useSkill] to fire a hook at the point you're aiming at and pull yourself there          | 10 s             |
 | Gravity Decoy     | Your decoy changes the gravity of everyone nearby                                                  | 0.5x             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
+| Ground Slam       | Crouch while in the air to slam down, knocking back and hurting enemies around you                 | 25 HP / 6 s      |
 | Headhunter        | Headshot kills restore you to full health and armor                                                | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |
@@ -226,6 +228,7 @@ Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1`
 | Soundmaker        | Every now and then, you hear player screams                                                        | 2 s              |
 | Spectator         | Click [css_useSkill] to spectate a random enemy                                                    | 0 s              |
 | Position Swap     | Click [css_useSkill] to swap places with a random enemy                                            | 30 s             |
+| Switcheroo        | Aim at an enemy and click [css_useSkill] to swap places with them                                  | 20 s             |
 | Take Ammo         | Click [css_useSkill] to take the active weapon's magazine from a random enemy                      | -                |
 | Team Teleport     | Press [css_useSkill] to teleport to the teammate you're looking at.                                | 15 s             |
 | Teleporter        | You swap places with the hit enemy                                                                 | -                |
@@ -234,6 +237,7 @@ Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1`
 | Third Eye         | Click [css_useSkill] to activate third-person view                                                 | 0 s              |
 | Thorns            | Your opponent will receive a portion of the damage that they inflicted on you                      | -                |
 | Throwing Knife    | Click [css_useSkill] to throw a knife. But watch out for others                                    | -                |
+| Thunder God       | Your decoys strike like lightning: every enemy near a landed decoy gets tased                      | 250 u / 2 decoys |
 | Toxic Smoke       | Your smoke grenades deal damage                                                                    | -                |
 | Tracker           | Choose a player who will leave a trail behind them                                                 | -                |
 | Tripwire          | Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar | 20 s             |
