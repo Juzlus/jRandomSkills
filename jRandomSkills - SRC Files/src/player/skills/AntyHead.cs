@@ -20,7 +20,7 @@ namespace src.player.skills
 
             if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return false;
             if (@event.Hitgroup != (int)HitGroup_t.HITGROUP_HEAD) return false;
-            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return false;
+            if (PlayerManager.GetPlayerByIndex(victim.Index)?.HasSkill(skillName) != true) return false;
 
             SkillUtils.RestoreHealth(victim);
             return true;

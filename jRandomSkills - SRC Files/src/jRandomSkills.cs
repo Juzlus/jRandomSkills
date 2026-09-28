@@ -418,6 +418,14 @@ namespace src
         public required uint PlayerIndex { get; set; }
         public Skills Skill { get; set; }
         public Skills SpecialSkill { get; set; }
+        // Skills held on top of Skill (Double Trouble, Rage). Replaced as a whole, never mutated in place.
+        public Skills[] ExtraSkills { get; set; } = [];
+        public bool HasSkill(Skills skill) => Skill == skill || (ExtraSkills.Length > 0 && Array.IndexOf(ExtraSkills, skill) >= 0);
+        public IEnumerable<Skills> AllSkills()
+        {
+            yield return Skill;
+            foreach (var extra in ExtraSkills) yield return extra;
+        }
         public float? SkillChance { get; set; }
         public bool IsDrawing { get; set; }
         public DateTime SkillHudExpired { get; set; }
@@ -446,6 +454,7 @@ namespace src
         public Skills Skill { get; } = skill;
         public string Color { get; set; } = color;
         public bool Display { get; } = display;
+        public bool HasSkill(Skills other) => Skill == other;
 
         public static implicit operator Skills(jSkill_SkillInfo v) => v?.Skill ?? Skills.None;
     }

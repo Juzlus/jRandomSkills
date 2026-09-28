@@ -47,7 +47,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
             if (playerInfo == null) return;
 
-            if (playerInfo.Skill == skillName && victim.PawnIsAlive)
+            if (playerInfo.HasSkill(skillName) && victim.PawnIsAlive)
             {
                 float? skillChance = playerInfo.SkillChance;
                 damageInfo.Damage *= skillChance ?? 1f;

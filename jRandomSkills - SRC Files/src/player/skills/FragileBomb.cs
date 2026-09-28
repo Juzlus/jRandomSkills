@@ -58,7 +58,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo == null || playerInfo.Skill != skillName) return;
+            if (playerInfo == null || playerInfo.HasSkill(skillName) == false) return;
 
             plantedC4 ??= FindPlantedC4();
             if (plantedC4 == null) return;

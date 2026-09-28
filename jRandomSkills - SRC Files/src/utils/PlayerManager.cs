@@ -178,7 +178,7 @@ namespace src.utils
 
             foreach (var info in playersByIndex.Values)
             {
-                if (info.Skill != skill) continue;
+                if (!info.HasSkill(skill)) continue;
 
                 var controller = Utilities.GetPlayerFromIndex((int)info.PlayerIndex);
                 if (controller != null && controller.IsValid)
@@ -193,7 +193,7 @@ namespace src.utils
 
         public static int GetPlayerCountBySkill(Skills skills)
         {
-            return playersByIndex.Values.Count(p => p.Skill == skills);
+            return playersByIndex.Values.Count(p => p.HasSkill(skills));
         }
 
         public static void Clear()

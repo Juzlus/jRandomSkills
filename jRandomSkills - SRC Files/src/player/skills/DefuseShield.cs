@@ -22,7 +22,7 @@ namespace src.player.skills
             if (!victimPawn.IsDefusing) return;
 
             var victim = PlayerManager.GetPlayerEvent(victimPawn.Controller?.Value?.As<CCSPlayerController>());
-            if (victim == null || PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+            if (victim == null || PlayerManager.GetPlayerByIndex(victim.Index)?.HasSkill(skillName) != true) return;
 
             damageInfo.Damage *= SkillsInfo.GetValue<float>(skillName, "damageTakenMultiplier");
         }

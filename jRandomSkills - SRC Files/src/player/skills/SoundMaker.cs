@@ -44,7 +44,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 SkillPlayerInfo.TryRemove(player.Index, out _);
         }
 

@@ -31,7 +31,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.HasSkill(skillName) == true)
                     if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
@@ -66,7 +66,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == skillName);
+            var skillData = SkillData.Skills.FirstOrDefault(s => s.HasSkill(skillName));
             if (skillData == null) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);

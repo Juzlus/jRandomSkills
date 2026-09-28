@@ -37,7 +37,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), player.Index);
         }
@@ -66,7 +66,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             Server.NextFrame(() =>
             {
@@ -125,7 +125,7 @@ namespace src.player.skills
             if (weapon != "smokegrenade") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

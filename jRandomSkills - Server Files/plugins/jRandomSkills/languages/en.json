@@ -690,6 +690,27 @@
   "guns_usage": "Usage: !guns to open the menu, or !guns <rifle> [pistol], e.g. !guns ak47 deagle",
   "guns_menu_busy": "Close your current menu first.",
 
+  "doubletrouble": "Double Trouble",
+  "doubletrouble_desc": "You get a second random skill on top of this one",
+  "doubletrouble_extra_info": "Your second skill: {0}",
+
+  "rage": "Rage",
+  "rage_desc": "You see enemies through walls and every hit counts as a headshot",
+
+  "smokejumper": "Smoke Jumper",
+  "smokejumper_desc": "Throw a smoke grenade to teleport to where it lands",
+
+  "combo_extra_info": "Extra skill: {0}",
+  "blink": "Blink",
+  "blink_desc": "Click [css_useSkill] to teleport a short distance in the direction you look",
+  "switcheroo": "Switcheroo",
+  "switcheroo_desc": "Aim at an enemy and click [css_useSkill] to swap places with them",
+  "switcheroo_enemy_info": "{0} swapped places with you!",
+  "groundslam": "Ground Slam",
+  "groundslam_desc": "Crouch while in the air to slam down, knocking back and hurting enemies around you",
+  "thundergod": "Thunder God",
+  "thundergod_desc": "Your decoys strike like lightning: every enemy near a landed decoy gets tased",
+  "thundergod_hit_info": "Your lightning tased {0} enemies",
   "your_skill": "Your current skill",
   "enemy_skill": "Enemy's skill",
   "observer_skill": "Player's skill",

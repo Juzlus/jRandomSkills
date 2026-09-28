@@ -95,7 +95,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;

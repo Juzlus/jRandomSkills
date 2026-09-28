@@ -23,7 +23,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && SkillUtils.HasMenu(p)))
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
@@ -53,7 +53,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;

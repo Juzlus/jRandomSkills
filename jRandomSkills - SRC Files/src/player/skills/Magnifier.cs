@@ -51,7 +51,7 @@ namespace src.player.skills
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-                if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (playerInfo == null || playerInfo.HasSkill(skillName) == false) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.PawnIsAlive && p.Team != player.Team && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
@@ -65,7 +65,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;

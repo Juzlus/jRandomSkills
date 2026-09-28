@@ -34,7 +34,7 @@ namespace src.player.skills
             if (attackerEvent.Index == victimEvent.Index) return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(victimEvent!.Index);
-            if (victimInfo?.Skill == skillName)
+            if (victimInfo?.HasSkill(skillName) == true)
             {
                 int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));
                 damage = Math.Min(damage, SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));

@@ -34,7 +34,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid || commands == null || commands.Length == 0) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;

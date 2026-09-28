@@ -40,7 +40,7 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-            if (playerInfo?.Skill != skillName || Instance.GameRules == null) return;
+            if (playerInfo?.HasSkill(skillName) != true || Instance.GameRules == null) return;
 
             var roundTime = SkillsInfo.GetValue<int>(skillName, "changeRoundTime");
             Instance.GameRules.RoundTime += player.Team == CsTeam.Terrorist ? roundTime : -roundTime;

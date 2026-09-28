@@ -51,7 +51,7 @@ namespace src.player.skills
             plantingPlayers.TryRemove(player!.Index, out _);
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             playerInfo.PrintHTML = null;
 
             var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
@@ -100,7 +100,7 @@ namespace src.player.skills
                 if (!Instance.IsPlayerValid(player)) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;

@@ -690,6 +690,27 @@
   "guns_usage": "Uso: !guns abre o menu, ou !guns <rifle> [pistola], ex.: !guns ak47 deagle",
   "guns_menu_busy": "Feche seu menu atual primeiro.",
 
+  "doubletrouble": "Problema em Dobro",
+  "doubletrouble_desc": "Você recebe uma segunda habilidade aleatória além desta",
+  "doubletrouble_extra_info": "Sua segunda habilidade: {0}",
+
+  "rage": "Fúria",
+  "rage_desc": "Você vê inimigos através das paredes e cada acerto conta como headshot",
+
+  "smokejumper": "Saltador de Fumaça",
+  "smokejumper_desc": "Jogue uma smoke para se teleportar para onde ela cair",
+
+  "combo_extra_info": "Habilidade extra: {0}",
+  "blink": "Piscar",
+  "blink_desc": "Pressione [css_useSkill] para se teleportar uma curta distância na direção em que olha",
+  "switcheroo": "Troca-Troca",
+  "switcheroo_desc": "Mire em um inimigo e pressione [css_useSkill] para trocar de lugar com ele",
+  "switcheroo_enemy_info": "{0} trocou de lugar com você!",
+  "groundslam": "Impacto no Chão",
+  "groundslam_desc": "Agache no ar para cair com força, empurrando e ferindo inimigos ao redor",
+  "thundergod": "Deus do Trovão",
+  "thundergod_desc": "Suas decoys caem como raios: todo inimigo perto de uma decoy no chão leva um choque",
+  "thundergod_hit_info": "Seu raio eletrocutou {0} inimigos",
   "your_skill": "Sua habilidade atual",
   "enemy_skill": "Habilidade do inimigo",
   "observer_skill": "Habilidade do jogador",

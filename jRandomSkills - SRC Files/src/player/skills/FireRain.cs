@@ -277,7 +277,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             decoys.TryAdd(decoy.Index, 0);
         }
 
@@ -287,7 +287,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             uint key = (uint)@event.Entityid;
             if (decoys.ContainsKey(key))

@@ -62,7 +62,13 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 > [!WARNING]
 > **CS2 updates and CounterStrikeSharp:** when CounterStrikeSharp doesn't match the installed CS2 build, spawning entities through it can crash the server. `EntitySpawnSafety` in `config.json` (`"Mode": "Auto"`) turns entity spawning off unless the CS2 version in `csgo/steam.inf` is listed in `VerifiedGameVersions`. While it is off, the 27 skills that spawn entities are left out of the draw and retakes auto-plant falls back to giving the planter the bomb. After updating CounterStrikeSharp for a new CS2 build, add that version to the list (or set `"Mode": "Off"`).
 
-## ✨ Current Skills (170)
+## 🎲 Skill odds
+Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `Rare`, `Epic`, `Legendary`). Each round the plugin first rolls a rarity using the percentages in `SkillsChance` in `config.json` (default 70 / 14 / 10 / 5 / 1; `VIPSkillsChance` for players with the VIP flag), then picks one skill of that rarity. Within a rarity the pick is weighted by each skill's `Weight` (default `1.0`: `2.0` makes a skill twice as likely as its peers, `0.5` half as likely). `MaxPerServer` caps how many players can hold a skill at once, and `Active: false` removes it from the draw entirely.
+
+## 🧩 Skill combos
+Every player holds `Combos.SkillsPerPlayer` skills at once (default `2`; set `1` for the classic one-skill game). The first skill comes from the normal draw, the rest are added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Double Trouble and Rage which are combos themselves), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Double Trouble adds its own extras on top of this and Rage always comes as Wallhack + Aimbot.
+
+## ✨ Current Skills (176)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -82,6 +88,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Blacksmith        | You get a kevlar vest and helmet, and your armor regenerates over time                             | -                |
 | Blademaster       | While holding a knife, you have a high chance to deflect a shot                                    | -                |
 | Blast Shot        | Press Attack2 with the MP5 to fire an HE grenade                                                   | 10 s             |
+| Blink             | Click [css_useSkill] to teleport a short distance in the direction you look                        | 2 charges / 8 s  |
 | Bomb Guardian     | You take 30% less damage while you are near the planted bomb                                       | 0.7x             |
 | Bomb Sense        | Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused      | -                |
 | Booby Trap        | The first CT to start defusing the bomb is blinded and takes 40 damage                             | 40 HP            |
@@ -104,6 +111,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Demon Eye         | You deal damage to every enemy you are looking at                                                  | 2 s              |
 | Disarmament       | You have a random chance to make an enemy drop their weapon on hit                                 | (20 - 35)%       |
 | Dash              | Perform a second jump to dash                                                                      | -                |
+| Double Trouble    | You get a second random skill on top of this one                                                   | -                |
 | Dracula           | Hitting an enemy restores health equal to a percentage of the damage dealt                         | -                |
 | Duplicator        | Choose a player to copy their skill                                                                | -                |
 | Dwarf             | Random character size at the start of the round                                                    | (60 - 95)%       |
@@ -135,6 +143,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Grapple Hook      | Press [css_useSkill] to fire a hook at the point you're aiming at and pull yourself there          | 10 s             |
 | Gravity Decoy     | Your decoy changes the gravity of everyone nearby                                                  | 0.5x             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
+| Ground Slam       | Crouch while in the air to slam down, knocking back and hurting enemies around you                 | 25 HP / 6 s      |
 | Headhunter        | Headshot kills restore you to full health and armor                                                | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |
@@ -190,6 +199,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Pusher            | You have a random chance to push an enemy back when hitting them                                   | 100%             |
 | Punisher          | You bank part of the damage you take and add it to your next hit                                   | 0.5x             |
 | Pyro              | Molotov restores health                                                                            | -                |
+| Rage              | You see enemies through walls and every hit counts as a headshot                                   | -                |
 | Rapid Fire        | All bullets are fired very quickly                                                                 | -                |
 | Radar Hack        | Enemies are visible on the radar                                                                   | -                |
 | Rambo             | You receive a random amount of health at the start of the round                                    | +(50 - 501) HP   |
@@ -211,12 +221,14 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                |
 | Silent            | Your footsteps and jumps are silent to other players                                               | -                |
+| Smoke Jumper      | Throw a smoke grenade to teleport to where it lands                                                | 2 smokes         |
 | Smoker            | Your smoke grenades never run out                                                                  | -                |
 | Sniper Elite      | Click [css_useSkill] to swap your current weapon for an AWP                                        | 0 s              |
 | Soldier           | You have a random damage multiplier                                                                | (1.15 - 1.35)x   |
 | Soundmaker        | Every now and then, you hear player screams                                                        | 2 s              |
 | Spectator         | Click [css_useSkill] to spectate a random enemy                                                    | 0 s              |
 | Position Swap     | Click [css_useSkill] to swap places with a random enemy                                            | 30 s             |
+| Switcheroo        | Aim at an enemy and click [css_useSkill] to swap places with them                                  | 20 s             |
 | Take Ammo         | Click [css_useSkill] to take the active weapon's magazine from a random enemy                      | -                |
 | Team Teleport     | Press [css_useSkill] to teleport to the teammate you're looking at.                                | 15 s             |
 | Teleporter        | You swap places with the hit enemy                                                                 | -                |
@@ -225,6 +237,7 @@ Install: copy the `shared` folder along with `plugins` and `gamedata`, and remov
 | Third Eye         | Click [css_useSkill] to activate third-person view                                                 | 0 s              |
 | Thorns            | Your opponent will receive a portion of the damage that they inflicted on you                      | -                |
 | Throwing Knife    | Click [css_useSkill] to throw a knife. But watch out for others                                    | -                |
+| Thunder God       | Your decoys strike like lightning: every enemy near a landed decoy gets tased                      | 250 u / 2 decoys |
 | Toxic Smoke       | Your smoke grenades deal damage                                                                    | -                |
 | Tracker           | Choose a player who will leave a trail behind them                                                 | -                |
 | Tripwire          | Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar | 20 s             |

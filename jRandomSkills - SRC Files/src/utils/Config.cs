@@ -187,6 +187,7 @@ namespace src.utils
             public VotingCommands VotingCommands { get; set; }
             public ModulesSettings Modules { get; set; }
             public EntitySpawnSafetySettings EntitySpawnSafety { get; set; }
+            public CombosSettings Combos { get; set; }
 
             public SettingsModel()
             {
@@ -340,7 +341,44 @@ namespace src.utils
 
                 Modules = new ModulesSettings();
                 EntitySpawnSafety = new EntitySpawnSafetySettings();
+                Combos = new CombosSettings();
             }
+        }
+
+        public class CombosSettings
+        {
+            // How many skills every player holds each round (1 = classic, one skill). Extra skills are drawn
+            // from the pool and never clash with the ones already held. Double Trouble adds on top of this.
+            public int SkillsPerPlayer { get; set; } = 2;
+            // Two skills fired by the use key would trigger together; keep false so a player gets at most one.
+            public bool AllowMultipleUseKeySkills { get; set; } = false;
+            // Skills that are never combined with anything (they change or copy the whole skill, or are combos themselves).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> SoloSkills { get; set; } =
+            [
+                "None", "Gambler", "Chameleon", "Duplicator", "Thief", "Inheritance", "Deactivator", "DoubleTrouble", "Rage",
+            ];
+            // Skills in the same group are never held together (they fight over the same mechanic).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<List<string>> ClashGroups { get; set; } =
+            [
+                ["Flash", "Berserker", "Adrenaline", "EntryRush", "Chicken", "Dwarf"],
+                ["Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple", "Blink", "GroundSlam"],
+                ["Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist"],
+                ["Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana"],
+                ["GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie"],
+                ["AntyHead", "OnlyHead"],
+                ["Anomaly", "Rewind"],
+                ["Glue", "HomingNades", "Weightless"],
+                ["Baseball", "FrozenDecoy", "GravityDecoy", "MagneticDecoy", "FireRain", "ThunderGod"],
+                ["HealingSmoke", "ToxicSmoke", "SmokeJumper"],
+                ["Shade", "Teleporter", "ReturnToSender", "Behind", "Catapult", "Push"],
+                ["OneShot", "Aimbot", "Soldier", "GlassCannon", "Momentum", "Assassin", "Punisher"],
+                ["Armored", "TrueArmor", "ReactiveArmor"],
+                ["Cutter", "LongKnife", "ThrowingKnife"],
+                ["Pickpocket", "RobinHood"],
+                ["Wallhack", "Cypher", "FalconEye"],
+            ];
         }
 
         public class EntitySpawnSafetySettings
@@ -357,7 +395,7 @@ namespace src.utils
             [
                 "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
                 "Fortnite", "Ghost", "Grapple", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
-                "LongZeus", "Nightmare", "Ninja", "Pilot", "Replicator", "Rewind", "Ricochet", "Spectator",
+                "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
                 "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",
             ];
         }

@@ -23,7 +23,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return false;
 
             if (@event.Weapon != infernoDamage && !WeaponPool.IsGrenade(@event.Weapon)) return false;
-            if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != skillName) return false;
+            if (PlayerManager.GetPlayerByIndex(player!.Index)?.HasSkill(skillName) != true) return false;
 
             SkillUtils.RestoreHealth(player);
             return true;

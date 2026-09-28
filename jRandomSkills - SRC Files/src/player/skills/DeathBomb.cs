@@ -42,7 +42,7 @@ namespace src.player.skills
                 if (pawn == null || !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.HasSkill(skillName) == true)
                     SpawnExplosion(player!);
             });
         }

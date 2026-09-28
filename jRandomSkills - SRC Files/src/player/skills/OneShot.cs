@@ -38,7 +38,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
             if (playerInfo == null) return;
 
-            if (playerInfo.Skill == skillName)
+            if (playerInfo.HasSkill(skillName))
                 damageInfo.Damage = 1000f;
         }
 

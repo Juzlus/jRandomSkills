@@ -27,7 +27,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
             {
                 var pawn = player!.PlayerPawn!.Value!;
                 if (pawn.WeaponServices == null || pawn.WeaponServices.ActiveWeapon == null || !pawn.WeaponServices.ActiveWeapon.IsValid) return;

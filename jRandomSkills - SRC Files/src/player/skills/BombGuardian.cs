@@ -60,7 +60,7 @@ namespace src.player.skills
 
             CCSPlayerPawn victimPawn = new(damagedEntity.Handle);
             var victim = PlayerManager.GetPlayerEvent(victimPawn.Controller?.Value?.As<CCSPlayerController>());
-            if (victim == null || PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+            if (victim == null || PlayerManager.GetPlayerByIndex(victim.Index)?.HasSkill(skillName) != true) return;
 
             if (IsGuarding(victimPawn, GetBombOrigin()))
                 damageInfo.Damage *= SkillsInfo.GetValue<float>(skillName, "damageTakenMultiplier");

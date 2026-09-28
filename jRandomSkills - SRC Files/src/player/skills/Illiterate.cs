@@ -76,7 +76,7 @@ namespace src.player.skills
                 holdersTick = tick;
                 holders.Clear();
                 foreach (var p in jRandomSkills.Instance.SkillPlayer)
-                    if (p.Skill == skillName) holders.Add(p.PlayerIndex);
+                    if (p.HasSkill(skillName)) holders.Add(p.PlayerIndex);
             }
 
             if (holders.Count == 0) return false;

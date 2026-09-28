@@ -37,7 +37,7 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
-            if (attackerInfo?.Skill == skillName)
+            if (attackerInfo?.HasSkill(skillName) == true)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
                     TeleportAttackerBehindVictim(attacker!, victim!);
         }

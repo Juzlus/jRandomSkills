@@ -34,7 +34,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             Event.EnableTransmit();
             if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
@@ -49,7 +49,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (weapon == "c4" && player.PlayerPawn?.Value?.Health > 0)
             {
@@ -82,7 +82,7 @@ namespace src.player.skills
                     ClearSpottedState(player, bomb);
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 var props = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
                 if (props.Count == 0) continue;

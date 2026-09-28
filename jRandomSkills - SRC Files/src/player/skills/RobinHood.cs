@@ -24,7 +24,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker) || victim == null || !victim.IsValid || attacker == victim) return;
 
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
-            if (attackerInfo?.Skill != skillName) return;
+            if (attackerInfo?.HasSkill(skillName) != true) return;
 
             int damage = SkillUtils.CapToVictimHealth(victim, @event.DmgHealth);
             int moneyToSteal = damage * SkillsInfo.GetValue<int>(skillName, "moneyMultiplier");

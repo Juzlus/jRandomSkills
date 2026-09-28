@@ -55,7 +55,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) return;
+            if (PlayerManager.GetPlayerByIndex(player.Index)?.HasSkill(skillName) != true) return;
 
             if (!RayTrace.IsAvailable) return;
 

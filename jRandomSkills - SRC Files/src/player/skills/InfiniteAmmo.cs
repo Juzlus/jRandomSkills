@@ -20,7 +20,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 ApplyInfiniteAmmo(player!);
 
         }
@@ -31,7 +31,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 player!.GiveNamedItem($"weapon_{@event.Weapon}");
 
         }
@@ -42,7 +42,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 ApplyInfiniteAmmo(player!);
         }
 
