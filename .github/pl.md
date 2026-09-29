@@ -225,12 +225,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 3. Zainstaluj **CounterStrikeSharp**
     - Pobierz [CounterStrikeSharp-With-Runtime](https://github.com/roflmuffin/CounterStrikeSharp/releases)
     - Wypakuj go do folderu `C2Server/game/csgo/`
-4. Zainstaluj **Ray-Trace**
-    - Pobierz [RayTrace-CSS-API](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
-    - Wypakuj folder `conterstrikesharp` do folderu `CS2Server/game/csgo/addons/`.
-    - Pobierz [RayTrace-MM](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
-    - Wypakuj go do folderu `CS2Server/game/csgo/addons/`.
-5. Zainstaluj **jRandomSkills**
+4. Zainstaluj **jRandomSkills**
     - Pobierz [jRandomSkills](https://github.com/Juzlus/jRandomSkills/releases)
 
 ## </> Komendy Serwerowe
