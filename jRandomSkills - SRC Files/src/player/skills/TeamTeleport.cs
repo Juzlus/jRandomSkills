@@ -42,7 +42,7 @@ namespace src.player.skills
                 if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
 
@@ -183,9 +183,9 @@ namespace src.player.skills
         private static void TeleportToTeamate(CCSPlayerController player, CCSPlayerController victim, Vector position, PlayerSkillInfo skillInfo)
         {
             var playerPawn = player.PlayerPawn?.Value;
-            if (playerPawn == null || !playerPawn.IsValid || player.AbsRotation == null) return;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsRotation == null) return;
 
-            QAngle playerAngles = new(player.AbsRotation.X, player.AbsRotation.Y, player.AbsRotation.Z);
+            QAngle playerAngles = new(playerPawn.AbsRotation.X, playerPawn.AbsRotation.Y, playerPawn.AbsRotation.Z);
             float distance = SkillsInfo.GetValue<float>(skillName, "teleportDistance");
 
             int[] angles = [0, 90, -90, 179];

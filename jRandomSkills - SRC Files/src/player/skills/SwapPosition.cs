@@ -31,7 +31,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.HasSkill(skillName) == true)
                 {
                     if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                     {

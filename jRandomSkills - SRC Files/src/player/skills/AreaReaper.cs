@@ -34,7 +34,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid || commands == null || commands.Length == 0) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
@@ -55,7 +55,7 @@ namespace src.player.skills
             var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToArray();
             if (bombTargets.Length == 2)
             {
-                var targetSite = bombTargets[site];
+                var targetSite = bombTargets.FirstOrDefault(t => t != null && t.IsValid && t.IsBombSiteB == (site == 1));
                 if (targetSite != null && targetSite.IsValid)
                 {
                     targetSite.BombPlantedHere = true;

@@ -41,7 +41,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             UpdateNinja(player);
         }
 
@@ -52,7 +52,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             UpdateNinja(player);
         }
 
@@ -108,7 +108,7 @@ namespace src.player.skills
                     invisiblePlayers.TryRemove(player.Index, out _);
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 UpdateNinja(PlayerManager.GetPlayerFromEvent(player));
 

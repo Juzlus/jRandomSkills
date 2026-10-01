@@ -613,10 +613,113 @@
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 instantly recharges",
 
+  "adrenaline": "Adrenaline",
+  "adrenaline_desc": "Each kill restores 25 health and gives you a burst of speed for 5 seconds",
+
+  "blacksmith": "Blacksmith",
+  "blacksmith_desc": "You get a kevlar vest and helmet, and your armor regenerates over time",
+
+  "explosivechicken": "Explosive Chicken",
+  "explosivechicken_desc": "Click [css_useSkill] to release a chicken that chases the nearest enemy and explodes",
+  "explosivechicken_hud_active": "Chicken HP: {0}",
+  "explosivechicken_already_active": "Your chicken is already running!",
+  "explosivechicken_blocked": "There is no room to release the chicken",
+
+  "glasscannon": "Glass Cannon",
+  "glasscannon_desc": "You deal 75% more damage to enemies, but take 50% more damage",
+
+  "headhunter": "Headhunter",
+  "headhunter_desc": "Headshot kills restore you to full health and armor",
+  "headhunter_heal_info": "Headshot! You are back to full health.",
+
+  "marked": "Marked",
+  "marked_desc": "Choose an enemy who takes 35% more damage while you are alive",
+  "marked_player_info": "Player '{0}' has been marked.",
+  "marked_enemy_info": "You have been marked! You take more damage.",
+  "marked_select_info": "Select a player to mark:",
+
+  "momentum": "Momentum",
+  "momentum_desc": "Each kill this round increases your damage by 15% (up to 5 stacks)",
+
+  "mute": "Mute",
+  "mute_desc": "Choose an enemy who cannot use voice chat while you are alive",
+  "mute_player_info": "Player '{0}' has been muted.",
+  "mute_enemy_info": "You have been muted! Your team can't hear you.",
+  "mute_disable_info": "You can use voice chat again.",
+  "mute_select_info": "Select a player to mute:",
+
+  "pickpocket": "Pickpocket",
+  "pickpocket_desc": "Every hit on an enemy steals $150 from them",
+
+  "scavenger": "Scavenger",
+  "scavenger_desc": "Each kill refills your guns' ammo and may give you a grenade",
+
+  "bombguardian": "Bomb Guardian",
+  "bombguardian_desc": "You take 30% less damage while you are near the planted bomb",
+  "bombguardian_hud_active": "Guarding the bomb: -30% damage",
+
+  "bombsense": "Bomb Sense",
+  "bombsense_desc": "Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused",
+  "bombsense_hud": "Nearest CT to the bomb: {0}",
+  "bombsense_defusing": "The bomb is being defused!",
+
+  "boobytrap": "Booby Trap",
+  "boobytrap_desc": "The first CT to start defusing the bomb is blinded and takes 40 damage",
+  "boobytrap_enemy_info": "The bomb was booby-trapped!",
+
+  "clutchmaster": "Clutch Master",
+  "clutchmaster_desc": "When you are the last one alive on your team, you get +50 HP and deal 30% more damage",
+  "clutchmaster_active_info": "Clutch time! +50 HP and +30% damage.",
+
+  "defuseshield": "Defuse Shield",
+  "defuseshield_desc": "You take 50% less damage while defusing the bomb",
+
+  "entryrush": "Entry Rush",
+  "entryrush_desc": "For the first 8 seconds of the round you move 35% faster and take 25% less damage",
+  "entryrush_hud": "Entry rush: {0}s",
+
+  "guns_title": "Weapons",
+  "guns_select_info": "Choose the weapons you get each retakes round:",
+  "guns_rifle_t": "T rifle",
+  "guns_rifle_ct": "CT rifle",
+  "guns_pistol": "Pistol",
+  "guns_random": "Random",
+  "guns_default": "Default",
+  "guns_saved": "{0}: {1}. You get it from the next round.",
+  "guns_unknown": "Unknown weapon: {0}",
+  "guns_usage": "Usage: !guns to open the menu, or !guns <rifle> [pistol], e.g. !guns ak47 deagle",
+  "guns_menu_busy": "Close your current menu first.",
+
+  "doubletrouble": "Double Trouble",
+  "doubletrouble_desc": "You get a second random skill on top of this one",
+  "doubletrouble_extra_info": "Your second skill: {0}",
+
+  "rage": "Rage",
+  "rage_desc": "You see enemies through walls and every hit counts as a headshot",
+
+  "smokejumper": "Smoke Jumper",
+  "smokejumper_desc": "Throw a smoke grenade to teleport to where it lands",
+
+  "combo_extra_info": "Extra skill: {0}",
+  "blink": "Blink",
+  "blink_desc": "Click [css_useSkill] to teleport a short distance in the direction you look",
+  "switcheroo": "Switcheroo",
+  "switcheroo_desc": "Aim at an enemy and click [css_useSkill] to swap places with them",
+  "switcheroo_enemy_info": "{0} swapped places with you!",
+  "groundslam": "Ground Slam",
+  "groundslam_desc": "Crouch while in the air to slam down, knocking back and hurting enemies around you",
+  "thundergod": "Thunder God",
+  "thundergod_desc": "Your decoys strike like lightning: every enemy near a landed decoy gets tased",
+  "thundergod_hit_info": "Your lightning tased {0} enemies",
+  "guidedbullet": "Guided Bullet",
+  "guidedbullet_desc": "Click [css_useSkill] for an AWP; every shot becomes a bullet you steer with the mouse from a camera",
+  "guidedbullet_ready": "AWP ready. Shoot and steer the bullet with your mouse!",
+  "guidedbullet_flying": "Steering the bullet: {0}",
+  "guidedbullet_hit": "Your guided bullet hit {0}!",
   "your_skill": "Your current skill",
   "enemy_skill": "Enemy's skill",
   "observer_skill": "Player's skill",
-  "welcome_message": "Welcome {PLAYER} to {SERVER_NAME}!\nCurrent jRandomSkills version: {VERSION} ({SKILLS_COUNT} skills).\n\nOriginally created by:\n{AUTHOR1}\nModified and improved by:\n{AUTHOR2}\nOfficial Discord: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Welcome {PLAYER} to {SERVER_NAME}!",
   "drawing_skill": "Drawing a skill",
   "disabled_weapon": "You cannot use this weapon",
 
@@ -629,6 +732,12 @@
   "duplicate_player": "More than one player found with the same name.",
   "selectplayerskill_command": "Type /t",
   "selectplayerskill_incorrect_enemy_index": "No players were found to select.",
+  "selectplayerskill_used_info": "Your skill has already been used.",
+  "bot_placed_not_found": "No bot found to place.",
+  "bot_placed": "Bot placed at your position.",
+  "planted_bomb_spawned": "A planted bomb has been spawned at your position.",
+  "set_health": "Health set.",
+  "retakes_teams_managed": "Teams are managed by the retakes mode. Ask an admin to use !scramble.",
   "curse_limit_info": "The curse limit for {0} has been reached",
 
   "skill_not_found_setskill": "No such CHATCOLORS.REDskill found",

@@ -71,12 +71,12 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                if (player == null || !player.IsValid) return;
+                if (player == null || !player.IsValid) continue;
 
                 var eventPlayer = PlayerManager.GetPlayerEvent(player);
                 var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer!.Index);
 
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.HasSkill(skillName) == true)
                     if (SkillPlayerInfo.TryGetValue(eventPlayer!.Index, out var skillInfo))
                     {
                         if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);

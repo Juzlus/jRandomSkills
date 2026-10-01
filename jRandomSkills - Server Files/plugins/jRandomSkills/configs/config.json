@@ -10,7 +10,7 @@
   "EnableFullForceUpdate": false,
   "DebugMode": 0,
   "PerfMode": false,
-  "AlternativeSkillButton": null,
+  "AlternativeSkillButton": "Use",
   "SkillTimeBeforeStart": 7.0,
   "SkillHudDuration": -1.0,
   "SkillDescriptionDuration": 7.0,
@@ -277,6 +277,179 @@
       "MinimumPlayersToStartVoting": 2,
       "Alias": "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数",
       "Permissions": "@jRandomSkills/owner"
+    }
+  },
+  "EntitySpawnSafety": {
+    "Mode": "Auto",
+    "VerifiedGameVersions": [
+      "1.41.8.2"
+    ],
+    "Skills": [
+      "C4Camouflage",
+      "Chicken",
+      "Cypher",
+      "ExplodingBarrel",
+      "ExplosiveChicken",
+      "FalconEye",
+      "Flashlight",
+      "Fortnite",
+      "Ghost",
+      "Grapple",
+      "GuidedBullet",
+      "HealingChicken",
+      "Iana",
+      "Illusionist",
+      "Jackal",
+      "LongKnife",
+      "LongZeus",
+      "Nightmare",
+      "Ninja",
+      "Pilot",
+      "Rage",
+      "Replicator",
+      "Rewind",
+      "Ricochet",
+      "Spectator",
+      "ThirdEye",
+      "ThrowingKnife",
+      "Tripwire",
+      "Wallhack"
+    ]
+  },
+  "Combos": {
+    "SkillsPerPlayer": 2,
+    "ExtraSkillChance": 0.0,
+    "AllowMultipleUseKeySkills": false,
+    "SoloSkills": [
+      "None",
+      "Gambler",
+      "Chameleon",
+      "Duplicator",
+      "Thief",
+      "Inheritance",
+      "Deactivator",
+      "DoubleTrouble",
+      "Rage"
+    ],
+    "ClashGroups": [
+      [ "Flash", "Berserker", "Adrenaline", "EntryRush", "Chicken", "Dwarf" ],
+      [ "Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple", "Blink", "GroundSlam" ],
+      [ "Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist" ],
+      [ "Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana" ],
+      [ "GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie" ],
+      [ "AntyHead", "OnlyHead" ],
+      [ "Anomaly", "Rewind" ],
+      [ "Glue", "HomingNades", "Weightless" ],
+      [ "Baseball", "FrozenDecoy", "GravityDecoy", "MagneticDecoy", "FireRain", "ThunderGod" ],
+      [ "HealingSmoke", "ToxicSmoke", "SmokeJumper" ],
+      [ "Shade", "Teleporter", "ReturnToSender", "Behind", "Catapult", "Push" ],
+      [ "OneShot", "Aimbot", "Soldier", "GlassCannon", "Momentum", "Assassin", "Punisher" ],
+      [ "Armored", "TrueArmor", "ReactiveArmor" ],
+      [ "Cutter", "LongKnife", "ThrowingKnife" ],
+      [ "Pickpocket", "RobinHood" ],
+      [ "Wallhack", "Cypher", "FalconEye" ]
+    ]
+  },
+  "ServerInfo": {
+    "Lines": [
+      "Server By : Tired",
+      "Hosting By ORI",
+      "Shavo GAY"
+    ],
+    "AdvertIntervalSeconds": 300
+  },
+  "Modules": {
+    "Retakes": {
+      "Enabled": true,
+      "DisableIncompatibleSkills": true,
+      "IncompatibleSkills": [
+        "AreaReaper",
+        "Bankrupt",
+        "Bounty",
+        "C4Camouflage",
+        "ChillOut",
+        "EnemySpawn",
+        "ExpensiveAmmo",
+        "HotBomb",
+        "MoneySwap",
+        "Pickpocket",
+        "Planter",
+        "Retreat",
+        "ReturnToSender",
+        "RichBoy",
+        "RobinHood",
+        "ShortBomb",
+        "Watchmaker"
+      ],
+      "RetakesOnlySkills": [
+        "BombGuardian",
+        "BombSense"
+      ]
+    },
+    "Instadefuse": {
+      "Enabled": true,
+      "InfernoThreatRadius": 250.0,
+      "ExplodeWithoutDamage": true
+    },
+    "ClutchAnnounce": {
+      "Enabled": true,
+      "MinimumEnemies": 1
+    },
+    "Guns": {
+      "Enabled": true,
+      "Alias": "guns, gun, weapons, w, bronie",
+      "MenuStyle": "CS2MenuManager",
+      "PrimaryT": [
+        "weapon_ak47",
+        "weapon_galilar",
+        "weapon_sg556",
+        "weapon_awp",
+        "weapon_ssg08",
+        "weapon_g3sg1",
+        "weapon_mac10",
+        "weapon_mp7",
+        "weapon_mp5sd",
+        "weapon_ump45",
+        "weapon_p90",
+        "weapon_bizon",
+        "weapon_nova",
+        "weapon_xm1014",
+        "weapon_sawedoff",
+        "weapon_m249",
+        "weapon_negev"
+      ],
+      "PrimaryCT": [
+        "weapon_m4a1_silencer",
+        "weapon_m4a1",
+        "weapon_famas",
+        "weapon_aug",
+        "weapon_awp",
+        "weapon_ssg08",
+        "weapon_scar20",
+        "weapon_mp9",
+        "weapon_mp7",
+        "weapon_mp5sd",
+        "weapon_ump45",
+        "weapon_p90",
+        "weapon_bizon",
+        "weapon_nova",
+        "weapon_xm1014",
+        "weapon_mag7",
+        "weapon_m249",
+        "weapon_negev"
+      ],
+      "Secondary": [
+        "weapon_deagle",
+        "weapon_usp_silencer",
+        "weapon_hkp2000",
+        "weapon_glock",
+        "weapon_p250",
+        "weapon_fiveseven",
+        "weapon_tec9",
+        "weapon_cz75a",
+        "weapon_revolver",
+        "weapon_elite"
+      ]
     }
   }
 }

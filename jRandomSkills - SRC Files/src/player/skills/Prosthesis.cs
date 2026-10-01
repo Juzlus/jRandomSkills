@@ -24,7 +24,7 @@ namespace src.player.skills
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return false;
             if (Array.IndexOf(disabledHitbox, (HitGroup_t)@event.Hitgroup) < 0) return false;
-            if (PlayerManager.GetPlayerByIndex(victim!.Index)?.Skill != skillName) return false;
+            if (PlayerManager.GetPlayerByIndex(victim!.Index)?.HasSkill(skillName) != true) return false;
 
             SkillUtils.RestoreHealth(victim);
             return true;

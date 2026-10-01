@@ -1,5 +1,6 @@
 ﻿[
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -15,6 +16,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -31,6 +33,7 @@
   },
   {
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -47,6 +50,7 @@
   },
   {
     "Cooldown": 30.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -65,6 +69,7 @@
     "SoundVolume": 0.5,
     "ChangeRoundTime": 7,
     "SoundEvent": "UIPanorama.sidemenu_select",
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -80,6 +85,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -96,6 +102,7 @@
   },
   {
     "ReflectPercent": 0.5,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -112,6 +119,7 @@
   },
   {
     "ArmorShare": 0.33,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -134,6 +142,7 @@
     "WireWidth": 0.7,
     "MaxWallDistance": 400.0,
     "Cooldown": 20.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -156,6 +165,7 @@
     "GrenadeLimit": 1,
     "DmgReductionForTeamates": 0.5,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -173,6 +183,7 @@
   {
     "FriendlyFire": false,
     "Damage": 9999,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -191,6 +202,7 @@
     "SoundVolume": 0.35,
     "HealthTakenScale": 0.3,
     "MaxTakenDamagePerShot": 37,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -207,6 +219,7 @@
   },
   {
     "Distance": 100.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -222,6 +235,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -239,6 +253,7 @@
   {
     "ChanceFrom": 0.5,
     "ChanceTo": 0.6,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -257,6 +272,7 @@
     "Cooldown": 15.0,
     "TeleportAngle": 10.0,
     "TeleportDistance": 100.0,
+    "Weight": 1.0,
     "NeedsTeammates": true,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -274,6 +290,7 @@
   {
     "SoundVolume": 1.0,
     "Cooldown": 30.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -291,6 +308,7 @@
   {
     "Cooldown": 30.0,
     "CooldownBeforeUse": 10.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -308,6 +326,7 @@
   {
     "Distance": 100.0,
     "UseCooldown": 0.5,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -325,6 +344,7 @@
   {
     "SoundVolume": 1.0,
     "Cooldown": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -343,6 +363,7 @@
     "ChanceFrom": 1.15,
     "ChanceTo": 1.35,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -358,6 +379,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -374,6 +396,7 @@
   },
   {
     "GrenadeLimit": 1,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -389,6 +412,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -405,6 +429,7 @@
   },
   {
     "DetonationTime": 20,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -423,6 +448,7 @@
     "TeleportDistance": 100.0,
     "ChanceFrom": 0.3,
     "ChanceTo": 0.45,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -439,6 +465,7 @@
   },
   {
     "StartHealth": 50,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -454,6 +481,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -471,6 +499,7 @@
   {
     "SlownessTime": 2.0,
     "SlownessModifier": 0.2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -487,6 +516,7 @@
   },
   {
     "MoneyMultiplier": 35,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -516,6 +546,7 @@
     "TracerLength": 220.0,
     "MaxActiveTracers": 12,
     "NormalProbeOffset": 6.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -533,6 +564,7 @@
   {
     "MinMoney": 5000,
     "MaxMoney": 15000,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -553,6 +585,7 @@
     "G": 0,
     "B": 0,
     "A": 60,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -571,6 +604,7 @@
     "SoundVolume": 0.5,
     "ReturnDelay": 4.0,
     "Cooldown": 30.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -586,6 +620,7 @@
     "Rarity": "Uncommon"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -602,6 +637,7 @@
   },
   {
     "Cooldown": 15.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -621,6 +657,7 @@
     "Cooldown": 15.0,
     "YourTeamDamage": 10,
     "EnemyTeamDamage": 20,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -638,6 +675,7 @@
   {
     "HealthToAdd": 1,
     "Cooldown": 0.25,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -654,6 +692,7 @@
   },
   {
     "Cooldown": 15.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -672,6 +711,7 @@
     "Cooldown": 15.0,
     "PistolChance": 60.0,
     "RifleChance": 40.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -689,6 +729,7 @@
   {
     "MinExtraHealth": 50,
     "MaxExtraHealth": 501,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -704,6 +745,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -719,6 +761,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -736,6 +779,7 @@
   {
     "RegenerationMultiplier": 1.5,
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -755,6 +799,7 @@
     "ChanceTo": 0.4,
     "JumpVelocity": 300.0,
     "PushVelocity": 400.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -773,6 +818,7 @@
     "StorePercent": 0.5,
     "MaxStored": 100.0,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -791,6 +837,7 @@
     "SoundVolume": 1.0,
     "MaxDefusingRange": 80.0,
     "DefusingTime": 10.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -806,6 +853,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -821,6 +869,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -840,6 +889,7 @@
     "Damage": 1,
     "Cooldown": 0.85,
     "MinHealth": 30,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -856,6 +906,7 @@
   },
   {
     "ExtraC4BlowTime": 60,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -876,6 +927,7 @@
     "MaximumFuel": 150.0,
     "FuelConsumption": 0.64,
     "Refuelling": 0.1,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -893,6 +945,7 @@
   {
     "ChanceFrom": 0.2,
     "ChanceTo": 0.4,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -911,6 +964,7 @@
     "SoundVolume": 1.0,
     "ExtraJumpsMin": 1,
     "ExtraJumpsMax": 4,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -926,6 +980,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -942,6 +997,7 @@
   },
   {
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -957,6 +1013,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -972,6 +1029,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -987,6 +1045,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1005,6 +1064,7 @@
     "Cooldown": 30.0,
     "CooldownWhenStuck": 5.0,
     "Duration": 2.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1023,6 +1083,7 @@
     "IdlePercentInvisibility": 0.3,
     "DuckPercentInvisibility": 0.3,
     "KnifePercentInvisibility": 0.3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1043,6 +1104,7 @@
     "FadeTime": 0.25,
     "MinExposure": 0.5,
     "MaxExposure": 2.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1060,6 +1122,7 @@
   {
     "ExtraDamagePercent": 0.25,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1075,6 +1138,7 @@
     "Rarity": "Rare"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1093,6 +1157,7 @@
     "SoundVolume": 1.0,
     "DetonationRange": 130.0,
     "GrenadeLimit": 3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1112,6 +1177,7 @@
     "HealthToAdd": 50,
     "HealthShotLimit": 3,
     "Cooldown": 1.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1128,6 +1194,7 @@
   },
   {
     "CustomFOV": 50,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1144,6 +1211,7 @@
   },
   {
     "Radius": 100.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1162,6 +1230,7 @@
     "TriggerRadius": 180.0,
     "Strenght": 30.0,
     "GrenadeLimit": 3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1179,6 +1248,7 @@
   {
     "MaxDistance": 4096.0,
     "FriendlyFire": false,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1198,6 +1268,7 @@
     "HitSoundVolume": 0.35,
     "MaxDistance": 4096.0,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1213,6 +1284,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1231,6 +1303,7 @@
     "SoundVolume": 0.35,
     "DamageAfterDeath": 30,
     "CanKill": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1248,6 +1321,7 @@
   {
     "KnockbackUnits": 120.0,
     "MaxSpeed": 1200.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1266,6 +1340,7 @@
     "FlashDuration": 1.0,
     "FriendlyFire": true,
     "GrenadeLimit": 1,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1282,6 +1357,7 @@
   },
   {
     "HealthToAdd": 3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1298,6 +1374,7 @@
   },
   {
     "JumpVelocity": 301.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1313,6 +1390,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1329,6 +1407,7 @@
   },
   {
     "PushVelocity": 400.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1347,6 +1426,7 @@
     "SoundVolume": 0.5,
     "MinTime": 10.0,
     "MaxTime": 25.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1362,6 +1442,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1378,6 +1459,7 @@
   },
   {
     "ParticleName": "particles/ui/hud/ui_map_def_utility_trail.vpcf",
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1393,6 +1475,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": true,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1408,6 +1491,7 @@
     "Rarity": "Rare"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1423,6 +1507,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1444,6 +1529,7 @@
     "DurationCrouch": 12.0,
     "YourTeamDamage": 10,
     "EnemyTeamDamage": 20,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1459,6 +1545,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1477,6 +1564,7 @@
     "SoundVolume": 1.0,
     "Cooldown": 30.0,
     "Duration": 10.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1495,6 +1583,7 @@
     "SoundVolume": 0.35,
     "Cooldown": 1.0,
     "Damage": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1514,6 +1603,7 @@
     "MaxVelocity": 2000.0,
     "DetonationRange": 130.0,
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1532,6 +1622,7 @@
     "DamageMultiplier": 2.0,
     "DamageRadiusMultiplier": 2.0,
     "GrenadeLimit": 1,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1549,6 +1640,7 @@
   {
     "HealthToAdd": 100,
     "EffectDuration": 1.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1564,6 +1656,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1584,6 +1677,7 @@
     "SmokeRadius": 180.0,
     "TickCooldown": 16,
     "GrenadeLimit": 1,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1605,6 +1699,7 @@
     "HealRadius": 150.0,
     "ChickenHealth": 50,
     "BoostFactor": 2.5,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1620,6 +1715,7 @@
     "Rarity": "Legendary"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1638,6 +1734,7 @@
     "TriggerRadius": 180.0,
     "GravityScale": 0.5,
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1663,6 +1760,7 @@
     "RopeWidth": 0.8,
     "HookEmbed": 8.0,
     "HookScale": 0.4,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1680,6 +1778,7 @@
   {
     "Cooldown": 30.0,
     "Duration": 2.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1695,6 +1794,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1710,6 +1810,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1726,6 +1827,7 @@
   },
   {
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1743,6 +1845,7 @@
   {
     "MinScale": 1.1,
     "MaxScale": 1.4,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1758,6 +1861,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1774,6 +1878,7 @@
   },
   {
     "RefreshPrice": 150,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1792,6 +1897,7 @@
     "TriggerRadius": 180.0,
     "SlownessMultiplier": 5,
     "GrenadeLimit": 3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1809,6 +1915,7 @@
   {
     "HealthDamageMultiplier": 0.3,
     "ManageAutoKick": true,
+    "Weight": 1.0,
     "NeedsTeammates": true,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1825,6 +1932,7 @@
   },
   {
     "MaxBombHealth": 1000,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1844,6 +1952,7 @@
     "Cooldown": 2.0,
     "BarricadeHealth": 115,
     "PropModel": "models/props/de_aztec/hr_aztec/aztec_scaffolding/aztec_scaffold_wall_support_128.vmdl",
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1868,6 +1977,7 @@
     "BlindDuration": 5.0,
     "BlindAlpha": 200.0,
     "BlindAngle": 10.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1885,6 +1995,7 @@
   {
     "ChanceFrom": 1.2,
     "ChanceTo": 3.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1901,6 +2012,7 @@
   },
   {
     "MarkerSeconds": 4.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1917,6 +2029,7 @@
   },
   {
     "Cooldown": 5.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1933,6 +2046,7 @@
   },
   {
     "Distance": 1000.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1954,6 +2068,7 @@
     "ChanceTo": 0.3,
     "DmgReductionForTeamates": 0.5,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -1975,6 +2090,7 @@
     "PropModel": "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl",
     "DmgReductionForTeamates": 0.5,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -1991,6 +2107,7 @@
   },
   {
     "MoneyPerShot": 50,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2008,6 +2125,7 @@
   {
     "Cooldown": 15.0,
     "CooldownBeforeUse": 10.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -2025,6 +2143,7 @@
   {
     "JamSeconds": 3.0,
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2042,6 +2161,7 @@
   {
     "MinScale": 0.6,
     "MaxScale": 0.95,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2057,6 +2177,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2073,6 +2194,7 @@
   },
   {
     "HealthRegainScale": 0.3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2088,6 +2210,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2105,6 +2228,7 @@
   {
     "ChanceFrom": 0.2,
     "ChanceTo": 0.35,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2123,6 +2247,7 @@
     "SoundVolume": 0.3,
     "SecondCooldown": 1.0,
     "Damage": 5,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2143,6 +2268,7 @@
     "ExplosionDamage": 999,
     "DmgReductionForTeamates": 0.5,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2158,6 +2284,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2173,6 +2300,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2193,6 +2321,7 @@
     "PushVelocity": 600.0,
     "AnyDirection": true,
     "Cooldown": 2.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2212,6 +2341,7 @@
     "G": 0,
     "B": 0,
     "A": 230,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2229,6 +2359,7 @@
   {
     "SoundVolume": 1.0,
     "Cooldown": 30.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -2245,6 +2376,7 @@
   },
   {
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2261,6 +2393,7 @@
   },
   {
     "BombArmedTime": 10.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2276,6 +2409,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2291,6 +2425,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2308,6 +2443,7 @@
   {
     "ChanceFrom": 0.2,
     "ChanceTo": 0.4,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2325,6 +2461,7 @@
   {
     "SoundVolume": 0.35,
     "DamageAfterMiss": 5,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2340,6 +2477,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2358,6 +2496,7 @@
     "MaxSpeed": 500.0,
     "JumpVelocity": 300.0,
     "JumpBoost": 2.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2374,6 +2513,7 @@
   },
   {
     "Reward": 300,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2395,6 +2535,7 @@
     "Cooldown": 10.0,
     "Force": 1000.0,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2413,6 +2554,7 @@
     "TorseReflectionChance": 0.95,
     "LegReflectionChance": 0.7,
     "VelocityModifier": 0.85,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2431,6 +2573,7 @@
     "MaxSpeedVelocity": 2.0,
     "MaxDamageVelocity": 2.0,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2448,6 +2591,7 @@
   {
     "ChanceFrom": 0.2,
     "ChanceTo": 0.4,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2467,6 +2611,7 @@
     "MaxSpeed": 900.0,
     "DamageDeal": 9999.0,
     "GrenadeLimit": 3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2482,6 +2627,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2499,6 +2645,7 @@
   {
     "ChanceFrom": 0.1,
     "ChanceTo": 0.7,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2517,6 +2664,7 @@
     "DamageMultiplier": 2.0,
     "ToleranceDeg": 45.0,
     "FriendlyFire": true,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2534,6 +2682,7 @@
   {
     "ChanceFrom": 0.65,
     "ChanceTo": 0.85,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2549,6 +2698,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2564,6 +2714,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2581,6 +2732,7 @@
   {
     "FlashDuration": 7.0,
     "GrenadeLimit": 2,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2598,6 +2750,7 @@
   {
     "SecondsInBack": 5,
     "Cooldown": 15.0,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -2615,6 +2768,7 @@
   {
     "Cooldown": 20.0,
     "Duration": 0.3,
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": true,
     "DisableOnPistolRound": false,
@@ -2630,6 +2784,7 @@
     "Rarity": "Common"
   },
   {
+    "Weight": 1.0,
     "NeedsTeammates": false,
     "DisableOnFreezeTime": false,
     "DisableOnPistolRound": false,
@@ -2643,5 +2798,454 @@
     "MaxPerServer": -1,
     "MinPlayer": 0,
     "Rarity": "Common"
+  },
+  {
+    "HealOnKill": 25,
+    "Duration": 5.0,
+    "SpeedMultiplier": 1.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ff4d4d",
+    "Active": true,
+    "Name": "Adrenaline",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "RegenInterval": 1.0,
+    "ArmorPerRegen": 5,
+    "MaxArmor": 100,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#8a8f99",
+    "Active": true,
+    "Name": "Blacksmith",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "Cooldown": 20.0,
+    "FuseTime": 12.0,
+    "TriggerRadius": 120.0,
+    "ChickenHealth": 60,
+    "TickCooldown": 16,
+    "BoostFactor": 2.5,
+    "ExplosionDamage": 150.0,
+    "ExplosionRadius": 300.0,
+    "DmgReductionForTeamates": 1.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#e0452b",
+    "Active": true,
+    "Name": "ExplosiveChicken",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 1,
+    "MinPlayer": 0,
+    "Rarity": "Legendary"
+  },
+  {
+    "DamageDealtMultiplier": 1.75,
+    "DamageTakenMultiplier": 1.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#7fd6e8",
+    "Active": true,
+    "Name": "GlassCannon",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "ArmorOnHeadshot": 100,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#d9a13b",
+    "Active": true,
+    "Name": "Headhunter",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "DamageMultiplier": 1.35,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#c73a5b",
+    "Active": true,
+    "Name": "Marked",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "DamagePerKill": 0.15,
+    "MaxStacks": 5,
+    "FriendlyFire": false,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ffa500",
+    "Active": true,
+    "Name": "Momentum",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#2fc468",
+    "Active": true,
+    "Name": "Mute",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "MoneyPerHit": 150,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#3fae4a",
+    "Active": true,
+    "Name": "Pickpocket",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "GrenadeChance": 0.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#9c8b52",
+    "Active": true,
+    "Name": "Scavenger",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "GuardRadius": 400.0,
+    "DamageTakenMultiplier": 0.7,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 2,
+    "Color": "#d4552a",
+    "Active": true,
+    "Name": "BombGuardian",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 2,
+    "Color": "#e8a13a",
+    "Active": true,
+    "Name": "BombSense",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "Damage": 40,
+    "BlindTime": 2.0,
+    "SoundVolume": 1.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 2,
+    "Color": "#b04a1c",
+    "Active": true,
+    "Name": "BoobyTrap",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "BonusHealth": 50,
+    "DamageMultiplier": 1.3,
+    "Weight": 1.0,
+    "NeedsTeammates": true,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ffc400",
+    "Active": true,
+    "Name": "ClutchMaster",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "DamageTakenMultiplier": 0.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 3,
+    "Color": "#3a8fe8",
+    "Active": true,
+    "Name": "DefuseShield",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "Duration": 8.0,
+    "SpeedMultiplier": 1.35,
+    "DamageTakenMultiplier": 0.75,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 3,
+    "Color": "#4fd17a",
+    "Active": true,
+    "Name": "EntryRush",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Common"
+  },
+  {
+    "ExtraSkills": 2,
+    "ExcludedSkills": "AreaReaper, Bankrupt, Bounty, CarefulBullets, Chameleon, Darkness, Deactivator, Deaf, DoubleTrouble, Duplicator, ExpensiveAmmo, Gambler, Giant, Glitch, Inheritance, Jammer, JetKick, JumpBan, JumpCurse, LifeSwap, Magnifier, Marked, MoneySwap, Mute, Nemesis, Nightmare, Poison, PrimaryBan, Rage, Thief, Voodoo, WildThrow",
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ff7f50",
+    "Active": true,
+    "Name": "DoubleTrouble",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Rare"
+  },
+  {
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#d40000",
+    "Active": true,
+    "Name": "Rage",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": 1,
+    "MinPlayer": 0,
+    "Rarity": "Legendary"
+  },
+  {
+    "SmokeLimit": 2,
+    "SoundVolume": 0.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#9aa7b8",
+    "Active": true,
+    "Name": "SmokeJumper",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Uncommon"
+  },
+  {
+    "Distance": 350.0,
+    "Charges": 2,
+    "Cooldown": 8.0,
+    "SoundVolume": 0.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#7df9ff",
+    "Active": true,
+    "Name": "Blink",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Uncommon"
+  },
+  {
+    "Cooldown": 20.0,
+    "MaxDistance": 1500.0,
+    "AimAngle": 6.0,
+    "SoundVolume": 0.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#c77dff",
+    "Active": true,
+    "Name": "Switcheroo",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Rare"
+  },
+  {
+    "Cooldown": 6.0,
+    "SlamVelocity": 1500.0,
+    "Radius": 220.0,
+    "PushVelocity": 500.0,
+    "JumpVelocity": 300.0,
+    "Damage": 25,
+    "MinAirTicks": 8,
+    "SoundVolume": 0.6,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#b5651d",
+    "Active": true,
+    "Name": "GroundSlam",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Uncommon"
+  },
+  {
+    "Radius": 250.0,
+    "Damage": 100,
+    "DecoyLimit": 2,
+    "SoundVolume": 1.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ffe600",
+    "Active": true,
+    "Name": "ThunderGod",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Rare"
+  },
+  {
+    "Speed": 900.0,
+    "TurnRate": 0.25,
+    "HitRadius": 40.0,
+    "MaxFlightTime": 6.0,
+    "Damage": 150,
+    "Cooldown": 4.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ff4fd8",
+    "Active": false,
+    "Name": "GuidedBullet",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Legendary"
   }
 ]

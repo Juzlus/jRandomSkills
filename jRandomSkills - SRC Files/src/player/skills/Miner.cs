@@ -39,7 +39,7 @@ namespace src.player.skills
                     continue;
                 }
 
-                if (nade.CreateTime + 3 > currentTime) return;
+                if (nade.CreateTime + 3 > currentTime) continue;
                 Vector currentPos = new(nade.AbsOrigin.X, nade.AbsOrigin.Y, nade.AbsOrigin.Z);
 
                 foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.TeamNum != nade.TeamNum))
@@ -89,7 +89,7 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             nades.TryAdd(grenade.Index, 0);
 
@@ -121,7 +121,7 @@ namespace src.player.skills
             if (weapon != "hegrenade") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

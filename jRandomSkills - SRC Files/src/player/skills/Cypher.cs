@@ -132,7 +132,11 @@ namespace src.player.skills
             playerInfo.CameraActive = forceToDefault ? false : !playerInfo.CameraActive;
             if (playerInfo.CameraProp == null && !forceToDefault)
             {
-                if (playerInfo.NextCamera > Server.TickCount) return;
+                if (playerInfo.NextCamera > Server.TickCount)
+                {
+                    playerInfo.CameraActive = false;
+                    return;
+                }
 
                 var newProp = CreateCameraProp(player);
                 playerInfo.CameraProp = newProp?.Index ?? null;
@@ -140,6 +144,7 @@ namespace src.player.skills
                 if (playerInfo.CameraProp == null)
                 {
                     playerInfo.NoSpace = Server.TickCount + (64 * 2);
+                    playerInfo.CameraActive = false;
                     return;
                 }
                 else
@@ -156,6 +161,8 @@ namespace src.player.skills
 
             Server.NextWorldUpdate(() =>
             {
+                if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
+
                 if (pawn != null && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
                 {
                     if (playerInfo.CameraActive && playerInfo.CameraProp != null)

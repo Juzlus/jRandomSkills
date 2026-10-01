@@ -70,7 +70,7 @@ namespace src.player.skills
                 if (targetHandle != nint.Zero)
                     infoByPawnHandle.TryGetValue(targetHandle, out observerInfo);
 
-                bool seesGlows = playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName);
+                bool seesGlows = playerInfo?.HasSkill(skillName) == true || (observerInfo != null && observerInfo?.HasSkill(skillName) == true);
 
                 foreach (var glow in glowStates)
                 {

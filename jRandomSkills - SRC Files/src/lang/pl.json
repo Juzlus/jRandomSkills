@@ -613,10 +613,113 @@
   "zeus": "Zeus",
   "zeus_desc": "Zeus x27 natychmiastowo się odnawia",
 
+  "adrenaline": "Adrenalina",
+  "adrenaline_desc": "Każde zabójstwo przywraca 25 punktów zdrowia i daje ci przypływ prędkości na 5 sekund",
+
+  "blacksmith": "Kowal",
+  "blacksmith_desc": "Otrzymujesz kamizelkę i hełm, a twój pancerz regeneruje się z czasem",
+
+  "explosivechicken": "Wybuchowy Kurczak",
+  "explosivechicken_desc": "Kliknij [css_useSkill], aby wypuścić kurczaka, który goni najbliższego wroga i wybucha",
+  "explosivechicken_hud_active": "HP kurczaka: {0}",
+  "explosivechicken_already_active": "Twój kurczak już biegnie!",
+  "explosivechicken_blocked": "Brak miejsca, aby wypuścić kurczaka",
+
+  "glasscannon": "Szklane Działo",
+  "glasscannon_desc": "Zadajesz wrogom o 75% więcej obrażeń, ale otrzymujesz o 50% więcej obrażeń",
+
+  "headhunter": "Łowca Głów",
+  "headhunter_desc": "Zabójstwa strzałem w głowę przywracają ci pełne zdrowie i pancerz",
+  "headhunter_heal_info": "Headshot! Masz z powrotem pełne zdrowie.",
+
+  "marked": "Naznaczony",
+  "marked_desc": "Wybierz wroga, który otrzymuje o 35% więcej obrażeń, dopóki żyjesz",
+  "marked_player_info": "Gracz '{0}' został naznaczony.",
+  "marked_enemy_info": "Zostałeś naznaczony! Otrzymujesz więcej obrażeń.",
+  "marked_select_info": "Wybierz gracza do naznaczenia:",
+
+  "momentum": "Rozpęd",
+  "momentum_desc": "Każde zabójstwo w tej rundzie zwiększa twoje obrażenia o 15% (maks. 5 razy)",
+
+  "mute": "Wyciszenie",
+  "mute_desc": "Wybierz wroga, który nie może używać czatu głosowego, dopóki żyjesz",
+  "mute_player_info": "Gracz '{0}' został wyciszony.",
+  "mute_enemy_info": "Zostałeś wyciszony! Twoja drużyna cię nie słyszy.",
+  "mute_disable_info": "Możesz znowu używać czatu głosowego.",
+  "mute_select_info": "Wybierz gracza do wyciszenia:",
+
+  "pickpocket": "Kieszonkowiec",
+  "pickpocket_desc": "Każde trafienie wroga kradnie mu 150$",
+
+  "scavenger": "Zbieracz",
+  "scavenger_desc": "Każde zabójstwo uzupełnia amunicję twoich broni i może dać ci granat",
+
+  "bombguardian": "Strażnik Bomby",
+  "bombguardian_desc": "Otrzymujesz o 30% mniej obrażeń, gdy jesteś blisko podłożonej bomby",
+  "bombguardian_hud_active": "Pilnujesz bomby: -30% obrażeń",
+
+  "bombsense": "Wyczucie Bomby",
+  "bombsense_desc": "HUD pokazuje, jak blisko bomby jest najbliższy CT, i ostrzega, gdy bomba jest rozbrajana",
+  "bombsense_hud": "Najbliższy CT od bomby: {0}",
+  "bombsense_defusing": "Bomba jest rozbrajana!",
+
+  "boobytrap": "Pułapka",
+  "boobytrap_desc": "Pierwszy CT, który zacznie rozbrajać bombę, zostaje oślepiony i otrzymuje 40 obrażeń",
+  "boobytrap_enemy_info": "Bomba była zaminowana!",
+
+  "clutchmaster": "Mistrz Clutchy",
+  "clutchmaster_desc": "Gdy zostajesz ostatni żywy w drużynie, dostajesz +50 HP i zadajesz o 30% więcej obrażeń",
+  "clutchmaster_active_info": "Czas na clutcha! +50 HP i +30% obrażeń.",
+
+  "defuseshield": "Tarcza Sapera",
+  "defuseshield_desc": "Otrzymujesz o 50% mniej obrażeń podczas rozbrajania bomby",
+
+  "entryrush": "Szybkie Wejście",
+  "entryrush_desc": "Przez pierwsze 8 sekund rundy poruszasz się o 35% szybciej i otrzymujesz o 25% mniej obrażeń",
+  "entryrush_hud": "Szybkie wejście: {0}s",
+
+  "guns_title": "Bronie",
+  "guns_select_info": "Wybierz bronie, które dostajesz w każdej rundzie retake:",
+  "guns_rifle_t": "Karabin TT",
+  "guns_rifle_ct": "Karabin CT",
+  "guns_pistol": "Pistolet",
+  "guns_random": "Losowo",
+  "guns_default": "Domyślna",
+  "guns_saved": "{0}: {1}. Dostaniesz ją od następnej rundy.",
+  "guns_unknown": "Nieznana broń: {0}",
+  "guns_usage": "Użycie: !guns otwiera menu, albo !guns <karabin> [pistolet], np. !guns ak47 deagle",
+  "guns_menu_busy": "Najpierw zamknij obecne menu.",
+
+  "doubletrouble": "Podwójny Kłopot",
+  "doubletrouble_desc": "Oprócz tej supermocy dostajesz drugą, losową",
+  "doubletrouble_extra_info": "Twoja druga supermoc: {0}",
+
+  "rage": "Furia",
+  "rage_desc": "Widzisz wrogów przez ściany, a każde trafienie liczy się jako strzał w głowę",
+
+  "smokejumper": "Skoczek Dymny",
+  "smokejumper_desc": "Rzuć granat dymny, aby teleportować się tam, gdzie wyląduje",
+
+  "combo_extra_info": "Dodatkowa supermoc: {0}",
+  "blink": "Mrugnięcie",
+  "blink_desc": "Kliknij [css_useSkill], aby teleportować się kawałek w kierunku, w którym patrzysz",
+  "switcheroo": "Zamiana",
+  "switcheroo_desc": "Wyceluj we wroga i kliknij [css_useSkill], aby zamienić się z nim miejscami",
+  "switcheroo_enemy_info": "{0} zamienił się z tobą miejscami!",
+  "groundslam": "Uderzenie w Ziemię",
+  "groundslam_desc": "Kucnij w powietrzu, aby runąć na ziemię, odrzucając i raniąc wrogów wokół ciebie",
+  "thundergod": "Bóg Piorunów",
+  "thundergod_desc": "Twoje decoye uderzają jak piorun: każdy wróg obok wylądowanego decoya zostaje porażony",
+  "thundergod_hit_info": "Twój piorun poraził {0} wrogów",
+  "guidedbullet": "Sterowany Pocisk",
+  "guidedbullet_desc": "Kliknij [css_useSkill], aby dostać AWP; każdy strzał to pocisk, którym sterujesz myszką z kamery",
+  "guidedbullet_ready": "AWP gotowe. Strzel i steruj pociskiem myszką!",
+  "guidedbullet_flying": "Sterujesz pociskiem: {0}",
+  "guidedbullet_hit": "Twój sterowany pocisk trafił {0}!",
   "your_skill": "Twoja aktualna moc",
   "enemy_skill": "Supermoc przeciwnika",
   "observer_skill": "Moc gracza",
-  "welcome_message": "Witaj {PLAYER} na serwerze {SERVER_NAME}!\nAktualna wersja jRandomSkills: {VERSION} ({SKILLS_COUNT} supermocy).\n\nPierwotnie plugin stworzona przez:\n{AUTHOR1}\nZmodyfikowany i ulepszony przez:\n{AUTHOR2}\nOficjalny discord: https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Witaj {PLAYER} na serwerze {SERVER_NAME}!",
   "drawing_skill": "Losowanie mocy",
   "disabled_weapon": "Nie możesz używać tej broni",
 
@@ -629,6 +732,12 @@
   "duplicate_player": "Znaleziono więcej niż jednego gracza o tej samej nazwie.",
   "selectplayerskill_command": "Wpisz /t",
   "selectplayerskill_incorrect_enemy_index": "Nie znaleziono graczy do wyboru.",
+  "selectplayerskill_used_info": "Twoja umiejętność została już użyta.",
+  "bot_placed_not_found": "Nie znaleziono bota do ustawienia.",
+  "bot_placed": "Bot ustawiony na twojej pozycji.",
+  "planted_bomb_spawned": "Podłożona bomba pojawiła się na twojej pozycji.",
+  "set_health": "Zdrowie ustawione.",
+  "retakes_teams_managed": "Drużynami zarządza tryb retake. Poproś admina o użycie !scramble.",
   "curse_limit_info": "Osiągnięto limit klątw dla {0}",
 
   "skill_not_found_setskill": "Nie znaleziono takiej CHATCOLORS.REDsupermocy",

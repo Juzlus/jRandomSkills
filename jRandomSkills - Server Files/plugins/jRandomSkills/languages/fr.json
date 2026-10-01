@@ -613,10 +613,113 @@
   "zeus": "Zeus",
   "zeus_desc": "Le Zeus x27 se recharge instantanément",
 
+  "adrenaline": "Adrénaline",
+  "adrenaline_desc": "Chaque élimination restaure 25 points de vie et vous donne un regain de vitesse pendant 5 secondes",
+
+  "blacksmith": "Forgeron",
+  "blacksmith_desc": "Vous recevez un gilet et un casque, et votre armure se régénère avec le temps",
+
+  "explosivechicken": "Poulet Explosif",
+  "explosivechicken_desc": "Cliquez sur [css_useSkill] pour lâcher un poulet qui poursuit l'ennemi le plus proche et explose",
+  "explosivechicken_hud_active": "PV du poulet : {0}",
+  "explosivechicken_already_active": "Votre poulet court déjà !",
+  "explosivechicken_blocked": "Pas assez de place pour lâcher le poulet",
+
+  "glasscannon": "Canon de Verre",
+  "glasscannon_desc": "Vous infligez 75% de dégâts en plus aux ennemis, mais subissez 50% de dégâts en plus",
+
+  "headhunter": "Chasseur de Têtes",
+  "headhunter_desc": "Les éliminations par headshot vous rendent toute votre vie et votre armure",
+  "headhunter_heal_info": "Headshot ! Vous avez récupéré toute votre vie.",
+
+  "marked": "Marqué",
+  "marked_desc": "Choisissez un ennemi qui subit 35% de dégâts en plus tant que vous êtes en vie",
+  "marked_player_info": "Le joueur '{0}' a été marqué.",
+  "marked_enemy_info": "Vous avez été marqué ! Vous subissez plus de dégâts.",
+  "marked_select_info": "Sélectionnez un joueur à marquer :",
+
+  "momentum": "Élan",
+  "momentum_desc": "Chaque élimination de cette manche augmente vos dégâts de 15% (jusqu'à 5 cumuls)",
+
+  "mute": "Muet",
+  "mute_desc": "Choisissez un ennemi qui ne peut pas utiliser le chat vocal tant que vous êtes en vie",
+  "mute_player_info": "Le joueur '{0}' a été rendu muet.",
+  "mute_enemy_info": "Vous avez été rendu muet ! Votre équipe ne vous entend plus.",
+  "mute_disable_info": "Vous pouvez de nouveau utiliser le chat vocal.",
+  "mute_select_info": "Sélectionnez un joueur à rendre muet :",
+
+  "pickpocket": "Pickpocket",
+  "pickpocket_desc": "Chaque tir touchant un ennemi lui vole 150$",
+
+  "scavenger": "Charognard",
+  "scavenger_desc": "Chaque élimination recharge les munitions de vos armes et peut vous donner une grenade",
+
+  "bombguardian": "Gardien de la Bombe",
+  "bombguardian_desc": "Vous subissez 30% de dégâts en moins près de la bombe posée",
+  "bombguardian_hud_active": "Vous gardez la bombe : -30% de dégâts",
+
+  "bombsense": "Instinct de la Bombe",
+  "bombsense_desc": "Votre HUD indique la distance du CT le plus proche de la bombe et vous prévient quand elle est désamorcée",
+  "bombsense_hud": "CT le plus proche de la bombe : {0}",
+  "bombsense_defusing": "La bombe est en train d'être désamorcée !",
+
+  "boobytrap": "Piège",
+  "boobytrap_desc": "Le premier CT qui commence à désamorcer la bombe est aveuglé et subit 40 dégâts",
+  "boobytrap_enemy_info": "La bombe était piégée !",
+
+  "clutchmaster": "Maître du Clutch",
+  "clutchmaster_desc": "Quand vous êtes le dernier en vie de votre équipe, vous gagnez +50 PV et infligez 30% de dégâts en plus",
+  "clutchmaster_active_info": "C'est l'heure du clutch ! +50 PV et +30% de dégâts.",
+
+  "defuseshield": "Bouclier de Désamorçage",
+  "defuseshield_desc": "Vous subissez 50% de dégâts en moins pendant le désamorçage",
+
+  "entryrush": "Assaut Éclair",
+  "entryrush_desc": "Pendant les 8 premières secondes de la manche, vous êtes 35% plus rapide et subissez 25% de dégâts en moins",
+  "entryrush_hud": "Assaut éclair : {0}s",
+
+  "guns_title": "Armes",
+  "guns_select_info": "Choisissez les armes que vous recevez à chaque manche de retake :",
+  "guns_rifle_t": "Fusil T",
+  "guns_rifle_ct": "Fusil CT",
+  "guns_pistol": "Pistolet",
+  "guns_random": "Aléatoire",
+  "guns_default": "Par défaut",
+  "guns_saved": "{0} : {1}. Vous la recevrez à partir de la prochaine manche.",
+  "guns_unknown": "Arme inconnue : {0}",
+  "guns_usage": "Utilisation : !guns ouvre le menu, ou !guns <fusil> [pistolet], ex. !guns ak47 deagle",
+  "guns_menu_busy": "Fermez d'abord votre menu actuel.",
+
+  "doubletrouble": "Double Peine",
+  "doubletrouble_desc": "Vous recevez une deuxième compétence aléatoire en plus de celle-ci",
+  "doubletrouble_extra_info": "Votre deuxième compétence : {0}",
+
+  "rage": "Rage",
+  "rage_desc": "Vous voyez les ennemis à travers les murs et chaque tir compte comme un headshot",
+
+  "smokejumper": "Sauteur de Fumée",
+  "smokejumper_desc": "Lancez une grenade fumigène pour vous téléporter là où elle atterrit",
+
+  "combo_extra_info": "Compétence supplémentaire : {0}",
+  "blink": "Clignement",
+  "blink_desc": "Appuyez sur [css_useSkill] pour vous téléporter sur une courte distance dans la direction du regard",
+  "switcheroo": "Échange",
+  "switcheroo_desc": "Visez un ennemi et appuyez sur [css_useSkill] pour échanger vos places",
+  "switcheroo_enemy_info": "{0} a échangé sa place avec la vôtre !",
+  "groundslam": "Frappe au Sol",
+  "groundslam_desc": "Accroupissez-vous en l'air pour vous écraser au sol, repoussant et blessant les ennemis autour de vous",
+  "thundergod": "Dieu du Tonnerre",
+  "thundergod_desc": "Vos leurres frappent comme la foudre : chaque ennemi près d'un leurre au sol est tasé",
+  "thundergod_hit_info": "Votre foudre a tasé {0} ennemis",
+  "guidedbullet": "Balle Guidée",
+  "guidedbullet_desc": "Appuyez sur [css_useSkill] pour un AWP ; chaque tir devient une balle que vous guidez à la souris depuis une caméra",
+  "guidedbullet_ready": "AWP prêt. Tirez et guidez la balle avec la souris !",
+  "guidedbullet_flying": "Guidage de la balle : {0}",
+  "guidedbullet_hit": "Votre balle guidée a touché {0} !",
   "your_skill": "Votre compétence",
   "enemy_skill": "Compétence de l’ennemi",
   "observer_skill": "Compétence du joueur",
-  "welcome_message": "Bienvenue {PLAYER} sur {SERVER_NAME}!\nVersion actuelle de jRandomSkills : {VERSION} ({SKILLS_COUNT} compétences).\n\nCréé à l’origine par :\n{AUTHOR1}\nModifié et amélioré par :\n{AUTHOR2}\nDiscord officiel : https://discord.gg/9H8EZYBpPF",
+  "welcome_message": "Bienvenue {PLAYER} sur {SERVER_NAME} !",
   "drawing_skill": "Attribution d’une compétence",
   "disabled_weapon": "Vous ne pouvez pas utiliser cette arme",
 
@@ -629,6 +732,12 @@
   "duplicate_player": "Plus d’un joueur trouvé avec le même nom.",
   "selectplayerskill_command": "Tapez /t",
   "selectplayerskill_incorrect_enemy_index": "Aucun joueur trouvé à sélectionner.",
+  "selectplayerskill_used_info": "Votre compétence a déjà été utilisée.",
+  "bot_placed_not_found": "Aucun bot à placer.",
+  "bot_placed": "Bot placé à votre position.",
+  "planted_bomb_spawned": "Une bombe posée a été créée à votre position.",
+  "set_health": "Vie définie.",
+  "retakes_teams_managed": "Les équipes sont gérées par le mode retake. Demandez à un admin d'utiliser !scramble.",
   "curse_limit_info": "La limite de malédictions pour {0} a été atteinte",
 
   "skill_not_found_setskill": "Aucune CHATCOLORS.REDcompétence trouvée",

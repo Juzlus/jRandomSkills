@@ -90,6 +90,7 @@ namespace src.player.skills
             uint orginalCameraRaw;
             uint newCameraRaw;
             var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
             if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
@@ -101,6 +102,7 @@ namespace src.player.skills
             }
             else
             {
+                if (forceToDefault) return;
                 orginalCameraRaw = pawn!.CameraServices!.ViewEntity.Raw;
                 newCameraRaw = CreateCamera(player);
             }

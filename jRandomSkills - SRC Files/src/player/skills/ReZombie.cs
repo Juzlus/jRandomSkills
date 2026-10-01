@@ -82,7 +82,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return;
 
             // Friendly-fire-off teammate hit deals 0 damage; don't zombify over a hit that never lands.
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
@@ -99,7 +99,7 @@ namespace src.player.skills
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return false;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return false;
 
             lock (setLock)
             {
@@ -170,7 +170,7 @@ namespace src.player.skills
                 return false;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return false;
+            if (playerInfo?.HasSkill(skillName) != true) return false;
 
             hook.SetReturn(AcquireResult.InvalidItem);
             return true;

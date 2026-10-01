@@ -21,7 +21,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(victim)) return false;
-            if (PlayerManager.GetPlayerByIndex(victim!.Index)?.Skill != skillName) return false;
+            if (PlayerManager.GetPlayerByIndex(victim!.Index)?.HasSkill(skillName) != true) return false;
 
             bool worldDamage = !Instance.IsPlayerValid(attacker) || attacker!.Index == victim.Index;
             if (!worldDamage && (HitGroup_t)@event.Hitgroup == HitGroup_t.HITGROUP_HEAD) return false;

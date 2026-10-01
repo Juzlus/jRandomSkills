@@ -72,7 +72,8 @@ namespace src.player.skills
                 var weapon = _weapon?.Value;
                 if (weapon == null || string.IsNullOrEmpty(weapon.DesignerName)) continue;
 
-                OriginalWeaponMaxAmmo.TryGetValue(weapon.DesignerName, out var items);
+                if (!OriginalWeaponMaxAmmo.TryGetValue(weapon.DesignerName, out var items)) continue;
+                if (weapon.ReserveAmmo.Length == 0 || weapon.ReserveAmmo[0] <= items.Item1) continue;
 
                 weapon.ReserveAmmo.Fill(items.Item1);
                 Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
@@ -87,7 +88,7 @@ namespace src.player.skills
             foreach (var player in players)
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                 {

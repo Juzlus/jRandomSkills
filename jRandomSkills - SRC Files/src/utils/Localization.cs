@@ -82,16 +82,37 @@ namespace src.utils
             if (translations != null)
             {
                 string redColor = ChatColors.Red.ToString();
-                string? altButton = Config.LoadedConfig.AlternativeSkillButton;
+                string? buttonLabel = GetSkillButtonLabel(Config.LoadedConfig.AlternativeSkillButton);
                 foreach (var tkey in translations.Keys.ToList())
                 {
                     var val = translations[tkey].Replace("CHATCOLORS.RED", redColor);
-                    if (!string.IsNullOrEmpty(altButton))
-                        val = val.Replace("css_useSkill", $"css_useSkill/{altButton}");
+                    // "[css_useSkill]" only means something to players who bound a key to the command,
+                    // so name the in-game button that also triggers skills.
+                    if (buttonLabel != null)
+                        val = val.Replace("[css_useSkill]", buttonLabel);
                     translations[tkey] = val;
                 }
                 _translations.AddOrUpdate(code, translations, (k, v) => translations);
             }
+        }
+
+        private static string? GetSkillButtonLabel(string? button)
+        {
+            if (string.IsNullOrWhiteSpace(button)) return null;
+
+            return button.Trim().ToLowerInvariant() switch
+            {
+                "use" => "[E]",
+                "inspect" => "[F]",
+                "reload" => "[R]",
+                "attack2" => "[Right Click]",
+                "attack3" => "[Mouse 3]",
+                "jump" => "[Space]",
+                "duck" => "[Ctrl]",
+                "speed" or "walk" => "[Shift]",
+                "scoreboard" => "[Tab]",
+                _ => $"[{button.Trim()}]",
+            };
         }
 
         public static bool HasTranslation(string code)

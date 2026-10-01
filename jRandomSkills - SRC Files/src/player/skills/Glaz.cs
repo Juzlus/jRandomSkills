@@ -58,7 +58,7 @@ namespace src.player.skills
                 if (player == null || !player.IsValid) continue;
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
 
-                if (playerInfo?.Skill != skillName)
+                if (playerInfo?.HasSkill(skillName) != true)
                 {
                     var observerTarget = player.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
                     if (observerTarget == nint.Zero) continue;
@@ -66,7 +66,7 @@ namespace src.player.skills
                     pawnOwners ??= BuildPawnOwners();
 
                     if (!pawnOwners.TryGetValue(observerTarget, out uint observedIndex)) continue;
-                    if (PlayerManager.GetPlayerByIndex(observedIndex)?.Skill != skillName) continue;
+                    if (PlayerManager.GetPlayerByIndex(observedIndex)?.HasSkill(skillName) != true) continue;
                 }
 
                 foreach (var index in smokeIndexes)
@@ -102,7 +102,7 @@ namespace src.player.skills
             if (weapon != "smokegrenade") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

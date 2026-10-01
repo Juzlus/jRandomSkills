@@ -127,12 +127,14 @@ namespace src.player
                     if (skillInfo != null)
                     {
                         infoLine = player.GetTranslationWithoutIlliterate("your_skill");
-                        skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
+                        skillLine = ComboManager.HudSkillLine(player, skillPlayer);
+                        if (string.IsNullOrEmpty(skillLine))
+                            skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
 
                         if (skillInfo.Skill != Skills.None)
                         {
                             remainingLine = string.IsNullOrEmpty(skillPlayer.PrintHTML)
-                                ? (showDescriptionHUD ? player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance) : "")
+                                ? (showDescriptionHUD ? ComboManager.HudDescription(player, skillPlayer) : "")
                                 : skillPlayer.PrintHTML;
 
                             isDescription = string.IsNullOrEmpty(skillPlayer.PrintHTML);
@@ -178,7 +180,11 @@ namespace src.player
                     infoLine = string.IsNullOrEmpty(observerSkill) ? pName : $"{observerSkill} {pName}";
 
                     if (observedSkill.SpecialSkill == Skills.None || observedSpecialInfo == null)
-                        skillLine = $"<font color='{primaryColor}'>{primaryName}</font>";
+                    {
+                        skillLine = ComboManager.HudSkillLine(player, observedSkill);
+                        if (string.IsNullOrEmpty(skillLine))
+                            skillLine = $"<font color='{primaryColor}'>{primaryName}</font>";
+                    }
                     else
                     {
                         string specialName = player.GetSkillName(observedSpecialInfo.Skill);
@@ -191,7 +197,7 @@ namespace src.player
                         isDescription = false;
                     }
                     else if (showDescriptionHUD)
-                        remainingLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
+                        remainingLine = ComboManager.HudDescription(player, observedSkill);
                 }
             }
 

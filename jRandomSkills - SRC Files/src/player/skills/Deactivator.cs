@@ -29,7 +29,7 @@ namespace src.player.skills
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-                if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (playerInfo == null || playerInfo.HasSkill(skillName) == false) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
@@ -52,7 +52,7 @@ namespace src.player.skills
             if (player == null) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
@@ -61,9 +61,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            string enemyId = commands[0];
-
-            if (!uint.TryParse(enemyId, out uint enemyIndex))
+            if (commands.Length == 0 || !uint.TryParse(commands[0], out uint enemyIndex))
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
@@ -71,7 +69,7 @@ namespace src.player.skills
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
-            if (enemy == null)
+            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;

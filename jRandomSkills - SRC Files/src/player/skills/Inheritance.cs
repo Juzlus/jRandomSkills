@@ -60,7 +60,7 @@ namespace src.player.skills
 
             var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
             if (victimInfo == null || victimInfo.IsDrawing) return;
-            if (victimInfo.Skill == Skills.None || victimInfo.Skill == skillName) return;
+            if (victimInfo.Skill == Skills.None || victimInfo.HasSkill(skillName)) return;
             if (SkillData.GetInfo(victimInfo.Skill) == null) return;
 
             fallen[victim.Index] = new FallenInfo
@@ -84,7 +84,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
@@ -124,7 +124,7 @@ namespace src.player.skills
                 if (target == null || !target.IsValid) return;
 
                 var targetInfo = PlayerManager.GetPlayerByIndex(playerIndex);
-                if (targetInfo == null || targetInfo.Skill != skillName) return;
+                if (targetInfo == null || targetInfo.HasSkill(skillName) == false) return;
 
                 targetInfo.Skill = inheritedSkill;
                 targetInfo.SpecialSkill = skillName;
@@ -150,7 +150,7 @@ namespace src.player.skills
         private static void RefreshMenu(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) return;
+            if (PlayerManager.GetPlayerByIndex(player.Index)?.HasSkill(skillName) != true) return;
 
             ConcurrentBag<(string, string)> menuItems = [];
             foreach (var (fallenIndex, fallenInfo) in fallen)

@@ -185,6 +185,10 @@ namespace src.utils
             public ChatMessage ChatMessage { get; set; }
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }
+            public ModulesSettings Modules { get; set; }
+            public EntitySpawnSafetySettings EntitySpawnSafety { get; set; }
+            public CombosSettings Combos { get; set; }
+            public ServerInfoSettings ServerInfo { get; set; }
 
             public SettingsModel()
             {
@@ -199,7 +203,7 @@ namespace src.utils
                 EnableFullForceUpdate = false;
                 DebugMode = 0;
                 PerfMode = false;
-                AlternativeSkillButton = null;
+                AlternativeSkillButton = "Use";
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;
                 SkillDescriptionDuration = 7;
@@ -335,7 +339,157 @@ namespace src.utils
                     PauseCommand = new VotingCommand(true, "pause, unpause, pausar, despausar, 暂停, 恢复", "@jRandomSkills/admin", 15, 60, 15, 2, 2),
                     SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandomSkills/owner", 15, 90, 15, 90, 2),
                 };
+
+                Modules = new ModulesSettings();
+                EntitySpawnSafety = new EntitySpawnSafetySettings();
+                Combos = new CombosSettings();
+                ServerInfo = new ServerInfoSettings();
             }
+        }
+
+        public class ServerInfoSettings
+        {
+            // Lines shown to a player right after the welcome line when they join, and repeated in chat to
+            // everyone every AdvertIntervalSeconds (0 disables the repeat). Chat colour codes are allowed.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Lines { get; set; } =
+            [
+                "Server By : Tired",
+                "Hosting By ORI",
+                "Shavo GAY",
+            ];
+            public int AdvertIntervalSeconds { get; set; } = 300;
+        }
+
+        public class CombosSettings
+        {
+            // The most skills a player can hold at once (1 = classic, one skill). Extra skills are drawn
+            // from the pool and never clash with the ones already held. Double Trouble adds on top of this.
+            public int SkillsPerPlayer { get; set; } = 2;
+            // Chance (0-1) that a player wins an extra skill each round; rolled once per extra slot, so with
+            // SkillsPerPlayer 3 the third skill needs two wins in a row. 0.15 = roughly every seventh round.
+            public float ExtraSkillChance { get; set; } = 0f;
+            // Two skills fired by the use key would trigger together; keep false so a player gets at most one.
+            public bool AllowMultipleUseKeySkills { get; set; } = false;
+            // Skills that are never combined with anything (they change or copy the whole skill, or are combos themselves).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> SoloSkills { get; set; } =
+            [
+                "None", "Gambler", "Chameleon", "Duplicator", "Thief", "Inheritance", "Deactivator", "DoubleTrouble", "Rage",
+            ];
+            // Skills in the same group are never held together (they fight over the same mechanic).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<List<string>> ClashGroups { get; set; } =
+            [
+                ["Flash", "Berserker", "Adrenaline", "EntryRush", "Chicken", "Dwarf"],
+                ["Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple", "Blink", "GroundSlam"],
+                ["Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist"],
+                ["Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana"],
+                ["GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie"],
+                ["AntyHead", "OnlyHead"],
+                ["Anomaly", "Rewind"],
+                ["Glue", "HomingNades", "Weightless"],
+                ["Baseball", "FrozenDecoy", "GravityDecoy", "MagneticDecoy", "FireRain", "ThunderGod"],
+                ["HealingSmoke", "ToxicSmoke", "SmokeJumper"],
+                ["Shade", "Teleporter", "ReturnToSender", "Behind", "Catapult", "Push"],
+                ["OneShot", "Aimbot", "Soldier", "GlassCannon", "Momentum", "Assassin", "Punisher"],
+                ["Armored", "TrueArmor", "ReactiveArmor"],
+                ["Cutter", "LongKnife", "ThrowingKnife"],
+                ["Pickpocket", "RobinHood"],
+                ["Wallhack", "Cypher", "FalconEye"],
+            ];
+        }
+
+        public class EntitySpawnSafetySettings
+        {
+            // "Auto": block entity spawning unless the running CS2 version is listed below; "On": always block; "Off": never block.
+            public string Mode { get; set; } = "Auto";
+            // CS2 versions (csgo/steam.inf PatchVersion) verified to work with the installed CounterStrikeSharp.
+            // CounterStrikeSharp 1.0.375 targets 1.41.8.2.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> VerifiedGameVersions { get; set; } = ["1.41.8.2"];
+            // Skills that need to spawn entities; they are left out of the draw while spawning is blocked.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Skills { get; set; } =
+            [
+                "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
+                "Fortnite", "Ghost", "Grapple", "GuidedBullet", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
+                "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
+                "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",
+            ];
+        }
+
+        public class ModulesSettings
+        {
+            // Retakes game mode (https://github.com/b3none/cs2-retakes). Its own settings live in configs/retakes.json.
+            public RetakesModuleSettings Retakes { get; set; } = new();
+            public InstadefuseModuleSettings Instadefuse { get; set; } = new();
+            public ClutchAnnounceModuleSettings ClutchAnnounce { get; set; } = new();
+            public GunsModuleSettings Guns { get; set; } = new();
+        }
+
+        public class GunsModuleSettings
+        {
+            // !guns lets players pick the rifle and pistol they get each retakes round (there is no buying in retakes).
+            public bool Enabled { get; set; } = true;
+            public string Alias { get; set; } = "guns, gun, weapons, w, bronie";
+            // "CS2MenuManager": drawn by the CS2MenuManager shared library (players pick the style with !mm);
+            // "Wasd": the plugin's own WASD menu. Falls back to Wasd when the library is missing.
+            public string MenuStyle { get; set; } = "CS2MenuManager";
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> PrimaryT { get; set; } =
+            [
+                "weapon_ak47", "weapon_galilar", "weapon_sg556", "weapon_awp", "weapon_ssg08", "weapon_g3sg1",
+                "weapon_mac10", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+                "weapon_nova", "weapon_xm1014", "weapon_sawedoff", "weapon_m249", "weapon_negev",
+            ];
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> PrimaryCT { get; set; } =
+            [
+                "weapon_m4a1_silencer", "weapon_m4a1", "weapon_famas", "weapon_aug", "weapon_awp", "weapon_ssg08", "weapon_scar20",
+                "weapon_mp9", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+                "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_m249", "weapon_negev",
+            ];
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Secondary { get; set; } =
+            [
+                "weapon_deagle", "weapon_usp_silencer", "weapon_hkp2000", "weapon_glock", "weapon_p250",
+                "weapon_fiveseven", "weapon_tec9", "weapon_cz75a", "weapon_revolver", "weapon_elite",
+            ];
+        }
+
+        public class RetakesModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Skills that rely on buying, carrying/planting the bomb or on normal spawns are left out of the draw while retakes runs.
+            public bool DisableIncompatibleSkills { get; set; } = true;
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> IncompatibleSkills { get; set; } =
+            [
+                "AreaReaper", "Bankrupt", "Bounty", "C4Camouflage", "ChillOut", "EnemySpawn", "ExpensiveAmmo",
+                "HotBomb", "MoneySwap", "Pickpocket", "Planter", "Retreat", "ReturnToSender", "RichBoy",
+                "RobinHood", "ShortBomb", "Watchmaker",
+            ];
+            // Skills built around the retakes mode; they are only drawn while it runs.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> RetakesOnlySkills { get; set; } = ["BombGuardian", "BombSense"];
+        }
+
+        public class InstadefuseModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Grenades or fire closer than this to the bomb block an instant defuse.
+            public float InfernoThreatRadius { get; set; } = 250f;
+            // When the last T is dead but there is not enough time left to defuse, the bomb explodes at once
+            // (T win) without hurting anyone instead of running out its timer.
+            public bool ExplodeWithoutDamage { get; set; } = true;
+        }
+
+        public class ClutchAnnounceModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Smallest number of enemies the last player alive must face for the round win to count as a clutch.
+            public int MinimumEnemies { get; set; } = 1;
         }
 
         public class WeaponPools

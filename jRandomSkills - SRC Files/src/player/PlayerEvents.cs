@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API;
+﻿using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
@@ -89,9 +90,16 @@ namespace src.player
 
             Instance.RegisterEventHandler<EventBulletImpact>(BulletImpact);
 
-            VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post);
-            VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre);
-            VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre);
+            // These come from CounterStrikeSharp's own gamedata. After a CS2 update they can fail with
+            // "Invalid function pointer" until CounterStrikeSharp is updated; the plugin keeps loading and
+            // only the skills that need the missing hook are left out of the draw.
+            startTouchHooked = TryHook("CBaseTrigger_StartTouchFunc", () => VirtualFunctions.CBaseTrigger_StartTouchFunc.Hook(OnTriggerEnter, HookMode.Post));
+            endTouchHooked = TryHook("CBaseTrigger_EndTouchFunc", () => VirtualFunctions.CBaseTrigger_EndTouchFunc.Hook(OnTriggerExit, HookMode.Pre));
+            canAcquireHooked = TryHook("CCSPlayer_ItemServices_CanAcquireFunc", () => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(OnWeaponCanAcquire, HookMode.Pre));
+
+            var unavailable = Enum.GetValues<Skills>().Where(IsSkillMissingHooks).ToArray();
+            if (unavailable.Length > 0)
+                Instance.Logger.LogWarning("[jRandomSkills] Some CounterStrikeSharp hooks are unavailable (update CounterStrikeSharp to match the current CS2 build). These skills are disabled until then: {Skills}", string.Join(", ", unavailable));
 
             // Disabled after CS2 updates started crashing Linux servers on player join.
             // The hooked native signature is only used to block weapon drops for Iana clones.
@@ -102,12 +110,41 @@ namespace src.player
         {
             TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePre>(OnEntityTakeDamagePre));
             TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePost>(OnEntityTakeDamagePost));
-            TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
-            TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
-            TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
+            if (startTouchHooked) TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
+            if (endTouchHooked) TryUnhook(() => VirtualFunctions.CBaseTrigger_EndTouchFunc.Unhook(OnTriggerExit, HookMode.Pre));
+            if (canAcquireHooked) TryUnhook(() => VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(OnWeaponCanAcquire, HookMode.Pre));
             TryUnhook(() => Instance.UnhookUserMessage(208, PlayerMakeSound));
             TryUnhook(() => Instance.RemoveListener<CheckTransmit>(CheckTransmit));
             TryUnhook(NoRecoil.RestoreSpread);
+        }
+
+        private static bool startTouchHooked;
+        private static bool endTouchHooked;
+        private static bool canAcquireHooked;
+
+        private static readonly Skills[] triggerHookSkills = [Skills.ThrowingKnife];
+        private static readonly Skills[] canAcquireHookSkills = [Skills.Iana, Skills.ReZombie, Skills.ThrowingKnife];
+
+        // True for skills whose native hook could not be installed on this server.
+        public static bool IsSkillMissingHooks(Skills skill)
+        {
+            if ((!startTouchHooked || !endTouchHooked) && triggerHookSkills.Contains(skill)) return true;
+            if (!canAcquireHooked && canAcquireHookSkills.Contains(skill)) return true;
+            return false;
+        }
+
+        private static bool TryHook(string name, Action hook)
+        {
+            try
+            {
+                hook();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Instance.Logger.LogError("[jRandomSkills] Could not hook {Name}: {Message}", name, ex.Message);
+                return false;
+            }
         }
 
         private static void TryUnhook(Action unhook)
@@ -137,9 +174,30 @@ namespace src.player
             var seen = new HashSet<Skills>();
             foreach (var p in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, methodName, args);
+                if (p.IsDrawing) continue;
+                foreach (var skill in p.AllSkills())
+                    if (seen.Add(skill))
+                        InvokeSkill(skill, methodName, args);
             }
+        }
+
+        // Turns a player's skill (and any extra skills) off and clears them; use instead of a bare DisableSkill.
+        public static void DisableAllSkills(jSkill_PlayerInfo info, CCSPlayerController player)
+        {
+            Instance.SkillAction(info.Skill.ToString(), "DisableSkill", [player]);
+
+            var extras = info.ExtraSkills;
+            if (extras.Length == 0) return;
+            info.ExtraSkills = [];
+            foreach (var extra in extras)
+                Instance.SkillAction(extra.ToString(), "DisableSkill", [player]);
+        }
+
+        public static void UseAllSkills(jSkill_PlayerInfo info, CCSPlayerController player)
+        {
+            Instance.SkillAction(info.Skill.ToString(), "UseSkill", [player]);
+            foreach (var extra in info.ExtraSkills)
+                Instance.SkillAction(extra.ToString(), "UseSkill", [player]);
         }
 
         private static void ReleaseCursesTargeting(uint victimIndex)
@@ -169,10 +227,9 @@ namespace src.player
         {
             var seen = new HashSet<Skills>();
             foreach (var p in Instance.SkillPlayer)
-            {
-                if (!seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, "CheckTransmit", args);
-            }
+                foreach (var skill in p.AllSkills())
+                    if (seen.Add(skill))
+                        InvokeSkill(skill, "CheckTransmit", args);
         }
 
         private static void DispatchOnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, object[] args, bool post = false)
@@ -182,15 +239,20 @@ namespace src.player
 
             foreach (var p in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+                if (p.IsDrawing) continue;
 
-                if (Array.IndexOf(lateDamageSkills, p.Skill) >= 0)
+                foreach (var skill in p.AllSkills())
                 {
-                    (deferred ??= []).Add(p.Skill);
-                    continue;
-                }
+                    if (!seen.Add(skill)) continue;
 
-                InvokeOnTakeDamage(p.Skill, damagedEntity, damageInfo, args, post);
+                    if (Array.IndexOf(lateDamageSkills, skill) >= 0)
+                    {
+                        (deferred ??= []).Add(skill);
+                        continue;
+                    }
+
+                    InvokeOnTakeDamage(skill, damagedEntity, damageInfo, args, post);
+                }
             }
 
             if (deferred == null) return;
@@ -517,8 +579,9 @@ namespace src.player
                 foreach (var p in Instance.SkillPlayer)
                 {
                     if (p.IsDrawing) continue;
-                    if (_activeSkillsSet.Add(p.Skill))
-                        _activeSkillsList.Add(p.Skill);
+                    foreach (var skill in p.AllSkills())
+                        if (_activeSkillsSet.Add(skill))
+                            _activeSkillsList.Add(skill);
                 }
 
                 _activeSkillsList.Sort(_tickOrderCmp);
@@ -596,9 +659,9 @@ namespace src.player
                     player.PrintToChat($" {ChatColors.Green}" + line.Replace("{PLAYER}", $" {ChatColors.Red}\u202A{player.PlayerName}\u202C{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{SERVER_NAME}", $" {ChatColors.Red}{SkillUtils.CvarString("hostname", "Default Server")}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
                                             .Replace("{VERSION}", $" {ChatColors.Red}v{Instance.ModuleVersion}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
-                                            .Replace("{SKILLS_COUNT}", $" {ChatColors.Red}{SkillData.Skills.Count - 1}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase)
-                                            .Replace("{AUTHOR1}", $" {ChatColors.Red}Jakub Bartosik (D3X){ChatColors.Green} ({ChatColors.Red}https://github.com/jakubbartosik/dRandomSkills{ChatColors.Green})", StringComparison.OrdinalIgnoreCase)
-                                            .Replace("{AUTHOR2}", $" {ChatColors.Red}Juzlus{ChatColors.Green} ({ChatColors.Red}https://github.com/Juzlus/jRandomSkills{ChatColors.Green})", StringComparison.OrdinalIgnoreCase));
+                                            .Replace("{SKILLS_COUNT}", $" {ChatColors.Red}{SkillData.Skills.Count - 1}{ChatColors.Green}", StringComparison.OrdinalIgnoreCase));
+
+                ServerInfo.SendTo(player);
                 return HookResult.Continue;
             }
         }
@@ -613,7 +676,7 @@ namespace src.player
                 var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return HookResult.Continue;
 
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                DisableAllSkills(skillPlayer, player);
 
                 uint leavingIndex = player.Index;
 
@@ -736,7 +799,7 @@ namespace src.player
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
-                Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
+                DisableAllSkills(playerInfo, victim);
 
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (attacker == null || victim == attacker) return HookResult.Continue;
@@ -776,6 +839,7 @@ namespace src.player
                 if ((pressed & skillButton) == 0) return;
 
                 if (SkillUtils.HasMenu(player)) return;
+                if (src.modules.GunsModule.IsExternalMenuOpen(player)) return;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return;
@@ -791,6 +855,8 @@ namespace src.player
 
                     if (pawn.IsDefusing) return;
                     if (IsAimingAtPlantedBomb(player, pawn)) return;
+                    // E also plants the bomb.
+                    if (pawn.WeaponServices?.ActiveWeapon.Value?.DesignerName == "weapon_c4") return;
 
                     Vector eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
                     Vector endPos = eyePos + SkillUtils.GetForwardVector(pawn.EyeAngles) * 80;
@@ -820,7 +886,7 @@ namespace src.player
                 }
 
                 Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}", DebugCategory.Skill);
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                UseAllSkills(playerInfo, player);
             }
         }
 

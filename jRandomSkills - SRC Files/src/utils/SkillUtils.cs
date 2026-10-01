@@ -554,7 +554,7 @@ namespace src.utils
             Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
             Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow,
-            Skills.Voodoo, Skills.Nemesis, Skills.Bounty
+            Skills.Voodoo, Skills.Nemesis, Skills.Bounty, Skills.Mute, Skills.Marked
         ];
 
         private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
@@ -788,24 +788,24 @@ namespace src.utils
                 playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) return false;
 
-                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
+                if (playerInfo.HasSkill(Skills.Jester) && Jester.GetJesterInfo(player.Index)?.Active == true)
                     return false;
 
-                if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
+                if (playerInfo.HasSkill(Skills.GodMode) && GodMode.HaveHodMode(player.Index))
                     return false;
 
-                if (playerInfo.Skill == Skills.Armored)
+                if (playerInfo.HasSkill(Skills.Armored))
                     damage = (int)Math.Round(damage * (playerInfo.SkillChance ?? 1f));
             }
 
             int newHealth = (int)(pawn.Health - damage);
             if (newHealth <= 0 && playerInfo != null)
             {
-                if (playerInfo.Skill == Skills.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
+                if (playerInfo.HasSkill(Skills.SecondLife) && SecondLife.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
+                if (playerInfo.HasSkill(Skills.Phoenix) && Phoenix.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
+                if (playerInfo.HasSkill(Skills.ReZombie) && ReZombie.TryBecomeZombie(victim, pawn))
                     return true;
             }
 
@@ -1099,6 +1099,8 @@ namespace src.utils
             return designerName;
         }
 
+        public static IWasdMenuManager? MenuManager() => GetMenuManager();
+
         private static IWasdMenuManager? GetMenuManager()
         {
             if (jRandomSkills.Instance.MenuManager == null)
@@ -1170,7 +1172,7 @@ namespace src.utils
 
                 list.TryAdd(uniqueKey, (p, option) =>
                 {
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
                     manager.CloseMenu(p);
                 });
             }
@@ -1199,13 +1201,14 @@ namespace src.utils
                 if (pool.Count > 0)
                 {
                     string randomTarget = pool[Random.Shared.Next(pool.Count)];
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, new[] { randomTarget }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [player, new[] { randomTarget }]);
                 }
 
                 return;
             }
 
-            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == playerInfo.Skill);
+            var menuSkill = ComboManager.MenuSkillOf(playerInfo);
+            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == menuSkill);
             if (skillData == null) return;
 
             var manager = GetMenuManager();
@@ -1223,7 +1226,7 @@ namespace src.utils
                 ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>\u202A{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}\u202C</font><br>"
                 : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>\u202A{player.GetSkillName(skillData.Skill)}\u202C</font><br>";
 
-            var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLowerInvariant()}_select_info");
+            var skill_select_info = player.GetTranslation($"{menuSkill.ToString().ToLowerInvariant()}_select_info");
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info) || string.IsNullOrEmpty(config.WSADMenuSelectInfoLineSize)
                 ? ""
                 : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
@@ -1251,7 +1254,7 @@ namespace src.utils
 
                 menu.Add(uniqueKey, (p, option) =>
                 {
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
                     manager.CloseMenu(p);
                 });
             }
@@ -1273,7 +1276,7 @@ namespace src.utils
 
                 menu.Add($"{lastColor}\u202A{encodedLastElement}\u202C", (p, option) =>
                 {
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
                     if (lastElement.Value.Item3)
                         manager.CloseMenu(p);
                 });
