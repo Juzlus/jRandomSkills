@@ -73,7 +73,7 @@ Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `
 ## 🧩 Skill combos
 Each round a player has a `Combos.ExtraSkillChance` chance (default `0`, so combos only come from Double Trouble and Rage; `0.15` is about one round in seven) of winning a second skill, up to `Combos.SkillsPerPlayer` skills in total (default `2`; set the chance to `1` for a combo every round or `SkillsPerPlayer` to `1` for the classic game). The first skill comes from the normal draw, the extra one is added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Double Trouble and Rage which are combos themselves), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Double Trouble adds its own extras on top of this and Rage always comes as Wallhack + Aimbot.
 
-## ✨ Current Skills (176)
+## ✨ Current Skills (177)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -149,6 +149,7 @@ Each round a player has a `Combos.ExtraSkillChance` chance (default `0`, so comb
 | Gravity Decoy     | Your decoy changes the gravity of everyone nearby                                                  | 0.5x             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
 | Ground Slam       | Crouch while in the air to slam down, knocking back and hurting enemies around you                 | 25 HP / 6 s      |
+| Guided Bullet     | [Admin test] Click [css_useSkill] for an AWP; every shot becomes a bullet you steer with the mouse from a camera | 150 HP / 4 s     |
 | Headhunter        | Headshot kills restore you to full health and armor                                                | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |

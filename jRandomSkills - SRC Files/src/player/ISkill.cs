@@ -133,6 +133,7 @@ public enum Skills
     GravityDecoy,
     Grenadier,
     GroundSlam,
+    GuidedBullet,
     Headhunter,
     HealingChicken,
     HealingSmoke,

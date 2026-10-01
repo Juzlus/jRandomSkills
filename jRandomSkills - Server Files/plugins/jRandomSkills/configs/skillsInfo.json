@@ -3225,5 +3225,27 @@
     "MaxPerServer": -1,
     "MinPlayer": 0,
     "Rarity": "Rare"
+  },
+  {
+    "Speed": 900.0,
+    "TurnRate": 0.25,
+    "HitRadius": 40.0,
+    "MaxFlightTime": 6.0,
+    "Damage": 150,
+    "Cooldown": 4.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": true,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ff4fd8",
+    "Active": false,
+    "Name": "GuidedBullet",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Legendary"
   }
 ]

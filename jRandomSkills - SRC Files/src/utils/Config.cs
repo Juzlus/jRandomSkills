@@ -413,7 +413,7 @@ namespace src.utils
             public List<string> Skills { get; set; } =
             [
                 "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
-                "Fortnite", "Ghost", "Grapple", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
+                "Fortnite", "Ghost", "Grapple", "GuidedBullet", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
                 "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
                 "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",
             ];
