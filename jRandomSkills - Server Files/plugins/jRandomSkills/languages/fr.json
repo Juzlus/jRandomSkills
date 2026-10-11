@@ -843,5 +843,12 @@
   "airbombs_hud": "Bombes restantes : {0}",
   "airbombs_dropped_smoke": "Fumigène lâché.",
   "airbombs_dropped_he": "Grenade HE lâchée.",
-  "airbombs_dropped_molotov": "Molotov lâché."
+  "airbombs_dropped_molotov": "Molotov lâché.",
+  "secondsight": "Seconde vue",
+  "secondsight_desc": "Quiconque vous tire dessus est surligné à travers les murs pendant 5 secondes, pour vos yeux seulement",
+  "secondsight_info": "{0} vous a touché : surligné pendant {1} s.",
+  "sixthsense": "Sixième sens",
+  "sixthsense_desc": "Je vois des gens qui sont morts : le coup fatal vous laisse en fantôme semi-transparent avec 175 PV pendant 7 secondes",
+  "sixthsense_info": "Vous êtes un fantôme pendant {0} s. Profitez-en !",
+  "sixthsense_hud": "Fantôme : {0} s"
 }

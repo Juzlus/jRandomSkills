@@ -843,5 +843,12 @@
   "airbombs_hud": "Kalan bomba: {0}",
   "airbombs_dropped_smoke": "Sis bırakıldı.",
   "airbombs_dropped_he": "HE bombası bırakıldı.",
-  "airbombs_dropped_molotov": "Molotof bırakıldı."
+  "airbombs_dropped_molotov": "Molotof bırakıldı.",
+  "secondsight": "İkinci Görüş",
+  "secondsight_desc": "Sana ateş eden kişi 5 saniye boyunca duvarların ardından çerçevelenir, sadece senin gözlerine",
+  "secondsight_info": "{0} seni vurdu: {1} sn çerçevelendi.",
+  "sixthsense": "Altıncı His",
+  "sixthsense_desc": "Ölü insanları görüyorum: seni öldürecek vuruş seni 7 saniyeliğine 175 canlı yarı saydam bir hayalet olarak bırakır",
+  "sixthsense_info": "{0} sn boyunca hayaletsin. Değerlendir!",
+  "sixthsense_hud": "Hayalet: {0} sn"
 }

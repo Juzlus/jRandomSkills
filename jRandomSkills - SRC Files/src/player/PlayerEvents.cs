@@ -153,7 +153,7 @@ namespace src.player
             catch (Exception ex) { Server.PrintToConsole($"[TiredPowers] unhook failed: {ex.Message}"); }
         }
 
-        private static readonly Skills[] lateDamageSkills = [Skills.SecondLife, Skills.Phoenix, Skills.ReZombie];
+        private static readonly Skills[] lateDamageSkills = [Skills.SecondLife, Skills.Phoenix, Skills.ReZombie, Skills.SixthSense];
 
         private static readonly HashSet<Skills> tickFailuresLogged = [];
 

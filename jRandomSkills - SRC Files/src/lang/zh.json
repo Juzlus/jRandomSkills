@@ -833,5 +833,12 @@
   "airbombs_hud": "剩余炸弹：{0}",
   "airbombs_dropped_smoke": "已投下烟雾弹。",
   "airbombs_dropped_he": "已投下高爆手雷。",
-  "airbombs_dropped_molotov": "已投下燃烧弹。"
+  "airbombs_dropped_molotov": "已投下燃烧弹。",
+  "secondsight": "灵视",
+  "secondsight_desc": "向你开枪的人会被透视描边 5 秒，只有你能看到",
+  "secondsight_info": "{0} 击中了你：描边 {1} 秒。",
+  "sixthsense": "第六感",
+  "sixthsense_desc": "我能看见死人：致命一击会让你化为 175 血的半透明幽灵，持续 7 秒",
+  "sixthsense_info": "你化为幽灵 {0} 秒，好好利用！",
+  "sixthsense_hud": "幽灵：{0} 秒"
 }

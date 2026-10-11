@@ -73,7 +73,7 @@ Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `
 ## 🧩 Skill combos
 Each round a player has a `Combos.ExtraSkillChance` chance (default `0.1`, about one round in ten; `0` leaves combos to Rage only) of winning a second skill, up to `Combos.SkillsPerPlayer` skills in total (default `2`; set the chance to `1` for a combo every round or `SkillsPerPlayer` to `1` for the classic game). The first skill comes from the normal draw, the extra one is added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Rage which is a combo itself), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Rage always comes as Wallhack + Aimbot.
 
-## ✨ Current Skills (181)
+## ✨ Current Skills (183)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -225,9 +225,11 @@ Each round a player has a `Combos.ExtraSkillChance` chance (default `0.1`, about
 | Sapper            | You can plant and defuse bombs faster                                                              | -                |
 | Scavenger         | Each kill refills your guns' ammo and may give you a grenade                                       | -                |
 | Second Chance     | After death, you get back up where you fell with the same amount of health                         | -                |
+| Second Sight      | Whoever shoots you is outlined through walls for 5 seconds, for your eyes only                     | 5 s              |
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                |
 | Silent            | Your footsteps and jumps are silent to other players                                               | -                |
+| Sixth Sense       | I see dead people: the hit that should kill you leaves you as a half-transparent ghost with 175 HP for 7 seconds | 7 s / 175 HP     |
 | Smoke Jumper      | Throw a smoke grenade to teleport to where it lands                                                | 2 smokes         |
 | Smoker            | Your smoke grenades never run out                                                                  | -                |
 | Sniper Elite      | Click [css_useSkill] to swap your current weapon for an AWP                                        | 0 s              |

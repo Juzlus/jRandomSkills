@@ -3347,5 +3347,42 @@
     "MaxPerServer": -1,
     "MinPlayer": 0,
     "Rarity": "Epic"
+  },
+  {
+    "Seconds": 5.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#ff5e5e",
+    "Active": true,
+    "Name": "SecondSight",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Rare"
+  },
+  {
+    "GhostSeconds": 7.0,
+    "GhostHealth": 175,
+    "Alpha": 110,
+    "SoundVolume": 0.5,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#B0E0E6",
+    "Active": true,
+    "Name": "SixthSense",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Rare"
   }
 ]

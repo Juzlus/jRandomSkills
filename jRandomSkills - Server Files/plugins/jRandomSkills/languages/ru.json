@@ -843,5 +843,12 @@
   "airbombs_hud": "Осталось бомб: {0}",
   "airbombs_dropped_smoke": "Дым сброшен.",
   "airbombs_dropped_he": "HE-граната сброшена.",
-  "airbombs_dropped_molotov": "Молотов сброшен."
+  "airbombs_dropped_molotov": "Молотов сброшен.",
+  "secondsight": "Второе зрение",
+  "secondsight_desc": "Тот, кто стреляет в вас, подсвечивается сквозь стены 5 секунд, только для ваших глаз",
+  "secondsight_info": "{0} попал в вас: подсвечен на {1} с.",
+  "sixthsense": "Шестое чувство",
+  "sixthsense_desc": "Я вижу мёртвых людей: смертельный удар оставляет вас полупрозрачным призраком со 175 HP на 7 секунд",
+  "sixthsense_info": "Вы призрак на {0} с. Используйте их!",
+  "sixthsense_hud": "Призрак: {0} с"
 }

@@ -843,5 +843,12 @@
   "airbombs_hud": "Pozostałe bomby: {0}",
   "airbombs_dropped_smoke": "Zrzucono smoke.",
   "airbombs_dropped_he": "Zrzucono granat HE.",
-  "airbombs_dropped_molotov": "Zrzucono molotova."
+  "airbombs_dropped_molotov": "Zrzucono molotova.",
+  "secondsight": "Drugi wzrok",
+  "secondsight_desc": "Kto do ciebie strzela, jest podświetlony przez ściany przez 5 sekund, tylko dla twoich oczu",
+  "secondsight_info": "{0} trafił cię: podświetlony przez {1} s.",
+  "sixthsense": "Szósty zmysł",
+  "sixthsense_desc": "Widzę martwych ludzi: śmiertelny cios zostawia cię jako półprzezroczystego ducha ze 175 HP na 7 sekund",
+  "sixthsense_info": "Jesteś duchem przez {0} s. Wykorzystaj to!",
+  "sixthsense_hud": "Duch: {0} s"
 }

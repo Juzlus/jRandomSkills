@@ -296,6 +296,7 @@
     "AllowScreenText": true,
     "Skills": [
       "AirBombs",
+      "SecondSight",
       "C4Camouflage",
       "Chicken",
       "Cypher",
@@ -346,7 +347,7 @@
       [ "Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple", "Blink", "GroundSlam" ],
       [ "Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist" ],
       [ "Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana" ],
-      [ "GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie" ],
+      [ "GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie", "SixthSense" ],
       [ "AntyHead", "OnlyHead" ],
       [ "Anomaly", "Rewind", "TimeLord" ],
       [ "Glue", "HomingNades", "Weightless" ],

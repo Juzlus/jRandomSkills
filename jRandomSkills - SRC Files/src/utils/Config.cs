@@ -402,7 +402,7 @@ namespace src.utils
                 ["Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple", "Blink", "GroundSlam"],
                 ["Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist"],
                 ["Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana"],
-                ["GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie"],
+                ["GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie", "SixthSense"],
                 ["AntyHead", "OnlyHead"],
                 ["Anomaly", "Rewind", "TimeLord"],
                 ["Glue", "HomingNades", "Weightless"],
@@ -432,7 +432,7 @@ namespace src.utils
             [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public List<string> Skills { get; set; } =
             [
-                "AirBombs", "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
+                "AirBombs", "SecondSight", "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
                 "Fortnite", "Ghost", "Grapple", "GuidedBullet", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
                 "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
                 "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",

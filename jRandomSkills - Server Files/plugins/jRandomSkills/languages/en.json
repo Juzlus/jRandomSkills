@@ -843,5 +843,12 @@
   "airbombs_hud": "Bombs left: {0}",
   "airbombs_dropped_smoke": "Smoke dropped.",
   "airbombs_dropped_he": "HE grenade dropped.",
-  "airbombs_dropped_molotov": "Molotov dropped."
+  "airbombs_dropped_molotov": "Molotov dropped.",
+  "secondsight": "Second Sight",
+  "secondsight_desc": "Whoever shoots you is outlined through walls for 5 seconds, for your eyes only",
+  "secondsight_info": "{0} shot you: outlined for {1} s.",
+  "sixthsense": "Sixth Sense",
+  "sixthsense_desc": "I see dead people: the hit that should kill you leaves you as a half-transparent ghost with 175 HP for 7 seconds",
+  "sixthsense_info": "You are a ghost for {0} s. Make them count!",
+  "sixthsense_hud": "Ghost: {0} s"
 }

@@ -843,5 +843,12 @@
   "airbombs_hud": "Bomben übrig: {0}",
   "airbombs_dropped_smoke": "Rauchgranate abgeworfen.",
   "airbombs_dropped_he": "HE-Granate abgeworfen.",
-  "airbombs_dropped_molotov": "Molotov abgeworfen."
+  "airbombs_dropped_molotov": "Molotov abgeworfen.",
+  "secondsight": "Zweites Gesicht",
+  "secondsight_desc": "Wer dich anschießt, wird 5 Sekunden lang durch Wände umrandet, nur für deine Augen",
+  "secondsight_info": "{0} hat dich getroffen: {1} s lang umrandet.",
+  "sixthsense": "Sechster Sinn",
+  "sixthsense_desc": "Ich sehe tote Menschen: der tödliche Treffer lässt dich 7 Sekunden lang als halbdurchsichtigen Geist mit 175 HP weiterleben",
+  "sixthsense_info": "Du bist {0} s lang ein Geist. Nutze sie!",
+  "sixthsense_hud": "Geist: {0} s"
 }

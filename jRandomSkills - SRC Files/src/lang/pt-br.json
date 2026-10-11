@@ -843,5 +843,12 @@
   "airbombs_hud": "Bombas restantes: {0}",
   "airbombs_dropped_smoke": "Smoke lançada.",
   "airbombs_dropped_he": "Granada HE lançada.",
-  "airbombs_dropped_molotov": "Molotov lançado."
+  "airbombs_dropped_molotov": "Molotov lançado.",
+  "secondsight": "Segunda Visão",
+  "secondsight_desc": "Quem atira em você fica contornado através das paredes por 5 segundos, só para os seus olhos",
+  "secondsight_info": "{0} atirou em você: contornado por {1} s.",
+  "sixthsense": "Sexto Sentido",
+  "sixthsense_desc": "Eu vejo gente morta: o golpe fatal te deixa como um fantasma semitransparente com 175 HP por 7 segundos",
+  "sixthsense_info": "Você é um fantasma por {0} s. Aproveite!",
+  "sixthsense_hud": "Fantasma: {0} s"
 }
