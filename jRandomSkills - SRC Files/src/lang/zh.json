@@ -826,5 +826,12 @@
   "forgotcontrols_select_info": "选择要反转操作的玩家：",
   "forgotcontrols_player_info": "你反转了 '{0}' 的操作。",
   "forgotcontrols_enemy_info": "你的移动操作被反转了！",
-  "forgotcontrols_disable_info": "你的操作恢复正常。"
+  "forgotcontrols_disable_info": "你的操作恢复正常。",
+  "airbombs": "空中投弹",
+  "airbombs_desc": "点击 [css_useSkill] 进入俯视视角：WASD 移动镜头，左键在镜头下方投下炸弹（烟雾、高爆或燃烧弹），再次点击 [css_useSkill] 返回",
+  "airbombs_start": "俯视视角：WASD 移动镜头，左键投弹（剩余 {0}），按 E 返回。",
+  "airbombs_hud": "剩余炸弹：{0}",
+  "airbombs_dropped_smoke": "已投下烟雾弹。",
+  "airbombs_dropped_he": "已投下高爆手雷。",
+  "airbombs_dropped_molotov": "已投下燃烧弹。"
 }

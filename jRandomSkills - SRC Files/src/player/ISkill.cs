@@ -62,6 +62,7 @@ public enum Skills
     None,
     Adrenaline,
     Aimbot,
+    AirBombs,
     AimLock,
     Anomaly,
     AntyFlash,

@@ -836,5 +836,12 @@
   "forgotcontrols_select_info": "Kontrolleri ters çevrilecek oyuncuyu seç:",
   "forgotcontrols_player_info": "'{0}' adlı oyuncunun kontrollerini ters çevirdin.",
   "forgotcontrols_enemy_info": "Hareket kontrollerin ters çevrildi!",
-  "forgotcontrols_disable_info": "Kontrollerin normale döndü."
+  "forgotcontrols_disable_info": "Kontrollerin normale döndü.",
+  "airbombs": "Hava Bombaları",
+  "airbombs_desc": "Kuş bakışı görüş için [css_useSkill] tıkla: WASD kamerayı hareket ettirir, sol tık altına bomba bırakır (sis, HE ya da molotof), geri dönmek için tekrar [css_useSkill]",
+  "airbombs_start": "Hava görüşü: WASD kamerayı hareket ettirir, sol tık bomba bırakır ({0} kaldı), geri dönmek için E.",
+  "airbombs_hud": "Kalan bomba: {0}",
+  "airbombs_dropped_smoke": "Sis bırakıldı.",
+  "airbombs_dropped_he": "HE bombası bırakıldı.",
+  "airbombs_dropped_molotov": "Molotof bırakıldı."
 }

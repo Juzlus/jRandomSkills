@@ -85,13 +85,14 @@ Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `
 ## 🧩 Skill combos
 Each round a player has a `Combos.ExtraSkillChance` chance (default `0.1`, about one round in ten; `0` leaves combos to Rage only) of winning a second skill, up to `Combos.SkillsPerPlayer` skills in total (default `2`; set the chance to `1` for a combo every round or `SkillsPerPlayer` to `1` for the classic game). The first skill comes from the normal draw, the extra one is added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Rage which is a combo itself), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Rage always comes as Wallhack + Aimbot.
 
-## ✨ Current Skills (180)
+## ✨ Current Skills (181)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
 | Name              | Description                                                                                        | Cooldown / Range |
 | ----------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
 | Adrenaline        | Each kill restores 25 health and gives you a burst of speed for 5 seconds                          | 5 s              |
+| Air Bombs         | Click [css_useSkill] for a bird's-eye view: WASD flies the camera, left click drops a smoke, HE or molotov under it | 3 bombs / 25 s   |
 | Aimbot            | Every bullet you hit counts as a headshot                                                          | -                |
 | Aim Lock          | Click [css_useSkill] to lock your aim on the nearest enemy                                         | 20 s             |
 | Anomaly           | Click [css_useSkill] to rewind a few seconds back in time                                          | 15 s             |

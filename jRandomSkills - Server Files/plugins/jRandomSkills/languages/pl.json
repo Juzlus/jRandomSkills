@@ -836,5 +836,12 @@
   "forgotcontrols_select_info": "Wybierz gracza, któremu odwrócić sterowanie:",
   "forgotcontrols_player_info": "Odwróciłeś sterowanie gracza '{0}'.",
   "forgotcontrols_enemy_info": "Twoje sterowanie ruchem jest odwrócone!",
-  "forgotcontrols_disable_info": "Twoje sterowanie wróciło do normy."
+  "forgotcontrols_disable_info": "Twoje sterowanie wróciło do normy.",
+  "airbombs": "Bomby z powietrza",
+  "airbombs_desc": "Kliknij [css_useSkill], aby zobaczyć widok z lotu ptaka: WASD porusza kamerą, LPM zrzuca bombę pod nią (smoke, HE lub molotov), ponownie [css_useSkill], aby wrócić",
+  "airbombs_start": "Widok z góry: WASD porusza kamerą, LPM zrzuca bombę (pozostało {0}), E aby wrócić.",
+  "airbombs_hud": "Pozostałe bomby: {0}",
+  "airbombs_dropped_smoke": "Zrzucono smoke.",
+  "airbombs_dropped_he": "Zrzucono granat HE.",
+  "airbombs_dropped_molotov": "Zrzucono molotova."
 }

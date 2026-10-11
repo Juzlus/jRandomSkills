@@ -836,5 +836,12 @@
   "forgotcontrols_select_info": "Выберите игрока, которому инвертировать управление:",
   "forgotcontrols_player_info": "Вы инвертировали управление игрока '{0}'.",
   "forgotcontrols_enemy_info": "Ваше управление движением инвертировано!",
-  "forgotcontrols_disable_info": "Ваше управление снова в норме."
+  "forgotcontrols_disable_info": "Ваше управление снова в норме.",
+  "airbombs": "Воздушные бомбы",
+  "airbombs_desc": "Нажмите [css_useSkill] для вида сверху: WASD двигает камеру, ЛКМ сбрасывает бомбу под неё (дым, HE или молотов), ещё раз [css_useSkill], чтобы вернуться",
+  "airbombs_start": "Вид сверху: WASD двигает камеру, ЛКМ сбрасывает бомбу (осталось {0}), E чтобы вернуться.",
+  "airbombs_hud": "Осталось бомб: {0}",
+  "airbombs_dropped_smoke": "Дым сброшен.",
+  "airbombs_dropped_he": "HE-граната сброшена.",
+  "airbombs_dropped_molotov": "Молотов сброшен."
 }

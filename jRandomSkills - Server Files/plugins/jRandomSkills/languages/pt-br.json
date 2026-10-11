@@ -836,5 +836,12 @@
   "forgotcontrols_select_info": "Escolha um jogador para inverter os controles:",
   "forgotcontrols_player_info": "Você inverteu os controles de '{0}'.",
   "forgotcontrols_enemy_info": "Seus controles de movimento estão invertidos!",
-  "forgotcontrols_disable_info": "Seus controles voltaram ao normal."
+  "forgotcontrols_disable_info": "Seus controles voltaram ao normal.",
+  "airbombs": "Bombas Aéreas",
+  "airbombs_desc": "Clique [css_useSkill] para uma visão aérea: WASD move a câmera, clique esquerdo solta uma bomba abaixo (smoke, HE ou molotov), [css_useSkill] de novo para voltar",
+  "airbombs_start": "Visão aérea: WASD move a câmera, clique esquerdo solta uma bomba ({0} restantes), E para voltar.",
+  "airbombs_hud": "Bombas restantes: {0}",
+  "airbombs_dropped_smoke": "Smoke lançada.",
+  "airbombs_dropped_he": "Granada HE lançada.",
+  "airbombs_dropped_molotov": "Molotov lançado."
 }

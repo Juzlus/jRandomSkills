@@ -432,7 +432,7 @@ namespace src.utils
             [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public List<string> Skills { get; set; } =
             [
-                "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
+                "AirBombs", "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
                 "Fortnite", "Ghost", "Grapple", "GuidedBullet", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
                 "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
                 "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",

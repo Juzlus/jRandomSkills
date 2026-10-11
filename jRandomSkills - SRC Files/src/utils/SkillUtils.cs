@@ -543,14 +543,47 @@ namespace src.utils
             }
         }
 
+        public static bool SmokeGrenadeAvailable => SmokeGrenadeProjectile_CreateFunc.Value != null;
+        public static bool MolotovAvailable => CMolotovProjectile_CreateFunc.Value != null;
+
         public static void CreateSmokeGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
-            SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
+            if (SmokeGrenadeProjectile_CreateFunc.Value != null)
+            {
+                SmokeGrenadeProjectile_CreateFunc.Value.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
+                return;
+            }
+            SpawnProjectileEntity<CSmokeGrenadeProjectile>("smokegrenade_projectile", pos, vel, teamNum);
         }
 
         public static void CreateMolotovProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
-            CMolotovProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
+            if (CMolotovProjectile_CreateFunc.Value != null)
+            {
+                CMolotovProjectile_CreateFunc.Value.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
+                return;
+            }
+            SpawnProjectileEntity<CMolotovProjectile>("molotov_projectile", pos, vel, teamNum);
+        }
+
+        // Without the gamedata signature (a CS2 update behind it) the projectile is created as a plain entity:
+        // it still flies, lands and detonates through the game's own code.
+        private static void SpawnProjectileEntity<T>(string designerName, Vector pos, Vector vel, int teamNum) where T : CBaseCSGrenadeProjectile
+        {
+            if (EntitySafety.SpawningBlocked) return;
+            try
+            {
+                var projectile = Utilities.CreateEntityByName<T>(designerName);
+                if (projectile == null || !projectile.IsValid) return;
+                projectile.TeamNum = (byte)teamNum;
+                projectile.Teleport(pos, QAngle.Zero, vel);
+                projectile.DispatchSpawn();
+                projectile.DetonateTime = Server.CurrentTime + 1.5f;
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[TiredPowers] {designerName} could not be created: {ex.Message}");
+            }
         }
 
         // True when this hit would be nullified by the server's friendly-fire rules (same-team hit,

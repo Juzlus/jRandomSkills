@@ -295,6 +295,7 @@
     ],
     "AllowScreenText": true,
     "Skills": [
+      "AirBombs",
       "C4Camouflage",
       "Chicken",
       "Cypher",

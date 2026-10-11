@@ -836,5 +836,12 @@
   "forgotcontrols_select_info": "Wähle einen Spieler, dessen Steuerung vertauscht wird:",
   "forgotcontrols_player_info": "Du hast die Steuerung von '{0}' vertauscht.",
   "forgotcontrols_enemy_info": "Deine Bewegungssteuerung ist vertauscht!",
-  "forgotcontrols_disable_info": "Deine Steuerung ist wieder normal."
+  "forgotcontrols_disable_info": "Deine Steuerung ist wieder normal.",
+  "airbombs": "Luftbomben",
+  "airbombs_desc": "Drücke [css_useSkill] für die Vogelperspektive: WASD bewegt die Kamera, Linksklick wirft eine Bombe darunter ab (Rauch, HE oder Molotov), [css_useSkill] erneut zum Zurückkehren",
+  "airbombs_start": "Luftansicht: WASD bewegt die Kamera, Linksklick wirft eine Bombe ab ({0} übrig), E zum Zurückkehren.",
+  "airbombs_hud": "Bomben übrig: {0}",
+  "airbombs_dropped_smoke": "Rauchgranate abgeworfen.",
+  "airbombs_dropped_he": "HE-Granate abgeworfen.",
+  "airbombs_dropped_molotov": "Molotov abgeworfen."
 }

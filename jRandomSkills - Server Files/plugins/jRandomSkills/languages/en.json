@@ -836,5 +836,12 @@
   "forgotcontrols_select_info": "Select a player whose controls to reverse:",
   "forgotcontrols_player_info": "You reversed the controls of '{0}'.",
   "forgotcontrols_enemy_info": "Your movement controls are reversed!",
-  "forgotcontrols_disable_info": "Your controls are back to normal."
+  "forgotcontrols_disable_info": "Your controls are back to normal.",
+  "airbombs": "Air Bombs",
+  "airbombs_desc": "Click [css_useSkill] for a bird's-eye view: WASD flies the camera, left click drops a bomb under it (a smoke, an HE or a molotov), [css_useSkill] again to come back",
+  "airbombs_start": "Air view: WASD flies the camera, left click drops a bomb ({0} left), E to come back.",
+  "airbombs_hud": "Bombs left: {0}",
+  "airbombs_dropped_smoke": "Smoke dropped.",
+  "airbombs_dropped_he": "HE grenade dropped.",
+  "airbombs_dropped_molotov": "Molotov dropped."
 }
