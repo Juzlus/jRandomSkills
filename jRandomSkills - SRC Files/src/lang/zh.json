@@ -820,5 +820,11 @@
   "tremor": "震颤",
   "tremor_desc": "点击 [css_useSkill] 震动大地：附近的敌人会被大幅减速几秒",
   "tremor_player_info": "大地震动：{0} 名敌人被减速。",
-  "tremor_enemy_info": "大地在震动！你被减速 {0} 秒。"
+  "tremor_enemy_info": "大地在震动！你被减速 {0} 秒。",
+  "forgotcontrols": "忘记操作",
+  "forgotcontrols_desc": "选择一名敌人：本回合内或直到你死亡，其移动按键全部反向",
+  "forgotcontrols_select_info": "选择要反转操作的玩家：",
+  "forgotcontrols_player_info": "你反转了 '{0}' 的操作。",
+  "forgotcontrols_enemy_info": "你的移动操作被反转了！",
+  "forgotcontrols_disable_info": "你的操作恢复正常。"
 }

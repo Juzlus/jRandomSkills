@@ -117,6 +117,7 @@ public enum Skills
     FireRain,
     Flash,
     Flashlight,
+    ForgotControls,
     Fortnite,
     FriendlyFire,
     FrozenDecoy,

@@ -85,7 +85,7 @@ Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `
 ## 🧩 Skill combos
 Each round a player has a `Combos.ExtraSkillChance` chance (default `0.1`, about one round in ten; `0` leaves combos to Rage only) of winning a second skill, up to `Combos.SkillsPerPlayer` skills in total (default `2`; set the chance to `1` for a combo every round or `SkillsPerPlayer` to `1` for the classic game). The first skill comes from the normal draw, the extra one is added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Rage which is a combo itself), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Rage always comes as Wallhack + Aimbot.
 
-## ✨ Current Skills (179)
+## ✨ Current Skills (180)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
@@ -145,6 +145,7 @@ Each round a player has a `Combos.ExtraSkillChance` chance (default `0.1`, about
 | Fire Rain         | Throw a decoy to call down a rain of Molotovs                                                      | -                |
 | Flash             | Random player speed at the beginning of the round                                                  | (1.2 - 3.0)x     |
 | Flashlight        | Click [css_useSkill] to turn the flashlight on or off. Its light can blind enemies                 | 2 s              |
+| Forgot My Controls| Choose an enemy: their movement keys are reversed for the round or until you die                  | -                |
 | Fortnite          | Click [css_useSkill] to create a destructible barricade                                            | 2 s              |
 | Friendly Fire     | Shooting teammates heals them                                                                      | -                |
 | Freezing Decoy    | Your decoy freezes all nearby players                                                              | -                |

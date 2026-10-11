@@ -830,5 +830,11 @@
   "tremor": "Secousse",
   "tremor_desc": "Cliquez sur [css_useSkill] pour secouer le sol : les ennemis proches sont fortement ralentis quelques secondes",
   "tremor_player_info": "Le sol a tremblé : {0} ennemis ralentis.",
-  "tremor_enemy_info": "Le sol tremble ! Vous êtes ralenti pendant {0} s."
+  "tremor_enemy_info": "Le sol tremble ! Vous êtes ralenti pendant {0} s.",
+  "forgotcontrols": "Contrôles oubliés",
+  "forgotcontrols_desc": "Choisissez un ennemi : ses touches de déplacement sont inversées pour la manche ou jusqu’à votre mort",
+  "forgotcontrols_select_info": "Choisissez un joueur dont inverser les contrôles :",
+  "forgotcontrols_player_info": "Vous avez inversé les contrôles de '{0}'.",
+  "forgotcontrols_enemy_info": "Vos contrôles de déplacement sont inversés !",
+  "forgotcontrols_disable_info": "Vos contrôles sont redevenus normaux."
 }

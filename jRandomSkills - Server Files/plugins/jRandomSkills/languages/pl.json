@@ -830,5 +830,11 @@
   "tremor": "Wstrząs",
   "tremor_desc": "Kliknij [css_useSkill], aby wstrząsnąć ziemią: pobliscy wrogowie zostają mocno spowolnieni na kilka sekund",
   "tremor_player_info": "Ziemia zadrżała: spowolniono {0} wrogów.",
-  "tremor_enemy_info": "Ziemia drży! Jesteś spowolniony przez {0} s."
+  "tremor_enemy_info": "Ziemia drży! Jesteś spowolniony przez {0} s.",
+  "forgotcontrols": "Zapomniane sterowanie",
+  "forgotcontrols_desc": "Wybierz wroga: jego klawisze ruchu są odwrócone do końca rundy lub do twojej śmierci",
+  "forgotcontrols_select_info": "Wybierz gracza, któremu odwrócić sterowanie:",
+  "forgotcontrols_player_info": "Odwróciłeś sterowanie gracza '{0}'.",
+  "forgotcontrols_enemy_info": "Twoje sterowanie ruchem jest odwrócone!",
+  "forgotcontrols_disable_info": "Twoje sterowanie wróciło do normy."
 }

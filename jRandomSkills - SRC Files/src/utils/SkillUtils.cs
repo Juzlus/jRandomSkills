@@ -692,7 +692,7 @@ namespace src.utils
         [
             Skills.Bankrupt, Skills.CarefulBullets, Skills.Darkness, Skills.Deactivator,
             Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
-            Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
+            Skills.ForgotControls, Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
             Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow,
             Skills.Voodoo, Skills.Nemesis, Skills.Bounty, Skills.Mute, Skills.Marked

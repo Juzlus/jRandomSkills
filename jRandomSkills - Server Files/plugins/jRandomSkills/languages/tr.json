@@ -830,5 +830,11 @@
   "tremor": "Sarsıntı",
   "tremor_desc": "Yeri sarsmak için [css_useSkill] tıkla: yakındaki düşmanlar birkaç saniye çok yavaşlar",
   "tremor_player_info": "Yer sarsıldı: {0} düşman yavaşlatıldı.",
-  "tremor_enemy_info": "Yer sarsılıyor! {0} sn boyunca yavaşsın."
+  "tremor_enemy_info": "Yer sarsılıyor! {0} sn boyunca yavaşsın.",
+  "forgotcontrols": "Kontrolleri Unuttum",
+  "forgotcontrols_desc": "Bir düşman seç: hareket tuşları tur boyunca ya da sen ölene kadar ters çalışır",
+  "forgotcontrols_select_info": "Kontrolleri ters çevrilecek oyuncuyu seç:",
+  "forgotcontrols_player_info": "'{0}' adlı oyuncunun kontrollerini ters çevirdin.",
+  "forgotcontrols_enemy_info": "Hareket kontrollerin ters çevrildi!",
+  "forgotcontrols_disable_info": "Kontrollerin normale döndü."
 }

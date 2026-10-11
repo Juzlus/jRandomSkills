@@ -3301,5 +3301,22 @@
     "MaxPerServer": -1,
     "MinPlayer": 0,
     "Rarity": "Rare"
+  },
+  {
+    "MoveSpeed": 250.0,
+    "Weight": 1.0,
+    "NeedsTeammates": false,
+    "DisableOnFreezeTime": false,
+    "DisableOnPistolRound": false,
+    "OnlyTeam": 0,
+    "Color": "#C71585",
+    "Active": true,
+    "Name": "ForgotControls",
+    "HudDuration": null,
+    "DescriptionHudDuration": null,
+    "RequiredPermission": "",
+    "MaxPerServer": -1,
+    "MinPlayer": 0,
+    "Rarity": "Rare"
   }
 ]

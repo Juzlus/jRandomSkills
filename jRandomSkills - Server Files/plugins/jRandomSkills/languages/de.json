@@ -830,5 +830,11 @@
   "tremor": "Beben",
   "tremor_desc": "Drücke [css_useSkill], um den Boden zu erschüttern: Gegner in der Nähe werden einige Sekunden stark verlangsamt",
   "tremor_player_info": "Der Boden bebte: {0} Gegner verlangsamt.",
-  "tremor_enemy_info": "Der Boden bebt! Du bist {0} s lang verlangsamt."
+  "tremor_enemy_info": "Der Boden bebt! Du bist {0} s lang verlangsamt.",
+  "forgotcontrols": "Steuerung vergessen",
+  "forgotcontrols_desc": "Wähle einen Gegner: seine Bewegungstasten sind für die Runde oder bis zu deinem Tod vertauscht",
+  "forgotcontrols_select_info": "Wähle einen Spieler, dessen Steuerung vertauscht wird:",
+  "forgotcontrols_player_info": "Du hast die Steuerung von '{0}' vertauscht.",
+  "forgotcontrols_enemy_info": "Deine Bewegungssteuerung ist vertauscht!",
+  "forgotcontrols_disable_info": "Deine Steuerung ist wieder normal."
 }

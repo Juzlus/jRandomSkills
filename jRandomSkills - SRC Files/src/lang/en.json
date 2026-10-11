@@ -830,5 +830,11 @@
   "tremor": "Tremor",
   "tremor_desc": "Click [css_useSkill] to shake the ground: enemies nearby are slowed to a crawl for a few seconds",
   "tremor_player_info": "The ground shook: {0} enemies slowed.",
-  "tremor_enemy_info": "The ground shakes! You are slowed for {0} s."
+  "tremor_enemy_info": "The ground shakes! You are slowed for {0} s.",
+  "forgotcontrols": "Forgot My Controls",
+  "forgotcontrols_desc": "Choose an enemy: their movement keys are reversed for the round or until you die",
+  "forgotcontrols_select_info": "Select a player whose controls to reverse:",
+  "forgotcontrols_player_info": "You reversed the controls of '{0}'.",
+  "forgotcontrols_enemy_info": "Your movement controls are reversed!",
+  "forgotcontrols_disable_info": "Your controls are back to normal."
 }

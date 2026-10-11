@@ -830,5 +830,11 @@
   "tremor": "Tremor",
   "tremor_desc": "Clique [css_useSkill] para sacudir o chão: inimigos próximos ficam muito lentos por alguns segundos",
   "tremor_player_info": "O chão tremeu: {0} inimigos desacelerados.",
-  "tremor_enemy_info": "O chão treme! Você está lento por {0} s."
+  "tremor_enemy_info": "O chão treme! Você está lento por {0} s.",
+  "forgotcontrols": "Esqueci os Controles",
+  "forgotcontrols_desc": "Escolha um inimigo: as teclas de movimento dele ficam invertidas pela rodada ou até você morrer",
+  "forgotcontrols_select_info": "Escolha um jogador para inverter os controles:",
+  "forgotcontrols_player_info": "Você inverteu os controles de '{0}'.",
+  "forgotcontrols_enemy_info": "Seus controles de movimento estão invertidos!",
+  "forgotcontrols_disable_info": "Seus controles voltaram ao normal."
 }
