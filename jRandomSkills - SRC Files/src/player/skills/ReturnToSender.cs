@@ -29,7 +29,7 @@ namespace src.player.skills
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
-            if (attackerInfo == null || attackerInfo.Skill != skillName) return;
+            if (attackerInfo == null || attackerInfo.HasSkill(skillName) == false) return;
 
             if (playersToSender.ContainsKey(victim!.Handle))
                 return;

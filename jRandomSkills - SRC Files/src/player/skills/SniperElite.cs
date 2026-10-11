@@ -44,7 +44,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 DisableSkill(player);
         }
 
@@ -54,7 +54,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
             {
                 if (rifles.Contains(@event.Item) && @event.Item != weapon_awp)
                     savedWeapons.AddOrUpdate(player.Index, string.Empty, (_, _) => string.Empty);

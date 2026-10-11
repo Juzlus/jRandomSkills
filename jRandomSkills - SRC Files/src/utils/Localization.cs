@@ -49,6 +49,12 @@ namespace src.utils
             _translations.Clear();
             _playersLanguage.Clear();
             _lastSavedPlayersJson = string.Empty;
+            try { OpenGeoReader(); }
+            catch (Exception ex)
+            {
+                _geoLiteBroken = true;
+                Server.PrintToConsole($"[TiredPowers] GeoLite database could not be opened, language falls back to the default: {ex.GetType().Name}: {ex.Message}");
+            }
             _skillNameCache.Clear();
             _skillDescCache.Clear();
             SetLangCode();
@@ -82,16 +88,37 @@ namespace src.utils
             if (translations != null)
             {
                 string redColor = ChatColors.Red.ToString();
-                string? altButton = Config.LoadedConfig.AlternativeSkillButton;
+                string? buttonLabel = GetSkillButtonLabel(Config.LoadedConfig.AlternativeSkillButton);
                 foreach (var tkey in translations.Keys.ToList())
                 {
                     var val = translations[tkey].Replace("CHATCOLORS.RED", redColor);
-                    if (!string.IsNullOrEmpty(altButton))
-                        val = val.Replace("css_useSkill", $"css_useSkill/{altButton}");
+                    // "[css_useSkill]" only means something to players who bound a key to the command,
+                    // so name the in-game button that also triggers skills.
+                    if (buttonLabel != null)
+                        val = val.Replace("[css_useSkill]", buttonLabel);
                     translations[tkey] = val;
                 }
                 _translations.AddOrUpdate(code, translations, (k, v) => translations);
             }
+        }
+
+        private static string? GetSkillButtonLabel(string? button)
+        {
+            if (string.IsNullOrWhiteSpace(button)) return null;
+
+            return button.Trim().ToLowerInvariant() switch
+            {
+                "use" => "[E]",
+                "inspect" => "[F]",
+                "reload" => "[R]",
+                "attack2" => "[Right Click]",
+                "attack3" => "[Mouse 3]",
+                "jump" => "[Space]",
+                "duck" => "[Ctrl]",
+                "speed" or "walk" => "[Shift]",
+                "scoreboard" => "[Tab]",
+                _ => $"[{button.Trim()}]",
+            };
         }
 
         public static bool HasTranslation(string code)
@@ -251,6 +278,18 @@ namespace src.utils
         }
 
         private static bool _geoLiteBroken = false;
+        // The .mmdb is opened once (at load) and kept: opening it per connecting player read megabytes from disk
+        // on the main thread during sign-on, which stalled the server long enough to overflow net channels.
+        private static Reader? _geoReader;
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        private static void OpenGeoReader()
+        {
+            _geoReader?.Dispose();
+            _geoReader = null;
+            if (Config.LoadedConfig.LanguageSystem.DisableGeoLite == true || !File.Exists(geoliteFilePath)) return;
+            _geoReader = new Reader(geoliteFilePath);
+        }
 
         private static string GetLangCode(CCSPlayerController? player)
         {
@@ -274,7 +313,7 @@ namespace src.utils
                 // unloading) or the .mmdb can be corrupt; fall back to the default language and stop
                 // trying for the rest of the session instead of throwing every HUD tick.
                 _geoLiteBroken = true;
-                Server.PrintToConsole($"[jRandomSkills] GeoLite lookup disabled for this session: {ex.GetType().Name}: {ex.Message}");
+                Server.PrintToConsole($"[TiredPowers] GeoLite lookup disabled for this session: {ex.GetType().Name}: {ex.Message}");
                 geoliteLandCode = defaultLangCode;
             }
 
@@ -297,13 +336,12 @@ namespace src.utils
         private static string? GetLangCodeFromDatabase(string? playerIP)
         {
             if (string.IsNullOrEmpty(playerIP)) return null;
-            if (!File.Exists(geoliteFilePath)) return null;
-            using var reader = new Reader(geoliteFilePath);
+            if (_geoReader == null) return null;
 
             if (!IPAddress.TryParse(playerIP, out var ip))
                 return null;
 
-            var data = reader.Find<ConcurrentDictionary<string, object>>(ip);
+            var data = _geoReader.Find<ConcurrentDictionary<string, object>>(ip);
             if (data == null || data.IsEmpty) return null;
 
             if (data.TryGetValue("country", out var _country) && _country is Dictionary<string, object> country)
@@ -353,7 +391,7 @@ namespace src.utils
             }
             catch
             {
-                Server.PrintToConsole($"[jRandomSkills] {playersLanguageFileName} could not be parsed, starting empty.");
+                Server.PrintToConsole($"[TiredPowers] {playersLanguageFileName} could not be parsed, starting empty.");
                 return;
             }
 
@@ -361,7 +399,7 @@ namespace src.utils
 
             if (legacyFormat)
             {
-                Server.PrintToConsole($"[jRandomSkills] {playersLanguageFileName} converted to the grouped format ({_playersLanguage.Count} players).");
+                Server.PrintToConsole($"[TiredPowers] {playersLanguageFileName} converted to the grouped format ({_playersLanguage.Count} players).");
                 SavePlayersLanguage();
             }
             else
@@ -395,10 +433,29 @@ namespace src.utils
             if (json == null || json == _lastSavedPlayersJson)
                 return;
 
-            Directory.CreateDirectory(configsFolderPath);
-            File.WriteAllText(Path.Combine(configsFolderPath, playersLanguageFileName), json);
             _lastSavedPlayersJson = json;
+
+            // Disk write off the main thread; the json snapshot is immutable so nothing is shared.
+            string path = Path.Combine(configsFolderPath, playersLanguageFileName);
+            string folder = configsFolderPath;
+            _ = Task.Run(() =>
+            {
+                lock (_saveLock)
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(folder);
+                        File.WriteAllText(path, json);
+                    }
+                    catch (Exception ex)
+                    {
+                        Server.PrintToConsole($"[TiredPowers] Could not save {playersLanguageFileName}: {ex.Message}");
+                    }
+                }
+            });
         }
+
+        private static readonly object _saveLock = new();
 
         private static string? GetLangCodeFromFile(ulong? playerSteamID)
         {

@@ -61,7 +61,7 @@ namespace src.player.skills
                 if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
-                if (playerInfo?.Skill == skillName) return true;
+                if (playerInfo?.HasSkill(skillName) == true) return true;
             }
 
             return false;

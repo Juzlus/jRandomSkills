@@ -54,7 +54,7 @@ namespace src.player.skills
             if (attacker == null || !attacker.IsValid) return;
 
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-            if (attackerInfo?.Skill != skillName) return;
+            if (attackerInfo?.HasSkill(skillName) != true) return;
 
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
@@ -116,7 +116,7 @@ namespace src.player.skills
             if (@event.Weapon != "hegrenade") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

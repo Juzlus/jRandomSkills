@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Standalone CounterStrikeSharp plugin: shows the retake bombsite as text drawn in front of the CTs' eyes
+         (a point_worldtext entity per player, the CS2-GameHUD technique). It uses no HUD messages at all, so it
+         adds no per-tick user-message traffic. The bombsite comes from the RetakesPluginShared event API
+         (B3none's cs2-retakes or the retakes module bundled in jRandomSkills). -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>RetakesSiteAnnounce</RootNamespace>
+        <AssemblyName>RetakesSiteAnnounce</AssemblyName>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <DebugType>portable</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.376" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Loaded from addons/counterstrikesharp/shared/RetakesPluginShared at runtime, so it is not copied next to the plugin -->
+        <ProjectReference Include="..\RetakesPluginShared - SRC Files\RetakesPluginShared.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <SourceDLL>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)</SourceDLL>
+        <ServerDLL>$(MSBuildProjectDirectory)\..\jRandomSkills - Server Files\plugins\RetakesSiteAnnounce</ServerDLL>
+    </PropertyGroup>
+
+    <!-- Copy the compiled plugin to the server files folder -->
+    <Target Name="CopyDLLToServer" AfterTargets="Build">
+        <ItemGroup>
+            <CompiledDLL Include="$(SourceDLL)\RetakesSiteAnnounce.dll" />
+        </ItemGroup>
+        <MakeDir Directories="$(ServerDLL)" Condition="!Exists('$(ServerDLL)')" />
+        <Copy SourceFiles="@(CompiledDLL)" DestinationFolder="$(ServerDLL)" SkipUnchangedFiles="false" />
+    </Target>
+</Project>

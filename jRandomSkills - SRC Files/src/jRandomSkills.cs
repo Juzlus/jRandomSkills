@@ -1,9 +1,11 @@
 ﻿using CounterStrikeSharp.API;
+using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.command;
+using src.modules;
 using src.player;
 using src.utils;
 using System.Collections.Concurrent;
@@ -24,11 +26,13 @@ namespace src
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
         public IWasdMenuManager? MenuManager;
+        public RetakesPlugin.RetakesPlugin? Retakes { get; private set; }
+        public bool IsRetakesActive => Retakes?.IsPluginEnabled == true;
         // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
         public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
         public static readonly ConcurrentDictionary<string, byte> SkillsUsedThisMap = new();
 
-        public override string ModuleName => "[CS2] [ jRandomSkills ]";
+        public override string ModuleName => "[CS2] [ TiredPowers ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
         public override string ModuleVersion => "1.2.4.b3";
@@ -39,6 +43,8 @@ namespace src
 
             Config.LoadConfig();
             SkillsInfo.LoadSkillsInfo();
+            EntitySafety.Load();
+            ServerInfo.Load();
             Localization.Load();
             Debug.Load();
             PlayerOnTick.Load();
@@ -47,14 +53,26 @@ namespace src
             WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
             LoadAllSkills();
             PlayerManager.SyncWithPlugin(Instance);
+            LoadModules(hotReload);
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
 
-            Task.Run(async () =>
+            // One line to tell at a glance which build is running and how the site call will be drawn.
+            try
             {
-                await Task.Delay(3500);
-                PrintInfoToConsole();
-            });
+                var retakes = Config.LoadedConfig.Modules.Retakes;
+                string built = File.GetLastWriteTimeUtc(typeof(jRandomSkills).Assembly.Location).ToString("yyyy-MM-dd HH:mm 'UTC'");
+                Logger.LogInformation("[TiredPowers] Build {Built} | SiteBannerStyle={Style} (screen text available: {Screen}) | SiteCallCtOnly={CtOnly} | ScreenBannerMethod={Method}",
+                    built, retakes.SiteBannerStyle, EntitySafety.SpawningBlocked ? "NO, entity spawning is blocked (EntitySpawnSafety) so the HUD banner is used" : "yes", retakes.SiteCallCtOnly, retakes.ScreenBannerMethod);
+            }
+            catch { }
+
+            // Game-thread timer, not a thread-pool task: nothing in the plugin may touch the game from another thread.
+            AddTimer(3.5f, PrintInfoToConsole);
+
+            // Fewer blocking gen-2 collections on the game thread; a full GC pause of a few hundred ms is enough
+            // to overflow every client's net channel.
+            try { System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.SustainedLowLatency; } catch { }
         }
 
         public override void Unload(bool hotReload)
@@ -64,8 +82,64 @@ namespace src
 
             Event.Unload();
             Debug.Unload();
+            Retakes?.Unload(hotReload);
 
             base.Unload(hotReload);
+        }
+
+        private void LoadModules(bool hotReload)
+        {
+            var modules = Config.LoadedConfig.Modules;
+
+            if (modules.Retakes.Enabled)
+            {
+                Retakes = new RetakesPlugin.RetakesPlugin(this);
+                Retakes.Load(hotReload);
+                Logger.LogInformation("[TiredPowers] Retakes module loaded (players spawn on the retakes site spawns; set Modules.Retakes.Enabled=false in config.json to turn it off).");
+            }
+            else
+                Logger.LogWarning("[TiredPowers] Retakes module is OFF (Modules.Retakes.Enabled=false in config.json): players use the map's normal spawns and no bomb is planted.");
+
+            if (modules.Guns.Enabled)
+                GunsModule.Load();
+
+            if (modules.Instadefuse.Enabled)
+                new InstadefuseModule(this).Load();
+
+            if (modules.ClutchAnnounce.Enabled)
+                new ClutchAnnounceModule(this).Load();
+
+            if (modules.WeaponRounds.Enabled)
+                WeaponRounds.Load();
+
+            if (modules.MapVote.Enabled)
+                MapVote.Load();
+        }
+
+        // Skills that don't work in the retakes mode (buying, carrying/planting the bomb, normal spawns),
+        // and retakes-only skills while it is off.
+        // Loaded and usable through css_setskill, but never part of the round draw.
+        public static bool IsAdminOnlySkill(Skills skill)
+        {
+            return Config.LoadedConfig.AdminOnlySkills.Contains(SkillNames.Get(skill), StringComparer.OrdinalIgnoreCase);
+        }
+
+        public static bool IsSkillBlockedByMode(Skills skill)
+        {
+            if (Event.IsSkillMissingHooks(skill) || EntitySafety.IsSkillBlocked(skill))
+                return true;
+
+            var retakes = Config.LoadedConfig.Modules.Retakes;
+            string name = SkillNames.Get(skill);
+
+            // Pistol / AK / Deagle / AWP rounds: skills that hand out guns stay out.
+            if (WeaponRounds.IsSkillDisabled(name))
+                return true;
+
+            if (!Instance.IsRetakesActive)
+                return retakes.RetakesOnlySkills.Contains(name);
+
+            return retakes.DisableIncompatibleSkills && retakes.IncompatibleSkills.Contains(name);
         }
 
         internal void AddToManifest(string prop)
@@ -82,8 +156,9 @@ namespace src
 
         internal void LoadAllSkills()
         {
+            // Admin-only skills load even when skillsInfo.json says Active: false; they are never drawn anyway.
             foreach (var skill in Enum.GetValues(typeof(Skills)))
-                if (SkillsInfo.GetValue<bool>(skill, "active"))
+                if (SkillsInfo.GetValue<bool>(skill, "active") || IsAdminOnlySkill((Skills)skill))
                     SkillAction(skill.ToString()!, "LoadSkill");
 
             Debug.WriteToDebug($"jRandomSkills v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillsInfo.LoadedConfig.Count - 1} Skills) loaded!");
@@ -186,7 +261,7 @@ namespace src
 
         private static async void PrintInfoToConsole()
         {
-            string? versionFromGithub = await GetLatestVersion();
+            var (versionFromGithub, noReleases) = await GetLatestVersion();
             var diffrentConfig = JsonSerializer.Serialize(Config.LoadedConfig) != JsonSerializer.Serialize(new Config.SettingsModel());
             var diffrentSkillsInfo = JsonSerializer.Serialize(SkillsInfo.LoadedConfig) != JsonSerializer.Serialize(new SkillsInfo.SkillsInfoModel());
 
@@ -202,7 +277,12 @@ namespace src
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write($"\njRandomSkills ");
 
-            if (versionFromGithub == null)
+            if (noReleases)
+            {
+                Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Yellow;
+                Console.Write($"v{Instance.ModuleVersion} (no releases published on github yet)");
+            }
+            else if (versionFromGithub == null)
             {
                 Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Yellow;
                 Console.Write($"v{Instance.ModuleVersion} (failed to get version from github)");
@@ -226,7 +306,7 @@ namespace src
                 Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Red;
                 Console.WriteLine($"\n#########################################################");
                 Console.WriteLine($"# Download the new version from:                        #");
-                Console.WriteLine($"# https://github.com/Juzlus/jRandomSkills/releases      #");
+                Console.WriteLine($"# https://github.com/{UpdateRepository}/releases".PadRight(56) + "#");
                 Console.WriteLine($"#########################################################");
             }
 
@@ -326,23 +406,31 @@ namespace src
             Console.ResetColor();
         }
 
-        private static async Task<string?> GetLatestVersion()
+        // Repository checked for new releases at startup (this fork, not the upstream plugin).
+        private const string UpdateRepository = "MBDEVSPACE/cspowers";
+
+        private static async Task<(string? Version, bool NoReleases)> GetLatestVersion()
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("jRandomSkills", "1.0"));
-            const string URL = "https://api.github.com/repos/Juzlus/jRandomSkills/releases/latest";
+            string url = $"https://api.github.com/repos/{UpdateRepository}/releases/latest";
 
             try
             {
-                string response = await client.GetStringAsync(URL);
-                using JsonDocument doc = JsonDocument.Parse(response);
+                using var response = await client.GetAsync(url);
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return (null, true);
+                if (!response.IsSuccessStatusCode)
+                    return (null, false);
+
+                using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 if (doc.RootElement.TryGetProperty("tag_name", out JsonElement value))
-                    return value.GetString()?.Replace("v", "");
-                return null;
+                    return (value.GetString()?.TrimStart('v', 'V'), false);
+                return (null, false);
             }
             catch (Exception)
             {
-                return null;
+                return (null, false);
             }
         }
 
@@ -359,16 +447,49 @@ namespace src
         public required uint PlayerIndex { get; set; }
         public Skills Skill { get; set; }
         public Skills SpecialSkill { get; set; }
+        // Skills held on top of Skill (Double Trouble, Rage). Replaced as a whole, never mutated in place.
+        public Skills[] ExtraSkills { get; set; } = [];
+        public bool HasSkill(Skills skill) => Skill == skill || (ExtraSkills.Length > 0 && Array.IndexOf(ExtraSkills, skill) >= 0);
+        public IEnumerable<Skills> AllSkills()
+        {
+            yield return Skill;
+            foreach (var extra in ExtraSkills) yield return extra;
+        }
         public float? SkillChance { get; set; }
         public bool IsDrawing { get; set; }
         public DateTime SkillHudExpired { get; set; }
         public DateTime SkillDescriptionHudExpired { get; set; }
         public DateTime HudSuppressedUntil { get; set; }
-        public string? PrintHTML { get; set; }
+        // Several held skills write their cooldown text here. A skill that has nothing to show writes null
+        // every HUD frame, which would wipe another skill's countdown; a null within half a second of a
+        // non-null write is therefore ignored. ClearPrintHTML() clears unconditionally.
+        private string? _printHtml;
+        private int _printHtmlTick = -1000;
+        public string? PrintHTML
+        {
+            get => _printHtml;
+            set
+            {
+                if (value == null)
+                {
+                    if (CounterStrikeSharp.API.Server.TickCount - _printHtmlTick < 32) return;
+                    _printHtml = null;
+                    return;
+                }
+                _printHtml = value;
+                _printHtmlTick = CounterStrikeSharp.API.Server.TickCount;
+            }
+        }
+        public void ClearPrintHTML() { _printHtml = null; _printHtmlTick = -1000; }
         public int HideHUD { get; set; }
         public bool SkillUsed = false;
         public bool? HudOnDeathBlocked { get; set; }
         public HudCacheEntry? HudCache { get; set; }
+        // A short notice (retakes site call, plant prompt) drawn inside the skill HUD box so nothing overlaps.
+        public string? CenterNotice { get; set; }
+        public DateTime CenterNoticeUntil { get; set; }
+        // Exclusive: the box shows only the notice (big, lifted high) while it lasts; the skill lines return afterwards.
+        public bool CenterNoticeExclusive { get; set; }
     }
 
     public sealed class HudCacheEntry
@@ -378,8 +499,27 @@ namespace src
         public string? Header;
         public string? Center;
         public string? Extra;
+        public string? Status;
+        public string? Notice;
+        public int LastSentTick;
         public bool IsDescription;
         public string? Content;
+
+        // How much centre-HTML the plugin pushed to this player lately (for the disconnect diagnostic).
+        public int WindowStartTick = int.MinValue;
+        public int WindowSends, PrevWindowSends;
+        public long WindowBytes, PrevWindowBytes;
+        public int LastBytes;
+
+        public void CountSend(int bytes, int tick)
+        {
+            if (tick - WindowStartTick >= 640) // 10 s windows
+            {
+                PrevWindowSends = WindowSends; PrevWindowBytes = WindowBytes;
+                WindowSends = 0; WindowBytes = 0; WindowStartTick = tick;
+            }
+            WindowSends++; WindowBytes += bytes; LastBytes = bytes;
+        }
     }
 
     public class jSkill_SkillInfo(Skills skill, string color, bool display)
@@ -387,6 +527,7 @@ namespace src
         public Skills Skill { get; } = skill;
         public string Color { get; set; } = color;
         public bool Display { get; } = display;
+        public bool HasSkill(Skills other) => Skill == other;
 
         public static implicit operator Skills(jSkill_SkillInfo v) => v?.Skill ?? Skills.None;
     }

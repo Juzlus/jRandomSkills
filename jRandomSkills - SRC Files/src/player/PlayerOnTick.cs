@@ -47,12 +47,16 @@ namespace src.player
             Instance.GameRules = null;
             Event.OnMapChange();
             BotManager.Initialize();
+
+            // After the retakes config has run (it executes 1 s after map start) and the game rules exist.
+            Instance.AddTimer(3f, () => SkillUtils.EndWarmupIfSkipped("map start"), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private static void OnMapEnd()
         {
             skills.NoRecoil.RestoreSpread();
             skills.NoRecoil.ForgetSpread();
+            ScreenText.Clear();
             PerfLog.Info("===== MAP END (clean map change) =====");
             Debug.WriteToDebug("===== MAP END (clean map change) =====");
             BotManager.Stop();
@@ -89,7 +93,9 @@ namespace src.player
 
             if (skillPlayer.HudSuppressedUntil > now) return;
 
-            if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now && string.IsNullOrEmpty(skillPlayer.PrintHTML)) return;
+            // A pending centre notice (site call, plant prompt) is drawn right away, even before the skill is drawn.
+            bool noticePending = skillPlayer.CenterNoticeUntil > now && !string.IsNullOrEmpty(skillPlayer.CenterNotice);
+            if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now && string.IsNullOrEmpty(skillPlayer.PrintHTML) && !noticePending) return;
 
             if (SkillUtils.HasMenu(player))
             {
@@ -100,8 +106,12 @@ namespace src.player
             string infoLine = string.Empty;
             string skillLine = string.Empty;
             string remainingLine = string.Empty;
+            string? statusLine = null;
 
-            bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || Config.LoadedConfig.DisplayAlwaysDescription;
+            // The description (what the skill does and which key uses it) stays on screen for the whole round.
+            // SkillDescriptionDuration / DisplayAlwaysDescription used to hide it after a few seconds; players kept
+            // missing how to use their skill, so the timer is no longer applied.
+            bool showDescriptionHUD = true;
             bool isDescription = true;
 
             var skills = SkillData.GetSnapshot();
@@ -127,15 +137,16 @@ namespace src.player
                     if (skillInfo != null)
                     {
                         infoLine = player.GetTranslationWithoutIlliterate("your_skill");
-                        skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
+                        skillLine = ComboManager.HudSkillLine(player, skillPlayer);
+                        if (string.IsNullOrEmpty(skillLine))
+                            skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
 
                         if (skillInfo.Skill != Skills.None)
                         {
-                            remainingLine = string.IsNullOrEmpty(skillPlayer.PrintHTML)
-                                ? (showDescriptionHUD ? player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance) : "")
-                                : skillPlayer.PrintHTML;
-
-                            isDescription = string.IsNullOrEmpty(skillPlayer.PrintHTML);
+                            // Description and cooldown/status are separate lines: using a skill never hides its description.
+                            remainingLine = showDescriptionHUD ? ComboManager.HudDescription(player, skillPlayer) : "";
+                            statusLine = skillPlayer.PrintHTML;
+                            isDescription = true;
                         }
                     }
                 }
@@ -178,26 +189,27 @@ namespace src.player
                     infoLine = string.IsNullOrEmpty(observerSkill) ? pName : $"{observerSkill} {pName}";
 
                     if (observedSkill.SpecialSkill == Skills.None || observedSpecialInfo == null)
-                        skillLine = $"<font color='{primaryColor}'>{primaryName}</font>";
+                    {
+                        skillLine = ComboManager.HudSkillLine(player, observedSkill);
+                        if (string.IsNullOrEmpty(skillLine))
+                            skillLine = $"<font color='{primaryColor}'>{primaryName}</font>";
+                    }
                     else
                     {
                         string specialName = player.GetSkillName(observedSpecialInfo.Skill);
                         skillLine = $"<font color='{observedSpecialInfo.Color}'>{specialName}({primaryName})</font>";
                     }
 
+                    if (showDescriptionHUD)
+                        remainingLine = ComboManager.HudDescription(player, observedSkill);
                     if (observedSkill.Skill != Skills.None && !string.IsNullOrEmpty(observedSkill.PrintHTML))
-                    {
-                        remainingLine = observedSkill.PrintHTML;
-                        isDescription = false;
-                    }
-                    else if (showDescriptionHUD)
-                        remainingLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
+                        statusLine = observedSkill.PrintHTML;
                 }
             }
 
             if (string.IsNullOrEmpty(skillLine)) return;
 
-            Event.UpdateSkillHUD(player, skillPlayer, infoLine, skillLine, remainingLine, isDescription);
+            Event.UpdateSkillHUD(player, skillPlayer, infoLine, skillLine, remainingLine, isDescription, statusLine);
         }
     }
 }

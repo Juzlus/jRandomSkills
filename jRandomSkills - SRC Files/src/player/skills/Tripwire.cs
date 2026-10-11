@@ -203,7 +203,7 @@ namespace src.player.skills
                     if (player == null || !player.IsValid) continue;
                     if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
 
-                    if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName)
+                    if (PlayerManager.GetPlayerByIndex(player.Index)?.HasSkill(skillName) == true)
                         UpdateHUD(player, skillInfo);
                 }
             }

@@ -35,7 +35,7 @@ namespace src.player.skills
             if (attacker.Index == victimPawn.Controller.Value.Index) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var weapon = damageInfo.Ability?.Value;
             if (weapon == null || !weapon.IsValid) return;

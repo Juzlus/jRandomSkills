@@ -1,0 +1,22 @@
+{
+  "Enabled": true,
+  "Seconds": 5,
+  "CtOnly": true,
+  "IncludeSpectators": false,
+  "TextA": "SITE A",
+  "TextB": "SITE B",
+  "ColorA": "#FF5050",
+  "ColorB": "#50A0FF",
+  "Method": "Pawn",
+  "PositionX": 0,
+  "PositionY": 40,
+  "PositionZ": 80,
+  "FontSize": 40,
+  "UnitsPerPixel": 0.25,
+  "Font": "Arial Bold",
+  "BackgroundBorder": 0.5,
+  "AnnounceOnPlant": false,
+  "FallbackDetection": true,
+  "TestCommandPermission": "@css/root",
+  "ConfigVersion": 1
+}

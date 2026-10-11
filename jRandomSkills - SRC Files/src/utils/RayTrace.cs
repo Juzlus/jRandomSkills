@@ -32,7 +32,7 @@ namespace src.utils
                 if (!traceFailureLogged)
                 {
                     traceFailureLogged = true;
-                    Server.PrintToConsole($"[jRandomSkills] Native trace failed: {ex.Message}");
+                    Server.PrintToConsole($"[TiredPowers] Native trace failed: {ex.Message}");
                 }
                 return false;
             }
@@ -195,6 +195,7 @@ namespace src.utils
 
         private static void CreateBeamLine(Vector start, Vector end, Color color)
         {
+            if (EntitySafety.SpawningBlocked) return;
             var beam = Utilities.CreateEntityByName<CBeam>("env_beam");
             if (beam == null || !beam.IsValid) return;
 

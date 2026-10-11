@@ -70,7 +70,7 @@ namespace src.player.skills
             }
             catch (Exception ex)
             {
-                Server.PrintToConsole($"[jRandomSkills] Chameleon.OnAnyDeath failed: {ex.Message}");
+                Server.PrintToConsole($"[TiredPowers] Chameleon.OnAnyDeath failed: {ex.Message}");
             }
 
             return HookResult.Continue;

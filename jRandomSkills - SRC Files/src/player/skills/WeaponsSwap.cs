@@ -53,7 +53,7 @@ namespace src.player.skills
             foreach (var player in players)
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
+                if (playerInfo?.HasSkill(skillName) != true) continue;
 
                 if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                 {

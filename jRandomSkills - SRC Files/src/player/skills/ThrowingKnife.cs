@@ -42,7 +42,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
-                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
+                if (PlayerManager.GetPlayerByIndex(player.Index)?.HasSkill(skillName) != true) continue;
                 if (CheckHasKnife(player)) continue;
 
                 owedKnife[player.Index] = 0;
@@ -139,7 +139,7 @@ namespace src.player.skills
                 return false;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return false;
+            if (playerInfo?.HasSkill(skillName) != true) return false;
 
             if (!knivesInfo.TryGetValue(player.Index, out KnifeInfo? knifeInfo) || knifeInfo == null)
                 return false;
@@ -271,7 +271,7 @@ namespace src.player.skills
             if (roundEnded) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             DropKnife(player);
         }

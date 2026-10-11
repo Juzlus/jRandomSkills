@@ -25,11 +25,18 @@ namespace src.player.skills
         private static MemoryFunctionVoid<IntPtr, short>? ResolveShootSecondary()
         {
             try { return new(GameData.GetSignature("Shoot_Secondary")); }
-            catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] Shoot_Secondary signature unresolved: {ex.Message}"); return null; }
+            catch (Exception ex) { Server.PrintToConsole($"[TiredPowers] Shoot_Secondary signature unresolved: {ex.Message}"); return null; }
         }
 
         public static void LoadSkill()
         {
+            // Without the Shoot_Secondary signature (stale after a CS2 update) the skill would do nothing, so it is
+            // left out of the draw entirely instead of handing players a dead skill.
+            if (Shoot_Secondary == null)
+            {
+                Server.PrintToConsole("[TiredPowers] LongKnife is disabled: the Shoot_Secondary signature does not match this CS2 build.");
+                return;
+            }
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
             Instance.AddToManifest(tracerParticle);
         }
@@ -46,10 +53,17 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            if (hooked || Shoot_Secondary == null) return;
-            hooked = true;
-            Shoot_Secondary.Hook(ShootSecondary, HookMode.Pre);
             playersInAction.TryAdd(player.Index, 0);
+            if (hooked || Shoot_Secondary == null) return;
+            try
+            {
+                Shoot_Secondary.Hook(ShootSecondary, HookMode.Pre);
+                hooked = true;
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[TiredPowers] LongKnife could not hook Shoot_Secondary: {ex.Message}");
+            }
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -80,7 +94,7 @@ namespace src.player.skills
             if (eventPlayer == null || !eventPlayer.IsValid) return HookResult.Continue;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer.Index);
-            if (playerInfo == null || playerInfo.Skill != skillName) return HookResult.Continue;
+            if (playerInfo == null || playerInfo.HasSkill(skillName) == false) return HookResult.Continue;
 
             KillfeedIcons? killfeedIcon = KillfeedIconsExtensions.FromWeapon(weapon);
             KnifeHit(eventPlayer, true, killfeedIcon);
@@ -93,7 +107,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var pawn = player!.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.WeaponServices == null) return;

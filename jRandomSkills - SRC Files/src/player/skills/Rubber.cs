@@ -37,7 +37,7 @@ namespace src.player.skills
             if (victimPawn == null || !victimPawn.IsValid) return;
 
             var rubberTime = SkillsInfo.GetValue<float>(skillName, "slownessTime");
-            if (attackerInfo?.Skill == skillName)
+            if (attackerInfo?.HasSkill(skillName) == true)
                 playersToSlow.AddOrUpdate(victim.Index, Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
         }
 

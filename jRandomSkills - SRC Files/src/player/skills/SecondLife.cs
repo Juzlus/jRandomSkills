@@ -40,7 +40,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return;
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
@@ -53,11 +53,11 @@ namespace src.player.skills
                 return;
             }
 
-            if (TryConsumeRevive(victim, victimPawn))
+            if (TryConsumeRevive(victim, victimPawn, SkillUtils.IsDeadlySpotDamage(damageInfo)))
                 damageInfo.Damage = 0;
         }
 
-        public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn)
+        public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn, bool deadlySpot = false)
         {
             if (victim == null || !victim.IsValid) return false;
             if (victimPawn == null || !victimPawn.IsValid) return false;
@@ -68,7 +68,10 @@ namespace src.player.skills
             {
                 if (usedThisRound.ContainsKey(victim.Handle)) return false;
 
-                var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
+                // Back on their feet where they fell (a step back from the hit), not across the map at a spawn,
+                // unless ReviveAtSpawn is on or the spot itself is what killed them.
+                bool atSpawn = deadlySpot || SkillsInfo.GetValue<bool>(skillName, "reviveAtSpawn");
+                var spawnpoint = SkillUtils.GetRevivePoint(victim, victimPawn, atSpawn, SkillsInfo.GetValue<float>(skillName, "stepBack"));
                 if (spawnpoint == null) return false; // no clean respawn point -> let the normal death happen
 
                 usedThisRound.TryAdd(victim.Handle, Server.TickCount);
@@ -111,9 +114,11 @@ namespace src.player.skills
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int startHealth = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int startHealth = 50, bool reviveAtSpawn = false, float stepBack = 48f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int StartHealth { get; set; } = startHealth;
+            public bool ReviveAtSpawn { get; set; } = reviveAtSpawn;
+            public float StepBack { get; set; } = stepBack;
         }
     }
 }

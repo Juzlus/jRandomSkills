@@ -47,12 +47,52 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Current Skills (154)
+## 🔁 Bundled Retakes Mode
+This build also includes three plugins by [B3none](https://github.com/B3none), so a single install gives you a retakes server with superpowers:
+- **[Retakes](https://github.com/B3none/cs2-retakes)** (GPLv3): the bomb is planted at round start and CTs retake the site. It handles spawns, queue, team balance, auto plant and a fallback weapon allocation. Its settings live in `configs/retakes.json` and its spawns in `map_config/`. All its commands work as before (`!forcebombsite`, `!scramble`, `!showspawns`, `!voices`, ...), as does the `retakes_enabled` convar.
+- **[Instadefuse](https://github.com/B3none/cs2-instadefuse)** (GPLv3): if every terrorist is dead and no grenade or fire is near the bomb, the defuse is instant. If there isn't enough time left, the bomb explodes right away without hurting anyone (T win).
+- **Clutch Announce**: announces when the last player alive on a team wins the round (for example 1v3). It's a rewrite of the same idea as [cs2-clutch-announce](https://github.com/B3none/cs2-clutch-announce).
+
+Each one can be switched off under `Modules` in `configs/config.json`. While retakes is running, skills that need money, carrying or planting the bomb, normal spawns or the round timer are left out of the draw (`Modules.Retakes.IncompatibleSkills`). Six skills are made for retakes: Bomb Guardian, Bomb Sense and Booby Trap (T), Defuse Shield and Entry Rush (CT) and Clutch Master (both). Bomb Guardian and Bomb Sense are only drawn while retakes runs (`Modules.Retakes.RetakesOnlySkills`), and `!swap`/`!shuffle` are disabled because retakes manages the teams.
+
+**Weapons:** there is no buying in retakes. Type `!guns` to open a menu and pick the T rifle, CT rifle and pistol you get every round (or `!guns ak47 deagle`); the choice is saved per player in `configs/guns.json`. The menu is drawn by [CS2MenuManager](https://github.com/schwarper/CS2MenuManager) when it is installed (players switch its style with `!mm`), otherwise by the built-in WASD menu. The bombsite is announced in chat, on screen and by an agent voice line (`MapConfigSettings.EnableBombsiteAnnouncementVoices`, on by default; players mute it with `!voices`) at round start, and on screen again after the plant.
+
+**Site call on screen:** by default (`Modules.Retakes.SiteBannerStyle` = `Screen`) the round-start site call is a big red/blue `SITE A` / `SITE B` drawn at the top of the player's screen, outside the centre HUD slot, so it never touches the skill text. It is a `point_worldtext` held in front of the eyes the way [CS2-GameHUD](https://github.com/darkerz7/CS2-GameHUD) (used by InfoTop and similar plugins) does it; `ScreenBannerMethod` picks how it is held: `Pawn` (parented to the player and re-aimed every tick, the GameHUD default) or `Orient` (a `point_orient` that follows the eyes on the client); one text entity per player is kept for the whole map and only its message changes, as GameHUD does. Placement follows the GameHUD convention: `ScreenBannerX` right, `ScreenBannerY` up, `ScreenBannerZ` distance (defaults 0 / 40 / 80), plus `ScreenBannerFontSize`, `ScreenBannerUnitsPerPx`, `ScreenBannerFont` and `ScreenBannerColorA/B`. Only CTs (and spectators) get the site call unless `SiteCallCtOnly` is false. The chat line and the agent voice line are off by default (`SiteCallChat`, `SiteCallVoice`), so the call is the banner alone. When entity spawning is blocked the same text is drawn at the top of the centre HUD box instead (text only, no picture, re-sent a few ticks apart).
+
+**Site banner as a picture** (`SiteBannerStyle` = `Html`): set `Modules.Retakes.SiteImageA` / `SiteImageB` in `config.json` to an https URL of a PNG or JPG and the round-start site call shows that picture at the top of the screen for `SiteBannerSeconds` (same `<img>` trick as [CS2-CenterAdvert](https://github.com/daffyyyy/CS2-CenterAdvert)). Leave them empty for the big "SITE A" / "SITE B" text.
+
+**Standalone site call plugin (RetakesSiteAnnounce):** if you would rather keep the site call completely out of the HUD, the repository also ships [RetakesSiteAnnounce](./RetakesSiteAnnounce%20-%20SRC%20Files/README.md), a separate CounterStrikeSharp plugin. It draws `SITE A` / `SITE B` as a `point_worldtext` in front of each CT's eyes for a few seconds right as they spawn (the CS2-GameHUD technique: one entity per player, sent only to its owner, nothing re-sent every tick), and it follows the view so it stays on screen wherever they look. It takes the site from the retakes event API (`retakes_plugin:event_sender`, so it also works with a standalone cs2-retakes) and falls back to the planted bomb. Install `plugins/RetakesSiteAnnounce` next to the other plugins; settings (text, colours, placement, duration, CT only) are in `configs/plugins/RetakesSiteAnnounce/RetakesSiteAnnounce.json` and `!sitetest [A|B]` previews the banner. While it is loaded, the jRandomSkills retakes module detects it (through its `retakes_site_announce_version` convar) and keeps its own banner off, so the call is never on screen twice; the chat line and the agent voice line stay. `SiteBannerStyle` = `Off` in `config.json` turns the built-in banner off on its own too.
+
+**Pistol rounds and weapon votes** (`Modules.WeaponRounds`): the first `PistolRounds` rounds of every match (default 2) are pistol rounds (Glock / USP-S + kevlar). `!ak` opens a menu to start a vote for **AK-47 only**, **AK-47 headshot only**, **Deagle only**, **Deagle headshot only** or **AWP only** rounds (`!ak awp` skips the menu; a player may start a vote once every `PlayerCooldownSeconds`, default 3 min); everyone gets a Yes/No menu, and when `PercentagesToSuccess` of the players agree the mode starts from the next round and stays until a vote for "Normal rounds" (or `ModeDurationRounds` rounds). In headshot modes gun hits anywhere but the head do no damage. Skills that hand out guns (`DisabledSkills`: Random Weapon, Sniper Elite, Zeus, Weapon Swap, ...) are left out of the draw while a mode runs.
+
+**Map votes** (`Modules.MapVote`): `!rtv` asks for a map change; when `RtvPercentage` of the players agree a map vote opens with up to `MapsInVote` maps from `MapPool` (competitive maps only: Dust2, Mirage, Inferno, Nuke, Overpass, Ancient, Anubis, Vertigo, Train; maps missing on the server are skipped with a console note). `!nominate [map]` puts a map in the next vote, `!nextmap` shows the decision. At round `EndOfMapVoteRound` (default 27) everyone votes to **stay** or **change map**; a change runs the map vote and the winner loads after the match. Workshop maps go in `WorkshopMaps` as name → workshop ID (`"de_cache": "<id>"`).
+
+**Teams:** with `QueueSettings.ShouldAutoJoinGame` (now the default) a joining player goes straight into the game, or the queue when it is full, with no team menu. Either team winning `TeamSettings.RoundsToScramble` rounds in a row (default 4) scrambles the teams.
+
+Install: copy the `shared` folder along with `plugins`, `configs` and `gamedata`, and remove any standalone RetakesPlugin, InstadefusePlugin or ClutchAnnouncePlugin so nothing runs twice.
+
+> [!WARNING]
+> **CS2 updates and CounterStrikeSharp:** when CounterStrikeSharp doesn't match the installed CS2 build, spawning entities through it can crash the server. `EntitySpawnSafety` in `config.json` (`"Mode": "Auto"`) turns entity spawning off unless the CS2 version in `csgo/steam.inf` is listed in `VerifiedGameVersions`. While it is off, the 27 skills that spawn entities are left out of the draw and retakes auto-plant falls back to giving the planter the bomb. After updating CounterStrikeSharp for a new CS2 build, add that version to the list (or set `"Mode": "Off"`).
+>
+> **Retakes auto-plant and entity spawning.** With `BombSettings.AutoPlantMethod` = `Auto` (default, `retakes.json`) the plugin creates the planted bomb at freeze-time end while entity spawning is allowed. While `EntitySpawnSafety` blocks spawning the planter spawns holding the C4; the plugin tries to arm it so the game plants it, and if the game refuses (it normally wants the plant key held) the planter is told to plant and one click does it instantly. `Entity` forces the first path, `Weapon` the second.
+
+## 🎲 Skill odds
+Every skill has a `Rarity` in `configs/skillsInfo.json` (`Common`, `Uncommon`, `Rare`, `Epic`, `Legendary`). Each round the plugin first rolls a rarity using the percentages in `SkillsChance` in `config.json` (default 70 / 14 / 10 / 5 / 1; `VIPSkillsChance` for players with the VIP flag), then picks one skill of that rarity. Within a rarity the pick is weighted by each skill's `Weight` (default `1.0`: `2.0` makes a skill twice as likely as its peers, `0.5` half as likely). `MaxPerServer` caps how many players can hold a skill at once, and `Active: false` removes it from the draw entirely.
+
+## 📣 Server info lines
+`ServerInfo.Lines` in `config.json` are your own chat lines (server owner, host, whatever you like). They are shown to every player right after the welcome line when they join and repeated to everyone every `AdvertIntervalSeconds` (default 300, `0` turns the repeat off).
+
+## 🧩 Skill combos
+Each round a player has a `Combos.ExtraSkillChance` chance (default `0.1`, about one round in ten; `0` leaves combos to Rage only) of winning a second skill, up to `Combos.SkillsPerPlayer` skills in total (default `2`; set the chance to `1` for a combo every round or `SkillsPerPlayer` to `1` for the classic game). The first skill comes from the normal draw, the extra one is added from the pool so that nothing clashes: a skill is never paired with itself, with a skill in `SoloSkills` (skills that copy or replace the whole skill, plus Rage which is a combo itself), with a skill from the same `ClashGroups` entry (speed boosts, flight/jump, invisibility, cameras, revives, decoys, smokes, damage multipliers, …), with a second skill that opens a target menu, or, unless `AllowMultipleUseKeySkills` is `true`, with a second skill fired by the use key. The HUD lists every held skill; the chat announces each extra one. Rage always comes as Wallhack + Aimbot.
+
+## ✨ Current Skills (183)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
 | Name              | Description                                                                                        | Cooldown / Range |
 | ----------------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| Adrenaline        | Each kill restores 25 health and gives you a burst of speed for 5 seconds                          | 5 s              |
+| Air Bombs         | Click [css_useSkill] for a bird's-eye view: WASD flies the camera, left click drops a smoke, HE or molotov under it | 3 bombs / 25 s   |
 | Aimbot            | Every bullet you hit counts as a headshot                                                          | -                |
 | Aim Lock          | Click [css_useSkill] to lock your aim on the nearest enemy                                         | 20 s             |
 | Anomaly           | Click [css_useSkill] to rewind a few seconds back in time                                          | 15 s             |
@@ -63,8 +103,13 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Bankrupt          | Choose the player who will lose all their money                                                    | -                |
 | Baseball Player   | Your decoy bounces off walls and instantly kills an enemy on impact                                | -                |
 | Berserker         | You deal more damage and move faster as your health gets lower                                     | -                |
+| Blacksmith        | You get a kevlar vest and helmet, and your armor regenerates over time                             | -                |
 | Blademaster       | While holding a knife, you have a high chance to deflect a shot                                    | -                |
 | Blast Shot        | Press Attack2 with the MP5 to fire an HE grenade                                                   | 10 s             |
+| Blink             | Click [css_useSkill] to teleport a short distance in the direction you look                        | 2 charges / 8 s  |
+| Bomb Guardian     | You take 30% less damage while you are near the planted bomb                                       | 0.7x             |
+| Bomb Sense        | Your HUD shows how close the nearest CT is to the bomb and warns you when it is being defused      | -                |
+| Booby Trap        | The first CT to start defusing the bomb is blinded and takes 40 damage                             | 40 HP            |
 | Bounty            | Put a price on an enemy's head; whoever kills them takes the money                                 | 300$             |
 | Bunny             | You get auto "BunnyHop"                                                                            | -                |
 | C4 Camouflage     | You are invisible while holding the bomb                                                           | -                |
@@ -73,14 +118,17 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Chameleon         | The first player you kill gives you their skill                                                    | -                |
 | Chicken           | You get a chicken model + 10% faster movement - 50 HP                                              | -                |
 | Chillout          | Planting the bomb takes significantly longer                                                       | -                |
+| Clutch Master     | When you are the last one alive on your team, you get +50 HP and deal 30% more damage              | +50 HP / 1.3x    |
 | Cutter            | Instant kill with a knife                                                                          | -                |
 | Cypher            | Click [css_useSkill] to create/switch to a camera                                                  | 30 s             |
 | Darkness          | Applies a darkness effect to a chosen enemy                                                        | -                |
 | Deactivator       | Choose a player whose skill you want to disable                                                    | -                |
 | Deaf              | Choose a player to mute all sounds for                                                             | -                |
 | Death Bomb        | You explode upon death, killing nearby players                                                     | -                |
+| Defuse Shield     | You take 50% less damage while defusing the bomb                                                   | 0.5x             |
 | Demon Eye         | You deal damage to every enemy you are looking at                                                  | 2 s              |
 | Disarmament       | You have a random chance to make an enemy drop their weapon on hit                                 | (20 - 35)%       |
+| Dazzle            | Every bullet that hits an enemy blinds them for a moment                                           | -                |
 | Dash              | Perform a second jump to dash                                                                      | -                |
 | Dracula           | Hitting an enemy restores health equal to a percentage of the damage dealt                         | -                |
 | Duplicator        | Choose a player to copy their skill                                                                | -                |
@@ -88,21 +136,24 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | EMP Grenade       | Anyone hurt by your grenade loses their radar and crosshair for a while                            | 3 s              |
 | Enemy Spawn       | Click [css_useSkill] to teleport to the enemy spawn                                                | 15 s             |
 | Enemy Spin        | You have a random chance to turn an enemy 180° when hitting them                                   | (20 - 40)%       |
+| Entry Rush        | For the first 8 seconds of the round you move 35% faster and take 25% less damage                  | 8 s              |
 | Expensive Ammo    | A chosen enemy has to pay for every shot                                                           | -                |
 | Exploding Barrel  | Click [css_useSkill] to place a barrel that explodes when shot                                     | 20 s             |
+| Explosive Chicken | Click [css_useSkill] to release a chicken that chases the nearest enemy and explodes               | 20 s             |
 | Explosive Shot    | Random chance to fire an explosive bullet while shooting                                           | (15 - 30)%       |
 | Falcon Eye        | Click [css_useSkill] to activate a bird's-eye view camera                                          | -                |
 | Fastreload        | Click [css_useSkill] to reload the weapon you are currently holding                                | -                |
 | Fire Rain         | Throw a decoy to call down a rain of Molotovs                                                      | -                |
 | Flash             | Random player speed at the beginning of the round                                                  | (1.2 - 3.0)x     |
 | Flashlight        | Click [css_useSkill] to turn the flashlight on or off. Its light can blind enemies                 | 2 s              |
+| Forgot My Controls| Choose an enemy: their movement keys are reversed for the round or until you die                  | -                |
 | Fortnite          | Click [css_useSkill] to create a destructible barricade                                            | 2 s              |
-| Fragile Bomb      | Shooting the bomb damages it                                                                       | -                |
 | Friendly Fire     | Shooting teammates heals them                                                                      | -                |
 | Freezing Decoy    | Your decoy freezes all nearby players                                                              | -                |
 | Gambler           | Select a skill from the list provided                                                              | -                |
 | Ghost             | You are completely invisible                                                                       | -                |
 | Giant             | Enlarge an enemy of your choice                                                                    | (110 - 140)%     |
+| Glass Cannon      | You deal 75% more damage to enemies, but take 50% more damage                                      | 1.75x / 1.5x     |
 | Glaz              | You can see through smoke grenades                                                                 | -                |
 | Glitch            | Disables the radar for a chosen enemy                                                              | -                |
 | Glue              | Your grenades stick to walls                                                                       | -                |
@@ -110,6 +161,9 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Grapple Hook      | Press [css_useSkill] to fire a hook at the point you're aiming at and pull yourself there          | 10 s             |
 | Gravity Decoy     | Your decoy changes the gravity of everyone nearby                                                  | 0.5x             |
 | Grenadier         | You have infinite HE grenades                                                                      | -                |
+| Ground Slam       | Click [css_useSkill] to leap at the nearest enemy you can see and slam down; crouch in the air to slam on the spot | 25 HP / 6 s      |
+| Guided Bullet     | [Admin test] Click [css_useSkill] for an AWP; every shot becomes a bullet you steer with the mouse from a camera | 150 HP / 4 s     |
+| Headhunter        | Headshot kills restore you to full health and armor                                                | -                |
 | Healing Chicken   | Your chickens heal you while you are nearby                                                        | 1 s = 5 HP       |
 | Healing Smoke     | Your smoke grenades heal                                                                           | -                |
 | Heavyweight       | Skills that push or slow you down have no effect on you                                            | -                |
@@ -139,8 +193,11 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Magnetic Decoy    | Your decoy attracts nearby players towards itself                                                  | -                |
 | Magneto           | All enemy grenades are repelled away from you                                                      | -                |
 | Magnifier         | Forces the enemy's screen to zoom in, reducing their field of view                                 | -                |
+| Marked            | Choose an enemy who takes 35% more damage while you are alive                                      | 1.35x            |
 | Medic             | Click [css_useSkill] to use a healing charge that restores 50 health                               | 1 s              |
 | Bomb Miner        | Your HE grenade only explodes when there is an enemy nearby                                        | -                |
+| Momentum          | Each kill this round increases your damage by 15% (up to 5 stacks)                                 | +15%             |
+| Mute              | Choose an enemy who cannot use voice chat while you are alive                                      | -                |
 | Nemesis           | The player you mark takes extra damage                                                             | +0.25x           |
 | Nightmare         | Force a chosen enemy to experience a terrifying vision                                             | -                |
 | Ninja             | Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%    | -                |
@@ -151,6 +208,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Head Only         | You only take damage to the head                                                                   | -                |
 | Pawel Jumper      | You get an extra jump                                                                              | -                |
 | Phoenix           | You have a random chance to respawn after death                                                    | (20 - 40)%       |
+| Pickpocket        | Every hit on an enemy steals $150 from them                                                        | 150$             |
 | Psychic Defusing  | When you are near the bomb, you start defusing it                                                  | 10 s             |
 | Pilot             | Fly for a limited time. Hold [USE - E] to fly                                                      | -                |
 | Free Planter      | You can plant the bomb anywhere, with a detonation time of 60 seconds                              | -                |
@@ -160,6 +218,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Pusher            | You have a random chance to push an enemy back when hitting them                                   | 100%             |
 | Punisher          | You bank part of the damage you take and add it to your next hit                                   | 0.5x             |
 | Pyro              | Molotov restores health                                                                            | -                |
+| Rage              | You see enemies through walls and every hit counts as a headshot                                   | -                |
 | Rapid Fire        | All bullets are fired very quickly                                                                 | -                |
 | Radar Hack        | Enemies are visible on the radar                                                                   | -                |
 | Rambo             | You receive a random amount of health at the start of the round                                    | +(50 - 501) HP   |
@@ -176,26 +235,35 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Robin Hood        | Dealing damage to an enemy steals their money                                                      | -                |
 | Rubber Bullets    | Your bullets significantly slow down players                                                       | -                |
 | Sapper            | You can plant and defuse bombs faster                                                              | -                |
-| Second Chance     | After death, you respawn with the same amount of health                                            | -                |
+| Scavenger         | Each kill refills your guns' ammo and may give you a grenade                                       | -                |
+| Second Chance     | After death, you get back up where you fell with the same amount of health                         | -                |
+| Second Sight      | Whoever shoots you is outlined through walls for 5 seconds, for your eyes only                     | 5 s              |
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                |
 | Silent            | Your footsteps and jumps are silent to other players                                               | -                |
+| Sixth Sense       | I see dead people: the hit that should kill you leaves you as a half-transparent ghost with 175 HP for 7 seconds | 7 s / 175 HP     |
+| Smoke Jumper      | Throw a smoke grenade to teleport to where it lands                                                | 2 smokes         |
 | Smoker            | Your smoke grenades never run out                                                                  | -                |
 | Sniper Elite      | Click [css_useSkill] to swap your current weapon for an AWP                                        | 0 s              |
 | Soldier           | You have a random damage multiplier                                                                | (1.15 - 1.35)x   |
 | Soundmaker        | Every now and then, you hear player screams                                                        | 2 s              |
 | Spectator         | Click [css_useSkill] to spectate a random enemy                                                    | 0 s              |
 | Position Swap     | Click [css_useSkill] to swap places with a random enemy                                            | 30 s             |
+| Switcheroo        | Aim at an enemy and click [css_useSkill] to swap places with them                                  | 20 s             |
 | Take Ammo         | Click [css_useSkill] to take the active weapon's magazine from a random enemy                      | -                |
 | Team Teleport     | Press [css_useSkill] to teleport to the teammate you're looking at.                                | 15 s             |
+| Super Jump        | Click [css_useSkill] on the ground for a huge jump; the landing never hurts                       | 6 s              |
 | Teleporter        | You swap places with the hit enemy                                                                 | -                |
 | Taxman            | Choose a player to swap money with                                                                 | -                |
 | Thief             | You can steal a skill from a chosen player                                                         | -                |
 | Third Eye         | Click [css_useSkill] to activate third-person view                                                 | 0 s              |
 | Thorns            | Your opponent will receive a portion of the damage that they inflicted on you                      | -                |
 | Throwing Knife    | Click [css_useSkill] to throw a knife. But watch out for others                                    | -                |
+| Thunder God       | Your decoys strike like lightning: every enemy near a landed decoy gets tased                      | 250 u / 2 decoys |
+| Time Lord         | Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life | 1 / round, 30 s  |
 | Toxic Smoke       | Your smoke grenades deal damage                                                                    | -                |
 | Tracker           | Choose a player who will leave a trail behind them                                                 | -                |
+| Tremor            | Click [css_useSkill] to shake the ground: enemies nearby are slowed to a crawl for a few seconds   | 20 s             |
 | Tripwire          | Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar | 20 s             |
 | True Armor        | Part of the damage you take is paid by your armor instead of your health                           | 0.33x            |
 | Voodoo            | The enemy you mark also takes part of the damage you take                                          | 0.5x             |
@@ -230,7 +298,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 
 ## </> Server Commands
 > [!TIP]
-> **Bind to use skills:** `bind x css_useSkill`
+> **Using skills:** press **E** (the `AlternativeSkillButton` option, `"Use"` by default), or bind any key yourself with `bind x css_useSkill`. E is ignored while you are defusing or looking at the planted bomb, a door, a button or a weapon.
 
 <details>
 <summary>The table below lists all available commands in the game, along with their descriptions.</summary>
@@ -257,6 +325,10 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | `!botplace [slot] [godmode]` | `!botplace 2 1` | Teleport a bot to your location | `@jRandomSkills/admin` |
 | `!next_skill <name/steamID> [idx]` | `!next_skill Juzlus` | Switch skill for a player (next, previous -1, or specific idx) | `@jRandomSkills/admin` |
 | `!plantedbomb [time]` | `!plantedbomb 35` | Spawn a planted C4 bomb at your position with custom or default (40s) detonation time | `@jRandomSkills/admin` |
+| `!ak [mode]` | `!ak` / `!ak awp` | Vote for AK / AK headshot / Deagle / Deagle headshot / AWP only rounds (menu, or Yes/No while a vote runs) | - |
+| `!rtv` | `!rtv` | Rock the vote: ask for a map change; opens the map vote once enough players agree | - |
+| `!nominate [map]` | `!nominate mirage` | Put a map from the pool into the next map vote | - |
+| `!nextmap` | `!nextmap` | Show the map chosen for after this match | - |
 | `!sethealth <amount>` | `!sethealth 150` | Set a specific health amount for yourself | `@jRandomSkills/admin` |
 | `!reload` | `!reload` | Reload translations | - |
 
@@ -306,7 +378,7 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // 4 - Damage
                                          // Example: '123' enables: Skill, Round and Entity
         "PerfMode": false,               // Save performance measurements to the logs folder
-        "AlternativeSkillButton": null,  // Possible buttons:
+        "AlternativeSkillButton": "Use", // Possible buttons:
                                          // null, "Attack", "Jump", "Duck", "Forward", "Back",
                                          // "Use", "Cancel", "Left", "Right", "Moveleft",
                                          // "Moveright", "Attack2", "Run", "Reload", "Alt1",
@@ -315,6 +387,10 @@ All skills can be customized in the **`config.cfg`** / **`skillsInfo.json`** fil
                                          // "Attack3", "Scoreboard", "Inspect"
         "SkillTimeBeforeStart": 7.0,     // How many seconds before freeze time ends should skills
                                          // drawing be completed? (freezetime - SkillTimeBeforeStart)
+        "SkipWarmup": true,              // End the warmup as soon as the map is up (the retakes
+                                         // MinimumPlayers wait still holds the game)
+        "SkillsUsableInFreezeTime": true, // Skills work from the moment they are drawn, freeze time
+                                         // included (DisableOnFreezeTime in skillsInfo.json is ignored)
         "SkillHudDuration": -1.0,       // How long should the HUD be visible for?
         "SkillDescriptionDuration": 7.0, // How long should the skill description be visible for?
         "DisplayAlwaysDescription":false,// Always display skill description (SkillDescriptionDuration = 9999)

@@ -91,11 +91,14 @@ namespace src.player
                 CountDamageResolution(info);
                 SkillUtils.TrackHealthBeforeHit(entity, info);
 
+                // Headshot-only rounds: body shots from guns are zeroed before any skill sees them.
+                src.modules.WeaponRounds.OnTakeDamagePre(entity, info);
+
                 object[] args = [entity, info];
                 DispatchOnTakeDamage(entity, info, args);
 
                 if (Fortnite.skillInThisRound == true &&
-                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
+                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.HasSkill(Skills.Fortnite)))
                     Instance.SkillAction("Fortnite", "OnTakeDamage", args);
 
                 SkillUtils.ApplyNativeKill(entity, info);
@@ -189,7 +192,8 @@ namespace src.player
 
                 var activeSkills = Instance.SkillPlayer
                     .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
+                    .SelectMany(p => p.AllSkills())
+                    .Select(s => s.ToString())
                     .Distinct();
 
                 bool block = false;
@@ -237,8 +241,11 @@ namespace src.player
                 }
                 catch (Exception ex)
                 {
-                    Server.PrintToConsole($"[jRandomSkills] CheckTransmit dying-filter failed: {ex.Message}");
+                    Server.PrintToConsole($"[TiredPowers] CheckTransmit dying-filter failed: {ex.Message}");
                 }
+
+                try { ScreenText.FilterTransmit(infoList); }
+                catch (Exception ex) { Server.PrintToConsole($"[TiredPowers] CheckTransmit screen-text filter failed: {ex.Message}"); }
 
                 DispatchCheckTransmit([infoList]);
             }

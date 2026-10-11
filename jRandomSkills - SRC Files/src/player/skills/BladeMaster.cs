@@ -54,7 +54,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || attacker == null || !attacker.IsValid || attacker == victim) return false;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
-            if (playerInfo?.Skill != skillName) return false;
+            if (playerInfo?.HasSkill(skillName) != true) return false;
 
             if (string.IsNullOrEmpty(weapon) || noReflectionWeapon.Contains(weapon)) return false;
 

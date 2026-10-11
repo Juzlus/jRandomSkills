@@ -28,14 +28,14 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
             {
                 playerPawn.FlashDuration = 0.0f;
             }
             else if (attacker != null && attacker.IsValid)
             {
                 var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
-                if (attackerInfo?.Skill == skillName)
+                if (attackerInfo?.HasSkill(skillName) == true)
                     playerPawn.FlashDuration = SkillsInfo.GetValue<float>(skillName, "flashDuration");
             }
         }
@@ -49,7 +49,7 @@ namespace src.player.skills
             if (weapon != "flashbang") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

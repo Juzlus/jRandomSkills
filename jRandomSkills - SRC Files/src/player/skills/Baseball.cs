@@ -78,7 +78,7 @@ namespace src.player.skills
                 return;
 
             var attackerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
-            if (attackerInfo?.Skill != skillName) return;
+            if (attackerInfo?.HasSkill(skillName) != true) return;
 
             SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"), attacker, KillfeedIcons.Decoy);
         }
@@ -101,7 +101,7 @@ namespace src.player.skills
             uint ownerIndex = PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(ownerIndex);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             decoys.TryAdd(decoy.Index, ownerIndex);
 
             decoy.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
@@ -114,7 +114,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             uint key = (uint)@event.Entityid;
             if (decoys.TryRemove(key, out _))
@@ -165,7 +165,7 @@ namespace src.player.skills
             if (weapon != "decoy") return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
             {

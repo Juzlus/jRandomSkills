@@ -139,7 +139,7 @@ namespace src.player.skills
         public static bool IsActiveJester(uint playerIndex)
         {
             if (GetJesterInfo(playerIndex)?.Active != true) return false;
-            return PlayerManager.GetPlayerByIndex(playerIndex)?.Skill == skillName;
+            return PlayerManager.GetPlayerByIndex(playerIndex)?.HasSkill(skillName) == true;
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -245,7 +245,7 @@ namespace src.player.skills
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(playeEvent.Index);
 
-                if (playerInfo?.Skill == skillName)
+                if (playerInfo?.HasSkill(skillName) == true)
                     UpdateHUD(playeEvent);
             }
         }

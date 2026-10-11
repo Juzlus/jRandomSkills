@@ -26,7 +26,7 @@ namespace src.player.skills
 
             if (Heavyweight.Resists(victim)) return;
 
-            if (attackerInfo?.Skill == skillName && victim!.PawnIsAlive)
+            if (attackerInfo?.HasSkill(skillName) == true && victim!.PawnIsAlive)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
                 {
                     var victimPawn = victim.PlayerPawn?.Value;

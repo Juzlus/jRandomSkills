@@ -76,12 +76,25 @@ namespace src.player.skills
                         continue;
                     }
 
-                    var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * SkillsInfo.GetValue<float>(skillName, "distance");
-                    pos.Z += pawn.ViewOffset.Z;
-
                     var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
-                    if (cam == null || cam.AbsOrigin == null || cam.AbsRotation == null) continue;
-                    cam.Teleport(pos, pawn.V_angle);
+                    if (cam == null || !cam.IsValid || cam.AbsOrigin == null || cam.AbsRotation == null) continue;
+
+                    // Camera sits behind and slightly above the head, pulled in when a wall is in the way so it never clips.
+                    // OnTick runs before this tick's movement, so the camera is placed where the player will be
+                    // one tick later; without that it trails the player and the view judders while moving.
+                    Vector predicted = new(
+                        pawn.AbsOrigin.X + pawn.AbsVelocity.X / 64f,
+                        pawn.AbsOrigin.Y + pawn.AbsVelocity.Y / 64f,
+                        pawn.AbsOrigin.Z + pawn.AbsVelocity.Z / 64f);
+                    Vector eye = new(predicted.X, predicted.Y, predicted.Z + pawn.ViewOffset.Z + SkillsInfo.GetValue<float>(skillName, "height"));
+                    Vector back = SkillUtils.GetForwardVector(pawn.V_angle) * -SkillsInfo.GetValue<float>(skillName, "distance");
+                    Vector wanted = eye + back;
+
+                    var trace = RayTrace.TraceShape(player, eye, wanted);
+                    float fraction = trace.HasValue && trace.Value.DidHit ? Math.Max(0f, trace.Value.Fraction - 0.1f) : 1f;
+                    Vector pos = eye + back * fraction;
+
+                    cam.Teleport(pos, new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0));
                 }
         }
 
@@ -90,6 +103,7 @@ namespace src.player.skills
             uint orginalCameraRaw;
             uint newCameraRaw;
             var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
             if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
@@ -101,6 +115,7 @@ namespace src.player.skills
             }
             else
             {
+                if (forceToDefault) return;
                 orginalCameraRaw = pawn!.CameraServices!.ViewEntity.Raw;
                 newCameraRaw = CreateCamera(player);
             }
@@ -145,9 +160,10 @@ namespace src.player.skills
             return camera.EntityHandle.Raw;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1b04cc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1b04cc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 100f, float height = 12f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Distance { get; set; } = distance;
+            public float Height { get; set; } = height;
         }
     }
 }

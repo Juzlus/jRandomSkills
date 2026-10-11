@@ -29,7 +29,7 @@ namespace src.player.skills
             if (weapon != "hegrenade" || !Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 player!.GiveNamedItem($"weapon_{weapon}");
         }
 

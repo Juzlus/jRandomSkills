@@ -31,7 +31,7 @@ namespace src.player.skills
                 return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
-            if (victimInfo?.Skill != skillName)
+            if (victimInfo?.HasSkill(skillName) != true)
                 return;
 
             int damageAfterDeath = SkillsInfo.GetValue<int>(skillName, "DamageAfterDeath");

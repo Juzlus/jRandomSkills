@@ -1,3 +1,4 @@
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -20,6 +21,24 @@ namespace src.player.skills
             SkillUtils.TryGiveWeapon(player, CsItem.Zeus);
         }
 
+        // Retakes allocation, !guns and other plugins can strip weapons after the skill was enabled: hand the
+        // taser back once a second while it is missing.
+        public static void OnTick()
+        {
+            if (Server.TickCount % 64 != 0) return;
+
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (!Instance.IsPlayerValid(player)) continue;
+                if (PlayerManager.GetPlayerByIndex(player.Index)?.HasSkill(skillName) != true) continue;
+                var pawn = player.PlayerPawn?.Value;
+                if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.WeaponServices == null) continue;
+                if (SkillUtils.IsFreezeTime()) continue;
+
+                SkillUtils.TryGiveWeapon(player, CsItem.Zeus);
+            }
+        }
+
         public static void WeaponFire(EventWeaponFire @event)
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
@@ -27,7 +46,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
             {
                 var pawn = player!.PlayerPawn!.Value!;
                 if (pawn.WeaponServices == null || pawn.WeaponServices.ActiveWeapon == null || !pawn.WeaponServices.ActiveWeapon.IsValid) return;

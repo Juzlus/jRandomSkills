@@ -11,6 +11,9 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Giant;
         private static readonly ConcurrentDictionary<uint, uint> enlargedEnemies = [];
+        // The size each holder rolled. Kept here, not in the shared SkillChance slot: a second held skill
+        // (Armored, Phoenix, Dwarf...) writes its own number there and the giant would shrink instead.
+        private static readonly ConcurrentDictionary<uint, float> rolledScale = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
@@ -36,6 +39,7 @@ namespace src.player.skills
         {
             lock (setLock)
             {
+                rolledScale.TryRemove(playerIndex, out _);
                 if (enlargedEnemies.TryRemove(playerIndex, out uint targetIndex))
                     ResetScale(targetIndex);
 
@@ -53,7 +57,11 @@ namespace src.player.skills
 
             float minScale = SkillsInfo.GetValue<float>(skillName, "minScale");
             float maxScale = SkillsInfo.GetValue<float>(skillName, "maxScale");
-            playerInfo.SkillChance = (float)Math.Round((float)Instance.Random.NextDouble() * (maxScale - minScale) + minScale, 2);
+            if (maxScale < minScale) (minScale, maxScale) = (maxScale, minScale);
+            float scale = (float)Math.Round((float)Instance.Random.NextDouble() * (maxScale - minScale) + minScale, 2);
+            scale = Math.Max(1.01f, scale); // a giant is never smaller than normal, whatever the config says
+            rolledScale[player.Index] = scale;
+            playerInfo.SkillChance = scale;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
@@ -77,7 +85,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo == null || playerInfo.Skill != skillName) continue;
+                if (playerInfo == null || playerInfo.HasSkill(skillName) == false) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
 
@@ -92,7 +100,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
@@ -122,7 +130,7 @@ namespace src.player.skills
                 return;
             }
 
-            float newSize = playerInfo.SkillChance ?? 1f;
+            float newSize = rolledScale.TryGetValue(player.Index, out float rolled) ? rolled : Math.Max(1.01f, playerInfo.SkillChance ?? 1.01f);
 
             lock (setLock)
             {
@@ -153,6 +161,7 @@ namespace src.player.skills
                 if (enlargedEnemies.TryRemove(player.Index, out uint targetIndex))
                     ResetScale(targetIndex, notify: true);
 
+                rolledScale.TryRemove(player.Index, out _);
                 SkillUtils.CloseMenu(player);
             }
         }
@@ -163,8 +172,7 @@ namespace src.player.skills
             {
                 foreach (var kvp in enlargedEnemies)
                 {
-                    float expected = PlayerManager.GetPlayerByIndex(kvp.Key)?.SkillChance ?? 0f;
-                    if (expected <= 0f) continue;
+                    if (!rolledScale.TryGetValue(kvp.Key, out float expected) || expected <= 0f) continue;
 
                     var target = Utilities.GetPlayerFromIndex((int)kvp.Value);
                     if (target == null || !target.IsValid) continue;

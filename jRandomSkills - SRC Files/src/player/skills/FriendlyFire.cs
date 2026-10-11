@@ -75,7 +75,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
-            if (playerInfo?.Skill != skillName || attacker!.Team != victim!.Team) return;
+            if (playerInfo?.HasSkill(skillName) != true || attacker!.Team != victim!.Team) return;
 
             float damage = damageInfo.Damage;
             damageInfo.Damage = 0;

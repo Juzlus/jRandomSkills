@@ -48,23 +48,23 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return;
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
             if (!SkillUtils.IsPredictedLethal(damageInfo, victimPawn)) return;
 
-            if (TryConsumeRevive(victim, victimPawn))
+            if (TryConsumeRevive(victim, victimPawn, SkillUtils.IsDeadlySpotDamage(damageInfo)))
                 damageInfo.Damage = 0;
         }
 
-        public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn)
+        public static bool TryConsumeRevive(CCSPlayerController? victim, CCSPlayerPawn? victimPawn, bool deadlySpot = false)
         {
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
             var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
-            if (victimInfo == null || victimInfo.Skill != skillName) return false;
+            if (victimInfo == null || victimInfo.HasSkill(skillName) == false) return false;
 
             if (phoenixTicks.TryGetValue(victim.Index, out int savedTick) && savedTick + 4 > Server.TickCount)
                 return true;
@@ -79,16 +79,20 @@ namespace src.player.skills
 
             SkillUtils.PrintToChat(victim, victim.GetTranslation("phoenix_respawn"));
 
+            // Rise where they fell (a step back from the hit) unless ReviveAtSpawn is on or the spot is deadly.
+            bool atSpawn = deadlySpot || SkillsInfo.GetValue<bool>(skillName, "reviveAtSpawn");
+            var spawnpoint = SkillUtils.GetRevivePoint(victim, victimPawn, atSpawn, SkillsInfo.GetValue<float>(skillName, "stepBack"));
+
             Server.NextFrame(() =>
             {
                 if (victim == null || !victim.IsValid) return;
                 var pawn = victim.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) return;
 
-                var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
+                spawnpoint ??= SkillUtils.GetSpawnPointVector(victim);
                 if (spawnpoint == null) return;
 
-                pawn.Teleport(spawnpoint);
+                pawn.Teleport(spawnpoint, null, new Vector(0, 0, 0));
             });
 
             return true;
@@ -106,10 +110,12 @@ namespace src.player.skills
                 border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = .2f, float chanceTo = .4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = .2f, float chanceTo = .4f, bool reviveAtSpawn = false, float stepBack = 48f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float ChanceFrom { get; set; } = chanceFrom;
             public float ChanceTo { get; set; } = chanceTo;
+            public bool ReviveAtSpawn { get; set; } = reviveAtSpawn;
+            public float StepBack { get; set; } = stepBack;
         }
     }
 }

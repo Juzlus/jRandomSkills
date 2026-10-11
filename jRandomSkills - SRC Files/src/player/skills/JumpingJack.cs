@@ -22,7 +22,7 @@ namespace src.player.skills
             if (playerEvent == null || !playerEvent.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             SkillUtils.AddHealth(playerEvent.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
         }

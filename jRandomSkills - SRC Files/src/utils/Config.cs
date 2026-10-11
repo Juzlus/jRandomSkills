@@ -185,6 +185,24 @@ namespace src.utils
             public ChatMessage ChatMessage { get; set; }
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }
+            public ModulesSettings Modules { get; set; }
+            public EntitySpawnSafetySettings EntitySpawnSafety { get; set; }
+            public CombosSettings Combos { get; set; }
+            public ServerInfoSettings ServerInfo { get; set; }
+            // Name shown in the chat tag line and the plugin list.
+            public string PluginName { get; set; } = "TiredPowers";
+            // Skills that are loaded but never drawn; admins hand them out with css_setskill (test skills).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> AdminOnlySkills { get; set; } = [];
+            // Put a joining player straight onto the smaller team (no team menu). With retakes on, the retakes
+            // queue does this (QueueSettings.ShouldAutoJoinGame in retakes.json); this covers retakes off.
+            public bool AutoAssignTeamOnJoin { get; set; } = true;
+            // End the warmup as soon as the map is up (and on any later warmup round), so play starts at once.
+            // The retakes "waiting for players" hold (GameSettings.MinimumPlayers in retakes.json) still applies.
+            public bool SkipWarmup { get; set; } = true;
+            // Skills work from the moment they are drawn, freeze time included: DisableOnFreezeTime in
+            // skillsInfo.json and the skills' own freeze-time checks are ignored.
+            public bool SkillsUsableInFreezeTime { get; set; } = true;
 
             public SettingsModel()
             {
@@ -199,11 +217,11 @@ namespace src.utils
                 EnableFullForceUpdate = false;
                 DebugMode = 0;
                 PerfMode = false;
-                AlternativeSkillButton = null;
+                AlternativeSkillButton = "Use";
                 SkillTimeBeforeStart = 7;
                 SkillHudDuration = -1;
                 SkillDescriptionDuration = 7;
-                DisplayAlwaysDescription = false;
+                DisplayAlwaysDescription = true;
                 EnableFlashingHtmlHudFix = false;
                 TraceRayBeam = false;
                 DisableSpectateHUD = false;
@@ -294,6 +312,9 @@ namespace src.utils
                     WSADMenuControllsLineColor1 = "cyan",
                     WSADMenuControllsLineColor2 = "white",
                     WSADMenuControllsLineColor3 = "green",
+                    VerticalOffsetLines = 1,
+                    NoticeLineColor = "#FFD700",
+                    NoticeLiftLines = 4,
                 };
 
                 ChatMessage = new ChatMessage
@@ -335,7 +356,256 @@ namespace src.utils
                     PauseCommand = new VotingCommand(true, "pause, unpause, pausar, despausar, 暂停, 恢复", "@jRandomSkills/admin", 15, 60, 15, 2, 2),
                     SetScoreCommand = new VotingCommand(true, "setscore, wynik, definirPontuacao, configurarPontos, 设置分数, 调整分数", "@jRandomSkills/owner", 15, 90, 15, 90, 2),
                 };
+
+                Modules = new ModulesSettings();
+                EntitySpawnSafety = new EntitySpawnSafetySettings();
+                Combos = new CombosSettings();
+                ServerInfo = new ServerInfoSettings();
             }
+        }
+
+        public class ServerInfoSettings
+        {
+            // Lines shown to a player right after the welcome line when they join, and repeated in chat to
+            // everyone every AdvertIntervalSeconds (0 disables the repeat). Chat colour codes are allowed.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Lines { get; set; } =
+            [
+                "Server By : Tired",
+                "Hosting By ORI",
+                "Shavo GAY",
+            ];
+            public int AdvertIntervalSeconds { get; set; } = 300;
+        }
+
+        public class CombosSettings
+        {
+            // The most skills a player can hold at once (1 = classic, one skill). Extra skills are drawn
+            // from the pool and never clash with the ones already held. Double Trouble adds on top of this.
+            public int SkillsPerPlayer { get; set; } = 2;
+            // Chance (0-1) that a player wins an extra skill each round; rolled once per extra slot, so with
+            // SkillsPerPlayer 3 the third skill needs two wins in a row. 0.1 = roughly every tenth round.
+            public float ExtraSkillChance { get; set; } = 0.1f;
+            // Two skills fired by the use key would trigger together; keep false so a player gets at most one.
+            public bool AllowMultipleUseKeySkills { get; set; } = false;
+            // Skills that are never combined with anything (they change or copy the whole skill, or are combos themselves).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> SoloSkills { get; set; } =
+            [
+                "None", "Gambler", "Chameleon", "Duplicator", "Thief", "Inheritance", "Deactivator", "Rage",
+            ];
+            // Skills in the same group are never held together (they fight over the same mechanic).
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<List<string>> ClashGroups { get; set; } =
+            [
+                ["Flash", "Berserker", "Adrenaline", "EntryRush", "Chicken", "Dwarf"],
+                ["Dash", "Pilot", "BunnyHop", "PawelJumper", "Astronaut", "Noclip", "Grapple", "Blink", "GroundSlam"],
+                ["Ghost", "Ninja", "C4Camouflage", "Impostor", "Chicken", "Dwarf", "Illusionist"],
+                ["Cypher", "FalconEye", "ThirdEye", "Spectator", "Iana"],
+                ["GodMode", "Jester", "SecondLife", "Phoenix", "ReZombie", "SixthSense"],
+                ["AntyHead", "OnlyHead"],
+                ["Anomaly", "Rewind", "TimeLord"],
+                ["Glue", "HomingNades", "Weightless"],
+                ["Baseball", "FrozenDecoy", "GravityDecoy", "MagneticDecoy", "FireRain", "ThunderGod"],
+                ["HealingSmoke", "ToxicSmoke", "SmokeJumper"],
+                ["Shade", "Teleporter", "ReturnToSender", "Behind", "Catapult", "Push"],
+                ["OneShot", "Aimbot", "Soldier", "GlassCannon", "Momentum", "Assassin", "Punisher"],
+                ["Armored", "TrueArmor", "ReactiveArmor"],
+                ["Cutter", "LongKnife", "ThrowingKnife"],
+                ["Pickpocket", "RobinHood"],
+                ["Wallhack", "Cypher", "FalconEye"],
+            ];
+        }
+
+        public class EntitySpawnSafetySettings
+        {
+            // "Auto": block entity spawning unless the running CS2 version is listed below; "On": always block; "Off": never block.
+            public string Mode { get; set; } = "Auto";
+            // CS2 versions (csgo/steam.inf PatchVersion) verified to work with the installed CounterStrikeSharp.
+            // CounterStrikeSharp 1.0.375 targets 1.41.8.2.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> VerifiedGameVersions { get; set; } = ["1.41.8.2"];
+            // true: the top-of-screen site text (one point_worldtext per player, GameHUD style) is still created while
+            // spawning is blocked; set false if the server crashes right after round start with it on.
+            public bool AllowScreenText { get; set; } = true;
+            // Skills that need to spawn entities; they are left out of the draw while spawning is blocked.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Skills { get; set; } =
+            [
+                "AirBombs", "SecondSight", "C4Camouflage", "Chicken", "Cypher", "ExplodingBarrel", "ExplosiveChicken", "FalconEye", "Flashlight",
+                "Fortnite", "Ghost", "Grapple", "GuidedBullet", "HealingChicken", "Iana", "Illusionist", "Jackal", "LongKnife",
+                "LongZeus", "Nightmare", "Ninja", "Pilot", "Rage", "Replicator", "Rewind", "Ricochet", "Spectator",
+                "ThirdEye", "ThrowingKnife", "Tripwire", "Wallhack",
+            ];
+        }
+
+        public class ModulesSettings
+        {
+            // Retakes game mode (https://github.com/b3none/cs2-retakes). Its own settings live in configs/retakes.json.
+            public RetakesModuleSettings Retakes { get; set; } = new();
+            public InstadefuseModuleSettings Instadefuse { get; set; } = new();
+            public ClutchAnnounceModuleSettings ClutchAnnounce { get; set; } = new();
+            public GunsModuleSettings Guns { get; set; } = new();
+            public WeaponRoundsSettings WeaponRounds { get; set; } = new();
+            public MapVoteSettings MapVote { get; set; } = new();
+        }
+
+        public class WeaponRoundsSettings
+        {
+            // Pistol rounds at the start of every match, and !ak votes for AK / AK headshot / Deagle /
+            // Deagle headshot / AWP only rounds. A passed vote applies from the next round.
+            public bool Enabled { get; set; } = true;
+            public string Alias { get; set; } = "ak, wvote, weaponvote, mode";
+            // The first rounds of a match (after a map change or restart) are pistol rounds.
+            public int PistolRounds { get; set; } = 2;
+            public float VoteSeconds { get; set; } = 20f;
+            public float PercentagesToSuccess { get; set; } = 60f;
+            public int MinimumPlayersToStartVoting { get; set; } = 2;
+            // Wait between two weapon votes.
+            public float CooldownSeconds { get; set; } = 60f;
+            // Wait before the same player may start another weapon vote.
+            public float PlayerCooldownSeconds { get; set; } = 180f;
+            // How many rounds a voted mode lasts; 0 keeps it until the next vote (vote "Normal rounds" to end it).
+            public int ModeDurationRounds { get; set; } = 0;
+            // Skills that hand out guns or change the weapon rules; left out of the draw during pistol / voted rounds.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> DisabledSkills { get; set; } =
+            [
+                "RandomWeapon", "SniperElite", "GuidedBullet", "WeaponsSwap", "Glaz", "Zeus", "LongZeus", "PrimaryBan",
+                "TakeAmmo", "Disarmament", "BlastShot", "ThrowingKnife", "Grenadier", "Smoker", "Scavenger", "InfiniteAmmo",
+            ];
+        }
+
+        public class MapVoteSettings
+        {
+            // !rtv (rock the vote), !nominate and the end-of-map "change or stay" vote. Only maps in MapPool are offered.
+            public bool Enabled { get; set; } = true;
+            public string RtvAlias { get; set; } = "rtv, rockthevote";
+            public string NominateAlias { get; set; } = "nominate, nom";
+            public string NextMapAlias { get; set; } = "nextmap";
+            // Competitive maps shipped with CS2. Maps not installed on the server are dropped with a console note.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> MapPool { get; set; } =
+            [
+                "de_dust2", "de_mirage", "de_inferno", "de_nuke", "de_overpass", "de_ancient", "de_anubis", "de_vertigo", "de_train",
+            ];
+            // Workshop maps in the pool: name -> workshop ID (host_workshop_map). Leave the ID empty to skip the map.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public Dictionary<string, string> WorkshopMaps { get; set; } = new()
+            {
+                ["de_cache"] = "",
+            };
+            public float RtvPercentage { get; set; } = 60f;
+            public int MinimumPlayersToRtv { get; set; } = 2;
+            public float MapVoteSeconds { get; set; } = 20f;
+            public int MapsInVote { get; set; } = 5;
+            // Round (counting from 1) at which players vote to change the map or stay; 0 turns it off.
+            public int EndOfMapVoteRound { get; set; } = 27;
+            public float EndOfMapVoteSeconds { get; set; } = 25f;
+            // Seconds between a passed !rtv map vote and the map change.
+            public float ChangeDelaySeconds { get; set; } = 5f;
+        }
+
+        public class GunsModuleSettings
+        {
+            // !guns lets players pick the rifle and pistol they get each retakes round (there is no buying in retakes).
+            public bool Enabled { get; set; } = true;
+            public string Alias { get; set; } = "guns, gun, weapons, w, bronie";
+            // "CS2MenuManager": drawn by the CS2MenuManager shared library (players pick the style with !mm);
+            // "Wasd": the plugin's own WASD menu. Falls back to Wasd when the library is missing.
+            public string MenuStyle { get; set; } = "CS2MenuManager";
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> PrimaryT { get; set; } =
+            [
+                "weapon_ak47", "weapon_galilar", "weapon_sg556", "weapon_awp", "weapon_ssg08", "weapon_g3sg1",
+                "weapon_mac10", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+                "weapon_nova", "weapon_xm1014", "weapon_sawedoff", "weapon_m249", "weapon_negev",
+            ];
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> PrimaryCT { get; set; } =
+            [
+                "weapon_m4a1_silencer", "weapon_m4a1", "weapon_famas", "weapon_aug", "weapon_awp", "weapon_ssg08", "weapon_scar20",
+                "weapon_mp9", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+                "weapon_nova", "weapon_xm1014", "weapon_mag7", "weapon_m249", "weapon_negev",
+            ];
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> Secondary { get; set; } =
+            [
+                "weapon_deagle", "weapon_usp_silencer", "weapon_hkp2000", "weapon_glock", "weapon_p250",
+                "weapon_fiveseven", "weapon_tec9", "weapon_cz75a", "weapon_revolver", "weapon_elite",
+            ];
+        }
+
+        public class RetakesModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Skills that rely on buying, carrying/planting the bomb or on normal spawns are left out of the draw while retakes runs.
+            public bool DisableIncompatibleSkills { get; set; } = true;
+            // Keep the game's "The bomb has been planted" banner off the players' screens (it covers the skill HUD).
+            public bool HideBombPlantedAlert { get; set; } = true;
+            // Round-start site call as a picture (https URL to a PNG/JPG) instead of the "SITE A" text; one per site.
+            // Leave empty to keep the text banner.
+            public string SiteImageA { get; set; } = "https://cdn.michael.cool/d/A.png";
+            public string SiteImageB { get; set; } = "https://cdn.michael.cool/d/B.png";
+            public float SiteBannerSeconds { get; set; } = 4f;
+            // "Html" (default): big "SITE A" / "SITE B" text at the top of the centre HUD box (no entity, re-sent a few
+            // ticks apart). "Screen": the same text as a free point_worldtext in front of the eyes (never parented to
+            // the pawn). "Image": the SiteImage picture in the centre HUD (re-sent every tick). "Off": no banner.
+            public string SiteBannerStyle { get; set; } = "Html";
+            // true: when the standalone RetakesSiteAnnounce plugin is loaded, leave the on-screen call to it.
+            // false: draw the built-in banner anyway.
+            public bool DeferToStandaloneSiteAnnounce { get; set; } = true;
+            // Who gets the site call (chat line, banner and voice): CTs are the ones retaking; Ts spawn on the site.
+            public bool SiteCallCtOnly { get; set; } = true;
+            // The "Retake A: 1 Ts vs 2 CTs" chat line each round (off: the banner alone, no chat spam).
+            public bool SiteCallChat { get; set; } = false;
+            // The agent voice line ("bombsite A") each round; also needs EnableBombsiteAnnouncementVoices in retakes.json.
+            public bool SiteCallVoice { get; set; } = false;
+            // Show the site banner a second time a few seconds after the bomb is planted (stock retakes behaviour).
+            public bool RepeatSiteCallAfterPlant { get; set; } = false;
+            // Screen text placement, CS2-GameHUD / InfoTop convention: X right, Y up, Z distance from the eyes.
+            // InfoTop's defaults are X 0, Y 40, Z 80 with font 20 and 0.25 units per pixel.
+            public string ScreenBannerMethod { get; set; } = "Pawn"; // kept for old configs; every method is a free entity now
+            public float ScreenBannerX { get; set; } = 0f;
+            public float ScreenBannerY { get; set; } = 40f;
+            public float ScreenBannerZ { get; set; } = 80f;
+            public float ScreenBannerFontSize { get; set; } = 40f;
+            public float ScreenBannerUnitsPerPx { get; set; } = 0.25f;
+            public string ScreenBannerFont { get; set; } = "Arial Bold";
+            // Dark box behind the text, as InfoTop draws it (border size in units; 0 = no box).
+            public float ScreenBannerBackgroundBorder { get; set; } = 0.5f;
+            public string ScreenBannerColorA { get; set; } = "#FF5050";
+            public string ScreenBannerColorB { get; set; } = "#50A0FF";
+            // true: the banner is alone on screen, lifted to the top, and the skill text comes back when it ends.
+            // false: the banner sits above the skill text in the same box, so the skill never disappears.
+            public bool SiteBannerHidesSkill { get; set; } = true;
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> IncompatibleSkills { get; set; } =
+            [
+                "AreaReaper", "Bankrupt", "Bounty", "C4Camouflage", "ChillOut", "EnemySpawn", "ExpensiveAmmo",
+                "HotBomb", "MoneySwap", "Pickpocket", "Planter", "Retreat", "Saper", "ReturnToSender", "RichBoy",
+                "RobinHood", "ShortBomb", "Watchmaker",
+            ];
+            // Skills built around the retakes mode; they are only drawn while it runs.
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public List<string> RetakesOnlySkills { get; set; } = ["BombGuardian", "BombSense"];
+        }
+
+        public class InstadefuseModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Grenades or fire closer than this to the bomb block an instant defuse.
+            public float InfernoThreatRadius { get; set; } = 250f;
+            // When the last T is dead but there is not enough time left to defuse, the bomb explodes at once
+            // (T win) without hurting anyone instead of running out its timer.
+            public bool ExplodeWithoutDamage { get; set; } = true;
+        }
+
+        public class ClutchAnnounceModuleSettings
+        {
+            public bool Enabled { get; set; } = true;
+            // Smallest number of enemies the last player alive must face for the round win to count as a clutch.
+            public int MinimumEnemies { get; set; } = 1;
         }
 
         public class WeaponPools
@@ -379,6 +649,15 @@ namespace src.utils
             public required string WSADMenuControllsLineColor1 { get; set; }
             public required string WSADMenuControllsLineColor2 { get; set; }
             public required string WSADMenuControllsLineColor3 { get; set; }
+            // Empty lines appended under the skill HUD; each one lifts the whole box a little (0 = game default position).
+            public int VerticalOffsetLines { get; set; } = 1;
+            // Colour of notices (retakes site call, plant prompt) drawn under the skill inside the HUD box.
+            public string NoticeLineColor { get; set; } = "#FFD700";
+            // Empty lines under a round-start announcement (site call): more lines push the banner higher on screen.
+            public int NoticeLiftLines { get; set; } = 4;
+            // Ticks between two sends of an unchanged HUD (1 = every tick like the original plugin, 6 = the most
+            // before the centre text starts to blink). Fewer sends = less network traffic per player.
+            public int HudResendTicks { get; set; } = 6;
         }
 
         public class LanguageSystem

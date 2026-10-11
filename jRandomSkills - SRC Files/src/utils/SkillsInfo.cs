@@ -213,8 +213,10 @@ namespace src.utils
             }
         }
 
-        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, bool disableOnPistolRound = false, int minPlayer = 0)
+        public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, bool disableOnPistolRound = false, int minPlayer = 0, float weight = 1f)
         {
+            // Relative draw chance among skills of the same rarity (2 = twice as likely as a 1, 0.5 = half).
+            public float Weight { get; set; } = weight;
             public bool NeedsTeammates { get; set; } = needsTeammates;
             public bool DisableOnFreezeTime { get; set; } = disableOnFreezeTime;
             public bool DisableOnPistolRound { get; set; } = disableOnPistolRound;

@@ -36,7 +36,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(victim) || !Instance.IsPlayerValid(attacker)) return;
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
-            if (attackerInfo?.Skill == skillName)
+            if (attackerInfo?.HasSkill(skillName) == true)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
                     TeleportPlayers(attacker!, victim!);
         }

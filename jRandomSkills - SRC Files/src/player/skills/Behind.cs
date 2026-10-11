@@ -23,7 +23,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
-            if (playerInfo?.Skill == skillName && victim!.PawnIsAlive)
+            if (playerInfo?.HasSkill(skillName) == true && victim!.PawnIsAlive)
                 if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
                     RotateEnemy(victim);
         }

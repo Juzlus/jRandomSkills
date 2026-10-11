@@ -44,7 +44,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             SetWeaponAttack(player!, true);
         }
 
@@ -54,7 +54,7 @@ namespace src.player.skills
             if (!Instance.IsPlayerValid(player)) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
 
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
             SetWeaponAttack(player!, true);
         }
 
@@ -156,7 +156,7 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName && SkillUtils.IsHudFrame())
+                if (playerInfo?.HasSkill(skillName) == true && SkillUtils.IsHudFrame())
                     UpdateHUD(player);
 
                 if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE)

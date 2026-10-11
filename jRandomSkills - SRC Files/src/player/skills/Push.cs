@@ -29,7 +29,7 @@ namespace src.player.skills
 
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
-            if (playerInfo?.Skill == skillName && victim!.PawnIsAlive)
+            if (playerInfo?.HasSkill(skillName) == true && victim!.PawnIsAlive)
             {
                 if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
                     PushEnemy(victim, attacker!.PlayerPawn.Value!.EyeAngles);

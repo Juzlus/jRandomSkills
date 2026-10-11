@@ -50,7 +50,7 @@ namespace src.player.skills
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
 
-                if (playerInfo?.Skill != skillName)
+                if (playerInfo?.HasSkill(skillName) != true)
                     continue;
 
                 if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))

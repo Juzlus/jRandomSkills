@@ -21,7 +21,7 @@ namespace src.player.skills
 
             if (!Instance.IsPlayerValid(attacker) || victim == null || !victim.IsValid || attacker == victim) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
-            if (playerInfo?.Skill != skillName) return;
+            if (playerInfo?.HasSkill(skillName) != true) return;
 
             HealAttacker(attacker!, SkillUtils.CapToVictimHealth(victim, @event.DmgHealth));
         }

@@ -47,7 +47,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            if (playerInfo?.Skill == skillName)
+            if (playerInfo?.HasSkill(skillName) == true)
                 SkillPlayerInfo.TryRemove(player.Index, out _);
         }
 
@@ -58,7 +58,7 @@ namespace src.player.skills
 
         private static void ResolveBombLocation()
         {
-            var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
+            var plantedBomb = src.utils.PlayerManager.GetPlantedBomb();
             if (plantedBomb == null || !plantedBomb.IsValid || !plantedBomb.BombTicking || plantedBomb.BombDefused) return;
 
             var origin = plantedBomb.AbsOrigin;
@@ -97,7 +97,7 @@ namespace src.player.skills
 
                 if (info.DefusingTime <= 0)
                 {
-                    var plantedBomb = Utilities.FindAllEntitiesByDesignerName<CPlantedC4>("planted_c4").FirstOrDefault();
+                    var plantedBomb = src.utils.PlayerManager.GetPlantedBomb();
                     if (plantedBomb != null && plantedBomb.IsValid && plantedBomb.BombTicking && !plantedBomb.BombDefused)
                     {
                         plantedBomb.AddEntityIOEvent("Kill", plantedBomb, delay: 0.1f);

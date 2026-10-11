@@ -95,19 +95,38 @@ namespace src.command
             Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill}", DebugCategory.Skill);
 
             if (commands == null || commands.Length == 0)
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                Event.UseAllSkills(playerInfo, player);
             else
-                Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, commands]);
+                Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [player, commands]);
         }
 
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        // Target for admin commands: @me, #userid, SteamID64, exact name, or a unique part of a name.
+        public static CCSPlayerController? FindTargetPlayer(CCSPlayerController? caller, string arg)
+        {
+            if (string.IsNullOrWhiteSpace(arg)) return null;
+            arg = arg.Trim();
+
+            if (arg.Equals("@me", StringComparison.OrdinalIgnoreCase) || arg.Equals("me", StringComparison.OrdinalIgnoreCase))
+                return caller != null && caller.IsValid ? caller : null;
+
+            var players = Utilities.GetPlayers().Where(p => p != null && p.IsValid).ToList();
+
+            if (arg.StartsWith('#') && int.TryParse(arg[1..], out int userId))
+                return players.FirstOrDefault(p => p.UserId == userId);
+
+            var exact = players.FirstOrDefault(p => p.SteamID.ToString() == arg || p.PlayerName.Equals(arg, StringComparison.OrdinalIgnoreCase));
+            if (exact != null) return exact;
+
+            var partial = players.Where(p => p.PlayerName.Contains(arg, StringComparison.OrdinalIgnoreCase)).ToList();
+            return partial.Count == 1 ? partial[0] : null;
+        }
+
         private static void Command_SetSkill(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setskill {command.ArgString} command.");
             if (!string.IsNullOrEmpty(config.NormalCommands.SetSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetSkillCommand.Permissions)) return;
-            var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => p != null && p.IsValid
-                                                                          && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
-                                                                          || p.PlayerName.Equals(command.GetArg(1), StringComparison.OrdinalIgnoreCase)));
+            var targetPlayer = FindTargetPlayer(player, command.GetArg(1));
 
             if (command.ArgCount < 2)
             {
@@ -136,19 +155,35 @@ namespace src.command
 
             if (skill == null)
             {
-                if (player == null)
-                {
-                    Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("skill_not_found_setskill"));
-                    return;
-                }
-                SkillUtils.PrintToChat(player, player.GetTranslationWithoutIlliterate("skill_not_found_setskill"));
+                string notFound = Localization.GetTranslationWithoutIlliterate("skill_not_found_setskill");
+                // Say when the name is right but the skill is simply not loaded (inactive in skillsInfo.json).
+                if (Enum.TryParse<Skills>(skillName.Replace(" ", ""), true, out var known) && !SkillsInfo.GetValue<bool>(known, "active"))
+                    notFound = $"{known} is set to \"Active\": false in skillsInfo.json, so it is not loaded.";
+
+                if (player == null) Server.PrintToConsole(notFound);
+                else SkillUtils.PrintToChat(player, notFound);
+                return;
+            }
+
+            // Loaded, but kept out of play on this server: say exactly why instead of "not found".
+            if (IsSkillBlockedByMode(skill.Skill))
+            {
+                string reason = EntitySafety.IsSkillBlocked(skill.Skill)
+                    ? $"entity spawning is disabled (CS2 {EntitySafety.GameVersion ?? "?"}, CounterStrikeSharp {EntitySafety.CounterStrikeSharpVersion ?? "?"}): add the CS2 version to EntitySpawnSafety.VerifiedGameVersions or set EntitySpawnSafety.Mode to \"Off\""
+                    : Event.IsSkillMissingHooks(skill.Skill)
+                        ? "a game hook it needs failed to load"
+                        : "it is on the retakes incompatible / retakes-only list";
+                string blocked = $"{skill.Skill} is loaded but blocked on this server: {reason}.";
+
+                if (player == null) Server.PrintToConsole(blocked);
+                else SkillUtils.PrintToChat(player, blocked);
                 return;
             }
 
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
             if (skillPlayer != null)
             {
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+                Event.DisableAllSkills(skillPlayer, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
@@ -288,6 +323,11 @@ namespace src.command
         private static void Command_Swap(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_swap {command.ArgString} command.");
+            if (Instance.IsRetakesActive)
+            {
+                command.ReplyToCommand(player == null ? "Teams are managed by the retakes mode (use css_scramble)." : $" {ChatColors.Red}{player.GetTranslation("retakes_teams_managed")}");
+                return;
+            }
             if (player != null && player.IsValid)
                 if (!string.IsNullOrEmpty(config.VotingCommands.SwapCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SwapCommand.Permissions))
                 {
@@ -300,6 +340,7 @@ namespace src.command
 
         private static void Swap()
         {
+            if (Instance.IsRetakesActive) return;
             foreach (var player in Utilities.GetPlayers())
                 if (Instance.IsPlayerValid(player) && new CsTeam[] { CsTeam.CounterTerrorist, CsTeam.Terrorist }.Contains(player.Team))
                     player.SwitchTeam(player.Team == CsTeam.Terrorist ? CsTeam.CounterTerrorist : CsTeam.Terrorist);
@@ -310,6 +351,11 @@ namespace src.command
         private static void Command_Shuffle(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_shuffle {command.ArgString} command.");
+            if (Instance.IsRetakesActive)
+            {
+                command.ReplyToCommand(player == null ? "Teams are managed by the retakes mode (use css_scramble)." : $" {ChatColors.Red}{player.GetTranslation("retakes_teams_managed")}");
+                return;
+            }
             if (player != null && player.IsValid)
                 if (!string.IsNullOrEmpty(config.VotingCommands.ShuffleCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ShuffleCommand.Permissions))
                 {
@@ -322,6 +368,7 @@ namespace src.command
 
         private static void Shuffle()
         {
+            if (Instance.IsRetakesActive) return;
             var players = Utilities.GetPlayers().FindAll(p => Instance.IsPlayerValid(p) && new CsTeam[] { CsTeam.CounterTerrorist, CsTeam.Terrorist }.Contains(p.Team));
             double CTlimit = Instance.Random.Next(0, 2) == 0 ? Math.Floor(players.Count / 2.0) : Math.Ceiling(players.Count / 2.0);
 
@@ -384,6 +431,12 @@ namespace src.command
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_plantedbomb {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.PlantedBomb.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.PlantedBomb.Permissions)) return;
+
+            if (EntitySafety.SpawningBlocked)
+            {
+                command.ReplyToCommand("Entity spawning is disabled on this CS2 build (see EntitySpawnSafety in config.json).");
+                return;
+            }
 
             CPlantedC4? bomb = Utilities.CreateEntityByName<CPlantedC4>("planted_c4");
             if (bomb == null || !bomb.IsValid) return;
@@ -489,9 +542,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setstaticskill {command.ArgString} command.");
             if (!string.IsNullOrEmpty(config.NormalCommands.SetStaticSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetStaticSkillCommand.Permissions)) return;
-            var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => p != null && p.IsValid
-                                                                          && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
-                                                                          || p.PlayerName.Equals(command.GetArg(1), StringComparison.OrdinalIgnoreCase)));
+            var targetPlayer = FindTargetPlayer(player, command.GetArg(1));
 
             if (command.ArgCount < 2)
             {
@@ -518,7 +569,7 @@ namespace src.command
             }
 
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
+            var skill = SkillData.Skills.FirstOrDefault(s => !IsSkillBlockedByMode(s.Skill) && (player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase)));
 
             if (skill == null)
             {
@@ -535,7 +586,7 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
             if (skillPlayer != null)
             {
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+                Event.DisableAllSkills(skillPlayer, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
@@ -678,7 +729,7 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer!.Index);
             if (skillPlayer == null) return;
 
-            Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+            Event.DisableAllSkills(skillPlayer, targetPlayer);
             skillPlayer.Skill = skill.Skill;
             skillPlayer.SpecialSkill = Skills.None;
 

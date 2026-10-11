@@ -51,7 +51,7 @@ namespace src.utils
             new(() =>
             {
                 try { return factory(GameData.GetSignature(name)); }
-                catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] gamedata signature '{name}' could not be resolved: {ex.Message}"); return null; }
+                catch (Exception ex) { Server.PrintToConsole($"[TiredPowers] gamedata signature '{name}' could not be resolved: {ex.Message}"); return null; }
             });
 
         private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> HEGrenadeProjectile_CreateFunc =
@@ -73,7 +73,7 @@ namespace src.utils
             var config = Config.LoadedConfig.ChatMessage;
             float maxWidth = config.MaxWidth;
             char symbol = config.LineSymbol;
-            if (string.IsNullOrEmpty(title)) title = player.GetTranslation("jRandomSkills");
+            if (string.IsNullOrEmpty(title)) title = string.IsNullOrWhiteSpace(Config.LoadedConfig.PluginName) ? "TiredPowers" : Config.LoadedConfig.PluginName;
 
             if (!ignoreIlliterate && Illiterate.CheckIlliterateSkill(player))
                 msg = Illiterate.GetRandomText(msg);
@@ -94,9 +94,33 @@ namespace src.utils
             target.EmitSound(soundEvent, new RecipientFilter(target), volume);
         }
 
+        // "Freeze time" as far as the skills are concerned: with SkillsUsableInFreezeTime the skills never see one.
         public static bool IsFreezeTime()
         {
+            if (Config.LoadedConfig?.SkillsUsableInFreezeTime == true) return false;
             return jRandomSkills.Instance?.GameRules?.FreezePeriod == true;
+        }
+
+        public static bool IsWarmup()
+        {
+            try
+            {
+                var rules = jRandomSkills.Instance?.GameRules;
+                return rules != null && rules.Handle != IntPtr.Zero && rules.WarmupPeriod;
+            }
+            catch { return false; }
+        }
+
+        // Ends a running warmup when SkipWarmup is on and nothing holds it (the retakes player wait).
+        public static void EndWarmupIfSkipped(string reason)
+        {
+            if (Config.LoadedConfig?.SkipWarmup != true) return;
+            if (!IsWarmup()) return;
+            if (jRandomSkills.Instance?.Retakes?.IsWaitingForPlayers == true) return;
+
+            Server.ExecuteCommand("mp_warmup_pausetimer 0");
+            Server.ExecuteCommand("mp_warmup_end");
+            Server.PrintToConsole($"[TiredPowers] Warmup ended ({reason}); set SkipWarmup=false in config.json to keep it.");
         }
 
         public static bool IsPistolRound()
@@ -120,6 +144,34 @@ namespace src.utils
         }
 
         public static bool IsHudFrame() => Server.TickCount % 4 == 0;
+
+        // HTML for a HUD notice: a big bold headline (e.g. the site letter) with an optional smaller line under it.
+        public static string NoticeHtml(string headline, string? detail = null, string? headlineColor = null)
+        {
+            var config = Config.LoadedConfig.HtmlHudCustomisation;
+            string html = $"<font class='fontWeight-Bold fontSize-l' color='{headlineColor ?? config.NoticeLineColor}'>{headline}</font>";
+            if (!string.IsNullOrWhiteSpace(detail))
+                html += $"<br><font class='fontSize-sm' color='{config.NoticeLineColor}'>{detail}</font>";
+            return html;
+        }
+
+        // Shows a short notice under the player's skill inside the HUD box (so it never overlaps the skill text).
+        // `html` comes from NoticeHtml; `plainText` is what players without plugin HUD state see in the alert box.
+        public static void ShowCenterNotice(CCSPlayerController? player, string html, string plainText, float seconds = 5f, bool exclusive = false)
+        {
+            if (player == null || !player.IsValid || player.IsBot) return;
+
+            var info = PlayerManager.GetPlayerByIndex(player.Index);
+            if (info == null)
+            {
+                player.PrintToCenterAlert(plainText);
+                return;
+            }
+
+            info.CenterNotice = html;
+            info.CenterNoticeUntil = DateTime.Now.AddSeconds(seconds);
+            info.CenterNoticeExclusive = exclusive;
+        }
 
         public static void RegisterSkill(Skills skill, string color, bool display = true)
         {
@@ -285,7 +337,9 @@ namespace src.utils
             if (scale <= 0 || skeleton == null) return;
 
             skeleton.Scale = scale;
+            playerPawn.CBodyComponent.SceneNode.Scale = scale;
             playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
+            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
 
             Server.NextWorldUpdate(() =>
             {
@@ -314,6 +368,48 @@ namespace src.utils
                     return new Vector(randomSpawn.AbsOrigin.X, randomSpawn.AbsOrigin.Y, randomSpawn.AbsOrigin.Z);
             }
             return null;
+        }
+
+        // Where a revive skill puts the player back: by default right where they fell (a short step back from
+        // the killing blow, feet on the same ground), or a map spawn when the skill is configured that way or
+        // the death spot cannot be stood on (out of the map, in a hurt trigger).
+        public static Vector? GetRevivePoint(CCSPlayerController player, CCSPlayerPawn? pawn, bool atSpawn, float stepBack = 0f)
+        {
+            if (!atSpawn && pawn != null && pawn.IsValid && pawn.AbsOrigin != null && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+            {
+                var origin = pawn.AbsOrigin;
+                if (origin.X != 0 || origin.Y != 0 || origin.Z != 0)
+                {
+                    float x = origin.X, y = origin.Y;
+                    if (stepBack > 0 && pawn.AbsVelocity != null)
+                    {
+                        // Undo the last bit of movement into the hit: a step back along the direction the player
+                        // was running, only while they were on the ground so a fall is never "stepped" into the air.
+                        var vel = pawn.AbsVelocity;
+                        float speed2D = MathF.Sqrt(vel.X * vel.X + vel.Y * vel.Y);
+                        bool onGround = (pawn.Flags & (uint)PlayerFlags.FL_ONGROUND) != 0;
+                        if (onGround && speed2D > 1f)
+                        {
+                            x -= vel.X / speed2D * stepBack;
+                            y -= vel.Y / speed2D * stepBack;
+                        }
+                    }
+                    return new Vector(x, y, origin.Z);
+                }
+            }
+            return GetSpawnPointVector(player);
+        }
+
+        // Damage from the map itself (a kill trigger, falling out of the world) means the spot is deadly:
+        // a revive there would die again at once.
+        public static bool IsDeadlySpotDamage(CTakeDamageInfo? info)
+        {
+            if (info == null || info.Handle == nint.Zero) return false;
+            var inflictor = info.Inflictor?.Value;
+            string? name = inflictor != null && inflictor.IsValid ? inflictor.DesignerName : null;
+            if (name != null && (name.StartsWith("trigger_hurt", StringComparison.Ordinal) || name == "worldspawn"))
+                return true;
+            return ((int)info.BitsDamageType & (int)(DamageTypes_t.DMG_DROWN | DamageTypes_t.DMG_RADIATION | DamageTypes_t.DMG_ACID)) != 0;
         }
 
         public static bool IsBulletDamage(CTakeDamageInfo? info)
@@ -402,14 +498,92 @@ namespace src.utils
             HEGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
         }
 
+        // false after a CS2 update broke the gamedata signature: the HE call above then silently does nothing.
+        public static bool HEGrenadeAvailable => HEGrenadeProjectile_CreateFunc.Value != null;
+
+        private static bool _explosionFallbackNoted;
+
+        // Blast without any game signature: an env_explosion owned by the player, so the damage is credited to
+        // them and the server's friendly-fire rules apply. Used when the HE grenade signature is unavailable.
+        public static bool CreateExplosion(Vector pos, float damage, float radius, CCSPlayerPawn? owner, string? globalName = null)
+        {
+            if (EntitySafety.SpawningBlocked) return false;
+            try
+            {
+                var explosion = Utilities.CreateEntityByName<CEnvExplosion>("env_explosion");
+                if (explosion == null || !explosion.IsValid) return false;
+
+                explosion.Magnitude = (int)Math.Max(1f, damage);
+                explosion.RadiusOverride = (int)Math.Max(1f, radius);
+                if (owner != null && owner.IsValid) explosion.OwnerEntity.Raw = owner.EntityHandle.Raw;
+                if (!string.IsNullOrEmpty(globalName)) explosion.Globalname = globalName;
+
+                explosion.Teleport(pos, null, null);
+                explosion.DispatchSpawn();
+                explosion.AcceptInput("Explode");
+
+                if (!_explosionFallbackNoted)
+                {
+                    _explosionFallbackNoted = true;
+                    Server.PrintToConsole("[TiredPowers] HE grenade signature unavailable on this CS2 build: explosions use env_explosion instead.");
+                }
+
+                var index = explosion.Index;
+                jRandomSkills.Instance.AddTimer(1f, () =>
+                {
+                    var e = Utilities.GetEntityFromIndex<CEnvExplosion>((int)index);
+                    if (e != null && e.IsValid) e.Remove();
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[TiredPowers] env_explosion failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool SmokeGrenadeAvailable => SmokeGrenadeProjectile_CreateFunc.Value != null;
+        public static bool MolotovAvailable => CMolotovProjectile_CreateFunc.Value != null;
+
         public static void CreateSmokeGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
-            SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
+            if (SmokeGrenadeProjectile_CreateFunc.Value != null)
+            {
+                SmokeGrenadeProjectile_CreateFunc.Value.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
+                return;
+            }
+            SpawnProjectileEntity<CSmokeGrenadeProjectile>("smokegrenade_projectile", pos, vel, teamNum);
         }
 
         public static void CreateMolotovProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
         {
-            CMolotovProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
+            if (CMolotovProjectile_CreateFunc.Value != null)
+            {
+                CMolotovProjectile_CreateFunc.Value.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
+                return;
+            }
+            SpawnProjectileEntity<CMolotovProjectile>("molotov_projectile", pos, vel, teamNum);
+        }
+
+        // Without the gamedata signature (a CS2 update behind it) the projectile is created as a plain entity:
+        // it still flies, lands and detonates through the game's own code.
+        private static void SpawnProjectileEntity<T>(string designerName, Vector pos, Vector vel, int teamNum) where T : CBaseCSGrenadeProjectile
+        {
+            if (EntitySafety.SpawningBlocked) return;
+            try
+            {
+                var projectile = Utilities.CreateEntityByName<T>(designerName);
+                if (projectile == null || !projectile.IsValid) return;
+                projectile.TeamNum = (byte)teamNum;
+                projectile.Teleport(pos, QAngle.Zero, vel);
+                projectile.DispatchSpawn();
+                projectile.DetonateTime = Server.CurrentTime + 1.5f;
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[TiredPowers] {designerName} could not be created: {ex.Message}");
+            }
         }
 
         // True when this hit would be nullified by the server's friendly-fire rules (same-team hit,
@@ -551,10 +725,10 @@ namespace src.utils
         [
             Skills.Bankrupt, Skills.CarefulBullets, Skills.Darkness, Skills.Deactivator,
             Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
-            Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
+            Skills.ForgotControls, Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
             Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow,
-            Skills.Voodoo, Skills.Nemesis, Skills.Bounty
+            Skills.Voodoo, Skills.Nemesis, Skills.Bounty, Skills.Mute, Skills.Marked
         ];
 
         private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
@@ -788,24 +962,24 @@ namespace src.utils
                 playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) return false;
 
-                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
+                if (playerInfo.HasSkill(Skills.Jester) && Jester.GetJesterInfo(player.Index)?.Active == true)
                     return false;
 
-                if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
+                if (playerInfo.HasSkill(Skills.GodMode) && GodMode.HaveHodMode(player.Index))
                     return false;
 
-                if (playerInfo.Skill == Skills.Armored)
+                if (playerInfo.HasSkill(Skills.Armored))
                     damage = (int)Math.Round(damage * (playerInfo.SkillChance ?? 1f));
             }
 
             int newHealth = (int)(pawn.Health - damage);
             if (newHealth <= 0 && playerInfo != null)
             {
-                if (playerInfo.Skill == Skills.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
+                if (playerInfo.HasSkill(Skills.SecondLife) && SecondLife.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
+                if (playerInfo.HasSkill(Skills.Phoenix) && Phoenix.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
+                if (playerInfo.HasSkill(Skills.ReZombie) && ReZombie.TryBecomeZombie(victim, pawn))
                     return true;
             }
 
@@ -885,7 +1059,7 @@ namespace src.utils
             if (player == null || !player.IsValid) return;
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            playerInfo.PrintHTML = null;
+            playerInfo.ClearPrintHTML();
         }
 
         public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
@@ -1099,6 +1273,8 @@ namespace src.utils
             return designerName;
         }
 
+        public static IWasdMenuManager? MenuManager() => GetMenuManager();
+
         private static IWasdMenuManager? GetMenuManager()
         {
             if (jRandomSkills.Instance.MenuManager == null)
@@ -1170,7 +1346,7 @@ namespace src.utils
 
                 list.TryAdd(uniqueKey, (p, option) =>
                 {
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
                     manager.CloseMenu(p);
                 });
             }
@@ -1199,13 +1375,14 @@ namespace src.utils
                 if (pool.Count > 0)
                 {
                     string randomTarget = pool[Random.Shared.Next(pool.Count)];
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, new[] { randomTarget }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [player, new[] { randomTarget }]);
                 }
 
                 return;
             }
 
-            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == playerInfo.Skill);
+            var menuSkill = ComboManager.MenuSkillOf(playerInfo);
+            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == menuSkill);
             if (skillData == null) return;
 
             var manager = GetMenuManager();
@@ -1223,7 +1400,7 @@ namespace src.utils
                 ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>\u202A{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}\u202C</font><br>"
                 : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>\u202A{player.GetSkillName(skillData.Skill)}\u202C</font><br>";
 
-            var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLowerInvariant()}_select_info");
+            var skill_select_info = player.GetTranslation($"{menuSkill.ToString().ToLowerInvariant()}_select_info");
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info) || string.IsNullOrEmpty(config.WSADMenuSelectInfoLineSize)
                 ? ""
                 : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
@@ -1251,7 +1428,7 @@ namespace src.utils
 
                 menu.Add(uniqueKey, (p, option) =>
                 {
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
                     manager.CloseMenu(p);
                 });
             }
@@ -1273,7 +1450,7 @@ namespace src.utils
 
                 menu.Add($"{lastColor}\u202A{encodedLastElement}\u202C", (p, option) =>
                 {
-                    jRandomSkills.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
+                    jRandomSkills.Instance.SkillAction(ComboManager.MenuSkillOf(playerInfo).ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
                     if (lastElement.Value.Item3)
                         manager.CloseMenu(p);
                 });
