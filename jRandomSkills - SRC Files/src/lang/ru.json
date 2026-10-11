@@ -191,9 +191,6 @@
   "fortnite": "Фортнайт",
   "fortnite_desc": "Нажмите [css_useSkill], чтобы создать разрушаемую баррикаду",
 
-  "fragilebomb": "Хрупкая бомба",
-  "fragilebomb_desc": "Стрельба по бомбе повреждает её",
-  "fragilebomb_bomb_health": "Здоровье бомбы",
 
   "friendlyfire": "Дружественный огонь",
   "friendlyfire_desc": "Стрельба по союзникам лечит их",
@@ -704,7 +701,7 @@
   "switcheroo_desc": "Прицельтесь во врага и нажмите [css_useSkill], чтобы поменяться с ним местами",
   "switcheroo_enemy_info": "{0} поменялся с вами местами!",
   "groundslam": "Удар о Землю",
-  "groundslam_desc": "Присядьте в воздухе, чтобы обрушиться на землю, отбросив и ранив врагов вокруг",
+  "groundslam_desc": "Нажмите [css_useSkill], чтобы прыгнуть к ближайшему видимому врагу и ударить о землю; присядьте в воздухе, чтобы ударить на месте. Враги рядом отбрасываются и получают урон",
   "thundergod": "Бог Грома",
   "thundergod_desc": "Ваши ложные гранаты бьют молнией: каждый враг рядом с упавшей гранатой получает удар шокера",
   "thundergod_hit_info": "Ваша молния поразила {0} врагов",
@@ -824,5 +821,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "Врага в поле зрения нет.",
+  "superjump": "Суперпрыжок",
+  "superjump_desc": "Нажмите [css_useSkill] на земле для огромного прыжка; приземление никогда не ранит",
+  "dazzle": "Ослепление",
+  "dazzle_desc": "Каждая пуля, попавшая во врага, на миг ослепляет его",
+  "tremor": "Тремор",
+  "tremor_desc": "Нажмите [css_useSkill], чтобы сотрясти землю: враги поблизости сильно замедляются на несколько секунд",
+  "tremor_player_info": "Земля содрогнулась: замедлено врагов: {0}.",
+  "tremor_enemy_info": "Земля дрожит! Вы замедлены на {0} с."
 }

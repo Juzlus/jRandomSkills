@@ -191,9 +191,6 @@
   "fortnite": "Fortnite",
   "fortnite_desc": "Kliknij [css_useSkill], aby stworzyć barykadę, którą można zniszczyć",
 
-  "fragilebomb": "Krucha Bomba",
-  "fragilebomb_desc": "Strzelanie do bomby powoduje jej uszkodzenie",
-  "fragilebomb_bomb_health": "Zdrowie bomby",
 
   "friendlyfire": "Ogień Przyjacielski",
   "friendlyfire_desc": "Strzelanie do członków drużyny leczy ich",
@@ -704,7 +701,7 @@
   "switcheroo_desc": "Wyceluj we wroga i kliknij [css_useSkill], aby zamienić się z nim miejscami",
   "switcheroo_enemy_info": "{0} zamienił się z tobą miejscami!",
   "groundslam": "Uderzenie w Ziemię",
-  "groundslam_desc": "Kucnij w powietrzu, aby runąć na ziemię, odrzucając i raniąc wrogów wokół ciebie",
+  "groundslam_desc": "Kliknij [css_useSkill], aby skoczyć na najbliższego widocznego wroga i uderzyć w ziemię; kucnij w powietrzu, aby uderzyć w miejscu. Wrogowie wokół lądowania zostają odrzuceni i ranni",
   "thundergod": "Bóg Piorunów",
   "thundergod_desc": "Twoje decoye uderzają jak piorun: każdy wróg obok wylądowanego decoya zostaje porażony",
   "thundergod_hit_info": "Twój piorun poraził {0} wrogów",
@@ -824,5 +821,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "Brak wroga w zasięgu wzroku.",
+  "superjump": "Superskok",
+  "superjump_desc": "Kliknij [css_useSkill] na ziemi, aby wykonać ogromny skok; lądowanie nigdy nie boli",
+  "dazzle": "Oślepienie",
+  "dazzle_desc": "Każda kula trafiająca wroga oślepia go na chwilę",
+  "tremor": "Wstrząs",
+  "tremor_desc": "Kliknij [css_useSkill], aby wstrząsnąć ziemią: pobliscy wrogowie zostają mocno spowolnieni na kilka sekund",
+  "tremor_player_info": "Ziemia zadrżała: spowolniono {0} wrogów.",
+  "tremor_enemy_info": "Ziemia drży! Jesteś spowolniony przez {0} s."
 }

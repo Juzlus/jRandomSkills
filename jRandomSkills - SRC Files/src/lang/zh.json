@@ -172,9 +172,6 @@
   "fortnite": "堡垒之夜玩家",
   "fortnite_desc": "点击[css_useSkill]创建可破坏路障",
 
-  "fragilebomb": "脆弱炸弹",
-  "fragilebomb_desc": "射击炸弹会对其造成伤害",
-  "fragilebomb_bomb_health": "炸弹生命值",
 
   "friendlyfire": "奶妈",
   "friendlyfire_desc": "射击队友会治愈他们",
@@ -693,7 +690,7 @@
   "switcheroo_desc": "瞄准敌人并按 [css_useSkill] 与其交换位置",
   "switcheroo_enemy_info": "{0} 与你交换了位置！",
   "groundslam": "重击落地",
-  "groundslam_desc": "在空中下蹲砸向地面，击退并伤害周围的敌人",
+  "groundslam_desc": "点击 [css_useSkill] 扑向最近的可见敌人并猛砸地面；空中蹲下可原地猛砸。落点周围的敌人会被击退并受伤",
   "thundergod": "雷神",
   "thundergod_desc": "你的诱饵弹如闪电般落下：落地诱饵弹附近的每个敌人都会被电击",
   "thundergod_hit_info": "你的闪电电击了 {0} 名敌人",
@@ -814,5 +811,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "视野内没有敌人。",
+  "superjump": "超级跳",
+  "superjump_desc": "在地面点击 [css_useSkill] 进行超高跳跃；落地永远不会受伤",
+  "dazzle": "炫目",
+  "dazzle_desc": "每颗命中敌人的子弹都会使其短暂致盲",
+  "tremor": "震颤",
+  "tremor_desc": "点击 [css_useSkill] 震动大地：附近的敌人会被大幅减速几秒",
+  "tremor_player_info": "大地震动：{0} 名敌人被减速。",
+  "tremor_enemy_info": "大地在震动！你被减速 {0} 秒。"
 }

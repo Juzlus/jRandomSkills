@@ -191,9 +191,6 @@
   "fortnite": "Fortnite",
   "fortnite_desc": "Clique em [css_useSkill] para criar uma barreira destrutível",
 
-  "fragilebomb": "Bomba Frágil",
-  "fragilebomb_desc": "Atirar na bomba a danifica",
-  "fragilebomb_bomb_health": "Vida da bomba",
 
   "friendlyfire": "Fogo Amigo",
   "friendlyfire_desc": "Atirar em companheiros de equipe os cura",
@@ -704,7 +701,7 @@
   "switcheroo_desc": "Mire em um inimigo e pressione [css_useSkill] para trocar de lugar com ele",
   "switcheroo_enemy_info": "{0} trocou de lugar com você!",
   "groundslam": "Impacto no Chão",
-  "groundslam_desc": "Agache no ar para cair com força, empurrando e ferindo inimigos ao redor",
+  "groundslam_desc": "Clique [css_useSkill] para saltar sobre o inimigo visível mais próximo e esmagar o chão; agache no ar para esmagar no lugar. Inimigos ao redor são empurrados e feridos",
   "thundergod": "Deus do Trovão",
   "thundergod_desc": "Suas decoys caem como raios: todo inimigo perto de uma decoy no chão leva um choque",
   "thundergod_hit_info": "Seu raio eletrocutou {0} inimigos",
@@ -824,5 +821,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "Nenhum inimigo à vista.",
+  "superjump": "Super Salto",
+  "superjump_desc": "Clique [css_useSkill] no chão para um salto enorme; a aterrissagem nunca machuca",
+  "dazzle": "Ofuscar",
+  "dazzle_desc": "Cada bala que acerta um inimigo o cega por um instante",
+  "tremor": "Tremor",
+  "tremor_desc": "Clique [css_useSkill] para sacudir o chão: inimigos próximos ficam muito lentos por alguns segundos",
+  "tremor_player_info": "O chão tremeu: {0} inimigos desacelerados.",
+  "tremor_enemy_info": "O chão treme! Você está lento por {0} s."
 }

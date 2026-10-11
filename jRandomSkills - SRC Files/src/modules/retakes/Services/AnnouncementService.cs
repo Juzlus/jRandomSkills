@@ -163,10 +163,10 @@ public class AnnouncementService
         var retakes = src.utils.Config.LoadedConfig.Modules.Retakes;
         string image = (bombsite == Bombsite.A ? retakes.SiteImageA : retakes.SiteImageB)?.Trim() ?? "";
 
-        // A picture only in the explicit "Html" style: it must be re-sent every tick to stay up (HUD traffic).
-        // The "Screen" style falls back to plain text at the top of the HUD box, re-sent a few ticks apart.
-        bool htmlStyle = retakes.SiteBannerStyle.Trim().Equals("Html", StringComparison.OrdinalIgnoreCase);
-        if (htmlStyle && (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || image.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+        // A picture only in the explicit "Image" style: it must be re-sent every tick to stay up (HUD traffic).
+        // "Html" and the "Screen" fallback use plain text at the top of the HUD box, re-sent a few ticks apart.
+        bool imageStyle = retakes.SiteBannerStyle.Trim().Equals("Image", StringComparison.OrdinalIgnoreCase);
+        if (imageStyle && (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || image.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
             return $"<img src='{image.Replace("'", "%27")}'/>";
 
         string siteColor = bombsite == Bombsite.A ? "#FF5050" : "#50A0FF";

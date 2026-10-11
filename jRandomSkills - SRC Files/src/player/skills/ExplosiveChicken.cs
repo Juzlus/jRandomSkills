@@ -13,7 +13,6 @@ namespace src.player.skills
         private const Skills skillName = Skills.ExplosiveChicken;
         private const string nadePrefix = "exchicken_";
         private const string chickenParticle = "particles/critters/chicken/chicken_goop.vpcf";
-        private static readonly QAngle angle = new(20, -15, 43);
 
         private class PlayerSkillInfo
         {
@@ -27,7 +26,6 @@ namespace src.player.skills
 
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<uint, uint> chickenOwners = [];
-        private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
 
         public static void LoadSkill()
         {
@@ -39,7 +37,6 @@ namespace src.player.skills
         {
             SkillPlayerInfo.Clear();
             chickenOwners.Clear();
-            nades.Clear();
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -292,14 +289,8 @@ namespace src.player.skills
             float damage = SkillsInfo.GetValue<float>(skillName, "explosionDamage");
             float radius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
 
-            if (SkillUtils.HEGrenadeAvailable)
-            {
-                nades[Server.TickCount] = (team, ownerIndex);
-                SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), team);
-                return;
-            }
-
-            // No HE signature on this CS2 build: a plain blast owned by the player does the damage instead.
+            // The game's own blast (env_explosion owned by the player): credited to them, team rules kept,
+            // no gamedata signature involved, so it works on every CS2 build.
             SkillUtils.CreateExplosion(pos, damage, radius, owner.PlayerPawn.Value, $"{nadePrefix}{team}_{ownerIndex}_0");
         }
 
@@ -311,36 +302,6 @@ namespace src.player.skills
             skillInfo.ChickenIndex = null;
             skillInfo.LastOrigin = null;
             EntityManager.DestroyEntity(chickenIndex, 0f);
-        }
-
-        public static void OnEntitySpawned(CEntityInstance entity)
-        {
-            if (entity.DesignerName != "hegrenade_projectile") return;
-
-            var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
-            if (heProjectile == null || !heProjectile.IsValid) return;
-
-            // Ours when it spawned in the tick the chicken blew up (the spawn angles alone were not a reliable
-            // mark: physics can change them before the next frame and the damage was then never set).
-            int spawnTick = Server.TickCount;
-            if (!nades.TryRemove(spawnTick, out var source))
-            {
-                if (heProjectile.AbsRotation == null) return;
-                if (!(NearlyEquals(angle.X, heProjectile.AbsRotation.X) && NearlyEquals(angle.Y, heProjectile.AbsRotation.Y) && NearlyEquals(angle.Z, heProjectile.AbsRotation.Z)))
-                    return;
-            }
-
-            Server.NextFrame(() =>
-            {
-                if (heProjectile == null || !heProjectile.IsValid) return;
-
-                heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.Damage = SkillsInfo.GetValue<float>(skillName, "explosionDamage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
-                heProjectile.DetonateTime = 0;
-                if (source.Owner != 0)
-                    heProjectile.Globalname = $"{nadePrefix}{source.Team}_{source.Owner}_{heProjectile.Index}";
-            });
         }
 
         private static float GetCooldown(PlayerSkillInfo skillInfo)
@@ -386,9 +347,7 @@ namespace src.player.skills
                 : null;
         }
 
-        private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0452b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, float cooldown = 20f, float fuseTime = 12f, float triggerRadius = 120f, int chickenHealth = 60, int tickCooldown = 16, float boostFactor = 2.5f, float explosionDamage = 150f, float explosionRadius = 300f, float dmgReductionForTeamates = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0452b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, float cooldown = 20f, float fuseTime = 12f, float triggerRadius = 150f, int chickenHealth = 150, int tickCooldown = 8, float boostFactor = 3f, float explosionDamage = 150f, float explosionRadius = 300f, float dmgReductionForTeamates = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
             public float FuseTime { get; set; } = fuseTime;

@@ -191,9 +191,6 @@
   "fortnite": "Fortnite",
   "fortnite_desc": "Appuyez sur [css_useSkill] pour créer une barricade destructible",
 
-  "fragilebomb": "Bombe Fragile",
-  "fragilebomb_desc": "Tirer sur la bombe lui inflige des dégâts",
-  "fragilebomb_bomb_health": "Santé de la bombe",
 
   "friendlyfire": "Tir Ami",
   "friendlyfire_desc": "Tirer sur vos coéquipiers les soigne",
@@ -704,7 +701,7 @@
   "switcheroo_desc": "Visez un ennemi et appuyez sur [css_useSkill] pour échanger vos places",
   "switcheroo_enemy_info": "{0} a échangé sa place avec la vôtre !",
   "groundslam": "Frappe au Sol",
-  "groundslam_desc": "Accroupissez-vous en l'air pour vous écraser au sol, repoussant et blessant les ennemis autour de vous",
+  "groundslam_desc": "Cliquez sur [css_useSkill] pour bondir sur l’ennemi visible le plus proche et vous écraser au sol ; accroupissez-vous en l’air pour frapper sur place. Les ennemis autour sont repoussés et blessés",
   "thundergod": "Dieu du Tonnerre",
   "thundergod_desc": "Vos leurres frappent comme la foudre : chaque ennemi près d'un leurre au sol est tasé",
   "thundergod_hit_info": "Votre foudre a tasé {0} ennemis",
@@ -824,5 +821,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "Aucun ennemi en vue.",
+  "superjump": "Super saut",
+  "superjump_desc": "Cliquez sur [css_useSkill] au sol pour un saut énorme ; l’atterrissage ne fait jamais mal",
+  "dazzle": "Éblouissement",
+  "dazzle_desc": "Chaque balle qui touche un ennemi l’aveugle un instant",
+  "tremor": "Secousse",
+  "tremor_desc": "Cliquez sur [css_useSkill] pour secouer le sol : les ennemis proches sont fortement ralentis quelques secondes",
+  "tremor_player_info": "Le sol a tremblé : {0} ennemis ralentis.",
+  "tremor_enemy_info": "Le sol tremble ! Vous êtes ralenti pendant {0} s."
 }

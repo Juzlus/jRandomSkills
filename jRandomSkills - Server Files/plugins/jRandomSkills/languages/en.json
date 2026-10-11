@@ -184,9 +184,6 @@
   "fortnite": "Fortnite",
   "fortnite_desc": "Click [css_useSkill] to create a destructible barricade",
 
-  "fragilebomb": "Fragile Bomb",
-  "fragilebomb_desc": "Shooting the bomb damages it",
-  "fragilebomb_bomb_health": "Bomb health",
 
   "friendlyfire": "Friendly Fire",
   "friendlyfire_desc": "Shooting teammates heals them",
@@ -704,7 +701,7 @@
   "switcheroo_desc": "Aim at an enemy and click [css_useSkill] to swap places with them",
   "switcheroo_enemy_info": "{0} swapped places with you!",
   "groundslam": "Ground Slam",
-  "groundslam_desc": "Crouch while in the air to slam down, knocking back and hurting enemies around you",
+  "groundslam_desc": "Click [css_useSkill] to leap at the nearest enemy you can see and slam down; crouch in the air to slam on the spot. Enemies around the landing are knocked back and hurt",
   "thundergod": "Thunder God",
   "thundergod_desc": "Your decoys strike like lightning: every enemy near a landed decoy gets tased",
   "thundergod_hit_info": "Your lightning tased {0} enemies",
@@ -824,5 +821,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "No enemy in sight to leap at.",
+  "superjump": "Super Jump",
+  "superjump_desc": "Click [css_useSkill] on the ground for a huge jump; the landing never hurts",
+  "dazzle": "Dazzle",
+  "dazzle_desc": "Every bullet that hits an enemy blinds them for a moment",
+  "tremor": "Tremor",
+  "tremor_desc": "Click [css_useSkill] to shake the ground: enemies nearby are slowed to a crawl for a few seconds",
+  "tremor_player_info": "The ground shook: {0} enemies slowed.",
+  "tremor_enemy_info": "The ground shakes! You are slowed for {0} s."
 }

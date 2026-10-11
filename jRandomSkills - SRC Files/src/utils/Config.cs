@@ -193,7 +193,7 @@ namespace src.utils
             public string PluginName { get; set; } = "TiredPowers";
             // Skills that are loaded but never drawn; admins hand them out with css_setskill (test skills).
             [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
-            public List<string> AdminOnlySkills { get; set; } = ["GuidedBullet"];
+            public List<string> AdminOnlySkills { get; set; } = [];
             // Put a joining player straight onto the smaller team (no team menu). With retakes on, the retakes
             // queue does this (QueueSettings.ShouldAutoJoinGame in retakes.json); this covers retakes off.
             public bool AutoAssignTeamOnJoin { get; set; } = true;
@@ -548,12 +548,10 @@ namespace src.utils
             public string SiteImageA { get; set; } = "https://cdn.michael.cool/d/A.png";
             public string SiteImageB { get; set; } = "https://cdn.michael.cool/d/B.png";
             public float SiteBannerSeconds { get; set; } = 4f;
-            // "Screen": big "SITE A" / "SITE B" text drawn at the top of the screen on its own (point_worldtext, as
-            // CS2-GameHUD / InfoTop draw it: no HUD traffic). When entity spawning is blocked the same text goes to
-            // the top of the centre HUD box instead (text only, re-sent a few ticks apart). "Html": the SiteImage
-            // picture in the centre HUD (re-sent every tick). "Off": no banner. With the standalone RetakesSiteAnnounce plugin loaded the banner
-            // is off automatically, whatever this says.
-            public string SiteBannerStyle { get; set; } = "Screen";
+            // "Html" (default): big "SITE A" / "SITE B" text at the top of the centre HUD box (no entity, re-sent a few
+            // ticks apart). "Screen": the same text as a free point_worldtext in front of the eyes (never parented to
+            // the pawn). "Image": the SiteImage picture in the centre HUD (re-sent every tick). "Off": no banner.
+            public string SiteBannerStyle { get; set; } = "Html";
             // true: when the standalone RetakesSiteAnnounce plugin is loaded, leave the on-screen call to it.
             // false: draw the built-in banner anyway.
             public bool DeferToStandaloneSiteAnnounce { get; set; } = true;
@@ -567,7 +565,7 @@ namespace src.utils
             public bool RepeatSiteCallAfterPlant { get; set; } = false;
             // Screen text placement, CS2-GameHUD / InfoTop convention: X right, Y up, Z distance from the eyes.
             // InfoTop's defaults are X 0, Y 40, Z 80 with font 20 and 0.25 units per pixel.
-            public string ScreenBannerMethod { get; set; } = "Pawn"; // Pawn | Orient
+            public string ScreenBannerMethod { get; set; } = "Pawn"; // kept for old configs; every method is a free entity now
             public float ScreenBannerX { get; set; } = 0f;
             public float ScreenBannerY { get; set; } = 40f;
             public float ScreenBannerZ { get; set; } = 80f;

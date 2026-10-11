@@ -9,7 +9,8 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
-    // Crouch while in the air to slam into the ground; enemies around the landing spot are knocked back and hurt.
+    // Press the use key to leap at the nearest enemy you can see and slam into the ground next to them; crouching
+    // in the air slams on the spot. Enemies around the landing spot are knocked back and hurt.
     public class GroundSlam : ISkill
     {
         private const Skills skillName = Skills.GroundSlam;
@@ -89,6 +90,66 @@ namespace src.player.skills
             }
         }
 
+        public static void UseSkill(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;
+
+            float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
+            if (skillInfo.Slamming || skillInfo.Cooldown.AddSeconds(cooldown) > DateTime.Now) return;
+
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
+
+            var target = NearestVisibleEnemy(player, pawn, out float distance);
+            if (target == null)
+            {
+                player.PrintToChat($" {ChatColors.Red}{player.GetTranslation("groundslam_no_target")}");
+                return;
+            }
+
+            // A leap that lands next to the enemy: forward speed from the distance, a fixed rise, capped.
+            float maxLeap = SkillsInfo.GetValue<float>(skillName, "leapSpeed");
+            float rise = SkillsInfo.GetValue<float>(skillName, "leapRise");
+            Vector to = new(target.X - pawn.AbsOrigin.X, target.Y - pawn.AbsOrigin.Y, 0);
+            float flat = to.Length();
+            if (flat < 1f) to = new Vector(1, 0, 0); else to = new Vector(to.X / flat, to.Y / flat, 0);
+            float airTime = 2f * rise / 800f;                       // up and down under sv_gravity 800
+            float speed = Math.Clamp(flat / MathF.Max(airTime, 0.1f), 300f, maxLeap);
+
+            skillInfo.Slamming = true;
+            skillInfo.Cooldown = DateTime.Now;
+            pawn.Teleport(null, null, new Vector(to.X * speed, to.Y * speed, rise));
+            pawn.EmitSound("Player.Respawn", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
+        }
+
+        // The closest living enemy with a clear line from the eyes to their chest.
+        private static Vector? NearestVisibleEnemy(CCSPlayerController player, CCSPlayerPawn pawn, out float bestDistance)
+        {
+            bestDistance = float.MaxValue;
+            Vector? best = null;
+            Vector eye = new(pawn.AbsOrigin!.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
+            float maxRange = SkillsInfo.GetValue<float>(skillName, "leapRange");
+
+            foreach (var enemy in PlayerManager.GetTickPlayers())
+            {
+                if (!Instance.IsPlayerValid(enemy) || enemy.Index == player.Index || enemy.Team == player.Team || !enemy.PawnIsAlive) continue;
+                var enemyPawn = enemy.PlayerPawn.Value;
+                if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null) continue;
+
+                float d = (float)SkillUtils.GetDistance(pawn.AbsOrigin, enemyPawn.AbsOrigin);
+                if (d > maxRange || d >= bestDistance) continue;
+
+                Vector chest = new(enemyPawn.AbsOrigin.X, enemyPawn.AbsOrigin.Y, enemyPawn.AbsOrigin.Z + 40f);
+                var trace = RayTrace.TraceShape(player, eye, chest);
+                if (trace.HasValue && trace.Value.DidHit && trace.Value.Fraction < 0.97f) continue; // a wall in between
+
+                bestDistance = d;
+                best = new Vector(enemyPawn.AbsOrigin.X, enemyPawn.AbsOrigin.Y, enemyPawn.AbsOrigin.Z);
+            }
+            return best;
+        }
+
         // The slam drives the player into the ground far faster than a normal fall; the game would count that as
         // lethal fall damage, so fall damage is swallowed while slamming and for a few ticks after landing.
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
@@ -147,7 +208,7 @@ namespace src.player.skills
             public int LandedTick { get; set; } = -100;
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5651d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Uncommon, float cooldown = 6f, float slamVelocity = 1500f, float radius = 220f, float pushVelocity = 500f, float jumpVelocity = 300f, int damage = 25, int minAirTicks = 8, float soundVolume = .6f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5651d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Uncommon, float cooldown = 6f, float slamVelocity = 1500f, float radius = 220f, float pushVelocity = 500f, float jumpVelocity = 300f, int damage = 25, int minAirTicks = 8, float soundVolume = .6f, float leapSpeed = 900f, float leapRise = 350f, float leapRange = 1500f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float Cooldown { get; set; } = cooldown;
             public float SlamVelocity { get; set; } = slamVelocity;
@@ -157,6 +218,9 @@ namespace src.player.skills
             public int Damage { get; set; } = damage;
             public int MinAirTicks { get; set; } = minAirTicks;
             public float SoundVolume { get; set; } = soundVolume;
+            public float LeapSpeed { get; set; } = leapSpeed;
+            public float LeapRise { get; set; } = leapRise;
+            public float LeapRange { get; set; } = leapRange;
         }
     }
 }

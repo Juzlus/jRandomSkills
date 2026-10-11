@@ -184,9 +184,6 @@
   "fortnite": "Fortnite",
   "fortnite_desc": "[css_useSkill] tuşuna basarak barikat kur",
 
-  "fragilebomb": "Hassas C4",
-  "fragilebomb_desc": "Kurulu C4'e ateş etmek canını azaltır ve C4'ü imha eder",
-  "fragilebomb_bomb_health": "Bombanın canı",
 
   "friendlyfire": "Dost Şifası",
   "friendlyfire_desc": "Takım arkadaşına ateş etmek onu iyileştirir",
@@ -704,7 +701,7 @@
   "switcheroo_desc": "Bir düşmana nişan al ve onunla yer değiştirmek için [css_useSkill] tuşuna bas",
   "switcheroo_enemy_info": "{0} seninle yer değiştirdi!",
   "groundslam": "Yere Çakılma",
-  "groundslam_desc": "Havadayken eğilerek yere çakıl; etrafındaki düşmanlar savrulur ve hasar alır",
+  "groundslam_desc": "Görünen en yakın düşmana sıçrayıp yere çakılmak için [css_useSkill] tıkla; havada eğilerek olduğun yere çakıl. İnişin çevresindeki düşmanlar savrulur ve hasar alır",
   "thundergod": "Gök Gürültüsü Tanrısı",
   "thundergod_desc": "Sahte bombaların yıldırım gibi çarpar: yere düşen sahte bombanın yanındaki her düşman şoklanır",
   "thundergod_hit_info": "Yıldırımın {0} düşmanı şokladı",
@@ -824,5 +821,14 @@
   "timelord_desc": "Click [css_useSkill] to turn the last 7 seconds back: everyone returns to where they were and the fallen come back to life",
   "timelord_used": "{0} turned time back {1} seconds! ({2} brought back)",
   "timelord_nothing": "Nothing to rewind yet.",
-  "timelord_used_info": "Time already turned back this round"
+  "timelord_used_info": "Time already turned back this round",
+  "groundslam_no_target": "Görüş alanında düşman yok.",
+  "superjump": "Süper Zıplama",
+  "superjump_desc": "Yerdeyken [css_useSkill] tıkla ve devasa bir zıplama yap; iniş asla acıtmaz",
+  "dazzle": "Göz Kamaştırma",
+  "dazzle_desc": "Düşmana isabet eden her mermi onu bir an kör eder",
+  "tremor": "Sarsıntı",
+  "tremor_desc": "Yeri sarsmak için [css_useSkill] tıkla: yakındaki düşmanlar birkaç saniye çok yavaşlar",
+  "tremor_player_info": "Yer sarsıldı: {0} düşman yavaşlatıldı.",
+  "tremor_enemy_info": "Yer sarsılıyor! {0} sn boyunca yavaşsın."
 }

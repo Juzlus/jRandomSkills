@@ -8,16 +8,12 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 namespace src.utils
 {
     // Text drawn at a fixed spot on one player's screen without using the centre message slot: a point_worldtext
-    // entity kept in front of the eyes, the way CS2-GameHUD (used by InfoTop and similar plugins) does it. Only
-    // the owner receives the entity.
+    // moved in front of the eyes every tick while it is shown. Only the owner receives the entity.
     //
-    // Lifecycle: the text entity exists only while a banner is visible. Hiding unparents it and removes it a frame
-    // later; the next banner creates a fresh one. Nothing stays parented to a player pawn between banners, so
-    // the hierarchy cannot touch the pawn's movement or networking outside those few seconds.
-    //
-    // ScreenTextMethod:
-    //   Pawn   - parented to the player pawn and re-aimed from the view angles every tick (GameHUD default).
-    //   Orient - parented to a point_orient that follows the eyes on the client (GameHUD "method" cvar).
+    // The entity is NEVER parented to the player pawn. A text kept parented to every pawn (the GameHUD-style
+    // lifecycle used until PR #36) doubled every player's horizontal speed on the first airborne tick of a jump
+    // (verified on a server with no other plugins; gone with the text switched off). The text is a free-standing
+    // entity, created when a banner shows and removed when it ends.
     public static class ScreenText
     {
         public enum Method { Pawn, Orient }
@@ -47,20 +43,9 @@ namespace src.utils
 
         public static Method ParseMethod(string? name)
         {
-            switch (name?.Trim().ToLowerInvariant())
-            {
-                case "orient":
-                    return Method.Orient;
-                case "viewmodel":
-                    if (!viewModelNoteShown)
-                    {
-                        viewModelNoteShown = true;
-                        Server.PrintToConsole("[TiredPowers] ScreenBannerMethod \"ViewModel\" writes into engine memory and was removed; using \"Pawn\".");
-                    }
-                    return Method.Pawn;
-                default:
-                    return Method.Pawn;
-            }
+            // Every method is the same now: a free entity re-placed each tick. "Orient" and "ViewModel" parented
+            // things to the pawn and are gone.
+            return Method.Pawn;
         }
 
         // X: right, Y: up, Z: distance in front of the eyes (world units at that distance, GameHUD convention).
@@ -108,32 +93,10 @@ namespace src.utils
             }
             entry.Style = style;
 
-            // Parent: the pawn itself, or a point_orient riding on the pawn. Re-parent when the pawn changed.
-            CBaseEntity? parent = pawn;
-            if (method == Method.Orient)
-            {
-                var orient = Utilities.GetEntityFromIndex<CPointOrient>((int)entry.OrientIndex);
-                if (orient == null || !orient.IsValid)
-                {
-                    orient = CreateOrient(pawn);
-                    if (orient == null) return false;
-                    entry.OrientIndex = orient.Index;
-                    entry.ParentHandle = 0;
-                }
-                parent = orient;
-            }
-
-            if (parent == null || !parent.IsValid) return false;
-            if (entry.ParentHandle != parent.EntityHandle.Raw)
-            {
-                ent.AcceptInput("SetParent", parent, null, "!activator");
-                entry.ParentHandle = parent.EntityHandle.Raw;
-            }
-
             ent.AcceptInput("SetMessage", null, null, text);
             entry.Until = DateTime.Now.AddSeconds(seconds);
             entry.Visible = true;
-            Place(pawn, ent, entry, parent);
+            Place(pawn, ent, entry, null);
             return true;
         }
 
@@ -154,20 +117,9 @@ namespace src.utils
 
         private static void Place(CCSPlayerPawn pawn, CPointWorldText ent, Entry entry, CBaseEntity? parent)
         {
-            QAngle angles;
-            Vector origin;
-
-            if (entry.Method == Method.Orient && parent != null && parent.IsValid && parent.AbsRotation != null && parent.AbsOrigin != null)
-            {
-                angles = parent.AbsRotation;
-                origin = new Vector(parent.AbsOrigin.X, parent.AbsOrigin.Y, parent.AbsOrigin.Z);
-            }
-            else
-            {
-                if (pawn.AbsOrigin == null) return;
-                angles = pawn.V_angle;
-                origin = new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
-            }
+            if (pawn.AbsOrigin == null) return;
+            QAngle angles = pawn.V_angle;
+            Vector origin = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
 
             AngleVectors(angles, out var forward, out var right, out var up);
             var s = entry.Style;
@@ -183,23 +135,6 @@ namespace src.utils
             forward = new Vector(cp * cy, cp * sy, -sp);
             right = new Vector(sy, -cy, 0);
             up = new Vector(sp * cy, sp * sy, cp);
-        }
-
-        // A point_orient that turns with the player's eyes on the client; the text rides on it.
-        private static CPointOrient? CreateOrient(CCSPlayerPawn pawn)
-        {
-            if (pawn.AbsOrigin == null) return null;
-
-            var orient = Utilities.CreateEntityByName<CPointOrient>("point_orient");
-            if (orient == null || !orient.IsValid) return null;
-
-            orient.Active = true;
-            orient.GoalDirection = PointOrientGoalDirectionType_t.eEyesForward;
-            orient.DispatchSpawn();
-            orient.Teleport(new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z));
-            orient.AcceptInput("SetParent", pawn, null, "!activator");
-            orient.AcceptInput("SetTarget", pawn, null, "!activator");
-            return orient;
         }
 
         // Unparent and remove the text; the next call creates a new one.
@@ -288,8 +223,7 @@ namespace src.utils
                     continue;
                 }
 
-                if (entry.Method == Method.Pawn)
-                    Place(pawn, ent, entry, pawn);
+                Place(pawn, ent, entry, null);
             }
         }
 

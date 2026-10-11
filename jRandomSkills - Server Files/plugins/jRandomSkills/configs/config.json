@@ -1,9 +1,7 @@
 ﻿{
   "ConfigName": "Default",
   "PluginName": "TiredPowers",
-  "AdminOnlySkills": [
-    "GuidedBullet"
-  ],
+  "AdminOnlySkills": [],
   "AutoAssignTeamOnJoin": true,
   "SkipWarmup": true,
   "SkillsUsableInFreezeTime": true,
@@ -377,7 +375,7 @@
       "SiteImageA": "https://cdn.michael.cool/d/A.png",
       "SiteImageB": "https://cdn.michael.cool/d/B.png",
       "SiteBannerSeconds": 4.0,
-      "SiteBannerStyle": "Screen",
+      "SiteBannerStyle": "Html",
       "DeferToStandaloneSiteAnnounce": true,
       "SiteCallCtOnly": true,
       "SiteCallChat": false,
