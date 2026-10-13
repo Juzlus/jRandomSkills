@@ -438,6 +438,40 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.4.b4</b></summary>
+
+- #### Ogólne
+    - **Tożsamość gracza** - Naprawiono problem, przez który gracze mogli przejmować umiejętności, czasy odnowienia lub klątwy poprzednich graczy zajmujących ten sam slot. Dane graczy są teraz powiązane z uchwytami połączeń i usuwane po rozłączeniu.
+    - **Czyszczenie encji** - Naprawiono błędne usuwanie obiektów mapy, encji `env_cs_place` oraz broni graczy podczas czyszczenia encji na początku rundy.
+    - **Zabójstwa umiejętnościami** - Naprawiono zabójstwa wykonywane przez umiejętności, które powodowały dodatkowe zgony, nieprawidłowe nagrody w wysokości $300 oraz komunikaty o nagrodach za samobójstwo. Zabójstwa są teraz przypisywane atakującemu.
+    - **Przydzielania umiejętności** - Dodano mechanizm kontrolny zapobiegający rozpoczynaniu rund bez przydzielonych umiejętności. Ulepszono również logi informujące, dlaczego pominięto graczy.
+    - **Tworzenie encji** - Naprawiono problemy z usuwaniem encji spowodowane ponownym użyciem wartości `globalname`.
+    - **Czyszczenie danych po rozłączeniu** - Naprawiono problem, przez który dane graczy nie były usuwane natychmiast po rozłączeniu.
+    - **Logi błędów** - Błędy występujące podczas aktualizacji umiejętności zawierają teraz informacje o pliku i numerze linii, w której wystąpił błąd.
+
+- #### Poprawki mocy
+    - **Granat EMP** - Granat EMP wpływa teraz wyłącznie na przeciwników.
+    - **Zamiana Miejsc** - Umiejętność wybiera teraz wyłącznie żywych przeciwników z drużyn CT/T, pomijając obserwatorów i umierających graczy.
+    - **Radarowiec** - Naprawiono wykrywanie na radarze graczy zajmujących sloty 32 i wyższe.
+    - **Duch, Ninja, C4 Kamuflaż** - Naprawiono sprawdzanie widoczności przenoszonej bomby C4.
+    - **Odległościomierz** - Naprawiono błędy HUD-u występujące po rozłączeniu przeciwnika.
+    - **Papito** - Naprawiono opóźnione przyznawanie AWP po zmianie umiejętności.
+    - **Lecząca Kura*** - Naprawiono pomijanie niektórych cykli leczenia. Leczenie odbywa się teraz zgodnie z interwałem określonym w konfiguracji.
+    - **Niszczyciel Stref** - Naprawiono czyszczenie informacji o docelowym bombsite po usunięciu umiejętności.
+
+- #### Stabilność
+    - **Ogólna wydajność** - Zmniejszono zużycie CPU na pojedynczy tick o około 50%.
+    - **Wyszukiwanie bomby** - Zapisano referencję do encji C4 podczas jej tworzenia, eliminując konieczność przeszukiwania wszystkich encji przy każdym ticku.
+    - **Teleport do drużyny, Odległościomierz** - Zoptymalizowano porównywanie graczy poprzez wykorzystanie wspólnego zestawu danych żywych graczy aktualizowanego raz na tick.
+    - **Trzecie Oko, Oko Sokoła** - Kamery przemieszczają się teraz tylko wtedy, gdy gracz aktywnie z nich korzysta.
+    - **Duch, Ninja, C4 Kamuflaż, Lecząca Kura** - Ograniczono zbędne operacje, przetwarzając tylko graczy posiadających daną umiejętność i odczytując ich pozycje raz na tick.
+    - **Wyszukiwanie graczy** - Dodano buforowanie wyszukiwania kontrolerów i kluczy graczy na czas pojedynczego ticka.
+
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#64](https://github.com/Juzlus/jRandomSkills/pull/64). Dziękujemy ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.4.b3</b></summary>
 
 - #### Ogólne
@@ -454,7 +488,7 @@ Plugin korzysta z zawartości następujących projektów:
     - **Krucha Bomba** - Podłożone bomby są teraz wykrywane poprawnie, a trajektoria pocisku jest prawidłowo sprawdzana.
     - **"Linka z Drutu** - Wiązki są teraz poprawnie usuwane po zmianie umiejętności.
 
-**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#58](https://github.com/Juzlus/jRandomSkills/pull/58). Dziękujemy ByDexterTR!**
+**Pełna aktualizacja została przygotowana przez [@ByDexterTR](https://github.com/ByDexterTR) w ramach pull requesta [#61](https://github.com/Juzlus/jRandomSkills/pull/61). Dziękujemy ByDexterTR!**
 
 </details>
 
