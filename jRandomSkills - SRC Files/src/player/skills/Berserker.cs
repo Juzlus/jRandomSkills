@@ -24,6 +24,11 @@ namespace src.player.skills
             jumpedPlayers.Clear();
         }
 
+        public static void PlayerDisconnect(uint playerKey)
+        {
+            jumpedPlayers.TryRemove(playerKey, out _);
+        }
+
         private static float CalculateNewVelocity(CCSPlayerPawn pawn, float maxValue)
         {
             if (pawn!.Health <= 0) return 1f;
@@ -54,7 +59,7 @@ namespace src.player.skills
 
             CCSPlayerController attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>())!;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
             if (playerInfo == null) return;
 
             if (playerInfo.Skill == skillName)
@@ -68,16 +73,16 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            if (!jumpedPlayers.TryGetValue(player.Index, out _)) return;
-            jumpedPlayers.AddOrUpdate(player.Index, Server.TickCount + 20, (k, v) => Server.TickCount + 20);
+            if (!jumpedPlayers.TryGetValue(player.Key(), out _)) return;
+            jumpedPlayers.AddOrUpdate(player.Key(), Server.TickCount + 20, (k, v) => Server.TickCount + 20);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerPawn == null || playerInfo == null) return;
-            jumpedPlayers.TryAdd(player.Index, 0);
+            jumpedPlayers.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -85,7 +90,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null) return;
             playerPawn.VelocityModifier = 1;
-            jumpedPlayers.TryRemove(player.Index, out _);
+            jumpedPlayers.TryRemove(player.Key(), out _);
         }
 
         public static void OnTick()
@@ -108,7 +113,7 @@ namespace src.player.skills
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newSpeedVelocity;
 
-                if (jumpedPlayers.TryGetValue(player.Index, out var time) && time > Server.TickCount)
+                if (jumpedPlayers.TryGetValue(player.Key(), out var time) && time > Server.TickCount)
                     continue;
 
                 if (playerPawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) continue;

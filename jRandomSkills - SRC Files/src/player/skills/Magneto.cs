@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -39,7 +39,7 @@ namespace src.player.skills
 
                 foreach (var playerIndex in players.Keys)
                 {
-                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    var player = PlayerManager.GetController(playerIndex);
                     if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid)
                     {
                         players.TryRemove(playerIndex, out _);
@@ -71,12 +71,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            players.TryAdd(player.Index, 0);
+            players.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            players.TryRemove(player.Index, out _);
+            players.TryRemove(player.Key(), out _);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f081ec", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float radius = 100) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

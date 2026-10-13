@@ -39,7 +39,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
+            var victimInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;

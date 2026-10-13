@@ -33,7 +33,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || commands == null || commands.Length == 0) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -62,7 +62,7 @@ namespace src.player.skills
                     Utilities.SetStateChanged(targetSite, "CBombTarget", "m_bBombPlantedHere");
                     playerInfo.SkillUsed = true;
 
-                    playersToTarget[player.Index] = targetSite.Index;
+                    playersToTarget[player.Key()] = targetSite.Index;
 
                     string siteLetter = site == 0 ? "A" : "B";
                     foreach (var ct in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team == CsTeam.CounterTerrorist))
@@ -75,7 +75,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -87,6 +87,9 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            if (player != null && player.IsValid)
+                playersToTarget.TryRemove(player.Key(), out _);
+
             Server.NextWorldUpdate(() =>
             {
                 if (PlayerManager.GetPlayerCountBySkill(skillName) != 0) return;
@@ -116,7 +119,7 @@ namespace src.player.skills
                 var playerEvent = PlayerManager.GetPlayerFromEvent(player);
                 if (playerEvent == null || !playerEvent.IsValid || player == null || !player.IsValid || player.Team != CsTeam.Terrorist || player.PlayerPawn?.Value?.Health <= 0) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == null) continue;
 
                 var pawn = player.PlayerPawn!.Value;

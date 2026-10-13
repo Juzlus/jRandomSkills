@@ -463,22 +463,24 @@ namespace src.utils
             return 1f - Math.Clamp(reduction, 0f, 1f);
         }
 
-        private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
+        private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, bool Native, int ExpiryTick)> pendingKillCredits = [];
 
-        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null)
+        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null, bool native = false)
         {
-            pendingKillCredits[victimIndex] = (attackerIndex, killfeedIcon == null ? null : KillfeedIconsExtensions.ToIcon((KillfeedIcons)killfeedIcon), Server.TickCount + 64);
+            pendingKillCredits[victimIndex] = (attackerIndex, killfeedIcon == null ? null : KillfeedIconsExtensions.ToIcon((KillfeedIcons)killfeedIcon), native, Server.TickCount + 64);
         }
 
-        public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon)
+        public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon, out bool native)
         {
             attackerIndex = 0;
             weapon = null;
+            native = false;
             if (!pendingKillCredits.TryRemove(victimIndex, out var credit)) return false;
             if (credit.ExpiryTick < Server.TickCount) return false;
 
             attackerIndex = credit.AttackerIndex;
             weapon = credit.Weapon;
+            native = credit.Native;
             return true;
         }
 
@@ -491,7 +493,7 @@ namespace src.utils
             Vector start = new(pawn.AbsOrigin.X + forward.X * 16, pawn.AbsOrigin.Y + forward.Y * 16, pawn.AbsOrigin.Z + pawn.ViewOffset.Z - 6);
             Vector end = new(result.EndPos.X, result.EndPos.Y, result.EndPos.Z);
 
-            EntityManager.CreateTracer(player.Index, particleName, start, end);
+            EntityManager.CreateTracer(player.Key(), particleName, start, end);
         }
 
         public static void ClearKillCredits()
@@ -661,7 +663,7 @@ namespace src.utils
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            if (!TryUpdateOwners(crosshairOwners, player.Index, owner, hide, out bool suppressed)) return;
+            if (!TryUpdateOwners(crosshairOwners, player.Key(), owner, hide, out bool suppressed)) return;
 
             if (suppressed) pawn.HideHUD |= crosshairBit;
             else pawn.HideHUD &= ~crosshairBit;
@@ -672,7 +674,7 @@ namespace src.utils
         public static void SetRadarDisabled(CCSPlayerController? player, string owner, bool disable)
         {
             if (player == null || !player.IsValid) return;
-            if (!TryUpdateOwners(radarOwners, player.Index, owner, disable, out bool suppressed)) return;
+            if (!TryUpdateOwners(radarOwners, player.Key(), owner, disable, out bool suppressed)) return;
 
             player.ReplicateConVar("sv_disable_radar", suppressed ? "1" : "0");
         }
@@ -722,7 +724,7 @@ namespace src.utils
             var enemies = GetAliveEnemies(player);
             if (!respectCurseLimit || !CurseLimitEnabled || enemies.Length == 0) return enemies;
 
-            var withCapacity = enemies.Where(p => CanCurse(p.Index)).ToArray();
+            var withCapacity = enemies.Where(p => CanCurse(p.Key())).ToArray();
             return withCapacity.Length > 0 ? withCapacity : enemies;
         }
 
@@ -731,7 +733,7 @@ namespace src.utils
             if (!CurseLimitEnabled) return true;
             if (player == null || !player.IsValid) return true;
 
-            return GetAliveEnemies(player).Any(p => CanCurse(p.Index));
+            return GetAliveEnemies(player).Any(p => CanCurse(p.Key()));
         }
 
         private static CCSPlayerController[] GetAliveEnemies(CCSPlayerController player)
@@ -760,18 +762,20 @@ namespace src.utils
             var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
             if (victim == null || !victim.IsValid) return;
 
-            healthBeforeHit[victim.Index] = victimPawn.Health;
+            healthBeforeHit[victim.Key()] = victimPawn.Health;
         }
 
         public static int CapToVictimHealth(CCSPlayerController? victim, int dmgHealth)
         {
             if (victim == null || !victim.IsValid) return dmgHealth;
-            if (!healthBeforeHit.TryGetValue(victim.Index, out int healthBefore) || healthBefore <= 0) return dmgHealth;
+            if (!healthBeforeHit.TryGetValue(victim.Key(), out int healthBefore) || healthBefore <= 0) return dmgHealth;
 
             return dmgHealth > healthBefore ? healthBefore : dmgHealth;
         }
 
         public static void ClearHealthBeforeHit() => healthBeforeHit.Clear();
+
+        public static void ForgetHealthBeforeHit(uint playerKey) => healthBeforeHit.TryRemove(playerKey, out _);
 
         public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, KillfeedIcons? killfeedIcon = null)
         {
@@ -785,7 +789,7 @@ namespace src.utils
             if (player != null && player.IsValid)
             {
                 victim = player.As<CCSPlayerController>();
-                playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                playerInfo = PlayerManager.GetPlayer(victim);
                 if (playerInfo == null) return false;
 
                 if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
@@ -814,8 +818,15 @@ namespace src.utils
 
             if (pawn.Health <= 0)
             {
-                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid && damageAttacker.Index != victim.Index)
-                    RegisterKillCredit(victim.Index, damageAttacker.Index, killfeedIcon);
+                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid && damageAttacker.Key() != victim.Key())
+                {
+                    var attackerPawn = damageAttacker.PlayerPawn.Value;
+                    var world = Utilities.GetEntityFromIndex<CBaseEntity>(0);
+                    bool native = attackerPawn != null && attackerPawn.IsValid && world != null && world.IsValid && damageAttacker.Team != victim.Team;
+                    if (native && !pendingNativeKills.ContainsKey(pawn.Index))
+                        RegisterNativeKill(pawn, attackerPawn!, world!, DamageTypes_t.DMG_GENERIC);
+                    RegisterKillCredit(victim.Key(), damageAttacker.Key(), killfeedIcon, native);
+                }
 
                 Server.NextFrame(() =>
                 {
@@ -828,25 +839,70 @@ namespace src.utils
             return true;
         }
 
-        public readonly record struct HiddenPawn(uint Index, CsTeam Team, CCSPlayerPawn Pawn, bool HoldsBomb, uint[] CarriedIndexes);
+        public readonly record struct HiddenPawn(uint Index, CsTeam Team, CCSPlayerPawn Pawn, uint PawnIndex, bool HoldsBomb, uint[] CarriedIndexes);
 
-        public static List<HiddenPawn> ResolveHiddenPawns(ICollection<uint> playerIndexes, uint? bombOwnerIndex)
+        private sealed class HiddenCacheEntry
         {
-            List<HiddenPawn> hidden = new(playerIndexes.Count);
+            public int Tick;
+            public uint Key;
+            public CsTeam Team;
+            public required CCSPlayerPawn Pawn;
+            public uint PawnIndex;
+            public uint ControllerIndex;
+            public uint[] Carried = [];
+        }
 
-            foreach (var playerIndex in playerIndexes)
+        private const int HiddenRefreshTicks = 8;
+        private static readonly Dictionary<uint, HiddenCacheEntry> hiddenCache = [];
+        private static readonly List<HiddenPawn> hiddenBuffer = [];
+
+        public static void InvalidateHiddenCache(uint playerKey) => hiddenCache.Remove(playerKey);
+
+        public static void ClearHiddenCache() => hiddenCache.Clear();
+
+        public static List<HiddenPawn> ResolveHiddenPawns(ICollection<uint> playerKeys, uint? bombOwnerIndex)
+        {
+            hiddenBuffer.Clear();
+            int tick = Server.TickCount;
+
+            foreach (var playerKey in playerKeys)
             {
-                var controller = PlayerManager.GetPlayerEvent(Utilities.GetPlayerFromIndex((int)playerIndex));
-                if (controller == null || !controller.IsValid) continue;
+                if (!hiddenCache.TryGetValue(playerKey, out var entry) || tick - entry.Tick >= HiddenRefreshTicks || tick < entry.Tick || !entry.Pawn.IsValid)
+                {
+                    entry = ResolveHiddenEntry(playerKey, tick);
+                    if (entry == null)
+                    {
+                        hiddenCache.Remove(playerKey);
+                        continue;
+                    }
+                    hiddenCache[playerKey] = entry;
+                }
 
-                var pawn = controller.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid) continue;
-                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) continue;
-
-                hidden.Add(new HiddenPawn(controller.Index, controller.Team, pawn, bombOwnerIndex == controller.Index, ResolveCarriedIndexes(pawn)));
+                hiddenBuffer.Add(new HiddenPawn(entry.Key, entry.Team, entry.Pawn, entry.PawnIndex, bombOwnerIndex == entry.PawnIndex || bombOwnerIndex == entry.ControllerIndex, entry.Carried));
             }
 
-            return hidden;
+            return hiddenBuffer;
+        }
+
+        private static HiddenCacheEntry? ResolveHiddenEntry(uint playerKey, int tick)
+        {
+            var controller = PlayerManager.GetPlayerEvent(PlayerManager.GetController(playerKey));
+            if (controller == null || !controller.IsValid) return null;
+
+            var pawn = controller.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid) return null;
+            if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) return null;
+
+            return new HiddenCacheEntry
+            {
+                Tick = tick,
+                Key = controller.Key(),
+                Team = controller.Team,
+                Pawn = pawn,
+                PawnIndex = pawn.Index,
+                ControllerIndex = controller.Index,
+                Carried = ResolveCarriedIndexes(pawn),
+            };
         }
 
         private static uint[] ResolveCarriedIndexes(CCSPlayerPawn pawn)
@@ -873,6 +929,22 @@ namespace src.utils
             return [.. indexes];
         }
 
+        public static void FollowEmptyProp(uint ownerKey, CCSPlayerPawn? pawn)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+
+            var props = EntityManager.GetPlayerEntities(ownerKey, "empty_prop");
+            if (props.Count == 0) return;
+
+            var prop = Utilities.GetEntityFromIndex<CDynamicProp>((int)props[0]);
+            if (prop == null || !prop.IsValid) return;
+
+            var origin = pawn.AbsOrigin;
+            if (origin == null) return;
+
+            prop.Teleport(new Vector(origin.X, origin.Y, origin.Z + 30), new QAngle(0, pawn.V_angle.Y, 0), null);
+        }
+
         public static void HideCarriedEntities(CCheckTransmitInfo info, in HiddenPawn target)
         {
             foreach (var index in target.CarriedIndexes)
@@ -883,7 +955,7 @@ namespace src.utils
         public static void ResetPrintHTML(CCSPlayerController? player)
         {
             if (player == null || !player.IsValid) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.PrintHTML = null;
         }
@@ -893,7 +965,7 @@ namespace src.utils
             return EntityManager.CreateTrackedTrigger(ownerPlayerIndex, name, radius, pos);
         }
 
-        public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null, INetworkGameServer? networkGameServer = null)
+        public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerKey, QAngle LastAngle)>? batchList = null, INetworkGameServer? networkGameServer = null)
         {
             if (!Config.LoadedConfig.EnableFullForceUpdate) return;
             if (player == null || !player.IsValid || player.IsBot) return;
@@ -913,18 +985,18 @@ namespace src.utils
             // a genuine angle with a single zero component (e.g. yaw exactly 0) must still be restored.
             if (lastAngle.X == 0 && lastAngle.Y == 0 && lastAngle.Z == 0) return;
 
-            uint playerIndex = player.Index;
+            uint playerKey = player.Key();
 
             if (batchList != null)
             {
-                batchList.Add((playerIndex, lastAngle));
+                batchList.Add((playerKey, lastAngle));
                 return;
             }
 
             jRandomSkills.Instance.AddTickTimer(3, () =>
             {
-                var target = Utilities.GetPlayerFromIndex((int)playerIndex);
-                if (target == null || !target.IsValid) return;
+                var target = PlayerManager.GetController(playerKey);
+                if (target == null) return;
 
                 var targetPawn = target.PlayerPawn?.Value;
                 if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) return;
@@ -943,7 +1015,7 @@ namespace src.utils
             if (tickCount == lastForceFullUpdateAll) return;
 
             lastForceFullUpdateAll = tickCount;
-            var playersToRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
+            var playersToRestore = new List<(uint PlayerKey, QAngle LastAngle)>();
 
             INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
             foreach (var player in Utilities.GetPlayers())
@@ -955,8 +1027,8 @@ namespace src.utils
             {
                 foreach (var item in playersToRestore)
                 {
-                    var target = Utilities.GetPlayerFromIndex((int)item.PlayerIndex);
-                    if (target == null || !target.IsValid) continue;
+                    var target = PlayerManager.GetController(item.PlayerKey);
+                    if (target == null) continue;
 
                     var targetPawn = target.PlayerPawn?.Value;
                     if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
@@ -970,7 +1042,7 @@ namespace src.utils
         {
             if (!Config.LoadedConfig.EnableFullForceUpdate) return;
 
-            var pending = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot).Select(p => p.Index).ToList();
+            var pending = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsBot).Select(p => p.Key()).ToList();
             if (pending.Count == 0) return;
 
             ForceFullUpdateChunk(pending, 0, Math.Max(clientsPerFrame, 1));
@@ -981,13 +1053,13 @@ namespace src.utils
             if (start >= pending.Count) return;
 
             int end = Math.Min(start + clientsPerFrame, pending.Count);
-            var toRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
+            var toRestore = new List<(uint PlayerKey, QAngle LastAngle)>();
 
             INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
             for (int i = start; i < end; i++)
             {
-                var player = Utilities.GetPlayerFromIndex((int)pending[i]);
-                if (player == null || !player.IsValid) continue;
+                var player = PlayerManager.GetController(pending[i]);
+                if (player == null) continue;
 
                 ForceFullUpdate(player, toRestore, networkGameServer);
             }
@@ -997,8 +1069,8 @@ namespace src.utils
                 {
                     foreach (var item in toRestore)
                     {
-                        var target = Utilities.GetPlayerFromIndex((int)item.PlayerIndex);
-                        if (target == null || !target.IsValid) continue;
+                        var target = PlayerManager.GetController(item.PlayerKey);
+                        if (target == null) continue;
 
                         var targetPawn = target.PlayerPawn?.Value;
                         if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
@@ -1154,7 +1226,7 @@ namespace src.utils
             var manager = GetMenuManager();
             if (manager == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
@@ -1182,7 +1254,7 @@ namespace src.utils
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null || playerInfo.HideHUD >= Server.TickCount) return;
 
             if (player.IsBot)
@@ -1347,7 +1419,7 @@ namespace src.utils
                 if (moneyServices == null) continue;
 
                 int reward = winnerReward;
-                if (bonusPlayer != null && bonusPlayer.IsValid && player.Index == bonusPlayer.Index)
+                if (bonusPlayer != null && bonusPlayer.IsValid && player.Key() == bonusPlayer.Key())
                     reward += personalBonus;
 
                 moneyServices.Account = Math.Clamp(moneyServices.Account + reward, 0, maxMoney);

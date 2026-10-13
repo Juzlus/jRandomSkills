@@ -36,9 +36,9 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>());
             var victim = PlayerManager.GetPlayerEvent(victimPawn.Controller.Value.As<CCSPlayerController>());
             if (attacker == null || !attacker.IsValid || victim == null || !victim.IsValid) return;
-            if (attacker.Index == victim.Index) return;
+            if (attacker.Key() == victim.Key()) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
             if (playerInfo?.Skill != skillName) return;
 
             var weapon = damageInfo.Ability?.Value;

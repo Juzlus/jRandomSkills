@@ -34,6 +34,7 @@ namespace src.player
         {
             lock (setLock)
             {
+                PlayerManager.MarkBombPlanted();
                 DispatchToActiveSkills("BombPlanted", @event);
                 return HookResult.Continue;
             }
@@ -181,7 +182,7 @@ namespace src.player
                 CCSPlayerController player = pawn.Controller.Value.As<CCSPlayerController>();
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null) return HookResult.Continue;
 
                 CCSWeaponBaseVData vdata = VirtualFunctions.GetCSWeaponDataFromKeyFunc.Invoke(-1, econItem.ItemDefinitionIndex.ToString());
@@ -211,6 +212,7 @@ namespace src.player
         {
             lock (setLock)
             {
+                PlayerManager.NoteSpawnedEntity(entity);
                 DispatchToActiveSkills("OnEntitySpawned", entity);
             }
         }

@@ -33,14 +33,14 @@ namespace src.player.skills
         {
             var user = PlayerManager.GetPlayerEvent(@event.Userid);
             if (user == null || !user.IsValid || !user.PawnIsAlive) return;
-            plantingPlayers.TryAdd(user.Index, Server.CurrentTime);
+            plantingPlayers.TryAdd(user.Key(), Server.CurrentTime);
         }
 
         public static void BombAbortplant(EventBombAbortplant @event)
         {
             var user = PlayerManager.GetPlayerEvent(@event.Userid);
             if (user == null || !user.IsValid || !user.PawnIsAlive) return;
-            plantingPlayers.TryRemove(user.Index, out _);
+            plantingPlayers.TryRemove(user.Key(), out _);
             SkillUtils.ResetPrintHTML(user);
         }
 
@@ -48,9 +48,9 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            plantingPlayers.TryRemove(player!.Index, out _);
+            plantingPlayers.TryRemove(player!.Key(), out _);
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
             playerInfo.PrintHTML = null;
 
@@ -81,7 +81,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            plantingPlayers.TryRemove(player.Index, out _);
+            plantingPlayers.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
 
             var pawn = player.PlayerPawn.Value;
@@ -99,7 +99,7 @@ namespace src.player.skills
             {
                 if (!Instance.IsPlayerValid(player)) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var pawn = player.PlayerPawn.Value;
@@ -112,7 +112,7 @@ namespace src.player.skills
                 pawn.InBombZone = true;
                 Schema.SetSchemaValue<bool>(pawn.Handle, "CCSPlayerPawn", "m_bInBombZone", true);
 
-                if (hudFrame && plantingPlayers.TryGetValue(player.Index, out float plantTime))
+                if (hudFrame && plantingPlayers.TryGetValue(player.Key(), out float plantTime))
                 {
                     float remaining = plantTime + 3f - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";

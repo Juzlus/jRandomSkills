@@ -76,7 +76,7 @@ namespace src.player.skills
                 holdersTick = tick;
                 holders.Clear();
                 foreach (var p in jRandomSkills.Instance.SkillPlayer)
-                    if (p.Skill == skillName) holders.Add(p.PlayerIndex);
+                    if (p.Skill == skillName) holders.Add(p.PlayerKey);
             }
 
             if (holders.Count == 0) return false;
@@ -84,7 +84,7 @@ namespace src.player.skills
             foreach (var p in PlayerManager.GetTickPlayers())
             {
                 if (p == null || !p.IsValid) continue;
-                if (p.Team == player.Team || !holders.Contains(p.Index)) continue;
+                if (p.Team == player.Team || !holders.Contains(p.Key())) continue;
                 if (p.Pawn?.Value == null) continue;
 
                 var pawn = p.PlayerPawn?.Value;

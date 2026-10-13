@@ -42,7 +42,7 @@ namespace src.player.skills
                         jester.Timer = null;
                     }
 
-                    var player = Utilities.GetPlayerFromIndex((int)jester.PlayerIndex);
+                    var player = PlayerManager.GetController(jester.PlayerIndex);
                     if (player != null && player.IsValid)
                     {
                         SkillUtils.ResetPrintHTML(player);
@@ -61,14 +61,14 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var jester = GetJesterInfo(player.Index);
+            var jester = GetJesterInfo(player.Key());
             if (jester == null) return;
 
             jester.Generation++;
             jester.Active = false;
             jester.Timer = null;
 
-            jesters.TryRemove(player.Index, out _);
+            jesters.TryRemove(player.Key(), out _);
 
             Server.NextWorldUpdate(() =>
             {
@@ -83,7 +83,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             var jester = GetJesterInfo(playerIndex);
             if (jester == null) return;
 
@@ -104,7 +104,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             var jester = GetJesterInfo(playerIndex);
             if (jester == null) return;
 
@@ -126,10 +126,10 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(victim)) return false;
 
-            if (!IsActiveJester(victim!.Index))
+            if (!IsActiveJester(victim!.Key()))
             {
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-                if (!Instance.IsPlayerValid(attacker) || !IsActiveJester(attacker!.Index)) return false;
+                if (!Instance.IsPlayerValid(attacker) || !IsActiveJester(attacker!.Key())) return false;
             }
 
             SkillUtils.RestoreHealth(victim);
@@ -139,7 +139,7 @@ namespace src.player.skills
         public static bool IsActiveJester(uint playerIndex)
         {
             if (GetJesterInfo(playerIndex)?.Active != true) return false;
-            return PlayerManager.GetPlayerByIndex(playerIndex)?.Skill == skillName;
+            return PlayerManager.GetPlayerByKey(playerIndex)?.Skill == skillName;
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -148,7 +148,7 @@ namespace src.player.skills
             var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
 
             if (!jesters.TryGetValue(playerIndex, out var jester))
             {
@@ -181,7 +181,7 @@ namespace src.player.skills
         {
             if (!jesters.TryGetValue(playerIndex, out var jester)) return;
 
-            var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+            var player = PlayerManager.GetController(playerIndex);
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
             {
                 jesters.TryRemove(playerIndex, out _);
@@ -226,7 +226,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            var jester = GetJesterInfo(player.Index);
+            var jester = GetJesterInfo(player.Key());
             if (!forceDisable && jester == null) return;
 
             var color = jester?.Active == true && !forceDisable ? Color.FromArgb(255, 128, 0, 128) : Color.FromArgb(255, 255, 255, 255);
@@ -243,7 +243,7 @@ namespace src.player.skills
                 var playeEvent = PlayerManager.GetPlayerEvent(player);
                 if (playeEvent == null || !playeEvent.IsValid || playeEvent.PlayerPawn.Value == null || !playeEvent.PlayerPawn.Value.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(playeEvent.Index);
+                var playerInfo = PlayerManager.GetPlayer(playeEvent);
 
                 if (playerInfo?.Skill == skillName)
                     UpdateHUD(playeEvent);
@@ -252,10 +252,10 @@ namespace src.player.skills
 
         private static void UpdateHUD(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
-            var jester = GetJesterInfo(player.Index);
+            var jester = GetJesterInfo(player.Key());
             if (jester == null) return;
 
             playerInfo.PrintHTML = $"{player.GetTranslation("jester_mode")}: <font color='{(jester.Active ? "#00ff00" : "#ff0000")}'>{player.GetTranslation(jester.Active ? "jester_on" : "jester_off")}</font>";

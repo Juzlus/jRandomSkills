@@ -32,18 +32,18 @@ namespace src.player.skills
             if (!SkillUtils.IsHudFrame()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 IsFlying = false,
                 Cooldown = DateTime.MinValue,
@@ -53,7 +53,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -73,7 +73,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -93,7 +93,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
 
             if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
             {
@@ -117,10 +117,10 @@ namespace src.player.skills
 
                     skillInfo.Timer = Instance.AddTimer(duration, () =>
                     {
-                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var player = PlayerManager.GetController(playerIndex);
                         if (player == null || !player.IsValid) return;
 
-                        var playerInfo = PlayerManager.GetPlayerByIndex(playerIndex);
+                        var playerInfo = PlayerManager.GetPlayerByKey(playerIndex);
                         if (playerInfo == null) return;
 
                         StopFlying(player, skillInfo);

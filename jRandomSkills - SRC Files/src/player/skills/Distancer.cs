@@ -30,33 +30,39 @@ namespace src.player.skills
             if (!SkillUtils.IsHudFrame()) return;
 
             if (SkillUtils.IsFreezeTime()) return;
+            var alive = PlayerManager.GetAliveSnapshot();
             foreach (var playerIndex in distancerPlayers.Keys)
             {
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null) continue;
 
                 var playerPawn = player.PlayerPawn.Value;
                 if (playerPawn == null || !playerPawn.IsValid) continue;
                 if (playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
 
-                string closetEnemy = "Bot";
+                var origin = playerPawn.AbsOrigin;
+                if (origin == null) continue;
+
+                var team = player.Team;
                 double closetDistance = double.MaxValue;
+                int closest = -1;
 
-                foreach (var enemy in PlayerManager.GetTickPlayers())
+                for (int i = 0; i < alive.Count; i++)
                 {
-                    if (enemy == null || enemy.Team == player.Team) continue;
+                    var enemy = alive[i];
+                    if (enemy.Team == team) continue;
 
-                    var enemyPawn = enemy.PlayerPawn.Value;
-                    if (enemyPawn == null || !enemyPawn.IsValid) continue;
-                    if (enemyPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || playerPawn.AbsOrigin == null || enemyPawn.AbsOrigin == null) continue;
-                    double distance = (int)SkillUtils.GetDistance(playerPawn.AbsOrigin, enemyPawn.AbsOrigin);
+                    float dx = enemy.X - origin.X, dy = enemy.Y - origin.Y, dz = enemy.Z - origin.Z;
+                    double distance = (int)Math.Sqrt((double)dx * dx + (double)dy * dy + (double)dz * dz);
                     if (distance >= closetDistance) continue;
                     closetDistance = distance;
-                    closetEnemy = enemy.PlayerName;
+                    closest = i;
                 }
+
+                string closetEnemy = closest >= 0 ? alive[closest].Controller.PlayerName : "Bot";
 
                 string distanceColor = closetDistance > 1500 ? "#00FF00" : closetDistance > 600 ? "#FFFF00" : "#FF0000";
                 playerInfo.PrintHTML = $"{System.Net.WebUtility.HtmlEncode(closetEnemy)}: <font color='{distanceColor}'>{(closetDistance > 3000 ? "3000+" : closetDistance)}</font>";
@@ -65,12 +71,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            distancerPlayers.TryAdd(player.Index, 0);
+            distancerPlayers.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            distancerPlayers.TryRemove(player.Index, out _);
+            distancerPlayers.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 

@@ -30,7 +30,7 @@ namespace src.player.skills
             if (victimPawn == null || !victimPawn.IsValid || attackerPawn == null || !attackerPawn.IsValid)
                 return;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
+            var victimInfo = PlayerManager.GetPlayer(victim);
             if (victimInfo?.Skill != skillName)
                 return;
 

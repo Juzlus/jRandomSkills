@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -45,7 +45,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            SkillPlayerInfo[player.Index] = new PlayerSkillInfo
+            SkillPlayerInfo[player.Key()] = new PlayerSkillInfo
             {
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
@@ -66,7 +66,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            ClearOwner(player.Index);
+            ClearOwner(player.Key());
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -75,7 +75,7 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            ClearOwner(player.Index);
+            ClearOwner(player.Key());
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -113,7 +113,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo) || !skillInfo.CanUse) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo) || !skillInfo.CanUse) return;
 
             if ((DateTime.Now - skillInfo.LastAttempt).TotalSeconds < attemptCooldown) return;
             skillInfo.LastAttempt = DateTime.Now;
@@ -138,7 +138,7 @@ namespace src.player.skills
             if (cooldown == 0 && !skillInfo.CanUse)
                 skillInfo.CanUse = true;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -178,14 +178,14 @@ namespace src.player.skills
 
             Color wireColor = player.Team == CsTeam.Terrorist ? terroristWire : counterTerroristWire;
 
-            var beam = EntityManager.CreateTrackedBeam(player.Index, start, end, wireColor);
+            var beam = EntityManager.CreateTrackedBeam(player.Key(), start, end, wireColor);
             if (beam == null || !beam.IsValid) return false;
 
             beam.Width = SkillsInfo.GetValue<float>(skillName, "wireWidth");
 
             wires[beam.Index] = new WireInfo
             {
-                OwnerIndex = player.Index,
+                OwnerIndex = player.Key(),
                 BeamIndex = beam.Index,
                 Start = start,
                 End = end,
@@ -201,9 +201,9 @@ namespace src.player.skills
                 foreach (var player in PlayerManager.GetTickPlayers())
                 {
                     if (player == null || !player.IsValid) continue;
-                    if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
+                    if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) continue;
 
-                    if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName)
+                    if (PlayerManager.GetPlayer(player)?.Skill == skillName)
                         UpdateHUD(player, skillInfo);
                 }
             }
@@ -231,7 +231,7 @@ namespace src.player.skills
 
             foreach (var wire in wires.Values)
             {
-                var owner = Utilities.GetPlayerFromIndex((int)wire.OwnerIndex);
+                var owner = PlayerManager.GetController(wire.OwnerIndex);
                 if (owner == null || !owner.IsValid) continue;
 
                 foreach (var enemy in PlayerManager.GetTickPlayers())
@@ -244,7 +244,7 @@ namespace src.player.skills
                     var enemyPawn = enemyEvent.PlayerPawn?.Value;
                     if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.Health <= 0 || enemyPawn.AbsOrigin == null) continue;
 
-                    var key = (wire.OwnerIndex, enemyEvent.Index);
+                    var key = (wire.OwnerIndex, enemyEvent.Key());
                     if (revealed.ContainsKey(key)) continue;
 
                     Vector body = new(enemyPawn.AbsOrigin.X, enemyPawn.AbsOrigin.Y, enemyPawn.AbsOrigin.Z + bodyHeight);
@@ -264,7 +264,7 @@ namespace src.player.skills
 
         private static void RevealOnRadar(uint targetIndex, int ownerSlot)
         {
-            var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+            var target = PlayerManager.GetController(targetIndex);
             if (target == null || !target.IsValid) return;
 
             var targetPawn = target.PlayerPawn?.Value;

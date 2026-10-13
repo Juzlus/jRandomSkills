@@ -28,7 +28,7 @@ namespace src.player.skills
             var weapon = @event.Weapon;
             if (weapon != "hegrenade" || !Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill == skillName)
                 player!.GiveNamedItem($"weapon_{weapon}");
         }

@@ -36,7 +36,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            SkillPlayerInfo[player.Index] = new PlayerSkillInfo
+            SkillPlayerInfo[player.Key()] = new PlayerSkillInfo
             {
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
@@ -47,7 +47,7 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            if (SkillPlayerInfo.TryRemove(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryRemove(player.Key(), out var skillInfo))
                 DestroyMarker(skillInfo);
 
             SkillUtils.ResetPrintHTML(player);
@@ -64,7 +64,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
                 skillInfo.ReturnTick = 0;
                 DestroyMarker(skillInfo);
@@ -74,7 +74,7 @@ namespace src.player.skills
         public static void UseSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) return;
             if (!skillInfo.CanUse || skillInfo.ReturnTick != 0) return;
 
             var pawn = player.PlayerPawn?.Value;
@@ -99,8 +99,8 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
-                if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
-                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
+                if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) continue;
+                if (PlayerManager.GetPlayer(player)?.Skill != skillName) continue;
 
                 if (skillInfo.ReturnTick != 0 && Server.TickCount >= skillInfo.ReturnTick)
                 {
@@ -141,7 +141,7 @@ namespace src.player.skills
             Vector bottom = new(skillInfo.Mark.X, skillInfo.Mark.Y, skillInfo.Mark.Z + 2);
             Vector top = new(skillInfo.Mark.X, skillInfo.Mark.Y, skillInfo.Mark.Z + 68);
 
-            var beam = EntityManager.CreateTrackedBeam(player.Index, bottom, top, color);
+            var beam = EntityManager.CreateTrackedBeam(player.Key(), bottom, top, color);
             if (beam == null || !beam.IsValid) return;
 
             beam.Width = .6f;
@@ -171,7 +171,7 @@ namespace src.player.skills
             if (cooldown == 0 && !skillInfo.CanUse)
                 skillInfo.CanUse = true;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (skillInfo.ReturnTick != 0)

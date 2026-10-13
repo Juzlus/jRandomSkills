@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -47,7 +47,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -61,7 +61,7 @@ namespace src.player.skills
             var enemies = GetSelectableEnemies(player);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Key().ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -76,13 +76,13 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
 
                 var enemies = GetSelectableEnemies(player);
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Key().ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -91,7 +91,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -109,14 +109,14 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
             if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
             }
 
-            if (PlayerManager.GetPlayerByIndex(enemy.Index)?.Skill == Skills.Chicken)
+            if (PlayerManager.GetPlayer(enemy)?.Skill == Skills.Chicken)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
@@ -126,11 +126,11 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (enlargedEnemies.TryRemove(player.Index, out uint previousTarget))
+                if (enlargedEnemies.TryRemove(player.Key(), out uint previousTarget))
                     ResetScale(previousTarget, notify: true);
 
                 SkillUtils.ChangePlayerScale(enemy, newSize);
-                enlargedEnemies[player.Index] = enemy.Index;
+                enlargedEnemies[player.Key()] = enemy.Key();
             }
 
             playerInfo.SkillUsed = true;
@@ -150,7 +150,7 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (enlargedEnemies.TryRemove(player.Index, out uint targetIndex))
+                if (enlargedEnemies.TryRemove(player.Key(), out uint targetIndex))
                     ResetScale(targetIndex, notify: true);
 
                 SkillUtils.CloseMenu(player);
@@ -163,10 +163,10 @@ namespace src.player.skills
             {
                 foreach (var kvp in enlargedEnemies)
                 {
-                    float expected = PlayerManager.GetPlayerByIndex(kvp.Key)?.SkillChance ?? 0f;
+                    float expected = PlayerManager.GetPlayerByKey(kvp.Key)?.SkillChance ?? 0f;
                     if (expected <= 0f) continue;
 
-                    var target = Utilities.GetPlayerFromIndex((int)kvp.Value);
+                    var target = PlayerManager.GetController(kvp.Value);
                     if (target == null || !target.IsValid) continue;
 
                     var pawn = target.PlayerPawn?.Value;
@@ -182,7 +182,7 @@ namespace src.player.skills
 
         private static void ResetScale(uint targetIndex, bool notify = false)
         {
-            var target = Utilities.GetPlayerFromIndex((int)targetIndex);
+            var target = PlayerManager.GetController(targetIndex);
             if (target == null || !target.IsValid) return;
 
             var pawn = target.PlayerPawn?.Value;
@@ -201,7 +201,7 @@ namespace src.player.skills
         private static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player)
         {
             return [.. SkillUtils.GetSelectableEnemies(player, true)
-                .Where(p => PlayerManager.GetPlayerByIndex(p.Index)?.Skill != Skills.Chicken)];
+                .Where(p => PlayerManager.GetPlayer(p)?.Skill != Skills.Chicken)];
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8ad3ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float minScale = 1.1f, float maxScale = 1.4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

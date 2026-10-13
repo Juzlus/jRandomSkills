@@ -36,7 +36,7 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerPawn == null || playerInfo == null) return;
 
             var skillConfig = SkillsInfo.LoadedConfig.FirstOrDefault(s => s.Name == skillName.ToString());
@@ -65,7 +65,7 @@ namespace src.player.skills
             bool jumpPressed = (isJumpDown && !wasJumpDown)
                 || (playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
+            var playerInfo = PlayerManager.GetPlayer(playerEvent);
             if (playerInfo == null) return;
 
             bool isOnGround = (flags & PlayerFlags.FL_ONGROUND) != 0;

@@ -22,7 +22,7 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && SkillUtils.HasMenu(p)))
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
@@ -30,13 +30,13 @@ namespace src.player.skills
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+                    var enemyInfo = PlayerManager.GetPlayer(enemy);
                     if (enemyInfo == null) continue;
 
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
 
-                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Key().ToString()));
                 }
                 SkillUtils.UpdateMenu(player, menuItems);
             }
@@ -52,7 +52,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -75,7 +75,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
             if (enemy == null || !enemy.IsValid)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
@@ -99,13 +99,13 @@ namespace src.player.skills
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+                    var enemyInfo = PlayerManager.GetPlayer(enemy);
                     if (enemyInfo == null) continue;
 
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
 
-                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Key().ToString()));
                 }
 
                 SkillUtils.CreateMenu(player, menuItems);
@@ -120,7 +120,7 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             playerInfo.SpecialSkill = Skills.None;
@@ -131,25 +131,25 @@ namespace src.player.skills
         {
             if (player == null || enemy == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
+            var enemyInfo = PlayerManager.GetPlayer(enemy);
             if (playerInfo == null || enemyInfo == null) return;
 
             var enemySkill = enemyInfo.Skill;
             bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
             bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
 
-            uint playerIndex = player.Index;
-            uint enemyIndex = enemy.Index;
+            uint playerIndex = player.Key();
+            uint enemyIndex = enemy.Key();
 
             if ((player.Team == CsTeam.Terrorist && ctSkill) || (player.Team == CsTeam.CounterTerrorist && ttSkill))
             {
                 Instance.AddTimer(.1f, () =>
                 {
-                    var e = Utilities.GetPlayerFromIndex((int)enemyIndex);
+                    var e = PlayerManager.GetController(enemyIndex);
                     if (e == null || !e.IsValid) return;
 
-                    var p = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    var p = PlayerManager.GetController(playerIndex);
                     if (p == null || !p.IsValid) return;
 
                     var playerEvent = PlayerManager.GetPlayerFromEvent(p);
@@ -166,16 +166,16 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
             Instance.AddTimer(.1f, () =>
             {
-                var e = Utilities.GetPlayerFromIndex((int)enemyIndex);
+                var e = PlayerManager.GetController(enemyIndex);
                 if (e == null || !e.IsValid) return;
 
-                var p = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var p = PlayerManager.GetController(playerIndex);
                 if (p == null || !p.IsValid) return;
 
                 var playerEvent = PlayerManager.GetPlayerFromEvent(p);
                 if (playerEvent == null || !playerEvent.IsValid) return;
 
-                var pInfo = PlayerManager.GetPlayerByIndex(p.Index);
+                var pInfo = PlayerManager.GetPlayer(p);
                 if (pInfo == null) return;
 
                 pInfo.Skill = enemySkill;
@@ -191,10 +191,10 @@ namespace src.player.skills
                     float delay = Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0);
                     Instance?.AddTimer(delay, () =>
                     {
-                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var player = PlayerManager.GetController(playerIndex);
                         if (player == null || !player.IsValid) return;
 
-                        var info = PlayerManager.GetPlayerByIndex(player!.Index);
+                        var info = PlayerManager.GetPlayer(player);
                         if (info?.Skill == enemySkill)
                             Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -205,10 +205,10 @@ namespace src.player.skills
 
             Instance.AddTimer(.1f, () =>
             {
-                var eInfo = PlayerManager.GetPlayerByIndex(enemyIndex);
+                var eInfo = PlayerManager.GetPlayerByKey(enemyIndex);
                 if (eInfo == null) return;
 
-                var e = Utilities.GetPlayerFromIndex((int)enemyIndex);
+                var e = PlayerManager.GetController(enemyIndex);
                 if (e == null || !e.IsValid) return;
 
                 var enemyEvent = PlayerManager.GetPlayerFromEvent(e);

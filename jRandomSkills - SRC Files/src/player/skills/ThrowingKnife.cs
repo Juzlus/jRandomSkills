@@ -42,10 +42,10 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
-                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
+                if (PlayerManager.GetPlayer(player)?.Skill != skillName) continue;
                 if (CheckHasKnife(player)) continue;
 
-                owedKnife[player.Index] = 0;
+                owedKnife[player.Key()] = 0;
             }
         }
 
@@ -119,7 +119,7 @@ namespace src.player.skills
                 var droppedKnife = Utilities.GetEntityFromIndex<CBaseEntity>((int)knifeIndex);
                 if (droppedKnife == null || !droppedKnife.IsValid) return;
 
-                var player = Utilities.GetPlayerFromIndex((int)knifeInfo.PlayerIndex);
+                var player = PlayerManager.GetController(knifeInfo.PlayerIndex);
                 if (player != null && player.IsValid && CheckHasKnife(player)) return;
 
                 droppedKnife.AcceptInput("ClearParent");
@@ -138,10 +138,10 @@ namespace src.player.skills
             if (!weaponName.Contains("knife") && !weaponName.Contains("bayonet"))
                 return false;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return false;
 
-            if (!knivesInfo.TryGetValue(player.Index, out KnifeInfo? knifeInfo) || knifeInfo == null)
+            if (!knivesInfo.TryGetValue(player.Key(), out KnifeInfo? knifeInfo) || knifeInfo == null)
                 return false;
 
             if (knifeInfo.KnifeId == econItem.ItemID)
@@ -172,9 +172,9 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            bool wasDropped = owedKnife.ContainsKey(player.Index);
+            bool wasDropped = owedKnife.ContainsKey(player.Key());
 
-            if (knivesInfo.TryRemove(player.Index, out KnifeInfo? knifeInfo) && knifeInfo != null)
+            if (knivesInfo.TryRemove(player.Key(), out KnifeInfo? knifeInfo) && knifeInfo != null)
             {
                 wasDropped |= knifeInfo.IsDropped;
                 DisableKnifeSkill(knifeInfo);
@@ -184,15 +184,15 @@ namespace src.player.skills
 
             if (!player.PawnIsAlive)
             {
-                owedKnife[player.Index] = 0;
-                ScheduleRepay(player.Index, 0);
+                owedKnife[player.Key()] = 0;
+                ScheduleRepay(player.Key(), 0);
                 return;
             }
 
             if (!CheckHasKnife(player))
                 player.GiveNamedItem("weapon_knife");
 
-            owedKnife.TryRemove(player.Index, out _);
+            owedKnife.TryRemove(player.Key(), out _);
         }
 
         private const int RepayAttempts = 10;
@@ -209,7 +209,7 @@ namespace src.player.skills
             {
                 if (!owedKnife.ContainsKey(playerIndex)) return;
 
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid)
                 {
                     owedKnife.TryRemove(playerIndex, out _);
@@ -270,7 +270,7 @@ namespace src.player.skills
 
             if (roundEnded) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             DropKnife(player);
@@ -325,14 +325,14 @@ namespace src.player.skills
             ulong originalMask = knife.Collision.CollisionAttribute.InteractsWith;
             knife.Collision.CollisionAttribute.InteractsWith = pawn.Collision.CollisionAttribute.InteractsWith;
 
-            if (!knivesInfo.ContainsKey(player.Index))
+            if (!knivesInfo.ContainsKey(player.Key()))
             {
                 uint? triggerIndex = CreateTrigger(player, knife);
                 (uint? relayIndex, uint? glowIndex) = CreateGlow(player, knife);
 
-                knivesInfo.TryAdd(player.Index, new KnifeInfo
+                knivesInfo.TryAdd(player.Key(), new KnifeInfo
                 {
-                    PlayerIndex = player.Index,
+                    PlayerIndex = player.Key(),
                     KnifeIndex = knife.Index,
                     KnifeId = knife.AttributeManager.Item.ItemID,
                     TriggerIndex = triggerIndex,
@@ -342,7 +342,7 @@ namespace src.player.skills
                 });
             }
 
-            if (knivesInfo.TryGetValue(player.Index, out KnifeInfo? knifeInfo))
+            if (knivesInfo.TryGetValue(player.Key(), out KnifeInfo? knifeInfo))
             {
                 knifeInfo.IsDropped = true;
                 knifeInfo.InitialLook = new QAngle(pawn.V_angle.X + 90, pawn.V_angle.Y, pawn.V_angle.Z);
@@ -366,7 +366,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return (null, null);
             if (knife == null || !knife.IsValid || knife.AbsOrigin == null) return (null, null);
 
-            var modelRelay = EntityManager.CreateTrackedPhysicsProp(player.Index);
+            var modelRelay = EntityManager.CreateTrackedPhysicsProp(player.Key());
             if (modelRelay == null) return (null, null);
 
             modelRelay.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(modelRelay.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
@@ -378,7 +378,7 @@ namespace src.player.skills
             modelRelay.Teleport(knife.AbsOrigin, knife.AbsRotation, knife.AbsVelocity);
             modelRelay.AcceptInput("SetParent", knife, modelRelay, "!activator");
 
-            var modelGlow = EntityManager.CreateTrackedPhysicsProp(player.Index);
+            var modelGlow = EntityManager.CreateTrackedPhysicsProp(player.Key());
             if (modelGlow == null) return (null, null);
 
             modelGlow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(modelGlow.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
@@ -402,7 +402,7 @@ namespace src.player.skills
         {
             if (entity == null || !entity.IsValid || trigger == null || !trigger.IsValid) return;
 
-            string triggerName = trigger.Globalname;
+            string triggerName = trigger.Entity?.Name ?? "";
             if (entity.DesignerName != "player" || string.IsNullOrEmpty(triggerName) || !triggerName.StartsWith("trowingknife")) return;
 
             CCSPlayerPawn victimPawn = entity.As<CCSPlayerPawn>();
@@ -412,7 +412,7 @@ namespace src.player.skills
 
             if (knifeInfo != null)
             {
-                var thrower = Utilities.GetPlayerFromIndex((int)knifeInfo.PlayerIndex);
+                var thrower = PlayerManager.GetController(knifeInfo.PlayerIndex);
                 if (thrower == null || !thrower.IsValid) return;
 
                 var throwerPawn = thrower.Pawn?.Value;
@@ -499,7 +499,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                uint viewerIndex = PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index;
+                uint viewerIndex = PlayerManager.GetPlayerEvent(player)?.Key() ?? player.Key();
 
                 uint? observedPlayerIndex = null;
                 var playerPawn = player.Pawn?.Value;
@@ -512,7 +512,7 @@ namespace src.player.skills
                             p != null && p.IsValid &&
                             p.Pawn?.Value?.Handle == obs.Handle);
                         if (observed != null)
-                            observedPlayerIndex = observed.Index;
+                            observedPlayerIndex = observed.Key();
                     }
                 }
 

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -51,10 +51,10 @@ namespace src.utils
 
             var randomBot = activeBots[_random.Next(activeBots.Count)];
             if (randomBot == null || !randomBot.IsValid) return;
-            if (randomBot.Index != randomBot.OriginalControllerOfCurrentPawn.Value?.Index) return;
+            if (randomBot.Key() != randomBot.OriginalControllerOfCurrentPawn.Value?.Key()) return;
             if (randomBot.PlayerPawn?.Value == null || !randomBot.PlayerPawn.Value.IsValid || randomBot.PlayerPawn.Value.IsDefusing) return;
 
-            var bot_info = PlayerManager.GetPlayerByIndex(randomBot.Index);
+            var bot_info = PlayerManager.GetPlayer(randomBot);
             if (bot_info == null) return;
 
             Instance.SkillAction(bot_info.Skill.ToString(), "UseSkill", [randomBot]);

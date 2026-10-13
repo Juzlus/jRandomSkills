@@ -31,11 +31,11 @@ namespace src.player.skills
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim)) return;
 
-            if (attacker!.Index == victim!.Index) return;
+            if (attacker!.Key() == victim!.Key()) return;
             if (!SkillUtils.FiresBullets(@event.Weapon)) return;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(victim!.Index);
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var victimInfo = PlayerManager.GetPlayer(victim);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
 
             if (attackerInfo?.Skill == skillName)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)
@@ -44,7 +44,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
@@ -56,7 +56,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            noSpace.TryRemove(player.Index, out _);
+            noSpace.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -66,7 +66,7 @@ namespace src.player.skills
 
             foreach (var (playerIndex, time) in noSpace)
             {
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
                 if (time >= Server.TickCount)
@@ -78,7 +78,7 @@ namespace src.player.skills
 
         private static void UpdateHUD(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("shade_nospace")}</font>";
         }
@@ -141,7 +141,7 @@ namespace src.player.skills
             }
 
             if (!teleported)
-                noSpace.AddOrUpdate(attacker.Index, Server.TickCount + (64 * 2), (_, _) => Server.TickCount + (64 * 2));
+                noSpace.AddOrUpdate(attacker.Key(), Server.TickCount + (64 * 2), (_, _) => Server.TickCount + (64 * 2));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#4d4d4d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float teleportDistance = 100f, float chanceFrom = .3f, float chanceTo = .45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

@@ -48,7 +48,7 @@ namespace src.player.skills
             foreach (var player in Utilities.GetPlayers())
             {
                 if (player == null || !player.IsValid) continue;
-                if (!holders.ContainsKey(player.Index)) continue;
+                if (!holders.ContainsKey(player.Key())) continue;
                 RestoreClientNoSpread(player);
             }
 
@@ -59,16 +59,16 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            if (!holders.TryAdd(player.Index, 0)) return;
+            if (!holders.TryAdd(player.Key(), 0)) return;
 
             try
             {
                 var currentValue = player.GetConVarValue(NoSpreadConVar);
-                originalNoSpreadValues[player.Index] = string.IsNullOrWhiteSpace(currentValue) ? "0" : currentValue;
+                originalNoSpreadValues[player.Key()] = string.IsNullOrWhiteSpace(currentValue) ? "0" : currentValue;
             }
             catch
             {
-                originalNoSpreadValues[player.Index] = "0";
+                originalNoSpreadValues[player.Key()] = "0";
             }
 
             try
@@ -84,7 +84,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            holders.TryRemove(player.Index, out _);
+            holders.TryRemove(player.Key(), out _);
 
             RestoreClientNoSpread(player);
             ResetWeaponState(player);
@@ -94,12 +94,12 @@ namespace src.player.skills
         private static void RestoreClientNoSpread(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            var value = originalNoSpreadValues.TryGetValue(player.Index, out var originalValue) 
+            var value = originalNoSpreadValues.TryGetValue(player.Key(), out var originalValue) 
                 ? originalValue : "0";
 
             try {
                 player.ReplicateConVar(NoSpreadConVar, value);
-                originalNoSpreadValues.TryRemove(player.Index, out _);
+                originalNoSpreadValues.TryRemove(player.Key(), out _);
             }
             catch { }
         }
@@ -118,7 +118,7 @@ namespace src.player.skills
                 var vdata = GetActiveWeaponVData(player);
                 if (vdata == null) continue;
 
-                bool isHolder = holders.ContainsKey(player.Index) && PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName;
+                bool isHolder = holders.ContainsKey(player.Key()) && PlayerManager.GetPlayer(player)?.Skill == skillName;
                 if (isHolder)
                     wantedVData[vdata.Handle] = vdata;
                 else
@@ -208,9 +208,9 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            if (!holders.ContainsKey(player.Index)) return;
+            if (!holders.ContainsKey(player.Key())) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             ResetWeaponState(player);

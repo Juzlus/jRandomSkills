@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -35,7 +35,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -45,7 +45,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -54,11 +54,11 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            if (playersToTarget.TryRemove(player.Key(), out uint targetIndex))
             {
                 infectedPlayers.TryRemove(targetIndex, out _);
 
-                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(targetIndex));
                 if (target != null && target.IsValid && target.PawnIsAlive)
                     target.PrintToChat($" {ChatColors.Green}{target.GetTranslation("wildthrow_disable_info")}");
             }
@@ -71,7 +71,7 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            infectedPlayers.TryRemove(player.Index, out _);
+            infectedPlayers.TryRemove(player.Key(), out _);
             SkillUtils.CloseMenu(player);
         }
 
@@ -95,7 +95,7 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
@@ -116,7 +116,7 @@ namespace src.player.skills
                     && p.Team != CsTeam.None
                 ).OfType<CCSPlayerController>().ToArray();
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -124,7 +124,7 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -144,7 +144,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
 
             if (enemy == null)
             {
@@ -152,8 +152,8 @@ namespace src.player.skills
                 return;
             }
 
-            infectedPlayers.TryAdd(enemy.Index, 0);
-            playersToTarget[player.Index] = enemy.Index;
+            infectedPlayers.TryAdd(enemy.Key(), 0);
+            playersToTarget[player.Key()] = enemy.Key();
 
             playerInfo.SkillUsed = true;
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("wildthrow_player_info", enemy.PlayerName));
@@ -181,7 +181,7 @@ namespace src.player.skills
             player = PlayerManager.GetPlayerEvent(player);
             if (player == null || !player.IsValid) return;
 
-            if (!infectedPlayers.ContainsKey(player.Index)) return;
+            if (!infectedPlayers.ContainsKey(player.Key())) return;
 
             Server.NextFrame(() =>
             {

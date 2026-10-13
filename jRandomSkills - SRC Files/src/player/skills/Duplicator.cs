@@ -27,23 +27,23 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
-                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Index != player.Index && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
+                var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid).Select(p => PlayerManager.GetPlayerEvent(p)).Where(p => p != null && p.IsValid && p.Key() != player.Key() && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0 && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy?.Index);
+                    var enemyInfo = PlayerManager.GetPlayer(enemy);
                     if (enemyInfo == null) continue;
 
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
 
-                    menuItems.Add(($"\u202A{enemy!.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy!.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Key().ToString()));
                 }
                 SkillUtils.UpdateMenu(player, menuItems);
             }
@@ -53,7 +53,7 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -64,7 +64,7 @@ namespace src.player.skills
             if (playerEvent == null || !playerEvent.IsValid) return;
 
             string enemyId = commands[0];
-            var enemy = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Index.ToString() == enemyId);
+            var enemy = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Key().ToString() == enemyId);
 
             if (enemy == null)
             {
@@ -87,14 +87,14 @@ namespace src.player.skills
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+                    var enemyInfo = PlayerManager.GetPlayer(enemy);
                     if (enemyInfo == null) continue;
 
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
 
                     skills.Add(skillData.Skill.ToString());
-                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Key().ToString()));
                 }
 
                 int ctSkills = Event.counterterroristSkills.Count(s => skills.Contains(s.Name));
@@ -116,7 +116,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SpecialSkill = Skills.None;
             SkillUtils.CloseMenu(player);
@@ -124,8 +124,8 @@ namespace src.player.skills
 
         private static void DuplicateSkill(CCSPlayerController player, CCSPlayerController enemy)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
+            var enemyInfo = PlayerManager.GetPlayer(enemy);
             if (playerInfo == null || enemyInfo == null) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -135,14 +135,14 @@ namespace src.player.skills
             bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
             bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             string enemyName = enemy.PlayerName;
 
             if ((player.Team == CsTeam.Terrorist && ctSkill) || (player.Team == CsTeam.CounterTerrorist && ttSkill))
             {
                 Instance.AddTimer(.1f, () =>
                 {
-                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    var player = PlayerManager.GetController(playerIndex);
                     if (player == null || !player.IsValid) return;
 
                     if (!player.IsBot)
@@ -163,10 +163,10 @@ namespace src.player.skills
                 if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
-                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var player = PlayerManager.GetController(playerIndex);
                         if (player == null || !player.IsValid) return;
 
-                        var dupInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                        var dupInfo = PlayerManager.GetPlayer(player);
                         if (dupInfo == null || dupInfo.Skill != enemySkill) return;
                         Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);

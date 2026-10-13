@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -56,19 +56,19 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Key().ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -78,7 +78,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Key().ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -88,7 +88,7 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -106,7 +106,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
             if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
@@ -115,13 +115,13 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (!ApplyVolume(player.Index, enemy))
+                if (!ApplyVolume(player.Key(), enemy))
                 {
                     playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                     return;
                 }
 
-                playersToTarget[player.Index] = enemy.Index;
+                playersToTarget[player.Key()] = enemy.Key();
             }
 
             playerInfo.SkillUsed = true;
@@ -142,11 +142,11 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+                if (playersToTarget.TryRemove(player.Key(), out uint targetIndex))
                 {
                     RemoveVolume(targetIndex);
 
-                    var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                    var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(targetIndex));
                     if (target != null && target.IsValid && target.PawnIsAlive)
                         target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("nightmare_disable_info"));
                 }
@@ -161,7 +161,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             lock (setLock)
-                RemoveVolume(player.Index);
+                RemoveVolume(player.Key());
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
@@ -174,7 +174,7 @@ namespace src.player.skills
 
                 foreach (var kvp in targetVolumes)
                 {
-                    if (kvp.Key == viewer.Index) continue;
+                    if (kvp.Key == viewer.Key()) continue;
                     if (info.TransmitEntities.Contains(kvp.Value))
                         info.TransmitEntities.Remove(kvp.Value);
                 }
@@ -183,7 +183,7 @@ namespace src.player.skills
 
         private static bool ApplyVolume(uint ownerIndex, CCSPlayerController target)
         {
-            RemoveVolume(target.Index);
+            RemoveVolume(target.Key());
 
             var targetPawn = target.PlayerPawn?.Value;
             if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) return false;
@@ -196,7 +196,7 @@ namespace src.player.skills
             var keys = new CEntityKeyValues();
             try
             {
-                keys.SetString("targetname", $"Nightmare_{target.Index}");
+                keys.SetString("targetname", $"Nightmare_{target.Key()}");
                 keys.SetString("postprocessing", SkillsInfo.GetValue<string>(skillName, "postProcessing"));
                 keys.SetBool("master", true);
                 keys.SetBool("enableexposure", true);
@@ -221,7 +221,7 @@ namespace src.player.skills
             volume.AcceptInput("SetParent", targetPawn, null, "!activator");
 
             EntityManager.RegisterExisting(volume, ownerIndex, "post_processing_volume");
-            targetVolumes[target.Index] = volume.Index;
+            targetVolumes[target.Key()] = volume.Index;
             return true;
         }
 

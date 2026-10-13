@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -32,7 +32,7 @@ namespace src.player.skills
         {
             foreach (var playerIndex in playersWithFov.Keys)
             {
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
                 DisableSkill(player);
             }
@@ -49,14 +49,14 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && p.PawnIsAlive && p.Team != player.Team && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -64,7 +64,7 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -84,7 +84,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
 
             if (enemy == null)
             {
@@ -93,15 +93,15 @@ namespace src.player.skills
             }
 
             uint magnifierFov = SkillsInfo.GetValue<uint>(skillName, "customFOV");
-            playersWithFov.TryAdd(enemy.Index, 0);
+            playersWithFov.TryAdd(enemy.Key(), 0);
 
             uint enemyFOV = enemy.DesiredFOV;
             if (enemyFOV == 0)
-                Event.playersCustomFOV.TryRemove(enemy.Index, out _);
+                Event.playersCustomFOV.TryRemove(enemy.Key(), out _);
             else if (enemyFOV != magnifierFov)
-                Event.playersCustomFOV.AddOrUpdate(enemy.Index, enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
+                Event.playersCustomFOV.AddOrUpdate(enemy.Key(), enemy.DesiredFOV, (k, v) => enemy.DesiredFOV);
 
-            playersToTarget[player.Index] = enemy.Index;
+            playersToTarget[player.Key()] = enemy.Key();
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
             if (enemyEvent == null || !enemyEvent.IsValid) return;
@@ -122,13 +122,13 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            if (!playersWithFov.ContainsKey(bot.Index)) return;
+            if (!playersWithFov.ContainsKey(bot.Key())) return;
 
             uint magnifierFov = SkillsInfo.GetValue<uint>(skillName, "customFOV");
             uint playerFOV = player.DesiredFOV;
 
             if (playerFOV != 0 && playerFOV != magnifierFov)
-                Event.playersCustomFOV.AddOrUpdate(player.Index, player.DesiredFOV, (k, v) => player.DesiredFOV);
+                Event.playersCustomFOV.AddOrUpdate(player.Key(), player.DesiredFOV, (k, v) => player.DesiredFOV);
 
             player.DesiredFOV = magnifierFov;
             Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
@@ -136,7 +136,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -146,7 +146,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -157,14 +157,14 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            if (playersToTarget.TryRemove(player.Key(), out uint targetIndex))
             {
-                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(targetIndex));
                 if (target != null && target.IsValid)
                 {
                     if (target.DesiredFOV == SkillsInfo.GetValue<uint>(skillName, "customFOV"))
                     {
-                        target.DesiredFOV = Event.playersCustomFOV.TryGetValue(target.Index, out uint fov) ? fov : 0;
+                        target.DesiredFOV = Event.playersCustomFOV.TryGetValue(target.Key(), out uint fov) ? fov : 0;
                         Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
                     }
 
@@ -176,7 +176,7 @@ namespace src.player.skills
 
             if (player.DesiredFOV != 0)
             {
-                player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Index, out uint fov) ? fov : 0;
+                player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Key(), out uint fov) ? fov : 0;
                 Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
             }
 
@@ -190,7 +190,7 @@ namespace src.player.skills
 
             if (player.DesiredFOV == SkillsInfo.GetValue<uint>(skillName, "customFOV"))
             {
-                player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Index, out uint fov) ? fov : 0;
+                player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Key(), out uint fov) ? fov : 0;
                 Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
             }
 

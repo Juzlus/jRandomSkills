@@ -33,13 +33,13 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            holders[player.Index] = 0;
+            holders[player.Key()] = 0;
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            holders.TryRemove(player.Index, out _);
+            holders.TryRemove(player.Key(), out _);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -59,11 +59,11 @@ namespace src.player.skills
                 var victim = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (victim == null || !victim.IsValid) return HookResult.Continue;
 
-                if (attacker.Index == victim.Index) return HookResult.Continue;
+                if (attacker.Key() == victim.Key()) return HookResult.Continue;
                 if (attacker.Team == victim.Team) return HookResult.Continue;
-                if (!holders.ContainsKey(attacker.Index)) return HookResult.Continue;
+                if (!holders.ContainsKey(attacker.Key())) return HookResult.Continue;
 
-                var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+                var victimInfo = PlayerManager.GetPlayer(victim);
                 if (victimInfo == null || victimInfo.IsDrawing) return HookResult.Continue;
 
                 CopySkill(attacker, victim.PlayerName, victimInfo.Skill);
@@ -78,7 +78,7 @@ namespace src.player.skills
 
         private static void CopySkill(CCSPlayerController player, string victimName, Skills victimSkill)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -91,17 +91,17 @@ namespace src.player.skills
                 return;
             }
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             Skills previousSkill = playerInfo.Skill;
 
             if (!holders.TryRemove(playerIndex, out _)) return;
 
             Instance.AddTimer(.1f, () =>
             {
-                var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var target = PlayerManager.GetController(playerIndex);
                 if (target == null || !target.IsValid) return;
 
-                var targetInfo = PlayerManager.GetPlayerByIndex(playerIndex);
+                var targetInfo = PlayerManager.GetPlayerByKey(playerIndex);
                 if (targetInfo == null || targetInfo.Skill != previousSkill) return;
 
                 Instance.SkillAction(previousSkill.ToString(), "DisableSkill", [target]);
@@ -115,10 +115,10 @@ namespace src.player.skills
                 if (SkillsInfo.GetValue<bool>(victimSkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
-                        var heir = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var heir = PlayerManager.GetController(playerIndex);
                         if (heir == null || !heir.IsValid) return;
 
-                        if (PlayerManager.GetPlayerByIndex(playerIndex)?.Skill != victimSkill) return;
+                        if (PlayerManager.GetPlayerByKey(playerIndex)?.Skill != victimSkill) return;
                         Instance.SkillAction(victimSkill.ToString(), "EnableSkill", [heir]);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
@@ -155,7 +155,7 @@ namespace src.player.skills
             if (!SkillsInfo.GetValue<bool>(victimSkill, "needsTeammates")) return true;
 
             return PlayerManager.GetTickPlayers().Any(p =>
-                p != null && p.IsValid && p.Index != player.Index && p.Team == player.Team
+                p != null && p.IsValid && p.Key() != player.Key() && p.Team == player.Team
                 && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0);
         }
 

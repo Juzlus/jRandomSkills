@@ -421,6 +421,40 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.4.b4</b></summary>
+
+- #### General
+    - **Player Identity** - Fixed players taking on skills, cooldowns or curses from others who had previously occupied the same slot. Player data is now linked to connection handles and cleared when the connection is lost.
+    - **Entity Cleanup** - Fixed round-start cleanup incorrectly removing map props, `env_cs_place` entities and players weapons.
+    - **Skill Kills** - Fixed skill kills causing extra deaths, incorrect $300 rewards and suicide cash-award messages. Kills are now credited to the attacker.
+    - **Skill Watchdog** - Added a watchdog to prevent rounds from starting without skills and improved logs for skipped players.
+    - **Spawned Entities** - Fixed entity removal issues caused by reused globalname values.
+    - **Disconnect Cleanup** - Fixed player data not being cleared immediately after disconnect.
+    - **Error Logs** - A failing skill tick now logs the file and line where it failed.
+
+- #### Skill Fixes
+    - **EMP Grenade** - Now affects enemies only.
+    - **Position Swap** - Now targets only living CT/T enemies, excluding spectators and dying players.
+    - **Radar Hack** - Fixed radar detection for players in slots 32 and above.
+    - **Ghost, Ninja, C4 Camouflage** - Fixed bomb visibility checks for carried C4.
+    - **Rangefinder** - Fixed HUD errors when an enemy disconnects.
+    - **Sniper Elite** - Fixed delayed AWP grants after changing skills.
+    - **Healing Chicken** - Fixed missed healing ticks, healing now follows the configured interval.
+    - **Zone Reaper** - Fixed target site cleanup when the skill is removed.
+
+- #### Performance
+    - **Overall** - Reduced CPU time per tick by approximately 50%.
+    - **Bomb Lookup** - Cached the C4 entity instead of scanning all entities every tick.
+    - **Team Teleport, Rangefinder** - Optimized player comparisons using a shared per-tick snapshot.
+    - **Third Eye, Falcon Eye** - Cameras now move only while being used.
+    - **Ghost, Ninja, C4 Camouflage, Healing Chicken** - Reduced unnecessary processing by iterating only players who have the skill, and read positions once per tick.
+    - **Player Lookups** - Cached controller and player-key lookups per tick.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#64](https://github.com/Juzlus/jRandomSkills/pull/64). Thanks to ByDexterTR!**
+
+</details>
+
+<details>
 <summary><b>v1.2.4.b3</b></summary>
 
 - #### General

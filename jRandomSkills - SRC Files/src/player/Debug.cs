@@ -135,14 +135,14 @@ namespace src.player
             CCSPlayerController attacker = PlayerManager.GetPlayerEvent(attackerPawn.Controller.Value.As<CCSPlayerController>())!;
             CCSPlayerController victim = PlayerManager.GetPlayerEvent(victimPawn.Controller.Value.As<CCSPlayerController>())!;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
             if (playerInfo == null) return HookResult.Continue;
 
             var nativeHitGroup = SkillUtils.GetHitGroup(damageInfo);
 
             WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}. " +
                 $"[dmg={damageInfo.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={nativeHitGroup} " +
-                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}]", DebugCategory.Damage);
+                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayer(victim)?.Skill} askill={playerInfo.Skill}]", DebugCategory.Damage);
             return HookResult.Continue;
         }
 

@@ -84,7 +84,7 @@ namespace src.player
             var gameRules = Instance?.GameRules;
             if (gameRules == null || gameRules.WarmupPeriod == true || gameRules.GamePhase >= 5) return;
 
-            var skillPlayer = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+            var skillPlayer = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
             if (skillPlayer == null || skillPlayer.HideHUD >= Server.TickCount) return;
 
             if (skillPlayer.HudSuppressedUntil > now) return;
@@ -159,7 +159,7 @@ namespace src.player
                     var observedEvent = PlayerManager.GetPlayerEvent(observedPlayer);
                     if (observedEvent == null || !observedEvent.IsValid) return;
 
-                    var observedSkill = PlayerManager.GetPlayerByIndex(observedEvent.Index);
+                    var observedSkill = PlayerManager.GetPlayer(observedEvent);
                     if (observedSkill == null) return;
 
                     var observedSkillInfo = SkillData.GetInfo(observedSkill.Skill);

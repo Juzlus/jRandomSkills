@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.4.b3";
+        public override string ModuleVersion => "1.2.4.b4";
 
         public override void Load(bool hotReload)
         {
@@ -46,7 +46,7 @@ namespace src
             Command.Load();
             WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
             LoadAllSkills();
-            PlayerManager.SyncWithPlugin(Instance);
+            Event.RegisterConnectedPlayers();
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
 
@@ -99,13 +99,13 @@ namespace src
             if (param[1] is not string[] commands || commands.Length < 1) return true;
             if (!uint.TryParse(commands[0], out uint victimIndex)) return true;
 
-            var victim = Utilities.GetPlayerFromIndex((int)victimIndex);
+            var victim = PlayerManager.GetController(victimIndex);
             if (victim == null || !victim.IsValid) return true;
 
-            if (SkillUtils.TryClaimCurse(curser.Index, victimIndex)) return true;
+            if (SkillUtils.TryClaimCurse(curser.Key(), victim.Key())) return true;
 
             if (!SkillUtils.AnyCurseCapacity(curser))
-                return SkillUtils.TryClaimCurse(curser.Index, victimIndex, true);
+                return SkillUtils.TryClaimCurse(curser.Key(), victim.Key(), true);
 
             var curserEvent = PlayerManager.GetPlayerFromEvent(curser);
             curserEvent?.PrintToChat($" {ChatColors.Red}{curserEvent.GetTranslation("curse_limit_info", victim.PlayerName)}");
@@ -128,7 +128,7 @@ namespace src
             if (SkillUtils.IsCurseSkill(skill))
             {
                 if (methodName == "DisableSkill" && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
-                    SkillUtils.ReleaseCurse(curser.Index);
+                    SkillUtils.ReleaseCurse(curser.Key());
 
                 if (methodName == "TypeSkill" && !TryClaimCurseTarget(param))
                     return null;
@@ -348,7 +348,7 @@ namespace src
 
         internal jSkill_PlayerInfo? GetPlayerInfoByIndex(uint playerIndex)
         {
-            return PlayerManager.GetPlayerByIndex(playerIndex);
+            return PlayerManager.GetPlayerByKey(playerIndex);
         }
     }
 
@@ -357,6 +357,7 @@ namespace src
         public required bool IsBot { get; set; }
         public required string PlayerName { get; set; }
         public required uint PlayerIndex { get; set; }
+        public required uint PlayerKey { get; set; }
         public Skills Skill { get; set; }
         public Skills SpecialSkill { get; set; }
         public float? SkillChance { get; set; }
@@ -373,7 +374,7 @@ namespace src
 
     public sealed class HudCacheEntry
     {
-        public uint PlayerIndex;
+        public uint PlayerKey;
         public object? Config;
         public string? Header;
         public string? Center;

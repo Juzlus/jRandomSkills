@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -42,7 +42,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
             if (victim == null || !victim.IsValid) return;
 
-            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
+            if (PlayerManager.GetPlayer(victim)?.Skill != skillName) return;
 
             float damage = damageInfo.Damage;
             float net = damage * (SkillsInfo.GetValue<float>(skillName, "regenerationMultiplier") - 1f);
@@ -67,12 +67,12 @@ namespace src.player.skills
             var weapon = @event.Weapon;
             if (weapon != "molotov" && weapon != "incgrenade") return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
-                playersWithSkill[player.Index] = grenadesLeft - 1;
+                playersWithSkill[player.Key()] = grenadesLeft - 1;
                 player!.GiveNamedItem($"weapon_{weapon}");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.Molotov, grenadesLeft - 1);
                 SkillUtils.UpdateGrenadeCount(player, CsItem.IncendiaryGrenade, grenadesLeft - 1);
@@ -85,7 +85,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
                 SkillUtils.UpdateGrenadeCount(player, CsItem.Molotov, grenadesLeft);
                 SkillUtils.UpdateGrenadeCount(player, CsItem.IncendiaryGrenade, grenadesLeft);
@@ -100,7 +100,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "hegrenade") return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft);
         }
 
@@ -109,7 +109,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill.TryAdd(player.Index, grenadeLimit);
+            playersWithSkill.TryAdd(player.Key(), grenadeLimit);
 
             var item = player.Team == CsTeam.CounterTerrorist ? CsItem.IncendiaryGrenade : CsItem.Molotov;
 
@@ -121,7 +121,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            playersWithSkill.TryRemove(player.Index, out _);
+            playersWithSkill.TryRemove(player.Key(), out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.Molotov, 1);
             SkillUtils.UpdateGrenadeCount(player, CsItem.IncendiaryGrenade, 1);
         }

@@ -23,7 +23,7 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (!Instance.IsPlayerValid(attacker) || victim == null || !victim.IsValid || attacker == victim) return;
 
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
             if (attackerInfo?.Skill != skillName) return;
 
             int damage = SkillUtils.CapToVictimHealth(victim, @event.DmgHealth);

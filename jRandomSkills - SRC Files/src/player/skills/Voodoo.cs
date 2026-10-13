@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
@@ -40,7 +40,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -50,7 +50,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -61,7 +61,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            ownerToVictim.TryRemove(player.Index, out _);
+            ownerToVictim.TryRemove(player.Key(), out _);
             SkillUtils.CloseMenu(player);
         }
 
@@ -71,13 +71,13 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -86,7 +86,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -104,14 +104,14 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
             if (enemy == null || !enemy.IsValid)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
                 return;
             }
 
-            ownerToVictim[player.Index] = enemy.Index;
+            ownerToVictim[player.Key()] = enemy.Key();
             playerInfo.SkillUsed = true;
 
             playerEvent.PrintToChat($" {ChatColors.Green}{playerEvent.GetTranslation("voodoo_player_info", enemy.PlayerName)}");
@@ -124,14 +124,14 @@ namespace src.player.skills
             var owner = PlayerManager.GetPlayerEvent(@event.Userid);
             if (owner == null || !owner.IsValid) return;
 
-            if (!ownerToVictim.TryGetValue(owner.Index, out uint victimIndex)) return;
+            if (!ownerToVictim.TryGetValue(owner.Key(), out uint victimIndex)) return;
             if (@event.DmgHealth <= 0) return;
 
-            if (!reflecting.TryAdd(owner.Index, 0)) return;
+            if (!reflecting.TryAdd(owner.Key(), 0)) return;
 
             try
             {
-                var victim = Utilities.GetPlayerFromIndex((int)victimIndex);
+                var victim = PlayerManager.GetController(victimIndex);
                 if (victim == null || !victim.IsValid) return;
 
                 var victimPawn = victim.PlayerPawn?.Value;
@@ -145,7 +145,7 @@ namespace src.player.skills
             }
             finally
             {
-                reflecting.TryRemove(owner.Index, out _);
+                reflecting.TryRemove(owner.Key(), out _);
             }
         }
 

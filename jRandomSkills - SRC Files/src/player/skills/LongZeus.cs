@@ -23,7 +23,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var pawn = player!.PlayerPawn.Value;
@@ -45,7 +45,7 @@ namespace src.player.skills
             var targetPawn = target.PlayerPawn.Value;
             if (targetPawn == null || !targetPawn.IsValid) return;
 
-            EntityManager.CreateEntityParticle(player.Index, shockParticle, targetPawn);
+            EntityManager.CreateEntityParticle(player.Key(), shockParticle, targetPawn);
             SkillUtils.RegisterNativeKill(targetPawn, pawn, activeWeapon, DamageTypes_t.DMG_SHOCK);
             SkillUtils.TakeHealth(targetPawn, 9999);
         }

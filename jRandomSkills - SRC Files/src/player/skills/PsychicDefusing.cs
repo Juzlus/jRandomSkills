@@ -46,9 +46,9 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill == skillName)
-                SkillPlayerInfo.TryRemove(player.Index, out _);
+                SkillPlayerInfo.TryRemove(player.Key(), out _);
         }
 
         public static void BombPlanted(EventBombPlanted _)
@@ -76,7 +76,7 @@ namespace src.player.skills
                 var playerIndex = skillInfo.Key;
                 var info = skillInfo.Value;
 
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid || player.PlayerPawn == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
@@ -116,9 +116,9 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 Defusing = false,
                 DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime"),
             });
@@ -130,7 +130,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             SkillUtils.ResetPrintHTML(player);
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
@@ -138,7 +138,7 @@ namespace src.player.skills
             if (!skillInfo.Defusing) return;
             int cooldown = (int)Math.Ceiling(skillInfo.DefusingTime);
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)

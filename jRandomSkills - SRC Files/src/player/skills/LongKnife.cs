@@ -49,12 +49,12 @@ namespace src.player.skills
             if (hooked || Shoot_Secondary == null) return;
             hooked = true;
             Shoot_Secondary.Hook(ShootSecondary, HookMode.Pre);
-            playersInAction.TryAdd(player.Index, 0);
+            playersInAction.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            playersInAction.TryRemove(player.Index, out _);
+            playersInAction.TryRemove(player.Key(), out _);
             if (playersInAction.IsEmpty)
             {
                 Shoot_Secondary?.Unhook(ShootSecondary, HookMode.Pre);
@@ -79,7 +79,7 @@ namespace src.player.skills
             var eventPlayer = PlayerManager.GetPlayerEvent(player);
             if (eventPlayer == null || !eventPlayer.IsValid) return HookResult.Continue;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer.Index);
+            var playerInfo = PlayerManager.GetPlayer(eventPlayer);
             if (playerInfo == null || playerInfo.Skill != skillName) return HookResult.Continue;
 
             KillfeedIcons? killfeedIcon = KillfeedIconsExtensions.FromWeapon(weapon);
@@ -92,7 +92,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var pawn = player!.PlayerPawn.Value;

@@ -26,7 +26,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            plantingPlayers.TryRemove(player.Index, out _);
+            plantingPlayers.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -35,7 +35,7 @@ namespace src.player.skills
             var user = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(user)) return;
 
-            plantingPlayers.TryRemove(user.Index, out _);
+            plantingPlayers.TryRemove(user.Key(), out _);
             SkillUtils.ResetPrintHTML(user);
         }
 
@@ -44,7 +44,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            plantingPlayers.TryAdd(player!.Index, Server.CurrentTime);
+            plantingPlayers.TryAdd(player!.Key(), Server.CurrentTime);
 
             if (!IsAnyOwnerAlive()) return;
 
@@ -60,7 +60,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid || !player.PawnIsAlive) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+                var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
                 if (playerInfo?.Skill == skillName) return true;
             }
 
@@ -72,7 +72,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            plantingPlayers.TryRemove(player!.Index, out _);
+            plantingPlayers.TryRemove(player!.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -88,7 +88,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
+                var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
                 if (playerInfo == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
@@ -98,7 +98,7 @@ namespace src.player.skills
                 var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
                 if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_c4") continue;
 
-                if (plantingPlayers.TryGetValue(player.Index, out float plantTime))
+                if (plantingPlayers.TryGetValue(player.Key(), out float plantTime))
                 {
                     float remaining = plantTime + extraTime - currentTime;
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";

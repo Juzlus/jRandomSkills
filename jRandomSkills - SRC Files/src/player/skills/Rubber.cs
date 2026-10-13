@@ -22,6 +22,11 @@ namespace src.player.skills
             playersToSlow.Clear();
         }
 
+        public static void PlayerDisconnect(uint playerKey)
+        {
+            playersToSlow.TryRemove(playerKey, out _);
+        }
+
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
@@ -29,7 +34,7 @@ namespace src.player.skills
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
             if (!SkillUtils.FiresBullets(@event.Weapon)) return;
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
 
             if (Heavyweight.Resists(victim)) return;
 
@@ -38,7 +43,7 @@ namespace src.player.skills
 
             var rubberTime = SkillsInfo.GetValue<float>(skillName, "slownessTime");
             if (attackerInfo?.Skill == skillName)
-                playersToSlow.AddOrUpdate(victim.Index, Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
+                playersToSlow.AddOrUpdate(victim.Key(), Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
         }
 
         public static void OnTick()
@@ -50,7 +55,7 @@ namespace src.player.skills
                 var playerIndex = item.Key;
                 var time = item.Value;
 
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
                 if (time >= Server.TickCount)

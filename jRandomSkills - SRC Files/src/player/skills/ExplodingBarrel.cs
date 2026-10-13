@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -50,18 +50,18 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
-                if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
+                if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) continue;
 
-                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill == skillName)
+                if (PlayerManager.GetPlayer(player)?.Skill == skillName)
                     UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -70,8 +70,8 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            SkillPlayerInfo.TryRemove(player.Index, out _);
-            EntityManager.DestroyPlayerEntities(player.Index);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
+            EntityManager.DestroyPlayerEntities(player.Key());
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -87,7 +87,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -103,7 +103,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn?.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo) && skillInfo.CanUse)
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo) && skillInfo.CanUse)
             {
                 skillInfo.CanUse = false;
                 skillInfo.Cooldown = DateTime.Now;
@@ -117,7 +117,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null)
                 return;
 
-            var barrel = EntityManager.CreateTrackedPropOverride(player.Index);
+            var barrel = EntityManager.CreateTrackedPropOverride(player.Key());
             if (barrel == null || !barrel.IsValid)
                 return;
 
@@ -127,7 +127,7 @@ namespace src.player.skills
             Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
             QAngle rotation = new(playerPawn.AbsRotation.X, playerPawn.AbsRotation.Y, playerPawn.AbsRotation.Z);
 
-            barrel.Entity!.Name = barrel.Globalname = $"Barrel_{Server.TickCount}_{player.TeamNum}_{player.Index}";
+            barrel.Entity!.Name = $"Barrel_{Server.TickCount}_{player.TeamNum}_{player.Key()}";
             barrel.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             barrel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(barrel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
 
@@ -165,7 +165,7 @@ namespace src.player.skills
                 heProjectile.DetonateTime = 0;
 
                 if (nades.TryRemove(lastTick, out var source))
-                    heProjectile.Globalname = $"barrel_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
+                    heProjectile.Entity!.Name = $"barrel_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
             });
         }
 
@@ -215,9 +215,10 @@ namespace src.player.skills
             var nade = damageInfo.Attacker?.Value;
             if (nade == null || !nade.IsValid) return;
             if (nade.DesignerName != "hegrenade_projectile") return;
-            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("barrel_team_")) return;
+            string? nadeName = nade.Entity?.Name;
+            if (string.IsNullOrEmpty(nadeName) || !nadeName.StartsWith("barrel_team_")) return;
 
-            var parts = nade.Globalname.Split('_');
+            var parts = nadeName.Split('_');
             if (parts.Length < 4) return;
             if (!int.TryParse(parts[2], out int nadeTeam)) return;
             if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
@@ -226,9 +227,9 @@ namespace src.player.skills
             if (victimPawn.DesignerName != "player" || victimPawn.Controller?.Value == null) return;
 
             var victim = victimPawn.Controller.Value.As<CCSPlayerController>();
-            if (victim == null || !victim.IsValid || victim.Index == ownerIndex) return;
+            if (victim == null || !victim.IsValid || victim.Key() == ownerIndex) return;
 
-            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            var owner = PlayerManager.GetController(ownerIndex);
             if (owner != null && !owner.IsValid) owner = null;
 
             if (victimPawn.TeamNum == nadeTeam)
@@ -243,7 +244,7 @@ namespace src.player.skills
             }
 
             if (owner != null && SkillUtils.IsPredictedLethal(damageInfo, victimPawn))
-                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
+                SkillUtils.RegisterKillCredit(victim.Key(), owner.Key(), KillfeedIcons.Explosion);
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;

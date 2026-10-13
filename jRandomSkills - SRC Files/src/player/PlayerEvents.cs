@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
@@ -22,6 +22,8 @@ namespace src.player
         private const int MaxSetSkillRetries = 6;
         private static int setSkillRetries;
         private static int gameRulesPolls;
+        private static bool setSkillRanThisRound;
+        private static DateTime setSkillDueAt = DateTime.MaxValue;
         private static DateTime freezeTimeEnd = DateTime.MinValue;
         private static bool isTransmitRegistered = false;
         public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillsInfo.GetValue<string>(Skills.None, "color"), false);
@@ -48,6 +50,7 @@ namespace src.player
             Instance.RegisterEventHandler<EventPlayerSpawned>(PlayerSpawned);
             Instance.RegisterEventHandler<EventRoundStart>(RoundStart);
             Instance.RegisterEventHandler<EventRoundEnd>(RoundEnd);
+            Instance.RegisterEventHandler<EventRoundFreezeEnd>(RoundFreezeEnd);
 
             Instance.RegisterEventHandler<EventPlayerDeath>(PlayerDeathPre, HookMode.Pre);
             Instance.RegisterEventHandler<EventPlayerDeath>(PlayerDeath);
@@ -124,7 +127,7 @@ namespace src.player
         {
             try
             {
-                Instance.SkillAction(skill.ToString(), methodName, args);
+                Instance.SkillAction(SkillNames.Get(skill), methodName, args);
             }
             catch (Exception ex)
             {
@@ -142,16 +145,16 @@ namespace src.player
             }
         }
 
-        private static void ReleaseCursesTargeting(uint victimIndex)
+        private static void ReleaseCursesTargeting(uint victimKey)
         {
-            foreach (uint curserIndex in SkillUtils.GetCursersOf(victimIndex))
+            foreach (uint curserKey in SkillUtils.GetCursersOf(victimKey))
             {
-                if (curserIndex == victimIndex) continue;
+                if (curserKey == victimKey) continue;
 
-                var curser = Utilities.GetPlayerFromIndex((int)curserIndex);
-                if (curser == null || !curser.IsValid) continue;
+                var curser = PlayerManager.GetController(curserKey);
+                if (curser == null) continue;
 
-                if (PlayerManager.GetPlayerByIndex(curserIndex)?.Skill is not Skills curserSkill || curserSkill == Skills.None)
+                if (PlayerManager.GetPlayerByKey(curserKey)?.Skill is not Skills curserSkill || curserSkill == Skills.None)
                     continue;
 
                 try
@@ -165,9 +168,12 @@ namespace src.player
             }
         }
 
+        private static readonly HashSet<Skills> transmitSeen = [];
+
         private static void DispatchCheckTransmit(object[] args)
         {
-            var seen = new HashSet<Skills>();
+            var seen = transmitSeen;
+            seen.Clear();
             foreach (var p in Instance.SkillPlayer)
             {
                 if (!seen.Add(p.Skill)) continue;
@@ -227,12 +233,12 @@ namespace src.player
                 var controller = pawn.Controller.Value?.As<CCSPlayerController>();
                 if (controller == null || !controller.IsValid) return string.Empty;
 
-                uint routedIndex = PlayerManager.GetPlayerEvent(controller)?.Index ?? controller.Index;
-                string routing = routedIndex == controller.Index
+                var routed = PlayerManager.GetPlayerEvent(controller) ?? controller;
+                string routing = routed.Key() == controller.Key()
                     ? string.Empty
-                    : $" routedIdx={routedIndex} routedSkill={PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}";
+                    : $" routedIdx={routed.Key()} routedSkill={PlayerManager.GetPlayer(routed)?.Skill}";
 
-                return $" on {controller.PlayerName} [idx={controller.Index} skill={PlayerManager.GetPlayerByIndex(controller.Index)?.Skill}{routing}]";
+                return $" on {controller.PlayerName} [idx={controller.Key()} skill={PlayerManager.GetPlayer(controller)?.Skill}{routing}]";
             }
             catch
             {
@@ -274,7 +280,7 @@ namespace src.player
                     var player = um.Recipients.FirstOrDefault();
                     if (player == null || !player.IsValid) return HookResult.Continue;
 
-                    var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+                    var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
                     if (playerInfo == null) return HookResult.Continue;
 
                     if (isOtherPlugin && playerInfo.HideHUD != int.MaxValue)
@@ -305,6 +311,8 @@ namespace src.player
             {
                 if (!IsEventAlive(@event)) return HookResult.Continue;
 
+                if (@event.Userid is { IsValid: true } equipper)
+                    SkillUtils.InvalidateHiddenCache(equipper.Key());
                 DispatchToActiveSkills("WeaponEquip", @event);
                 return HookResult.Continue;
             }
@@ -316,6 +324,8 @@ namespace src.player
             {
                 if (!IsEventAlive(@event)) return HookResult.Continue;
 
+                if (@event.Userid is { IsValid: true } picker)
+                    SkillUtils.InvalidateHiddenCache(picker.Key());
                 DispatchToActiveSkills("WeaponPickup", @event);
                 return HookResult.Continue;
             }
@@ -350,7 +360,7 @@ namespace src.player
                     var victim = PlayerManager.GetPlayerEvent(@event.Userid);
                     if (victim == null || !victim.IsValid) return HookResult.Continue;
 
-                    var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+                    var victimInfo = PlayerManager.GetPlayer(victim);
                     if (victimInfo == null || victimInfo.IsDrawing) return HookResult.Continue;
 
                     bool suppressed = AskSkillSuppressesHit(victimInfo.Skill, @event);
@@ -358,9 +368,9 @@ namespace src.player
                     if (!suppressed)
                     {
                         var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-                        if (attacker != null && attacker.IsValid && attacker.Index != victim.Index)
+                        if (attacker != null && attacker.IsValid && attacker.Key() != victim.Key())
                         {
-                            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+                            var attackerInfo = PlayerManager.GetPlayer(attacker);
                             if (attackerInfo != null && !attackerInfo.IsDrawing && attackerInfo.Skill != victimInfo.Skill)
                                 suppressed = AskSkillSuppressesHit(attackerInfo.Skill, @event);
                         }
@@ -538,35 +548,52 @@ namespace src.player
                         // Without this one throwing skill cancels every later skill's tick, every frame.
                         // Logged once per skill per round; at 64 ticks a repeat would flood the console.
                         if (tickFailuresLogged.Add(skill))
-                            Server.PrintToConsole($"[jRandomSkills] {skill}.OnTick failed: {ex.InnerException?.Message ?? ex.Message}");
+                        {
+                            var inner = ex.InnerException ?? ex;
+                            string where = inner.StackTrace?.Split('\n').FirstOrDefault(l => l.Contains(" in "))?.Trim() ?? "";
+                            Server.PrintToConsole($"[jRandomSkills] {skill}.OnTick failed: {inner.Message} {where}");
+                            Debug.WriteToDebug($"{skill}.OnTick failed: {inner.Message} {where}", DebugCategory.Core);
+                        }
                     }
                 }
             }
             PerfLog.Sample("OnTick(skills)", perfStart);
         }
 
+        public static void RegisterConnectedPlayers()
+        {
+            List<CCSPlayerController> players;
+            try { players = Utilities.GetPlayers(); }
+            catch (NativeException) { return; }
+
+            foreach (var player in players)
+                if (player != null && player.IsValid && !player.IsHLTV)
+                    OnPlayerConnectedBot(player.Slot);
+        }
+
         private static void OnPlayerConnectedBot(int playerSlot)
         {
             lock (setLock)
             {
+                PlayerManager.ResetKeyCache();
                 var player = Utilities.GetPlayerFromSlot(playerSlot);
                 if (player == null || !player.IsValid) return;
 
                 if (player.IsBot && !Config.LoadedConfig.EnableBotSkills)
                     return;
 
-                var existing = Instance.SkillPlayer.FirstOrDefault(p => p.PlayerIndex == player.Index);
-                if (existing != null)
-                {
-                    PlayerManager.Register(existing);
+                foreach (var stale in PlayerManager.RemoveStale(player.Key(), player.Key()))
+                    Debug.WriteToDebug($"Player slot {player.Key()} reused: dropped stale entry of {stale.PlayerName} (skill {stale.Skill}).", DebugCategory.Core);
+
+                if (PlayerManager.GetPlayer(player) != null)
                     return;
-                }
 
                 var playerInfo = new jSkill_PlayerInfo
                 {
                     IsBot = player.IsBot,
                     PlayerName = player.PlayerName,
-                    PlayerIndex = player.Index,
+                    PlayerIndex = player.Key(),
+                    PlayerKey = player.Key(),
                     Skill = Skills.None,
                     SpecialSkill = Skills.None,
                     IsDrawing = false,
@@ -607,26 +634,30 @@ namespace src.player
         {
             lock (setLock)
             {
+                PlayerManager.ResetKeyCache();
                 var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
-                var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
+                var skillPlayer = PlayerManager.GetPlayer(player);
                 if (skillPlayer == null) return HookResult.Continue;
 
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
 
-                uint leavingIndex = player.Index;
+                uint leavingKey = player.Key();
 
-                ReleaseCursesTargeting(leavingIndex);
+                ReleaseCursesTargeting(leavingKey);
 
                 foreach (var skill in SkillData.Skills)
-                    Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingIndex]);
+                    Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingKey]);
 
-                SkillUtils.ClearCursesFor(leavingIndex);
+                SkillUtils.ClearCursesFor(leavingKey);
+                SkillUtils.ForgetHealthBeforeHit(leavingKey);
+                SkillUtils.InvalidateHiddenCache(leavingKey);
+                playersSkills.TryRemove(leavingKey, out _);
 
-                PlayerManager.UnregisterPlayer(player.Index);
-                EntityManager.DestroyPlayerEntities(player.Index);
-                SkillUtils.ClearHudSuppression(player.Index);
+                PlayerManager.UnregisterPlayer(player.Key());
+                EntityManager.DestroyPlayerEntities(player.Key());
+                SkillUtils.ClearHudSuppression(player.Key());
 
                 return HookResult.Continue;
             }
@@ -639,7 +670,7 @@ namespace src.player
                 var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
-                var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
+                var skillPlayer = PlayerManager.GetPlayer(player);
                 if (skillPlayer == null) return HookResult.Continue;
 
                 if (setSkillTimer != null)
@@ -665,7 +696,7 @@ namespace src.player
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            SkillUtils.ClearHudSuppression(player.Index);
+            SkillUtils.ClearHudSuppression(player.Key());
 
             pawn.HideHUD = (uint)(pawn.HideHUD & ~(1 << 8));
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
@@ -674,7 +705,7 @@ namespace src.player
 
             if (SkillsInfo.GetValue<bool>(Skills.Magnifier, "active") && player.DesiredFOV == SkillsInfo.GetValue<uint>(Skills.Magnifier, "customFOV"))
             {
-                player.DesiredFOV = playersCustomFOV.TryGetValue(player.Index, out uint fov) ? fov : 0;
+                player.DesiredFOV = playersCustomFOV.TryGetValue(player.Key(), out uint fov) ? fov : 0;
                 Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
             }
         }
@@ -686,21 +717,26 @@ namespace src.player
                 var victim = @event.Userid;
                 if (victim == null || !victim.IsValid) return HookResult.Continue;
 
-                Ninja.RevealOnDeath(victim.Index);
-                Ghost.RevealOnDeath(victim.Index);
-                C4Camouflage.RevealOnDeath(victim.Index);
+                Ninja.RevealOnDeath(victim.Key());
+                Ghost.RevealOnDeath(victim.Key());
+                C4Camouflage.RevealOnDeath(victim.Key());
 
-                if (!SkillUtils.TryConsumeKillCredit(victim.Index, out uint attackerIndex, out string? weapon))
+                if (!SkillUtils.TryConsumeKillCredit(victim.Key(), out uint attackerKey, out string? weapon, out bool native))
                     return HookResult.Continue;
 
-                var attacker = Utilities.GetPlayerFromIndex((int)attackerIndex);
-                if (attacker == null || !attacker.IsValid || attacker.Index == victim.Index)
+                var attacker = PlayerManager.GetController(attackerKey);
+                if (attacker == null || !attacker.IsValid || attacker.Key() == victim.Key())
                     return HookResult.Continue;
-
-                @event.Attacker = attacker;
 
                 if (!string.IsNullOrEmpty(weapon))
                     @event.Weapon = weapon;
+                else if (native && @event.Weapon == "worldent")
+                    @event.Weapon = "world";
+
+                if (native && @event.Attacker?.Key() == attacker.Key())
+                    return HookResult.Continue;
+
+                @event.Attacker = attacker;
 
                 var matchStats = attacker.ActionTrackingServices?.MatchStats;
                 if (matchStats != null)
@@ -734,7 +770,7 @@ namespace src.player
                 var victim = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (victim == null) return HookResult.Continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+                var playerInfo = PlayerManager.GetPlayer(victim);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
                 Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
 
@@ -744,7 +780,7 @@ namespace src.player
                 if (victim == attacker) return HookResult.Continue;
                 if (Config.LoadedConfig.KillerSkillChatInfo)
                 {
-                    var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+                    var attackerInfo = PlayerManager.GetPlayer(attacker);
                     if (attackerInfo != null)
                     {
                         var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == attackerInfo.Skill);
@@ -777,7 +813,7 @@ namespace src.player
 
                 if (SkillUtils.HasMenu(player)) return;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.IsDrawing) return;
 
                 if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
@@ -881,7 +917,7 @@ namespace src.player
                 var cache = skillPlayer?.HudCache;
                 if (cache != null
                     && cache.Content != null
-                    && cache.PlayerIndex == player.Index
+                    && cache.PlayerKey == player.Key()
                     && ReferenceEquals(cache.Config, config)
                     && cache.IsDescription == isDescription
                     && string.Equals(cache.Header, headerLine, StringComparison.Ordinal)
@@ -911,7 +947,7 @@ namespace src.player
                 if (skillPlayer != null)
                 {
                     cache ??= skillPlayer.HudCache = new HudCacheEntry();
-                    cache.PlayerIndex = player.Index;
+                    cache.PlayerKey = player.Key();
                     cache.Config = config;
                     cache.Header = headerLine;
                     cache.Center = centerLine;

@@ -29,16 +29,16 @@ namespace src.player.skills
         {
             string model = GetEnemyModel(player);
             if (player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid && player.PlayerPawn.Value.CBodyComponent != null && player.PlayerPawn.Value.CBodyComponent.SceneNode != null)
-                originalModels.TryAdd(player.Index, player.PlayerPawn.Value.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.ModelName);
+                originalModels.TryAdd(player.Key(), player.PlayerPawn.Value.CBodyComponent.SceneNode.GetSkeletonInstance().ModelState.ModelName);
             SetPlayerModel(player, model);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var model = originalModels.TryGetValue(player.Index, out var originalModel) && !string.IsNullOrEmpty(originalModel) ? originalModel :
+            var model = originalModels.TryGetValue(player.Key(), out var originalModel) && !string.IsNullOrEmpty(originalModel) ? originalModel :
                 player.Team == CsTeam.Terrorist ? defaultTModel : defaultCTModel;
             SetPlayerModel(player, model);
-            originalModels.TryRemove(player.Index, out _);
+            originalModels.TryRemove(player.Key(), out _);
         }
 
         private static string GetEnemyModel(CCSPlayerController player)

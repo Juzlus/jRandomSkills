@@ -38,11 +38,11 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             Vector pos = new(@event.X, @event.Y, @event.Z);
-            DecoyTracker.Add(skillName, (uint)@event.Entityid, pos, player.Index);
+            DecoyTracker.Add(skillName, (uint)@event.Entityid, pos, player.Key());
             DecoyRing.Show(skillName, (uint)@event.Entityid, pos, SkillsInfo.GetValue<float>(skillName, "triggerRadius"));
         }
 
@@ -76,7 +76,7 @@ namespace src.player.skills
                 if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
                 if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
 
-                if (restoreOnRespawn.TryRemove(eventPlayer.Index, out float respawnGravity))
+                if (restoreOnRespawn.TryRemove(eventPlayer.Key(), out float respawnGravity))
                     pawn.ActualGravityScale = respawnGravity;
 
                 bool inside = false;
@@ -85,10 +85,10 @@ namespace src.player.skills
 
                 if (inside)
                 {
-                    if (!affected.TryAdd(eventPlayer.Index, pawn.ActualGravityScale)) continue;
+                    if (!affected.TryAdd(eventPlayer.Key(), pawn.ActualGravityScale)) continue;
                     pawn.ActualGravityScale = gravity;
                 }
-                else if (affected.TryRemove(eventPlayer.Index, out float ownGravity))
+                else if (affected.TryRemove(eventPlayer.Key(), out float ownGravity))
                     pawn.ActualGravityScale = ownGravity;
             }
         }
@@ -98,10 +98,10 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            if (!affected.TryRemove(victim.Index, out float ownGravity)) return;
+            if (!affected.TryRemove(victim.Key(), out float ownGravity)) return;
 
-            Restore(victim.Index, ownGravity);
-            restoreOnRespawn[victim.Index] = ownGravity;
+            Restore(victim.Key(), ownGravity);
+            restoreOnRespawn[victim.Key()] = ownGravity;
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -125,7 +125,7 @@ namespace src.player.skills
 
         private static void Restore(uint playerIndex, float gravity)
         {
-            var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+            var player = PlayerManager.GetController(playerIndex);
             var pawn = player?.PlayerPawn?.Value;
 
             if (pawn != null && pawn.IsValid)
@@ -139,12 +139,12 @@ namespace src.player.skills
 
             if (@event.Weapon != "decoy") return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
-                playersWithSkill[player.Index] = grenadesLeft - 1;
+                playersWithSkill[player.Key()] = grenadesLeft - 1;
                 player!.GiveNamedItem("weapon_decoy");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft - 1);
             }
@@ -155,7 +155,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
         }
 
@@ -167,7 +167,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "decoy") return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
         }
 
@@ -176,7 +176,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill[player.Index] = grenadeLimit;
+            playersWithSkill[player.Key()] = grenadeLimit;
 
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadeLimit);
@@ -186,13 +186,13 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            playersWithSkill.TryRemove(player.Index, out _);
+            playersWithSkill.TryRemove(player.Key(), out _);
 
-            DecoyTracker.RemoveOwner(skillName, player.Index);
+            DecoyTracker.RemoveOwner(skillName, player.Key());
 
             var eventPlayer = PlayerManager.GetPlayerEvent(player);
-            if (eventPlayer != null && eventPlayer.IsValid && eventPlayer.Index != player.Index)
-                DecoyTracker.RemoveOwner(skillName, eventPlayer.Index);
+            if (eventPlayer != null && eventPlayer.IsValid && eventPlayer.Key() != player.Key())
+                DecoyTracker.RemoveOwner(skillName, eventPlayer.Key());
 
             if (DecoyTracker.IsEmpty(skillName)) RestoreAll();
 

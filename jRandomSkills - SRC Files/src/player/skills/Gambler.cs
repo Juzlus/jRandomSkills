@@ -25,13 +25,13 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
 
             if (playerInfo.SkillUsed)
             {
@@ -68,10 +68,10 @@ namespace src.player.skills
                 if (SkillsInfo.GetValue<bool>(skill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
-                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var player = PlayerManager.GetController(playerIndex);
                         if (player == null || !player.IsValid) return;
 
-                        var pi = PlayerManager.GetPlayerByIndex(playerIndex);
+                        var pi = PlayerManager.GetPlayerByKey(playerIndex);
                         if (pi == null || pi.Skill != skill.Skill) return;
                         Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -97,7 +97,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -121,7 +121,7 @@ namespace src.player.skills
 
         private static List<jSkill_SkillInfo> GetSkills(CCSPlayerController player)
         {
-            var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
+            var skillPlayer = PlayerManager.GetPlayer(player);
             if (skillPlayer == null) return [Event.noneSkill];
 
             List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];

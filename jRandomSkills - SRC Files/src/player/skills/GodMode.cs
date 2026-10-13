@@ -29,15 +29,15 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 HaveGodMode = false,
                 Cooldown = DateTime.MinValue,
             });
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                 skillInfo.HaveGodMode = true;
         }
 
@@ -46,16 +46,16 @@ namespace src.player.skills
             if (!SkillUtils.IsHudFrame()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out var skillInfo);
+            SkillPlayerInfo.TryRemove(player.Key(), out var skillInfo);
             SkillUtils.ResetPrintHTML(player);
 
             var playerPawn = player.PlayerPawn.Value;
@@ -97,7 +97,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -111,7 +111,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
 
             if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))
             {
@@ -136,7 +136,7 @@ namespace src.player.skills
                             skillInfo.OriginalRender = null;
                         }
 
-                        var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var player = PlayerManager.GetController(playerIndex);
                         if (player != null && player.IsValid)
                         {
                             if (player.PlayerPawn == null || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
