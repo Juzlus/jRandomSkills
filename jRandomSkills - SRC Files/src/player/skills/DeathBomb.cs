@@ -41,7 +41,7 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid || pawn.Health == pawn.MaxHealth) return;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
                     SpawnExplosion(player!);
             });
@@ -63,7 +63,7 @@ namespace src.player.skills
 
             player.EmitSound(voiceLines[Random.Shared.Next(voiceLines.Length)], volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
-            nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Index), (_, _) => (player.TeamNum, player.Index));
+            nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Key()), (_, _) => (player.TeamNum, player.Key()));
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -87,7 +87,7 @@ namespace src.player.skills
                 heProjectile.DetonateTime = 0;
 
                 if (nades.TryRemove(lastTick, out var source))
-                    heProjectile.Globalname = $"deathbomb_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
+                    heProjectile.Entity!.Name = $"deathbomb_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
             });
         }
 
@@ -99,9 +99,10 @@ namespace src.player.skills
             if (nade == null || !nade.IsValid) return;
 
             if (nade.DesignerName != "hegrenade_projectile") return;
-            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("deathbomb_team_")) return;
+            string? nadeName = nade.Entity?.Name;
+            if (string.IsNullOrEmpty(nadeName) || !nadeName.StartsWith("deathbomb_team_")) return;
 
-            var parts = nade.Globalname.Split('_');
+            var parts = nadeName.Split('_');
             if (parts.Length < 4) return;
             if (!int.TryParse(parts[2], out int nadeTeam)) return;
             if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
@@ -112,9 +113,9 @@ namespace src.player.skills
             if (victimPawn.Controller?.Value == null) return;
 
             var victim = victimPawn.Controller.Value.As<CCSPlayerController>();
-            if (victim == null || !victim.IsValid || victim.Index == ownerIndex) return;
+            if (victim == null || !victim.IsValid || victim.Key() == ownerIndex) return;
 
-            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            var owner = PlayerManager.GetController(ownerIndex);
             if (owner != null && !owner.IsValid) owner = null;
 
             if (victimPawn.TeamNum == nadeTeam)
@@ -129,7 +130,7 @@ namespace src.player.skills
             }
 
             if (owner != null && SkillUtils.IsPredictedLethal(damageInfo, victimPawn))
-                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
+                SkillUtils.RegisterKillCredit(victim.Key(), owner.Key(), KillfeedIcons.Explosion);
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;

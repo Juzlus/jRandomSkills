@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -41,16 +41,16 @@ namespace src.player.skills
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
                 ChangeCamera(playerSkill);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player.PlayerPawn.Value == null || player.PlayerPawn.Value.CameraServices == null) return;
-            playersInfo.TryAdd(player.Index, new PlayerSkill
+            playersInfo.TryAdd(player.Key(), new PlayerSkill
             {
-                Player = player.Index,
+                Player = player.Key(),
                 CameraProp = null,
                 CameraView = null,
                 CameraActive = false,
@@ -64,12 +64,12 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
             {
                 ChangeCamera(playerSkill, true);
                 KillCamera(playerSkill);
             }
-            playersInfo.TryRemove(player.Index, out _);
+            playersInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -103,7 +103,7 @@ namespace src.player.skills
             {
                 if (playerSkill.CameraActive && playerSkill.CameraView != null && playerSkill.CameraView != 0)
                 {
-                    var enemy = Utilities.GetPlayerFromIndex((int)playerSkill.Player);
+                    var enemy = PlayerManager.GetController(playerSkill.Player);
                     if (enemy == null || !enemy.IsValid || enemy.PlayerPawn == null) continue;
 
                     var enemyPawn = enemy.PlayerPawn.Value;
@@ -126,7 +126,7 @@ namespace src.player.skills
 
         private static void ChangeCamera(PlayerSkill playerInfo, bool forceToDefault = false)
         {
-            var player = Utilities.GetPlayerFromIndex((int)playerInfo.Player);
+            var player = PlayerManager.GetController(playerInfo.Player);
             if (player == null || !player.IsValid) return;
 
             playerInfo.CameraActive = forceToDefault ? false : !playerInfo.CameraActive;
@@ -189,19 +189,19 @@ namespace src.player.skills
                     if (eventTarget != null && eventTarget.IsValid)
                         SkillUtils.ApplyScreenColor(eventTarget, 0, 0, 255, 20, 100, 1020);
 
-                    uint playerIndex = player.Index;
+                    uint playerIndex = player.Key();
 
                     Timer? cameraTimer = null;
                     cameraTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                     {
-                        var target = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.IsValid && p.Index == playerIndex);
+                        var target = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.IsValid && p.Key() == playerIndex);
                         if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                         {
                             cameraTimer?.Kill();
                             return;
                         }
 
-                        if (!playersInfo.TryGetValue(target.Index, out var playerSkill) || playerSkill.CameraActive == false)
+                        if (!playersInfo.TryGetValue(target.Key(), out var playerSkill) || playerSkill.CameraActive == false)
                         {
                             cameraTimer?.Kill();
                             return;
@@ -238,12 +238,12 @@ namespace src.player.skills
             if (!CheckCameraPosition(finalPos, player))
                 return null;
 
-            var camera = EntityManager.CreateTrackedPropOverride(player.Index);
+            var camera = EntityManager.CreateTrackedPropOverride(player.Key());
             if (camera == null || !camera.IsValid) return null;
 
             camera.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            camera.Entity!.Name = camera.Globalname = $"CypherCamera_{Server.TickCount}_{player.Index}";
+            camera.Entity!.Name = $"CypherCamera_{Server.TickCount}_{player.Key()}";
 
             camera.SetModel(cameraPropModel);
             camera.Teleport(cameraVector, new QAngle(0, playerPawn.V_angle.Y + 180, 0));
@@ -262,9 +262,9 @@ namespace src.player.skills
             var camRot = new QAngle(cameraProp.AbsRotation.X, cameraProp.AbsRotation.Y, cameraProp.AbsRotation.Z);
 
             uint ownerIndex = EntityManager.SystemOwnerIndex;
-            if (!string.IsNullOrEmpty(cameraProp.Globalname))
+            if (!string.IsNullOrEmpty(cameraProp.Entity?.Name))
             {
-                var parts = cameraProp.Globalname.Split('_');
+                var parts = cameraProp.Entity!.Name.Split('_');
                 if (parts.Length >= 3 && uint.TryParse(parts[^1], out var idx))
                     ownerIndex = idx;
             }
@@ -305,10 +305,10 @@ namespace src.player.skills
             _ = uint.TryParse(nameParams, out uint userIndex);
             if (userIndex == 0) return;
 
-            var player = Utilities.GetPlayerFromIndex((int)userIndex);
+            var player = PlayerManager.GetController(userIndex);
             if (player == null) return;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
             {
                 ChangeCamera(playerSkill, true);
                 KillCamera(playerSkill);
@@ -382,10 +382,10 @@ namespace src.player.skills
         {
             if (playerSkill == null) return;
 
-            var player = Utilities.GetPlayerFromIndex((int)playerSkill.Player);
+            var player = PlayerManager.GetController(playerSkill.Player);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             float ticksLeft = playerSkill.NextCamera - Server.TickCount;

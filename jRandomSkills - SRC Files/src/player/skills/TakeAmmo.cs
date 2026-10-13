@@ -45,9 +45,9 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
                 LastClick = DateTime.MinValue,
@@ -59,7 +59,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (SkillPlayerInfo.TryRemove(player.Index, out var _))
+            if (SkillPlayerInfo.TryRemove(player.Key(), out var _))
                 SkillUtils.ResetPrintHTML(player);
 
             var weaponServices = player.PlayerPawn?.Value?.WeaponServices;
@@ -86,10 +86,10 @@ namespace src.player.skills
             var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) continue;
 
-                if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                 {
                     bool recentClick = skillInfo.LastClick.AddSeconds(4) >= DateTime.Now;
                     UpdateHUD(player, skillInfo, recentClick);
@@ -109,7 +109,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -132,7 +132,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
                 if (!player.IsValid || playerPawn.Health <= 0) return;
                 if (skillInfo.CanUse)
@@ -219,7 +219,7 @@ namespace src.player.skills
             string weaponName = activeWeapon.DesignerName;
             string weaponIndex = activeWeapon.AttributeManager.Item.ItemDefinitionIndex.ToString();
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
                 if (skillInfo.MaxWeaponAmmo.TryGetValue(weaponName, out int currentMax))
                     skillInfo.MaxWeaponAmmo[weaponName] = Math.Max(currentMax, magazines);
@@ -257,7 +257,7 @@ namespace src.player.skills
 
                 int ammoLimit = items.Item1;
 
-                if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                 {
                     if (skillInfo.MaxWeaponAmmo.TryGetValue("weapon_" + weaponName, out int personalMax))
                         ammoLimit = Math.Max(ammoLimit, personalMax);

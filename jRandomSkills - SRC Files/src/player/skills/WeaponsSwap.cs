@@ -28,9 +28,9 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
                 LastClick = DateTime.MinValue,
@@ -41,7 +41,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -52,10 +52,10 @@ namespace src.player.skills
             var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) continue;
 
-                if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                 {
                     bool recentClick = skillInfo.LastClick.AddSeconds(4) >= DateTime.Now;
                     UpdateHUD(player, skillInfo, recentClick);
@@ -75,7 +75,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -98,7 +98,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
                 if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
                 if (skillInfo.CanUse)
@@ -229,7 +229,7 @@ namespace src.player.skills
         private static void GiveWeapons(CCSPlayerController player, WeaponInfo[]? weapons, bool addC4)
         {
             if (weapons == null) return;
-            uint index = player.Index;
+            uint index = player.Key();
 
             foreach (var weapon in weapons)
                 player.GiveNamedItem(weapon.Name);
@@ -239,7 +239,7 @@ namespace src.player.skills
 
             Server.NextFrame(() =>
             {
-                var player = Utilities.GetPlayerFromIndex((int)index);
+                var player = PlayerManager.GetController(index);
                 if (player == null || !player.IsValid) return;
 
                 var pawn = player.PlayerPawn.Value;

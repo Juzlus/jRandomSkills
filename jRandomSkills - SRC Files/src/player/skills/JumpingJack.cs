@@ -21,7 +21,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent.Index);
+            var playerInfo = PlayerManager.GetPlayer(playerEvent);
             if (playerInfo?.Skill != skillName) return;
 
             SkillUtils.AddHealth(playerEvent.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));

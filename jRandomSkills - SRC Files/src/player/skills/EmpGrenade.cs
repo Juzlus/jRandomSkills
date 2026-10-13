@@ -42,8 +42,8 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            if (jammedUntilTick.TryRemove(victim.Index, out _))
-                SetHud(victim.Index, false);
+            if (jammedUntilTick.TryRemove(victim.Key(), out _))
+                SetHud(victim.Key(), false);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
@@ -53,15 +53,15 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (attacker == null || !attacker.IsValid) return;
 
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
             if (attackerInfo?.Skill != skillName) return;
 
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-            if (victim == null || !victim.IsValid) return;
+            if (victim == null || !victim.IsValid || victim.Team == attacker.Team) return;
 
             float duration = SkillsInfo.GetValue<float>(skillName, "jamSeconds");
-            jammedUntilTick[victim.Index] = Server.TickCount + (int)(duration * 64);
-            SetHud(victim.Index, true);
+            jammedUntilTick[victim.Key()] = Server.TickCount + (int)(duration * 64);
+            SetHud(victim.Key(), true);
 
             var victimEvent = PlayerManager.GetPlayerFromEvent(victim);
             if (victimEvent != null && victimEvent.IsValid)
@@ -93,7 +93,7 @@ namespace src.player.skills
 
         private static void SetHud(uint playerIndex, bool jam)
         {
-            var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+            var player = PlayerManager.GetController(playerIndex);
             if (player == null || !player.IsValid) return;
 
             ApplyHud(player, jam);
@@ -115,12 +115,12 @@ namespace src.player.skills
 
             if (@event.Weapon != "hegrenade") return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
-                playersWithSkill[player.Index] = grenadesLeft - 1;
+                playersWithSkill[player.Key()] = grenadesLeft - 1;
                 player!.GiveNamedItem("weapon_hegrenade");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft - 1);
             }
@@ -131,7 +131,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill[player.Index] = grenadeLimit;
+            playersWithSkill[player.Key()] = grenadeLimit;
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadeLimit);
@@ -141,7 +141,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            playersWithSkill.TryRemove(player.Index, out _);
+            playersWithSkill.TryRemove(player.Key(), out _);
 
             if (playersWithSkill.IsEmpty)
                 RestoreAll();

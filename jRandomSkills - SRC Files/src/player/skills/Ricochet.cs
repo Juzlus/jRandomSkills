@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
@@ -47,7 +47,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            impactBudgets.TryRemove(player.Index, out _);
+            impactBudgets.TryRemove(player.Key(), out _);
         }
 
         public static void BulletImpact(EventBulletImpact @event)
@@ -55,14 +55,14 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) return;
+            if (PlayerManager.GetPlayer(player)?.Skill != skillName) return;
 
             if (!RayTrace.IsAvailable) return;
 
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            if (!TryConsumeBudget(player.Index)) return;
+            if (!TryConsumeBudget(player.Key())) return;
 
             Vector3 eyePos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
             Vector3 impact = new(@event.X, @event.Y, @event.Z);
@@ -187,7 +187,7 @@ namespace src.player.skills
 
                 flights.Add(new Flight
                 {
-                    OwnerIndex = player.Index,
+                    OwnerIndex = player.Key(),
                     Points = points,
                     Cumulative = cumulative,
                     TotalLength = total,
@@ -424,7 +424,7 @@ namespace src.player.skills
 
             var victimEvent = PlayerManager.GetPlayerEvent(victim);
             if (victimEvent == null || !victimEvent.IsValid) return;
-            if (victimEvent.Index == attacker.Index || victimEvent.Team == attacker.Team) return;
+            if (victimEvent.Key() == attacker.Key() || victimEvent.Team == attacker.Team) return;
 
             var victimPawn = victimEvent.PlayerPawn?.Value;
             if (victimPawn == null || !victimPawn.IsValid || victimPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;

@@ -37,7 +37,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             SetWeaponAttack(player, true);
@@ -89,7 +89,7 @@ namespace src.player.skills
                 SetWeaponAttack(player, false);
             }
 
-            if (chickens.TryRemove(player.Index, out var chickenIndex))
+            if (chickens.TryRemove(player.Key(), out var chickenIndex))
                 SkillUtils.SafeKillEntity<CBaseModelEntity>(chickenIndex);
         }
 
@@ -115,7 +115,7 @@ namespace src.player.skills
         {
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
-            var chickenModel = EntityManager.CreateTrackedDynamicProp(player.Index);
+            var chickenModel = EntityManager.CreateTrackedDynamicProp(player.Key());
             if (chickenModel == null)
                 return;
 
@@ -137,7 +137,7 @@ namespace src.player.skills
             });
 
             chickenModel.AcceptInput("SetParent", playerPawn, playerPawn, "!activator");
-            chickens.TryAdd(player.Index, chickenModel.Index);
+            chickens.TryAdd(player.Key(), chickenModel.Index);
         }
 
         public static void OnTick()
@@ -150,7 +150,7 @@ namespace src.player.skills
                 var playerIndex = valuePair.Key;
                 var chickenIndex = valuePair.Value;
 
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
                 var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)chickenIndex);
@@ -170,7 +170,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn.WeaponServices == null || pawn.WeaponServices.ActiveWeapon == null || !pawn.WeaponServices.ActiveWeapon.IsValid || pawn.WeaponServices.ActiveWeapon.Value == null || !pawn.WeaponServices.ActiveWeapon.Value.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             var weapon = pawn.WeaponServices.ActiveWeapon.Value;

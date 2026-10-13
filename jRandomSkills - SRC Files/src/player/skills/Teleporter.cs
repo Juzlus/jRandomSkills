@@ -18,7 +18,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
@@ -34,7 +34,7 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
 
             if (!Instance.IsPlayerValid(victim) || !Instance.IsPlayerValid(attacker)) return;
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
 
             if (attackerInfo?.Skill == skillName)
                 if (Instance.Random.NextDouble() <= attackerInfo.SkillChance)

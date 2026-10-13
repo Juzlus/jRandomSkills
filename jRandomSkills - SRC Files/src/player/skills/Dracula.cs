@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
@@ -20,7 +20,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || victim == null || !victim.IsValid || attacker == victim) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
             if (playerInfo?.Skill != skillName) return;
 
             HealAttacker(attacker!, SkillUtils.CapToVictimHealth(victim, @event.DmgHealth));
@@ -48,11 +48,11 @@ namespace src.player.skills
             int extraHealth = (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthRegainScale"));
             if (extraHealth <= 0) return;
 
-            uint attackerIndex = attacker.Index;
+            uint attackerIndex = attacker.Key();
 
             Server.NextFrame(() =>
             {
-                var target = Utilities.GetPlayerFromIndex((int)attackerIndex);
+                var target = PlayerManager.GetController(attackerIndex);
                 if (target == null || !target.IsValid) return;
 
                 var attackerPawn = target.PlayerPawn?.Value;

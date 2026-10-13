@@ -25,7 +25,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
 
             if (playerInfo?.Skill == skillName)
             {

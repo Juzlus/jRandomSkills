@@ -21,7 +21,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
 
             if (playerInfo?.Skill == skillName && victim!.PawnIsAlive)
             {
@@ -39,7 +39,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "chanceTo") - SkillsInfo.GetValue<float>(skillName, "chanceFrom")) + SkillsInfo.GetValue<float>(skillName, "chanceFrom");
             playerInfo.SkillChance = newChance;

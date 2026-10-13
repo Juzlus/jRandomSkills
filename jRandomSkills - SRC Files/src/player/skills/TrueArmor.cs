@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -27,14 +27,14 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            holders[player.Index] = 0;
+            holders[player.Key()] = 0;
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            holders.TryRemove(player.Index, out _);
-            pending.TryRemove(player.Index, out _);
+            holders.TryRemove(player.Key(), out _);
+            pending.TryRemove(player.Key(), out _);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -48,7 +48,7 @@ namespace src.player.skills
             if (holders.IsEmpty) return;
 
             if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out var info)) return;
-            if (!holders.ContainsKey(victim!.Index)) return;
+            if (!holders.ContainsKey(victim!.Key())) return;
 
             int armor = victimPawn!.ArmorValue;
             if (armor <= 0) return;
@@ -65,7 +65,7 @@ namespace src.player.skills
             int restoredArmor = (int)MathF.Round(armor - absorbed);
             bool hadHelmet = victimPawn.ItemServices?.As<CCSPlayer_ItemServices>()?.HasHelmet ?? false;
 
-            pending[victim.Index] = new PendingArmor(restoredArmor, hadHelmet);
+            pending[victim.Key()] = new PendingArmor(restoredArmor, hadHelmet);
             victimPawn.ArmorValue = 0;
 
             Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
@@ -79,7 +79,7 @@ namespace src.player.skills
             if (pending.IsEmpty) return;
 
             if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out _)) return;
-            if (!pending.TryRemove(victim!.Index, out var restored)) return;
+            if (!pending.TryRemove(victim!.Key(), out var restored)) return;
 
             victimPawn!.ArmorValue = restored.Armor;
             Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");

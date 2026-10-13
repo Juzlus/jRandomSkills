@@ -50,7 +50,7 @@ namespace src.player.skills
         {
             foreach (var ownerIndex in players.Keys)
             {
-                var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+                var owner = PlayerManager.GetController(ownerIndex);
                 if (owner != null && owner.IsValid) return owner;
             }
 
@@ -90,12 +90,17 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            players.TryRemove(player.Index, out _);
+            players.TryRemove(player.Key(), out _);
         }
 
         public static void NewRound()
         {
             players.Clear();
+        }
+
+        public static void PlayerDisconnect(uint playerKey)
+        {
+            players.TryRemove(playerKey, out _);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -107,12 +112,12 @@ namespace src.player.skills
                     enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_hint"));
             }
 
-            players.TryAdd(player.Index, 0);
+            players.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            players.TryRemove(player.Index, out _);
+            players.TryRemove(player.Key(), out _);
 
             if (players.IsEmpty && !SkillUtils.IsFreezeTime())
             {

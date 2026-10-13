@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -11,6 +11,7 @@ namespace src.player.skills
 {
     public class C4Camouflage : ISkill
     {
+        private static readonly List<CCSPlayerController> holderBuffer = [];
         private const Skills skillName = Skills.C4Camouflage;
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
@@ -33,11 +34,11 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             Event.EnableTransmit();
-            if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
+            if (EntityManager.GetPlayerEntities(player.Key(), "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
         }
 
@@ -48,17 +49,17 @@ namespace src.player.skills
 
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             if (weapon == "c4" && player.PlayerPawn?.Value?.Health > 0)
             {
-                invisiblePlayers.TryAdd(player.Index, 0);
+                invisiblePlayers.TryAdd(player.Key(), 0);
                 SkillUtils.SetPlayerInvisibility(player, .5f);
             }
             else
             {
-                invisiblePlayers.TryRemove(player.Index, out _);
+                invisiblePlayers.TryRemove(player.Key(), out _);
                 SkillUtils.SetPlayerInvisibility(player, 0);
             }
         }
@@ -67,36 +68,21 @@ namespace src.player.skills
         {
             if (Server.TickCount % 2 != 0) return;
 
-            var bomb = invisiblePlayers.IsEmpty ? null : PlayerManager.GetTickBomb();
-
-            foreach (var player in PlayerManager.GetTickPlayers())
+            if (!invisiblePlayers.IsEmpty)
             {
-                if (player.PlayerPawn?.Value?.Health <= 0 && invisiblePlayers.ContainsKey(player.Index))
-                {
-                    invisiblePlayers.TryRemove(player.Index, out _);
-                    SkillUtils.SetPlayerInvisibility(player, 0);
-                }
-
+                var bomb = PlayerManager.GetTickBomb();
                 // CheckTransmit hides the model but the radar blip comes from spotted state, so clear it every tick.
-                if (invisiblePlayers.ContainsKey(player.Index))
-                    ClearSpottedState(player, bomb);
-
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill != skillName) continue;
-
-                var props = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
-                if (props.Count == 0) continue;
-
-                var prop = Utilities.GetEntityFromIndex<CDynamicProp>((int)props[0]);
-                if (prop == null || !prop.IsValid) continue;
-
-                var pawn = player.PlayerPawn?.Value;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
-
-                Vector newPos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + 30);
-                QAngle newAngle = new(0, pawn.V_angle.Y, 0);
-                prop.Teleport(newPos, newAngle, null);
+                foreach (var key in invisiblePlayers.Keys)
+                {
+                    var player = PlayerManager.GetController(key);
+                    if (player != null)
+                        ClearSpottedState(player, bomb);
+                }
             }
+
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            foreach (var player in holderBuffer)
+                SkillUtils.FollowEmptyProp(player.Key(), player.PlayerPawn?.Value);
         }
 
         public static void RevealOnDeath(uint playerIndex)
@@ -121,14 +107,14 @@ namespace src.player.skills
 
                 foreach (var target in hidden)
                 {
-                    if (target.Index == player.Index) continue;
+                    if (target.Index == player.Key()) continue;
                     if (player.Team == target.Team) continue;
 
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
                     if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    if (info.TransmitEntities.Contains(target.Pawn.Index))
-                        info.TransmitEntities.Remove(target.Pawn.Index);
+                    if (info.TransmitEntities.Contains(target.PawnIndex))
+                        info.TransmitEntities.Remove(target.PawnIndex);
 
                     SkillUtils.HideCarriedEntities(info, target);
 
@@ -149,7 +135,7 @@ namespace src.player.skills
 
             if (playerPawn == null || !playerPawn.IsValid) return;
 
-            if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
+            if (EntityManager.GetPlayerEntities(player.Key(), "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
 
             if (playerPawn.WeaponServices == null || playerPawn.WeaponServices.ActiveWeapon == null || !playerPawn.WeaponServices.ActiveWeapon.IsValid) return;
@@ -158,7 +144,7 @@ namespace src.player.skills
             var activeWeapon = playerPawn.WeaponServices.ActiveWeapon.Value;
             if (activeWeapon.DesignerName != "weapon_c4") return;
 
-            invisiblePlayers.TryAdd(player.Index, 0);
+            invisiblePlayers.TryAdd(player.Key(), 0);
             SkillUtils.SetPlayerInvisibility(player, .5f);
 
             SkillUtils.ForceFullUpdateToAll();
@@ -166,16 +152,16 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            invisiblePlayers.TryRemove(player.Index, out _);
+            invisiblePlayers.TryRemove(player.Key(), out _);
             SkillUtils.SetPlayerInvisibility(player, 0);
-            EntityManager.DestroyPlayerEntities(player.Index);
+            EntityManager.DestroyPlayerEntities(player.Key());
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
 
-            var emptyProp = EntityManager.CreateTrackedDynamicProp(player.Index, trackAs: "empty_prop");
+            var emptyProp = EntityManager.CreateTrackedDynamicProp(player.Key(), trackAs: "empty_prop");
             if (emptyProp == null || !emptyProp.IsValid) return;
 
             var playerPawn = player.PlayerPawn?.Value;
@@ -199,12 +185,12 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            if (!invisiblePlayers.ContainsKey(player.Index)) return;
+            if (!invisiblePlayers.ContainsKey(player.Key())) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return;
 
-            var particle = EntityManager.CreateTrackedParticleSystem(player.Index, bloodParticle, autoDestroySeconds: 3f);
+            var particle = EntityManager.CreateTrackedParticleSystem(player.Key(), bloodParticle, autoDestroySeconds: 3f);
             if (particle == null) return;
 
             Vector pos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 50);
@@ -223,7 +209,7 @@ namespace src.player.skills
                 pawn.EntitySpottedState.SpottedByMask[1] = 0;
             }
 
-            if (bomb != null && bomb.IsValid && bomb.OwnerEntity?.Index == player.Index)
+            if (bomb != null && bomb.IsValid && bomb.OwnerEntity?.Index is uint ownerEntity && (ownerEntity == player.Index || ownerEntity == player.PlayerPawn.Index))
             {
                 bomb.EntitySpottedState.Spotted = false;
                 bomb.EntitySpottedState.SpottedByMask[0] = 0;

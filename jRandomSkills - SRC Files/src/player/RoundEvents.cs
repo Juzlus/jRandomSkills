@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -100,13 +100,16 @@ namespace src.player
                 bool isWarmup = IsWarmupPeriod();
                 isTransmitRegistered = false;
                 setSkillRetries = 0;
+                setSkillRanThisRound = false;
+                setSkillDueAt = DateTime.MaxValue;
+                PlayerManager.ResetBombPlanted();
                 SkillUtils.ClearKillCredits();
                 SkillUtils.ClearCurses();
                 Instance.AddTimer(.1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && InPlayingTeam(p)))
                 {
-                    var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
+                    var skillPlayer = PlayerManager.GetPlayer(player);
                     if (skillPlayer == null) continue;
                     skillPlayer.IsDrawing = !isWarmup;
                     skillPlayer.PrintHTML = null;
@@ -128,9 +131,26 @@ namespace src.player
 
                 float timeToDraw = introDelay + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
                 setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+                setSkillDueAt = DateTime.Now.AddSeconds(timeToDraw);
                 Debug.WriteToDebug($"RoundStart: SetSkill scheduled in {timeToDraw:F2}s (freezetime={freezetime}, intro={introDelay}, timer={(setSkillTimer == null ? "null" : "ok")}).", DebugCategory.Round);
                 return HookResult.Continue;
             }
+        }
+
+        private static HookResult RoundFreezeEnd(EventRoundFreezeEnd @event, GameEventInfo info)
+        {
+            lock (setLock)
+            {
+                if (setSkillRanThisRound || IsWarmupPeriod() || DateTime.Now < setSkillDueAt.AddSeconds(.5))
+                    return HookResult.Continue;
+
+                Debug.WriteToDebug($"SetSkill did not run before freeze end (timer={(setSkillTimer == null ? "null" : "pending")}, due {(DateTime.Now - setSkillDueAt).TotalSeconds:F2}s ago, retries={setSkillRetries}); running now.", DebugCategory.Skill);
+                setSkillTimer?.Kill();
+                setSkillTimer = null;
+            }
+
+            SetSkill();
+            return HookResult.Continue;
         }
 
         private static void DisableAll()
@@ -148,13 +168,14 @@ namespace src.player
                 EnableTransmit();
 
                 Fortnite.skillInThisRound = false;
+                SkillUtils.ClearHiddenCache();
                 EntityManager.DestroyAllTracked();
 
                 foreach (var player in Utilities.GetPlayers().Where(p => p != null && p.IsValid))
                 {
                     if (player == null || !player.IsValid) continue;
 
-                    var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                    var playerInfo = PlayerManager.GetPlayer(player);
                     if (playerInfo == null) continue;
 
                     ActiveSkillsThisRound.TryAdd(playerInfo.Skill.ToString(), 0);
@@ -207,11 +228,12 @@ namespace src.player
 
                 Fortnite.skillInThisRound = false;
                 SkillUtils.ClearHealthBeforeHit();
+                PlayerManager.ResetBombCache();
 
                 EntityManager.SuppressKills = true;
                 try
                 {
-                    EntityManager.DestroyAllTracked();
+                    EntityManager.Clear();
                     foreach (var skill in SkillData.Skills)
                         SafeNewRound(skill.Skill.ToString());
                 }
@@ -258,7 +280,7 @@ namespace src.player
                         string skillsText = "";
                         foreach (var _player in _players)
                         {
-                            var _playerSkill = PlayerManager.GetPlayerByIndex(_player.Index);
+                            var _playerSkill = PlayerManager.GetPlayer(_player);
                             if (_playerSkill == null) continue;
 
                             var skillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == _playerSkill.Skill);
@@ -386,7 +408,7 @@ namespace src.player
             if (ctx.MinPlayerBanned.Count != 0)
                 skillList.RemoveAll(s => ctx.MinPlayerBanned.Contains(s.Skill));
 
-            if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out HashSet<Skills>? skills))
+            if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Key(), out HashSet<Skills>? skills))
             {
                 skillList.RemoveAll(s => skills.Contains(s.Skill));
                 if (skillList.Count == 0) skills.Clear();
@@ -396,10 +418,10 @@ namespace src.player
 
             if (gameMode == Config.GameModes.NoRepeat)
             {
-                if (playersSkills.TryGetValue(player.Index, out HashSet<Skills>? value))
+                if (playersSkills.TryGetValue(player.Key(), out HashSet<Skills>? value))
                     value.Add(randomSkill.Skill);
                 else
-                    playersSkills.TryAdd(player.Index, [randomSkill.Skill]);
+                    playersSkills.TryAdd(player.Key(), [randomSkill.Skill]);
             }
 
             return randomSkill;
@@ -446,13 +468,13 @@ namespace src.player
                 Dictionary<Skills, int> assignmentCounts = [];
                 foreach (var player in validPlayers)
                 {
-                    var skillPlayer = PlayerManager.GetPlayerByIndex(player.Index);
+                    var skillPlayer = PlayerManager.GetPlayer(player);
                     if (skillPlayer == null) continue;
 
                     try
                     {
                         var pick = PickSkillForPlayer(player, skillPlayer, ctx, assignmentCounts, gameMode);
-                        nextRoundPicks[player.Index] = pick;
+                        nextRoundPicks[player.Key()] = pick;
 
                         if (pick.Skill != Skills.None)
                             assignmentCounts[pick.Skill] = assignmentCounts.TryGetValue(pick.Skill, out var c) ? c + 1 : 1;
@@ -548,6 +570,7 @@ namespace src.player
                 }
 
                 gameRulesPolls = 0;
+                setSkillRanThisRound = true;
 
                 var validPlayers = Utilities.GetPlayers()
                     .Where(p => p != null && p.IsValid && !p.IsHLTV)
@@ -585,7 +608,7 @@ namespace src.player
                 }
 
                 PickContext? pickContext = null;
-                int assigned = 0;
+                int assigned = 0, noSkillPlayer = 0, noPawn = 0;
 
                 foreach (var player in validPlayers)
                 {
@@ -593,14 +616,19 @@ namespace src.player
                     var teammates = validPlayers.Where(p => p != null && p.IsValid && p.Team == player.Team && p != player).ToList();
                     string teammateSkills = "";
 
-                    var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
-                    if (skillPlayer == null) continue;
+                    var skillPlayer = PlayerManager.GetPlayer(player);
+                    if (skillPlayer == null)
+                    {
+                        noSkillPlayer++;
+                        continue;
+                    }
 
                     skillPlayer.IsDrawing = false;
                     skillPlayer.HudOnDeathBlocked = null;
                     if (player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
                     {
                         skillPlayer.Skill = Skills.None;
+                        noPawn++;
                         continue;
                     }
 
@@ -611,7 +639,7 @@ namespace src.player
                     {
                         // Prefer the pick made at the end of the previous round; re-pick only when
                         // it no longer fits (team change, missing player, max reached).
-                        if (nextRoundPicks.TryGetValue(player.Index, out var pre) && IsPickStillValid(pre, player, validPlayers, assignmentCounts))
+                        if (nextRoundPicks.TryGetValue(player.Key(), out var pre) && IsPickStillValid(pre, player, validPlayers, assignmentCounts))
                             randomSkill = pre;
                         else
                         {
@@ -645,25 +673,25 @@ namespace src.player
                     if (randomSkill.Skill == Skills.Illiterate)
                         Illiterate.Enable();
 
-                    var playerIndex = player.Index;
+                    var playerIndex = player.Key();
                     Instance?.AddTimer(.2f, () =>
                     {
-                        var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var playerTarget = PlayerManager.GetController(playerIndex);
                         if (playerTarget == null || !playerTarget.IsValid) return;
 
                         if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
-                                var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
+                                var playerTarget = PlayerManager.GetController(playerIndex);
                                 if (playerTarget == null || !playerTarget.IsValid) return;
 
-                                if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
+                                if (PlayerManager.GetPlayer(playerTarget)?.Skill != randomSkill.Skill) return;
                                 Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill, DebugCategory.Skill);
                                 Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
                         {
-                            if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
+                            if (PlayerManager.GetPlayer(playerTarget)?.Skill != randomSkill.Skill) return;
                             Debug.WriteToDebug("Enabling skill: " + randomSkill.Skill, DebugCategory.Skill);
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
                         }
@@ -676,7 +704,7 @@ namespace src.player
                     if (randomSkill.Display)
                         Instance?.AddTimer(.6f, () =>
                         {
-                            var descTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
+                            var descTarget = PlayerManager.GetController(playerIndex);
                             if (descTarget == null || !descTarget.IsValid) return;
 
                             SkillUtils.PrintToChat(descTarget, $"{ChatColors.DarkRed}{descTarget.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {descTarget.GetSkillDescription(randomSkill.Skill)}", border: "tb");
@@ -690,7 +718,7 @@ namespace src.player
 
                             foreach (var teammate in teammates)
                             {
-                                var teammateInfo = PlayerManager.GetPlayerByIndex(teammate.Index);
+                                var teammateInfo = PlayerManager.GetPlayer(teammate);
                                 if (teammateInfo != null && teammateInfo?.Skill != null)
                                 {
                                     var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == teammateInfo.Skill);
@@ -713,16 +741,17 @@ namespace src.player
 
                 nextRoundPicks.Clear();
 
-                if (assigned == 0 && CountConnectedPlayers() > 0)
+                if (assigned == 0 && validPlayers.Count > 0)
                 {
+                    string counts = $"valid={validPlayers.Count}, noSkillPlayer={noSkillPlayer}, noPawn={noPawn}, connected={CountConnectedPlayers()}";
                     if (setSkillRetries < MaxSetSkillRetries)
                     {
                         setSkillRetries++;
-                        Debug.WriteToDebug($"SetSkill assigned nothing (valid={validPlayers.Count}, connected={CountConnectedPlayers()}); retry {setSkillRetries}/{MaxSetSkillRetries} in .5s.", DebugCategory.Skill);
+                        Debug.WriteToDebug($"SetSkill assigned nothing ({counts}); retry {setSkillRetries}/{MaxSetSkillRetries} in .5s.", DebugCategory.Skill);
                         setSkillTimer = Instance?.AddTimer(.5f, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     }
                     else
-                        Debug.WriteToDebug($"SetSkill assigned nothing (valid={validPlayers.Count}, connected={CountConnectedPlayers()}) and gave up after {MaxSetSkillRetries} retries.", DebugCategory.Skill);
+                        Debug.WriteToDebug($"SetSkill assigned nothing ({counts}) and gave up after {MaxSetSkillRetries} retries.", DebugCategory.Skill);
                 }
                 else
                     setSkillRetries = 0;
@@ -747,7 +776,7 @@ namespace src.player
                 }
 
                 if (player == null) return;
-                var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
+                var skillPlayer = PlayerManager.GetPlayer(player);
                 if (skillPlayer == null) return;
 
                 skillPlayer.IsDrawing = false;
@@ -761,7 +790,7 @@ namespace src.player
                 if (Instance?.GameRules != null && Instance?.GameRules.WarmupPeriod == false)
                 {
                     Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
-                    if (staticSkills.TryGetValue(player.Index, out var staticSkill))
+                    if (staticSkills.TryGetValue(player.Key(), out var staticSkill))
                         randomSkill = staticSkill;
                     else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                     {
@@ -791,7 +820,7 @@ namespace src.player
                         if (skillsMinPlayer.Length != 0)
                             skillList.RemoveAll(s => skillsMinPlayer.Any(s2 => s2.Name == s.Skill.ToString()));
 
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out HashSet<Skills>? skills))
+                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Key(), out HashSet<Skills>? skills))
                         {
                             skillList.RemoveAll(s => skills.Contains(s.Skill));
                             if (skillList.Count == 0) skills.Clear();
@@ -836,7 +865,7 @@ namespace src.player
                     if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                         Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                         {
-                            if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
+                            if (PlayerManager.GetPlayer(player)?.Skill != randomSkill.Skill) return;
                             Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     else

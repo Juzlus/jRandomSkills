@@ -144,12 +144,16 @@ namespace src.utils
             return _byName.TryGetValue(SkillNames.Get(skill), out var skillConfig) ? skillConfig : null;
         }
 
-        public static T GetValue<T>(object skill, string key)
+        public static T GetValue<T>(Skills skill, string key) => GetValueByName<T>(SkillNames.Get(skill), key);
+
+        public static T GetValue<T>(object skill, string key) => GetValueByName<T>(skill is Skills s ? SkillNames.Get(s) : skill.ToString()!, key);
+
+        private static T GetValueByName<T>(string name, string key)
         {
             if (config == null) return default!;
 
             EnsureIndex();
-            if (!_byName.TryGetValue(skill.ToString()!, out var skillConfig) || skillConfig == null)
+            if (!_byName.TryGetValue(name, out var skillConfig) || skillConfig == null)
                 return default!;
 
             object? cached = _valueCache.GetOrAdd((skillConfig, key, typeof(T)), k => Resolve(k.Config, k.Key, k.Target));

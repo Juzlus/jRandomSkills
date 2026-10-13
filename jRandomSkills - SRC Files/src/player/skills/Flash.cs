@@ -35,7 +35,7 @@ namespace src.player.skills
             var player = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Pawn?.Value != null && p.Pawn.Value.IsValid && p.Pawn.Value.Index == userIndex);
             if (!Instance.IsPlayerValid(player)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             if (player!.Buttons.HasFlag(PlayerButtons.Speed) || player.Buttons.HasFlag(PlayerButtons.Duck))
@@ -46,21 +46,21 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            if (!jumpedPlayers.TryGetValue(player.Index, out _)) return;
-            jumpedPlayers.AddOrUpdate(player.Index, Server.TickCount + 20, (k, v) => Server.TickCount + 20);
+            if (!jumpedPlayers.TryGetValue(player.Key(), out _)) return;
+            jumpedPlayers.AddOrUpdate(player.Key(), Server.TickCount + 20, (k, v) => Server.TickCount + 20);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerPawn == null || playerInfo == null) return;
 
             float newSpeed = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             newSpeed = (float)Math.Round(newSpeed, 2);
             playerInfo.SkillChance = newSpeed;
 
-            jumpedPlayers.TryAdd(player.Index, 0);
+            jumpedPlayers.TryAdd(player.Key(), 0);
             playerPawn.VelocityModifier = newSpeed;
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newSpeed)}",
                 border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
@@ -71,7 +71,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null) return;
             playerPawn.VelocityModifier = 1;
-            jumpedPlayers.TryRemove(player.Index, out _);
+            jumpedPlayers.TryRemove(player.Key(), out _);
         }
 
         public static void OnTick()
@@ -83,7 +83,7 @@ namespace src.player.skills
             {
                 if (!Instance.IsPlayerValid(player)) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || playerPawn.VelocityModifier == 0) continue;
 
@@ -92,7 +92,7 @@ namespace src.player.skills
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newVelocity;
 
-                if (jumpedPlayers.TryGetValue(player.Index, out var time) && time > Server.TickCount)
+                if (jumpedPlayers.TryGetValue(player.Key(), out var time) && time > Server.TickCount)
                     continue;
 
                 if (playerPawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) continue;

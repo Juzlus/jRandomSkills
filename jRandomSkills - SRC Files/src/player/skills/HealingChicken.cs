@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -15,7 +15,10 @@ namespace src.player.skills
         private class ChickenState
         {
             public CChicken? Chicken { get; set; }
-            public Vector? LastOrigin { get; set; }
+            public bool HasLast { get; set; }
+            public float LastX { get; set; }
+            public float LastY { get; set; }
+            public float LastZ { get; set; }
             public int TickCounter { get; set; }
         }
 
@@ -43,7 +46,7 @@ namespace src.player.skills
             uint ownerIndex = ownerData.ownerIndex;
             int health = ownerData.health;
 
-            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            var owner = PlayerManager.GetController(ownerIndex);
             if (owner == null || !owner.IsValid) return;
 
             var attackerEnt = damageInfo.Attacker?.Value;
@@ -88,7 +91,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (activeChickens.TryRemove(player.Index, out var chickens))
+            if (activeChickens.TryRemove(player.Key(), out var chickens))
                 foreach (var state in chickens)
                     if (state.Chicken != null && state.Chicken.IsValid)
                     {
@@ -110,14 +113,14 @@ namespace src.player.skills
 
             for (int i = 0; i < amount; i++)
             {
-                CChicken? chicken = EntityManager.CreateTrackedChicken(player.Index);
+                CChicken? chicken = EntityManager.CreateTrackedChicken(player.Key());
                 if (chicken == null || !chicken.IsValid) continue;
 
                 chicken.Render = Color.LightGreen;
                 chicken.MaxHealth = health;
                 chicken.Health = health;
 
-                chickenOwners[chicken.Index] = (player.Index, health);
+                chickenOwners[chicken.Index] = (player.Key(), health);
 
                 Vector offset = new(
                     (float)(100 * Math.Cos(2 * Math.PI * i / amount)),
@@ -128,10 +131,10 @@ namespace src.player.skills
                 chicken.Teleport(new Vector(pawn.AbsOrigin.X + offset.X, pawn.AbsOrigin.Y + offset.Y, pawn.AbsOrigin.Z + offset.Z));
                 chicken.Leader.Raw = pawn.Index;
 
-                list.Add(new ChickenState { Chicken = chicken, LastOrigin = null, TickCounter = 0 });
+                list.Add(new ChickenState { Chicken = chicken, TickCounter = 0 });
             }
 
-            activeChickens[player.Index] = list;
+            activeChickens[player.Key()] = list;
         }
 
         public static void OnTick()
@@ -139,68 +142,66 @@ namespace src.player.skills
             if (activeChickens.IsEmpty) return;
 
             int tickCooldown = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
-            if (Server.TickCount % tickCooldown == 0) return;
-
             float boostFactor = SkillsInfo.GetValue<float>(skillName, "boostFactor");
-
-            var players = PlayerManager.GetTickPlayers();
             int healAmount = SkillsInfo.GetValue<int>(skillName, "heal");
             float healRadius = SkillsInfo.GetValue<float>(skillName, "healRadius");
 
-            foreach (var player in players)
+            foreach (var (playerKey, chickens) in activeChickens)
             {
-                if (player == null || !player.IsValid) continue;
+                var player = PlayerManager.GetController(playerKey);
+                if (player == null) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+                var playerInfo = PlayerManager.GetPlayerByKey(playerKey);
                 if (playerInfo?.Skill != skillName) continue;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.Health <= 0) continue;
+                if (pawn == null || !pawn.IsValid || pawn.Health <= 0) continue;
 
-                if (!activeChickens.TryGetValue(player.Index, out var chickens)) continue;
+                var pawnOrigin = pawn.AbsOrigin;
+                if (pawnOrigin == null) continue;
+
+                float px = pawnOrigin.X, py = pawnOrigin.Y, pz = pawnOrigin.Z;
+                uint pawnRaw = player.Pawn.Raw;
 
                 for (int i = chickens.Count - 1; i >= 0; i--)
                 {
                     var state = chickens[i];
-                    if (state.Chicken == null || !state.Chicken.IsValid || state.Chicken.AbsOrigin == null)
+                    var chicken = state.Chicken;
+                    var chickenOrigin = chicken != null && chicken.IsValid ? chicken.AbsOrigin : null;
+                    if (chicken == null || chickenOrigin == null)
                     {
                         chickens.RemoveAt(i);
                         continue;
                     }
 
-                    var chicken = state.Chicken;
+                    var leader = chicken.Leader;
+                    if (leader.Raw != pawnRaw)
+                        leader.Raw = pawnRaw;
 
-                    if (chicken.Leader.Raw != player.Pawn.Raw)
-                        chicken.Leader.Raw = player.Pawn.Raw;
+                    float cx = chickenOrigin.X, cy = chickenOrigin.Y, cz = chickenOrigin.Z;
 
-                    Vector currentOrigin = new(chicken.AbsOrigin.X, chicken.AbsOrigin.Y, chicken.AbsOrigin.Z);
-
-                    if (state.LastOrigin != null)
+                    if (state.HasLast)
                     {
-                        float dx = currentOrigin.X - state.LastOrigin.X;
-                        float dy = currentOrigin.Y - state.LastOrigin.Y;
+                        float dx = cx - state.LastX;
+                        float dy = cy - state.LastY;
                         float dist2D = MathF.Sqrt(dx * dx + dy * dy);
 
                         if (dist2D > 0.05f && dist2D < 20.0f)
                         {
-                            Vector newPos = new(
-                                currentOrigin.X + (dx * boostFactor),
-                                currentOrigin.Y + (dy * boostFactor),
-                                currentOrigin.Z
-                            );
-
-                            chicken.Teleport(newPos, chicken.AbsRotation, chicken.AbsVelocity);
-                            state.LastOrigin = newPos;
+                            cx += dx * boostFactor;
+                            cy += dy * boostFactor;
+                            chicken.Teleport(new Vector(cx, cy, cz), null, null);
                         }
-                        else
-                            state.LastOrigin = currentOrigin;
                     }
-                    else
-                        state.LastOrigin = currentOrigin;
 
-                    float pdx = pawn.AbsOrigin.X - state.LastOrigin.X;
-                    float pdy = pawn.AbsOrigin.Y - state.LastOrigin.Y;
-                    float pdz = pawn.AbsOrigin.Z - state.LastOrigin.Z;
+                    state.HasLast = true;
+                    state.LastX = cx;
+                    state.LastY = cy;
+                    state.LastZ = cz;
+
+                    float pdx = px - cx;
+                    float pdy = py - cy;
+                    float pdz = pz - cz;
                     float distToPlayer = MathF.Sqrt(pdx * pdx + pdy * pdy + pdz * pdz);
 
                     if (distToPlayer <= healRadius)

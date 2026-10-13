@@ -53,7 +53,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            SkillPlayerInfo[player.Index] = new PlayerSkillInfo
+            SkillPlayerInfo[player.Key()] = new PlayerSkillInfo
             {
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
@@ -64,7 +64,7 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            if (SkillPlayerInfo.TryRemove(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryRemove(player.Key(), out var skillInfo))
                 DestroyRope(skillInfo);
 
             SkillUtils.ResetPrintHTML(player);
@@ -81,7 +81,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                 DestroyRope(skillInfo);
         }
 
@@ -89,7 +89,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) return;
 
             if (skillInfo.Anchor != null)
             {
@@ -139,7 +139,7 @@ namespace src.player.skills
             if (!EntityManager.OverBudget())
             {
                 Color ropeColor = player.Team == CsTeam.Terrorist ? terroristRope : counterTerroristRope;
-                var rope = EntityManager.CreateTrackedBeam(player.Index, eyePos, anchor, ropeColor);
+                var rope = EntityManager.CreateTrackedBeam(player.Key(), eyePos, anchor, ropeColor);
 
                 if (rope != null && rope.IsValid)
                 {
@@ -191,7 +191,7 @@ namespace src.player.skills
             normalY /= length;
             normalZ /= length;
 
-            var hook = EntityManager.CreateTrackedPropOverride(player.Index);
+            var hook = EntityManager.CreateTrackedPropOverride(player.Key());
             if (hook == null || !hook.IsValid)
             {
                 EmitHookSound(null, player);
@@ -286,8 +286,8 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
-                if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
-                if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) continue;
+                if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) continue;
+                if (PlayerManager.GetPlayer(player)?.Skill != skillName) continue;
 
                 if (skillInfo.Anchor != null)
                     HandlePull(player, skillInfo);
@@ -354,7 +354,7 @@ namespace src.player.skills
             if (cooldown == 0 && !skillInfo.CanUse)
                 skillInfo.CanUse = true;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (skillInfo.Anchor != null)

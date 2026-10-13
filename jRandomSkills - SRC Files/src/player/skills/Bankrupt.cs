@@ -32,7 +32,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
@@ -42,7 +42,7 @@ namespace src.player.skills
                 foreach (var e in enemies)
                 {
                     int money = e.InGameMoneyServices?.Account ?? 0;
-                    menuItems.Add(($"\u202A{e.PlayerName}\u202C : {money}$", e.Index.ToString()));
+                    menuItems.Add(($"\u202A{e.PlayerName}\u202C : {money}$", e.Key().ToString()));
                 }
 
                 if (!menuItems.IsEmpty)
@@ -54,7 +54,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             playerInfo.SkillUsed = false;
@@ -62,7 +62,7 @@ namespace src.player.skills
             var enemies = PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.PlayerPawn?.Value?.Health > 0 && p.Team != player.Team && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None).ToArray();
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {(e.InGameMoneyServices?.Account ?? 0)}$", e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => ($"\u202A{e.PlayerName}\u202C : {(e.InGameMoneyServices?.Account ?? 0)}$", e.Key().ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -81,7 +81,7 @@ namespace src.player.skills
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             if (playerInfo.SkillUsed)

@@ -248,7 +248,7 @@
 //            {
 //                if (player == null || !player.IsValid) continue;
 
-//                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+//                var playerInfo = PlayerManager.GetPlayer(player);
 //                if (playerInfo?.Skill != skillName) continue;
 
 //                var pawn = player.PlayerPawn.Value;
@@ -401,7 +401,7 @@
 //            var player = Utilities.GetPlayerFromIndex((int)skillInfo.OwnerIndex);
 //            if (player == null || !player.IsValid) return;
 
-//            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+//            var playerInfo = PlayerManager.GetPlayer(player);
 //            if (playerInfo == null) return;
 
 //            float cooldownDuration = SkillsInfo.GetValue<float>(skillName, "cooldown");

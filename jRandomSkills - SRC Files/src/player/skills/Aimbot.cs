@@ -34,7 +34,7 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(attackerController.As<CCSPlayerController>());
             if (attacker == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
             if (!SkillUtils.IsBulletDamage(damageInfo)) return;

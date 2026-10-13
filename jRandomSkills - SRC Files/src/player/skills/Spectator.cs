@@ -42,12 +42,12 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var pawn = player!.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
-            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item1 != pawn.CameraServices.ViewEntity.Raw)
+            if (cameras.TryGetValue(player.Key(), out var cameraInfo) && cameraInfo.Item1 != pawn.CameraServices.ViewEntity.Raw)
                 BlockWeapon(player, true);
         }
 
@@ -57,8 +57,8 @@ namespace src.player.skills
             if (playerPawn?.CBodyComponent == null) return;
 
             float cooldown = SkillsInfo.GetValue<float>(skillName, "useCooldown");
-            if (lastUse.TryGetValue(player.Index, out var last) && (DateTime.Now - last).TotalSeconds < cooldown) return;
-            lastUse[player.Index] = DateTime.Now;
+            if (lastUse.TryGetValue(player.Key(), out var last) && (DateTime.Now - last).TotalSeconds < cooldown) return;
+            lastUse[player.Key()] = DateTime.Now;
 
             ChangeCamera(player);
         }
@@ -67,9 +67,9 @@ namespace src.player.skills
         {
             if (player == null) return;
             ChangeCamera(player, true);
-            EntityManager.DestroyPlayerEntities(player.Index);
-            cameras.TryRemove(player.Index, out _);
-            lastUse.TryRemove(player.Index, out _);
+            EntityManager.DestroyPlayerEntities(player.Key());
+            cameras.TryRemove(player.Key(), out _);
+            lastUse.TryRemove(player.Key(), out _);
         }
 
         public static void OnTick()
@@ -77,11 +77,11 @@ namespace src.player.skills
             if (cameras.IsEmpty) return;
 
             foreach (var player in PlayerManager.GetTickPlayers())
-                if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
+                if (cameras.TryGetValue(player.Key(), out var cameraInfo) && cameraInfo.Item2 != 0)
                 {
                     if (player == null || !player.IsValid) continue;
 
-                    var enemy = Utilities.GetPlayerFromIndex((int)cameraInfo.Item3);
+                    var enemy = PlayerManager.GetController(cameraInfo.Item3);
                     if (enemy == null || !enemy.IsValid || enemy.PlayerPawn == null)
                     {
                         ChangeCamera(player, true);
@@ -110,7 +110,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
 
-            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
+            if (cameras.TryGetValue(player.Key(), out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
 
@@ -142,15 +142,15 @@ namespace src.player.skills
 
             Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
 
-            if (defaultCam && cameras.TryGetValue(player.Index, out var current) && current.Item2 != 0)
-                cameras[player.Index] = (current.Item1, 0, current.Item3);
+            if (defaultCam && cameras.TryGetValue(player.Key(), out var current) && current.Item2 != 0)
+                cameras[player.Key()] = (current.Item1, 0, current.Item3);
 
             BlockWeapon(player, !defaultCam);
         }
 
         private static uint CreateCamera(CCSPlayerController player)
         {
-            var camera = EntityManager.CreateTrackedDynamicProp(player.Index);
+            var camera = EntityManager.CreateTrackedDynamicProp(player.Key());
             if (camera == null || !camera.IsValid) return 0;
 
             var enemies = PlayerManager.GetTickPlayers().Where(p =>
@@ -167,9 +167,9 @@ namespace src.player.skills
                 return 0;
             }
 
-            uint lastTarget = cameras.TryGetValue(player.Index, out var previous) ? previous.Item3 : 0;
+            uint lastTarget = cameras.TryGetValue(player.Key(), out var previous) ? previous.Item3 : 0;
             if (lastTarget != 0 && enemies.Count > 1)
-                enemies.RemoveAll(p => p.Index == lastTarget);
+                enemies.RemoveAll(p => p.Key() == lastTarget);
 
             var enemy = enemies[Random.Shared.Next(enemies.Count)];
 
@@ -201,7 +201,7 @@ namespace src.player.skills
                 Utilities.SetStateChanged(camera, "CBaseModelEntity", "m_clrRender");
 
                 CBaseEntity? target = pawn != null && pawn.IsValid ? pawn : null;
-                var entities = EntityManager.GetPlayerEntities(enemy.Index, "empty_prop");
+                var entities = EntityManager.GetPlayerEntities(enemy.Key(), "empty_prop");
 
                 if (entities.Count > 0)
                 {
@@ -214,11 +214,11 @@ namespace src.player.skills
                 camera.AcceptInput("SetParent", target, target, "!activator");
             });
 
-            uint originalView = cameras.TryGetValue(player.Index, out var cameraInfo)
+            uint originalView = cameras.TryGetValue(player.Key(), out var cameraInfo)
                 ? cameraInfo.Item1
                 : player.PlayerPawn?.Value?.CameraServices?.ViewEntity.Raw ?? 0;
 
-            cameras[player.Index] = (originalView, camera.Index, enemy.Index);
+            cameras[player.Key()] = (originalView, camera.Index, enemy.Key());
             return camera.EntityHandle.Raw;
         }
 

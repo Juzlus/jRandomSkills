@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -24,6 +24,11 @@ namespace src.player.skills
             lastTickByPlayer.Clear();
         }
 
+        public static void PlayerDisconnect(uint playerKey)
+        {
+            lastTickByPlayer.TryRemove(playerKey, out _);
+        }
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
@@ -31,7 +36,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
@@ -43,8 +48,8 @@ namespace src.player.skills
 
         private static void SpawnExplosion(Vector vector, CCSPlayerController player)
         {
-            lastTickByPlayer[player.Index] = Server.TickCount;
-            nades.GetOrAdd(Server.TickCount, static _ => new ConcurrentQueue<(byte, uint)>()).Enqueue((player.TeamNum, player.Index));
+            lastTickByPlayer[player.Key()] = Server.TickCount;
+            nades.GetOrAdd(Server.TickCount, static _ => new ConcurrentQueue<(byte, uint)>()).Enqueue((player.TeamNum, player.Key()));
             SkillUtils.CreateHEGrenadeProjectile(vector, angle, new Vector(0, 0, 0), player.TeamNum);
         }
 
@@ -72,7 +77,7 @@ namespace src.player.skills
                 heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "damageRadius");
                 heProjectile.DetonateTime = 0;
 
-                heProjectile.Globalname = $"explosiveshot_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
+                heProjectile.Entity!.Name = $"explosiveshot_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
             });
         }
 
@@ -84,9 +89,10 @@ namespace src.player.skills
             if (nade == null || !nade.IsValid) return;
 
             if (nade.DesignerName != "hegrenade_projectile") return;
-            if (string.IsNullOrEmpty(nade.Globalname) || !nade.Globalname.StartsWith("explosiveshot_team_")) return;
+            string? nadeName = nade.Entity?.Name;
+            if (string.IsNullOrEmpty(nadeName) || !nadeName.StartsWith("explosiveshot_team_")) return;
 
-            var parts = nade.Globalname.Split('_');
+            var parts = nadeName.Split('_');
             if (parts.Length < 4) return;
             if (!int.TryParse(parts[2], out int nadeTeam)) return;
             if (!uint.TryParse(parts[3], out uint ownerIndex)) return;
@@ -97,7 +103,7 @@ namespace src.player.skills
             if (victimPawn.Controller?.Value == null) return;
 
             var victim = victimPawn.Controller.Value.As<CCSPlayerController>();
-            if (victim == null || !victim.IsValid || victim.Index == ownerIndex) return;
+            if (victim == null || !victim.IsValid || victim.Key() == ownerIndex) return;
 
             if (victimPawn.TeamNum == nadeTeam)
             {
@@ -110,11 +116,11 @@ namespace src.player.skills
                 damageInfo.Damage *= SkillUtils.GetTeamDamageMultiplier(skillName);
             }
 
-            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            var owner = PlayerManager.GetController(ownerIndex);
             if (owner != null && !owner.IsValid) owner = null;
 
             if (owner != null && SkillUtils.IsPredictedLethal(damageInfo, victimPawn))
-                SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
+                SkillUtils.RegisterKillCredit(victim.Key(), owner.Key(), KillfeedIcons.Explosion);
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;
@@ -127,11 +133,11 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             // One explosion per player per tick: a shotgun reports every pellet as its own impact.
-            if (lastTickByPlayer.TryGetValue(player.Index, out int last) && last == Server.TickCount) return;
+            if (lastTickByPlayer.TryGetValue(player.Key(), out int last) && last == Server.TickCount) return;
 
             var pos = new Vector(@event.X, @event.Y, @event.Z);
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null || playerInfo.Skill != skillName) return;
 
             if (Instance.Random.NextDouble() <= playerInfo.SkillChance)

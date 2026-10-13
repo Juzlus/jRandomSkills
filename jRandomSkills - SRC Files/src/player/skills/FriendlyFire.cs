@@ -74,7 +74,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
+            var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(attacker) ?? attacker);
             if (playerInfo?.Skill != skillName || attacker!.Team != victim!.Team) return;
 
             float damage = damageInfo.Damage;

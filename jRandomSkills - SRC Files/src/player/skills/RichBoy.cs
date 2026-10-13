@@ -31,7 +31,7 @@ namespace src.player.skills
             moneyBonus = Math.Min(moneyBonus, GetMaxMoney() - moneyServices.Account);
             if (moneyBonus <= 0) return;
 
-            accountBeforeBonus[player.Index] = moneyServices.Account;
+            accountBeforeBonus[player.Key()] = moneyServices.Account;
 
             moneyServices.Account += moneyBonus;
             Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
@@ -40,7 +40,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            if (!accountBeforeBonus.TryRemove(player.Index, out int accountBefore)) return;
+            if (!accountBeforeBonus.TryRemove(player.Key(), out int accountBefore)) return;
 
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;

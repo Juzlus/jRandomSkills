@@ -31,10 +31,10 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
                 {
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                     {
                         UpdateHUD(player, skillInfo);
                         if (Server.TickCount % tickRate != 0) continue;
@@ -61,9 +61,9 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                PlayerIndex = player.Index,
+                PlayerIndex = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
                 LastPositions = new ConcurrentQueue<Vector>(),
@@ -74,7 +74,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -89,7 +89,7 @@ namespace src.player.skills
             if (cooldown == 0 && !skillInfo.CanUse)
                 skillInfo.CanUse = true;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -102,10 +102,10 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
                 if (!skillInfo.CanUse) return;
 

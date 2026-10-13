@@ -20,6 +20,9 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        private static readonly Dictionary<nint, jSkill_PlayerInfo?> infoByPawnHandleBuffer = [];
+        private static readonly List<(uint Relay, uint Glow, CsTeam Team, bool Showable, bool EntitiesValid)> glowStatesBuffer = [];
+
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
             foreach (var kvp in temporaryBlockList)
@@ -31,19 +34,21 @@ namespace src.player.skills
             if (glows.IsEmpty && temporaryBlockList.IsEmpty) return;
 
             // One pawn->info map per frame instead of a GetPlayers scan per client.
-            var infoByPawnHandle = new Dictionary<nint, jSkill_PlayerInfo?>();
+            var infoByPawnHandle = infoByPawnHandleBuffer;
+            infoByPawnHandle.Clear();
             foreach (var p in PlayerManager.GetTickPlayers())
             {
                 var h = p?.Pawn?.Value?.Handle;
                 if (p != null && p.IsValid && h != null)
-                    infoByPawnHandle[h.Value] = PlayerManager.GetPlayerByIndex(p.Index);
+                    infoByPawnHandle[h.Value] = PlayerManager.GetPlayer(p);
             }
 
-            var glowStates = new List<(uint Relay, uint Glow, CsTeam Team, bool Showable, bool EntitiesValid)>(glows.Count);
+            var glowStates = glowStatesBuffer;
+            glowStates.Clear();
             foreach (var kvp in glows)
             {
                 var glowInfo = kvp.Value;
-                var enemy = Utilities.GetPlayerFromIndex((int)kvp.Key);
+                var enemy = PlayerManager.GetController(kvp.Key);
 
                 bool showable = false;
                 if (enemy != null && enemy.IsValid)
@@ -64,7 +69,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
+                var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
                 jSkill_PlayerInfo? observerInfo = null;
                 if (targetHandle != nint.Zero)
@@ -116,7 +121,7 @@ namespace src.player.skills
         {
             var victim = @event.Userid;
             if (victim == null || !victim.IsValid) return;
-            RemoveGlow(victim.Index);
+            RemoveGlow(victim.Key());
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -138,7 +143,7 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             Event.EnableTransmit();
-            playersInAction.TryAdd(player.Index, 0);
+            playersInAction.TryAdd(player.Key(), 0);
 
             if (buildScheduled || buildInProgress || !glows.IsEmpty) return;
 
@@ -159,7 +164,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            playersInAction.TryRemove(player.Index, out _);
+            playersInAction.TryRemove(player.Key(), out _);
 
             if (playersInAction.IsEmpty)
             {
@@ -210,7 +215,7 @@ namespace src.player.skills
 
         private static void SpawnGlowFor(CCSPlayerController enemy)
         {
-            var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+            var enemyInfo = PlayerManager.GetPlayer(enemy);
             if (enemyInfo?.Skill == Skills.Ghost)
                 return;
 
@@ -221,13 +226,13 @@ namespace src.player.skills
             var modelName = skeleton?.ModelState?.ModelName;
             if (string.IsNullOrEmpty(modelName)) return;
 
-            var modelGlow = EntityManager.CreateTrackedDynamicProp(enemy.Index);
-            var modelRelay = EntityManager.CreateTrackedDynamicProp(enemy.Index);
+            var modelGlow = EntityManager.CreateTrackedDynamicProp(enemy.Key());
+            var modelRelay = EntityManager.CreateTrackedDynamicProp(enemy.Key());
 
             if (modelGlow == null || !modelGlow.IsValid || modelRelay == null || !modelRelay.IsValid)
                 return;
 
-            glows.TryAdd(enemy.Index, (modelRelay.Index, modelGlow.Index, enemy.Team));
+            glows.TryAdd(enemy.Key(), (modelRelay.Index, modelGlow.Index, enemy.Team));
 
             var relayEntity = modelRelay.CBodyComponent?.SceneNode?.Owner?.Entity;
             if (relayEntity != null)

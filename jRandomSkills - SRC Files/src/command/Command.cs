@@ -80,7 +80,7 @@ namespace src.command
             player = PlayerManager.GetPlayerEvent(player);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+            var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
             if (playerInfo == null || playerInfo.IsDrawing) return;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -145,7 +145,7 @@ namespace src.command
                 return;
             }
 
-            var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
+            var skillPlayer = PlayerManager.GetPlayer(targetPlayer);
             if (skillPlayer != null)
             {
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
@@ -437,7 +437,7 @@ namespace src.command
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.HudCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
+            var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
             if (playerInfo == null) return;
 
             int tickCount = Server.TickCount;
@@ -532,7 +532,7 @@ namespace src.command
                 return;
             }
 
-            var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
+            var skillPlayer = PlayerManager.GetPlayer(targetPlayer);
             if (skillPlayer != null)
             {
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
@@ -541,9 +541,9 @@ namespace src.command
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
                 if (skill.Skill == Skills.None)
-                    Event.staticSkills.TryRemove(targetPlayer.Index, out _);
+                    Event.staticSkills.TryRemove(targetPlayer.Key(), out _);
                 else
-                    Event.staticSkills.TryAdd(targetPlayer.Index, skill);
+                    Event.staticSkills.TryAdd(targetPlayer.Key(), skill);
                 Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
 
                 if (player == null)
@@ -657,7 +657,7 @@ namespace src.command
             if (targetPlayer == null)
                 return;
 
-            nextSkill.TryGetValue(targetPlayer.Index, out int currentIndex);
+            nextSkill.TryGetValue(targetPlayer.Key(), out int currentIndex);
 
             int nextIndex = (currentIndex + 1) % skillsList.Count;
 
@@ -675,14 +675,14 @@ namespace src.command
             var skill = skillsList[nextIndex];
             player.PrintToChat(nextIndex.ToString());
 
-            var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer!.Index);
+            var skillPlayer = PlayerManager.GetPlayer(targetPlayer);
             if (skillPlayer == null) return;
 
             Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
             skillPlayer.Skill = skill.Skill;
             skillPlayer.SpecialSkill = Skills.None;
 
-            nextSkill[targetPlayer.Index] = nextIndex;
+            nextSkill[targetPlayer.Key()] = nextIndex;
 
             Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
             Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);

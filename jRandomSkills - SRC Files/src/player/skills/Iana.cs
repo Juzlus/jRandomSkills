@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
@@ -40,7 +40,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null) return;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
                 if (playerSkill.CloneProp != null)
                     BlockWeapon(player, true);
         }
@@ -50,7 +50,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null) return;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
                 if (playerSkill.CloneProp != null)
                     BlockWeapon(player, true);
         }
@@ -60,7 +60,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
                 if (playerSkill.CloneProp == null && playerSkill.NextUse <= Server.TickCount)
                 {
                     UpdateWeapons(player, playerSkill);
@@ -73,9 +73,9 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            playersInfo.TryAdd(player.Index, new PlayerSkill
+            playersInfo.TryAdd(player.Key(), new PlayerSkill
             {
-                PlayerIndex = player.Index,
+                PlayerIndex = player.Key(),
                 CloneProp = null,
                 NextUse = 0,
                 UseTime = 0,
@@ -85,10 +85,10 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
                 KillClone(playerSkill);
-            playersInfo.TryRemove(player.Index, out _);
-            EntityManager.DestroyPlayerEntities(player.Index);
+            playersInfo.TryRemove(player.Key(), out _);
+            EntityManager.DestroyPlayerEntities(player.Key());
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -108,7 +108,7 @@ namespace src.player.skills
 
         private static void KillClone(PlayerSkill playerSkill)
         {
-            var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
+            var player = PlayerManager.GetController(playerSkill.PlayerIndex);
             if (player == null || !player.IsValid) return;
 
             player.EmitSound("SolidMetal.BulletImpact", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
@@ -151,7 +151,7 @@ namespace src.player.skills
 
         private static CDynamicProp? CreateClone(PlayerSkill playerSkill)
         {
-            var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
+            var player = PlayerManager.GetController(playerSkill.PlayerIndex);
             if (player == null || !player.IsValid) return null;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -177,12 +177,12 @@ namespace src.player.skills
                 }
             }
 
-            var clone = EntityManager.CreateTrackedDynamicProp(player.Index);
+            var clone = EntityManager.CreateTrackedDynamicProp(player.Key());
             if (clone == null || !clone.IsValid) return null;
 
             clone.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             clone.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(clone.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            clone.Entity!.Name = clone.Globalname = $"IanaClone_{Server.TickCount}_{player.Index}";
+            clone.Entity!.Name = $"IanaClone_{Server.TickCount}_{player.Key()}";
             clone.DispatchSpawn();
 
             Server.NextFrame(() =>
@@ -215,19 +215,19 @@ namespace src.player.skills
                         KillClone(playerSkill);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                uint playerIndex = player.Index;
+                uint playerIndex = player.Key();
 
                 Timer? cloneTimer = null;
                 cloneTimer = jRandomSkills.Instance.AddTimer(2f, () =>
                 {
-                    var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    var target = PlayerManager.GetController(playerIndex);
                     if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                     {
                         cloneTimer?.Kill();
                         return;
                     }
 
-                    if (!playersInfo.TryGetValue(target.Index, out var playerSkill) || playerSkill.CloneProp == null)
+                    if (!playersInfo.TryGetValue(target.Key(), out var playerSkill) || playerSkill.CloneProp == null)
                     {
                         cloneTimer?.Kill();
                         return;
@@ -315,8 +315,8 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(victimController.As<CCSPlayerController>());
             if (victim == null || !victim.IsValid) return;
 
-            if (PlayerManager.GetPlayerByIndex(victim.Index)?.Skill != skillName) return;
-            if (!playersInfo.TryGetValue(victim.Index, out var playerSkill)) return;
+            if (PlayerManager.GetPlayer(victim)?.Skill != skillName) return;
+            if (!playersInfo.TryGetValue(victim.Key(), out var playerSkill)) return;
 
             bool hasClone = playerSkill.CloneProp != null;
             if (!hasClone && playerSkill.LastHit + 4 <= Server.TickCount) return;
@@ -346,12 +346,12 @@ namespace src.player.skills
             _ = uint.TryParse(nameParams, out uint userIndex);
             if (userIndex == 0) return;
 
-            var player = Utilities.GetPlayerFromIndex((int)userIndex);
+            var player = PlayerManager.GetController(userIndex);
             if (player == null || !player.IsValid) return;
 
             float dealDamage = damageInfo.Damage;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
             {
                 CDynamicProp? cloneProp = null;
                 if (playerSkill.CloneProp != null)
@@ -410,7 +410,7 @@ namespace src.player.skills
         {
             if (playerSkill == null) return;
 
-            var player = Utilities.GetPlayerFromIndex((int)playerSkill.PlayerIndex);
+            var player = PlayerManager.GetController(playerSkill.PlayerIndex);
             if (player == null || !player.IsValid) return;
 
             float cooldown = 0;
@@ -421,7 +421,7 @@ namespace src.player.skills
             float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (Server.TickCount - playerSkill.UseTime) / 64;
             duration = (int)Math.Ceiling(Math.Max(time2, 0));
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (playerSkill.InfoTime + (64 * 2) > Server.TickCount)
@@ -439,10 +439,10 @@ namespace src.player.skills
             string weaponName = vdata.Name;
             if (string.IsNullOrEmpty(weaponName)) return false;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return false;
 
-            if (!playersInfo.TryGetValue(player.Index, out var playerSkill)) return false;
+            if (!playersInfo.TryGetValue(player.Key(), out var playerSkill)) return false;
             if (playerSkill.CloneProp == null || playerSkill.Weapons.Contains(econItem.ItemID)) return false;
 
             hook.SetReturn(AcquireResult.InvalidItem);
@@ -453,7 +453,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return false;
 
-            if (playersInfo.TryGetValue(player.Index, out var playerSkill))
+            if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
                 if (playerSkill.CloneProp != null)
                 {
                     hook.SetReturn(1);

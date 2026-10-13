@@ -24,13 +24,13 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            holders[player.Index] = 0;
+            holders[player.Key()] = 0;
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            holders.TryRemove(player.Index, out _);
+            holders.TryRemove(player.Key(), out _);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -42,10 +42,10 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || holders.IsEmpty) return false;
 
-            if (holders.ContainsKey(player.Index)) return true;
+            if (holders.ContainsKey(player.Key())) return true;
 
-            uint routedIndex = PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index;
-            return routedIndex != player.Index && holders.ContainsKey(routedIndex);
+            uint routedIndex = PlayerManager.GetPlayerEvent(player)?.Key() ?? player.Key();
+            return routedIndex != player.Key() && holders.ContainsKey(routedIndex);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8d6e63", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Uncommon) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

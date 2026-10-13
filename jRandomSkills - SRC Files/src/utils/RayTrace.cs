@@ -94,7 +94,7 @@ namespace src.utils
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null)
                 return null;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return null;
 
             float maxDistance = SkillsInfo.GetValue<float>(playerInfo.Skill, "maxDistance");

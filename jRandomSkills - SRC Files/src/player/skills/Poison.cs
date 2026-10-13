@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using jRandomSkills.src.utils;
@@ -58,7 +58,7 @@ namespace src.player.skills
 
                 foreach (var playerIndex in poisonedPlayers.Keys)
                 {
-                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    var player = PlayerManager.GetController(playerIndex);
                     if (player == null || !player.IsValid || player.PlayerPawn == null) continue;
 
                     var pawn = player.PlayerPawn.Value;
@@ -86,7 +86,7 @@ namespace src.player.skills
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -94,7 +94,7 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -114,7 +114,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
 
             if (enemy == null)
             {
@@ -122,9 +122,9 @@ namespace src.player.skills
                 return;
             }
 
-            poisonedPlayers.TryAdd(enemy.Index, 0);
-            playersToTarget[player.Index] = enemy.Index;
-            targetToPlayer[enemy.Index] = player.Index;
+            poisonedPlayers.TryAdd(enemy.Key(), 0);
+            playersToTarget[player.Key()] = enemy.Key();
+            targetToPlayer[enemy.Key()] = player.Key();
             playerInfo.SkillUsed = true;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
@@ -136,7 +136,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -146,7 +146,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -157,20 +157,20 @@ namespace src.player.skills
         {
             if (!targetToPlayer.TryGetValue(targetIndex, out uint ownerIndex)) return null;
 
-            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex);
+            var owner = PlayerManager.GetController(ownerIndex);
             return owner != null && owner.IsValid ? owner : null;
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            targetToPlayer.TryRemove(player.Index, out _);
+            targetToPlayer.TryRemove(player.Key(), out _);
 
-            if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+            if (playersToTarget.TryRemove(player.Key(), out uint targetIndex))
             {
                 poisonedPlayers.TryRemove(targetIndex, out _);
                 targetToPlayer.TryRemove(targetIndex, out _);
 
-                var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(targetIndex));
                 if (target != null && target.IsValid && target.PawnIsAlive)
                     target.PrintToChat($" {ChatColors.Green}" + target.GetTranslation("poison_disable_info"));
             }
@@ -183,8 +183,8 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            poisonedPlayers.TryRemove(player.Index, out _);
-            targetToPlayer.TryRemove(player.Index, out _);
+            poisonedPlayers.TryRemove(player.Key(), out _);
+            targetToPlayer.TryRemove(player.Key(), out _);
 
             SkillUtils.CloseMenu(player);
         }

@@ -27,7 +27,7 @@ namespace src.player.skills
 
             if (Heavyweight.Resists(victim)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var playerInfo = PlayerManager.GetPlayer(attacker);
 
             if (playerInfo?.Skill == skillName && victim!.PawnIsAlive)
             {
@@ -38,7 +38,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
             playerInfo.SkillChance = newChance;

@@ -24,8 +24,8 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (!Instance.IsPlayerValid(player) || !Instance.IsPlayerValid(attacker)) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
 
             if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player!.Team == attacker!.Team) return;
 
@@ -41,12 +41,12 @@ namespace src.player.skills
             var weapon = @event.Weapon;
             if (weapon != "flashbang") return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
-                playersWithSkill[player.Index] = grenadesLeft - 1;
+                playersWithSkill[player.Key()] = grenadesLeft - 1;
                 player!.GiveNamedItem($"weapon_{weapon}");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, grenadesLeft - 1);
             }
@@ -58,7 +58,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, grenadesLeft);
         }
 
@@ -70,7 +70,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "flashbang") return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, grenadesLeft);
         }
 
@@ -83,7 +83,7 @@ namespace src.player.skills
 
             if (grenadeLimit > flashbangLimit)
             {
-                playersWithSkill.TryAdd(player.Index, grenadeLimit);
+                playersWithSkill.TryAdd(player.Key(), grenadeLimit);
                 SkillUtils.TryGiveWeapon(player, CsItem.FlashbangGrenade);
                 SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, grenadeLimit);
             }
@@ -95,7 +95,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            playersWithSkill.TryRemove(player.Index, out _);
+            playersWithSkill.TryRemove(player.Key(), out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, 1);
         }
 

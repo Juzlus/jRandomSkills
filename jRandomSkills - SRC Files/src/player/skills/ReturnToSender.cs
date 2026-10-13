@@ -28,7 +28,7 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
             if (attackerInfo == null || attackerInfo.Skill != skillName) return;
 
             if (playersToSender.ContainsKey(victim!.Handle))

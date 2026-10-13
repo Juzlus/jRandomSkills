@@ -48,12 +48,12 @@ namespace src.player.skills
                 if (player == null || !player.IsValid)
                     continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
 
                 if (playerInfo?.Skill != skillName)
                     continue;
 
-                if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                     continue;
 
                 if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
@@ -82,9 +82,9 @@ namespace src.player.skills
             if (player == null || !player.IsValid)
                 return;
 
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
                 LightEntityIndex = 0,
@@ -97,8 +97,8 @@ namespace src.player.skills
             if (player == null)
                 return;
 
-            RemovePlayerLight(player.Index);
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            RemovePlayerLight(player.Key());
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -106,7 +106,7 @@ namespace src.player.skills
         {
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim != null && victim.IsValid)
-                RemovePlayerLight(victim.Index);
+                RemovePlayerLight(victim.Key());
         }
 
         public static void UseSkill(CCSPlayerController player)
@@ -118,7 +118,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.Health <= 0)
                 return;
 
-            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                 return;
 
             if (!skillInfo.CanUse)
@@ -158,7 +158,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null)
                 return;
 
-            RemovePlayerLight(player.Index);
+            RemovePlayerLight(player.Key());
 
             if (EntityManager.OverBudget())
                 return;
@@ -168,7 +168,7 @@ namespace src.player.skills
             if (light == null || !light.IsValid)
                 return;
 
-            EntityManager.RegisterEntity(light.Index, player.Index, "light_barn");
+            EntityManager.RegisterEntity(light.Index, player.Key(), "light_barn");
 
             int colorR = SkillsInfo.GetValue<int>(skillName, "colorR");
             int colorG = SkillsInfo.GetValue<int>(skillName, "colorG");
@@ -262,10 +262,10 @@ namespace src.player.skills
 
             foreach (var target in PlayerManager.GetTickPlayers())
             {
-                if (target == null || !target.IsValid || target.Index == owner.Index || target.Team == owner.Team)
+                if (target == null || !target.IsValid || target.Key() == owner.Key() || target.Team == owner.Team)
                     continue;
 
-                var targetInfo = PlayerManager.GetPlayerByIndex(target.Index);
+                var targetInfo = PlayerManager.GetPlayer(target);
                 if (targetInfo != null && targetInfo.Skill == Skills.AntyFlash)
                     continue;
 
@@ -418,7 +418,7 @@ namespace src.player.skills
             if (cooldown == 0 && !skillInfo.CanUse)
                 skillInfo.CanUse = true;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
 
             if (playerInfo == null)
                 return;

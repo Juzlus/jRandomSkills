@@ -41,8 +41,8 @@ namespace src.player.skills
         {
             if (player == null) return;
             ChangeCamera(player, true);
-            EntityManager.DestroyPlayerEntities(player.Index);
-            cameras.TryRemove(player.Index, out _);
+            EntityManager.DestroyPlayerEntities(player.Key());
+            cameras.TryRemove(player.Key(), out _);
         }
 
         public static bool IsOrginalCamera(CCSPlayerController player)
@@ -55,7 +55,7 @@ namespace src.player.skills
             var cameraServices = pawn.CameraServices;
             if (cameraServices == null) return true;
 
-            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item1 != 0)
+            if (cameras.TryGetValue(player.Key(), out var cameraInfo) && cameraInfo.Item1 != 0)
                 return cameraServices.ViewEntity.Raw == cameraInfo.Item1;
 
             return true;
@@ -65,24 +65,32 @@ namespace src.player.skills
         {
             if (cameras.IsEmpty) return;
 
-            foreach (var player in PlayerManager.GetTickPlayers())
-                if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
+            float distance = SkillsInfo.GetValue<float>(skillName, "distance");
+
+            foreach (var (playerKey, cameraInfo) in cameras)
+            {
+                if (cameraInfo.Item2 == 0) continue;
+
+                var player = PlayerManager.GetController(playerKey);
+                if (player == null) continue;
+
+                var pawn = player.PlayerPawn.Value;
+                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
+                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                 {
-                    var pawn = player.PlayerPawn.Value;
-                    if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
-                    if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                    {
-                        ChangeCamera(player, true);
-                        continue;
-                    }
-
-                    var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * SkillsInfo.GetValue<float>(skillName, "distance");
-                    pos.Z += pawn.ViewOffset.Z;
-
-                    var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
-                    if (cam == null || cam.AbsOrigin == null || cam.AbsRotation == null) continue;
-                    cam.Teleport(pos, pawn.V_angle);
+                    ChangeCamera(player, true);
+                    continue;
                 }
+
+                if (pawn.CameraServices == null || pawn.CameraServices.ViewEntity.Raw == cameraInfo.Item1) continue;
+
+                var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * distance;
+                pos.Z += pawn.ViewOffset.Z;
+
+                var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
+                if (cam == null || !cam.IsValid) continue;
+                cam.Teleport(pos, pawn.V_angle);
+            }
         }
 
         private static void ChangeCamera(CCSPlayerController player, bool forceToDefault = false)
@@ -90,7 +98,7 @@ namespace src.player.skills
             uint orginalCameraRaw;
             uint newCameraRaw;
             var pawn = player.PlayerPawn.Value;
-            if (cameras.TryGetValue(player.Index, out var cameraInfo) && cameraInfo.Item2 != 0)
+            if (cameras.TryGetValue(player.Key(), out var cameraInfo) && cameraInfo.Item2 != 0)
             {
                 orginalCameraRaw = cameraInfo.Item1;
 
@@ -120,7 +128,7 @@ namespace src.player.skills
 
         private static uint CreateCamera(CCSPlayerController player)
         {
-            var camera = EntityManager.CreateTrackedDynamicProp(player.Index);
+            var camera = EntityManager.CreateTrackedDynamicProp(player.Key());
             if (camera == null || !camera.IsValid) return 0;
 
             var pawn = player.PlayerPawn.Value;
@@ -141,7 +149,7 @@ namespace src.player.skills
                 camera.DispatchSpawn();
             });
 
-            cameras.AddOrUpdate(player.Index, (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (v, k) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
+            cameras.AddOrUpdate(player.Key(), (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (v, k) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
             return camera.EntityHandle.Raw;
         }
 

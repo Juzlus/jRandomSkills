@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -26,7 +26,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            phoenixTicks.TryRemove(player.Index, out _);
+            phoenixTicks.TryRemove(player.Key(), out _);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -47,7 +47,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            var victimInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
@@ -63,16 +63,16 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            var victimInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (victimInfo == null || victimInfo.Skill != skillName) return false;
 
-            if (phoenixTicks.TryGetValue(victim.Index, out int savedTick) && savedTick + 4 > Server.TickCount)
+            if (phoenixTicks.TryGetValue(victim.Key(), out int savedTick) && savedTick + 4 > Server.TickCount)
                 return true;
 
             if (victim.TeamChanged) return false;
             if (victimInfo.SkillChance is float chance && Instance.Random.NextDouble() > chance) return false; // roll failed -> die
 
-            phoenixTicks[victim.Index] = Server.TickCount;
+            phoenixTicks[victim.Key()] = Server.TickCount;
 
             victimPawn.Health = 100;
             Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
@@ -96,7 +96,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");

@@ -29,12 +29,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, 0);
+            SkillPlayerInfo.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -43,9 +43,9 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill == skillName)
-                SkillPlayerInfo.TryRemove(player.Index, out _);
+                SkillPlayerInfo.TryRemove(player.Key(), out _);
         }
 
         public static void PlayerMakeSound(UserMessage um)
@@ -67,7 +67,7 @@ namespace src.player.skills
                     break;
                 }
 
-                var entities = EntityManager.GetPlayerEntities(p.Index, "empty_prop");
+                var entities = EntityManager.GetPlayerEntities(p.Key(), "empty_prop");
                 if (entities.Count > 0 && entities[0] == entityIndex)
                 {
                     emitter = p;
@@ -83,10 +83,10 @@ namespace src.player.skills
                     if (recipient == null || !recipient.IsValid) continue;
                     if (recipient.Team == emitter.Team) continue;
 
-                    bool hasSkill = SkillPlayerInfo.ContainsKey(recipient.Index);
+                    bool hasSkill = SkillPlayerInfo.ContainsKey(recipient.Key());
 
                     var bot = PlayerManager.GetPlayerEvent(recipient);
-                    bool botSkill = bot != null && bot.IsValid && SkillPlayerInfo.ContainsKey(bot.Index);
+                    bool botSkill = bot != null && bot.IsValid && SkillPlayerInfo.ContainsKey(bot.Key());
 
                     if (!hasSkill && !botSkill) continue;
 
@@ -114,7 +114,7 @@ namespace src.player.skills
             {
                 if (!CanEmit(player, out var pawn)) continue;
 
-                var entities = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
+                var entities = EntityManager.GetPlayerEntities(player.Key(), "empty_prop");
 
                 if (entities.Count == 0)
                 {

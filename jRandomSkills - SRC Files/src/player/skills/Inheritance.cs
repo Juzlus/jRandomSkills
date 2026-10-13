@@ -33,7 +33,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            holders[player.Index] = 0;
+            holders[player.Key()] = 0;
             RefreshMenu(player);
         }
 
@@ -41,7 +41,7 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            holders.TryRemove(player.Index, out _);
+            holders.TryRemove(player.Key(), out _);
             SkillUtils.CloseMenu(player);
         }
 
@@ -56,14 +56,14 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            holders.TryRemove(victim.Index, out _);
+            holders.TryRemove(victim.Key(), out _);
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
+            var victimInfo = PlayerManager.GetPlayer(victim);
             if (victimInfo == null || victimInfo.IsDrawing) return;
             if (victimInfo.Skill == Skills.None || victimInfo.Skill == skillName) return;
             if (SkillData.GetInfo(victimInfo.Skill) == null) return;
 
-            fallen[victim.Index] = new FallenInfo
+            fallen[victim.Key()] = new FallenInfo
             {
                 PlayerName = victim.PlayerName,
                 Skill = victimInfo.Skill,
@@ -72,7 +72,7 @@ namespace src.player.skills
 
             foreach (uint holderIndex in holders.Keys)
             {
-                var holder = Utilities.GetPlayerFromIndex((int)holderIndex);
+                var holder = PlayerManager.GetController(holderIndex);
                 if (holder == null || !holder.IsValid || holder.Team != victim.Team) continue;
 
                 RefreshMenu(holder);
@@ -83,7 +83,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -106,13 +106,13 @@ namespace src.player.skills
 
         private static void InheritSkill(CCSPlayerController player, FallenInfo fallenInfo)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             Skills inheritedSkill = fallenInfo.Skill;
 
             holders.TryRemove(playerIndex, out _);
@@ -120,10 +120,10 @@ namespace src.player.skills
 
             Instance.AddTimer(.1f, () =>
             {
-                var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var target = PlayerManager.GetController(playerIndex);
                 if (target == null || !target.IsValid) return;
 
-                var targetInfo = PlayerManager.GetPlayerByIndex(playerIndex);
+                var targetInfo = PlayerManager.GetPlayerByKey(playerIndex);
                 if (targetInfo == null || targetInfo.Skill != skillName) return;
 
                 targetInfo.Skill = inheritedSkill;
@@ -134,10 +134,10 @@ namespace src.player.skills
                 if (SkillsInfo.GetValue<bool>(inheritedSkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
-                        var heir = Utilities.GetPlayerFromIndex((int)playerIndex);
+                        var heir = PlayerManager.GetController(playerIndex);
                         if (heir == null || !heir.IsValid) return;
 
-                        if (PlayerManager.GetPlayerByIndex(playerIndex)?.Skill != inheritedSkill) return;
+                        if (PlayerManager.GetPlayerByKey(playerIndex)?.Skill != inheritedSkill) return;
                         Instance?.SkillAction(inheritedSkill.ToString(), "EnableSkill", [heir]);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
@@ -150,12 +150,12 @@ namespace src.player.skills
         private static void RefreshMenu(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (PlayerManager.GetPlayerByIndex(player.Index)?.Skill != skillName) return;
+            if (PlayerManager.GetPlayer(player)?.Skill != skillName) return;
 
             ConcurrentBag<(string, string)> menuItems = [];
             foreach (var (fallenIndex, fallenInfo) in fallen)
             {
-                if (fallenIndex == player.Index) continue;
+                if (fallenIndex == player.Key()) continue;
                 if (!CanInherit(player, fallenInfo)) continue;
 
                 menuItems.Add(($"\u202A{fallenInfo.PlayerName}\u202C : {player.GetSkillName(fallenInfo.Skill)}", fallenIndex.ToString()));
@@ -183,7 +183,7 @@ namespace src.player.skills
             if (!SkillsInfo.GetValue<bool>(fallenInfo.Skill, "needsTeammates")) return true;
 
             return PlayerManager.GetTickPlayers().Any(p =>
-                p != null && p.IsValid && p.Index != player.Index && p.Team == player.Team
+                p != null && p.IsValid && p.Key() != player.Key() && p.Team == player.Team
                 && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0);
         }
 

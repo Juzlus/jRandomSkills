@@ -31,9 +31,9 @@ namespace src.player.skills
             var attackerPawn = attackerEvent.PlayerPawn.Value;
             if (attackerPawn == null || !attackerPawn.IsValid || attackerPawn.Health == 0) return;
 
-            if (attackerEvent.Index == victimEvent.Index) return;
+            if (attackerEvent.Key() == victimEvent.Key()) return;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(victimEvent!.Index);
+            var victimInfo = PlayerManager.GetPlayer(victimEvent);
             if (victimInfo?.Skill == skillName)
             {
                 int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));

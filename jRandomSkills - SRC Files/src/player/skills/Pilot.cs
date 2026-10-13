@@ -32,7 +32,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (PlayerPilotInfo.TryGetValue(player.Index, out var pilotInfo))
+            if (PlayerPilotInfo.TryGetValue(player.Key(), out var pilotInfo))
             {
                 ClearTrail(pilotInfo);
                 pilotInfo.IsFlying = false;
@@ -50,12 +50,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            PlayerPilotInfo.TryAdd(player.Index, new Pilot_PlayerInfo { SteamID = player.Index });
+            PlayerPilotInfo.TryAdd(player.Key(), new Pilot_PlayerInfo { SteamID = player.Key() });
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            if (PlayerPilotInfo.TryRemove(player.Index, out var pilotInfo))
+            if (PlayerPilotInfo.TryRemove(player.Key(), out var pilotInfo))
                 ClearTrail(pilotInfo);
 
             SkillUtils.ResetPrintHTML(player);
@@ -66,7 +66,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid) return;
 
-            if (!PlayerPilotInfo.TryGetValue(player.Index, out var pilotInfo)) return;
+            if (!PlayerPilotInfo.TryGetValue(player.Key(), out var pilotInfo)) return;
 
             var flags = (PlayerFlags)playerPawn.Flags;
             var buttons = player.Buttons;
@@ -136,7 +136,7 @@ namespace src.player.skills
         private static void UpdateHUD(CCSPlayerController player, Pilot_PlayerInfo pilotInfo)
         {
             if (pilotInfo == null) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
@@ -177,7 +177,7 @@ namespace src.player.skills
 
             if (pawn.AbsOrigin == null) return;
 
-            var particle = EntityManager.CreateTrackedParticleSystem(player.Index, SkillsInfo.GetValue<string>(skillName, "particleName"));
+            var particle = EntityManager.CreateTrackedParticleSystem(player.Key(), SkillsInfo.GetValue<string>(skillName, "particleName"));
             if (particle == null || !particle.IsValid) return;
 
             float offset = SkillsInfo.GetValue<float>(skillName, "particleOffset");

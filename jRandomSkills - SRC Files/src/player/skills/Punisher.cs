@@ -25,14 +25,14 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            storedDamage[player.Index] = 0f;
+            storedDamage[player.Key()] = 0f;
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
 
-            storedDamage.TryRemove(player.Index, out _);
+            storedDamage.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -46,8 +46,8 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            if (storedDamage.ContainsKey(victim.Index))
-                storedDamage[victim.Index] = 0f;
+            if (storedDamage.ContainsKey(victim.Key()))
+                storedDamage[victim.Key()] = 0f;
         }
 
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
@@ -67,12 +67,12 @@ namespace src.player.skills
 
             if (SkillUtils.IsFriendlyFireBlocked(skillName, damageInfo, victimPawn)) return;
 
-            uint victimIndex = PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index;
+            uint victimIndex = PlayerManager.GetPlayerEvent(victim)?.Key() ?? victim.Key();
 
             var attacker = damageInfo.Attacker?.Value?.As<CCSPlayerPawn>();
             var attackerController = attacker?.Controller?.Value?.As<CCSPlayerController>();
             uint? attackerIndex = attackerController != null && attackerController.IsValid
-                ? PlayerManager.GetPlayerEvent(attackerController)?.Index ?? attackerController.Index
+                ? PlayerManager.GetPlayerEvent(attackerController)?.Key() ?? attackerController.Key()
                 : null;
 
             if (attackerIndex.HasValue && attackerIndex.Value != victimIndex && storedDamage.TryGetValue(attackerIndex.Value, out float banked) && banked > 0f)
@@ -80,7 +80,7 @@ namespace src.player.skills
                 storedDamage[attackerIndex.Value] = 0f;
                 damageInfo.Damage += banked;
 
-                var puncher = CounterStrikeSharp.API.Utilities.GetPlayerFromIndex((int)attackerIndex.Value);
+                var puncher = PlayerManager.GetController(attackerIndex.Value);
                 var puncherPawn = puncher?.PlayerPawn?.Value;
 
                 if (puncherPawn != null && puncherPawn.IsValid && puncherPawn.Health > 0)

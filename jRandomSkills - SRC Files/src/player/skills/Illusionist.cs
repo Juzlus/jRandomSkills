@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Timers;
@@ -52,18 +52,18 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -72,8 +72,8 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            SkillPlayerInfo.TryRemove(player.Index, out _);
-            EntityManager.DestroyPlayerEntities(player.Index);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
+            EntityManager.DestroyPlayerEntities(player.Key());
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -89,7 +89,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -102,7 +102,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo) && skillInfo.CanUse)
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo) && skillInfo.CanUse)
             {
                 skillInfo.CanUse = false;
                 skillInfo.Cooldown = DateTime.Now;
@@ -116,7 +116,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid) return;
             if (playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return;
 
-            var replica = EntityManager.CreateTrackedPropOverride(player.Index);
+            var replica = EntityManager.CreateTrackedPropOverride(player.Key());
             if (replica == null || !replica.IsValid) return;
 
             consumedReplicas.TryRemove(replica.Index, out _);
@@ -125,7 +125,7 @@ namespace src.player.skills
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
 
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
-            replica.Entity!.Name = replica.Globalname = $"Illusionist_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
+            replica.Entity!.Name = $"Illusionist_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
 
             replica.UseAnimGraph = false;
             replica.DispatchSpawn();
@@ -208,7 +208,7 @@ namespace src.player.skills
             if (attackerPawn.DesignerName != "player") return;
 
             var attackerTeam = attackerPawn.TeamNum;
-            var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
+            var replicaTeam = (replica.Entity?.Name ?? "").EndsWith("CT") ? 3 : 2;
 
             SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, KillfeedIcons.Player);
         }
@@ -218,8 +218,7 @@ namespace src.player.skills
             var ownerIndex = EntityManager.GetEntityOwner(replicaIndex);
             if (ownerIndex == null) return null;
 
-            var owner = Utilities.GetPlayerFromIndex((int)ownerIndex.Value);
-            return owner != null && owner.IsValid ? owner : null;
+            return PlayerManager.GetController(ownerIndex.Value);
         }
 
         public class PlayerSkillInfo

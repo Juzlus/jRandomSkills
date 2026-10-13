@@ -15,13 +15,28 @@ namespace src.utils
     {
         public const uint SystemOwnerIndex = uint.MaxValue;
         private static readonly ConcurrentDictionary<uint, EntityData> trackedEntities = [];
+        private static readonly ConcurrentDictionary<uint, uint> knownHandles = [];
+        private static readonly ConcurrentDictionary<uint, List<uint>> byOwner = [];
+
+        private static void AddOwned(uint ownerKey, uint entityIndex)
+        {
+            var list = byOwner.GetOrAdd(ownerKey, _ => []);
+            if (!list.Contains(entityIndex)) list.Add(entityIndex);
+        }
+
+        private static void RemoveOwned(uint ownerKey, uint entityIndex)
+        {
+            if (!byOwner.TryGetValue(ownerKey, out var list)) return;
+            list.Remove(entityIndex);
+            if (list.Count == 0) byOwner.TryRemove(ownerKey, out _);
+        }
 
         private struct EntityData
         {
             public uint EntityIndex;
-            public uint PlayerIndex;
+            public uint OwnerKey;
+            public uint HandleRaw;
             public string EntityType;
-            public DateTime CreatedAt;
         }
 
         private const int EntityBudget = 3500;
@@ -40,31 +55,40 @@ namespace src.utils
             return _cachedCount >= EntityBudget;
         }
 
-        public static void RegisterEntity(uint entityIndex, uint playerIndex, string entityType)
+        public static void RegisterEntity(uint entityIndex, uint ownerKey, string entityType)
         {
             if (entityIndex == 0) return;
 
             bool alreadyTracked = trackedEntities.TryGetValue(entityIndex, out var previous);
 
+            uint handleRaw = 0;
+            try { handleRaw = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex)?.EntityHandle.Raw ?? 0; }
+            catch { }
+            if (handleRaw != 0) knownHandles[entityIndex] = handleRaw;
+
+            if (alreadyTracked && previous.OwnerKey != ownerKey)
+                RemoveOwned(previous.OwnerKey, entityIndex);
+            AddOwned(ownerKey, entityIndex);
+
             trackedEntities[entityIndex] = new EntityData
             {
                 EntityIndex = entityIndex,
-                PlayerIndex = playerIndex,
-                EntityType = entityType,
-                CreatedAt = DateTime.UtcNow
+                OwnerKey = ownerKey,
+                HandleRaw = handleRaw,
+                EntityType = entityType
             };
 
             if (!Config.DebugEnabled(DebugCategory.Entity)) return;
 
             if (!alreadyTracked)
-                Debug.WriteToDebug($"[Entity] + {entityType} #{entityIndex} owner={DescribeOwner(playerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
+                Debug.WriteToDebug($"[Entity] + {entityType} #{entityIndex} owner={DescribeOwner(ownerKey)} tracked={trackedEntities.Count}", DebugCategory.Entity);
             else if (previous.EntityType != entityType)
-                Debug.WriteToDebug($"[Entity] ~ {previous.EntityType} -> {entityType} #{entityIndex} owner={DescribeOwner(playerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
+                Debug.WriteToDebug($"[Entity] ~ {previous.EntityType} -> {entityType} #{entityIndex} owner={DescribeOwner(ownerKey)} tracked={trackedEntities.Count}", DebugCategory.Entity);
         }
 
-        private static string DescribeOwner(uint playerIndex)
+        private static string DescribeOwner(uint ownerKey)
         {
-            return playerIndex == SystemOwnerIndex ? "system" : playerIndex.ToString();
+            return ownerKey == SystemOwnerIndex ? "system" : ownerKey.ToString();
         }
 
         private static void LogEntityError(string message)
@@ -73,30 +97,34 @@ namespace src.utils
             Debug.WriteToDebug($"[Entity] ! {message}", DebugCategory.Entity);
         }
 
-        public static void RegisterExisting(CBaseEntity? entity, uint playerIndex, string entityType)
+        public static void RegisterExisting(CBaseEntity? entity, uint ownerKey, string entityType)
         {
             if (entity == null || !entity.IsValid) return;
-            RegisterEntity(entity.Index, playerIndex, entityType);
+            RegisterEntity(entity.Index, ownerKey, entityType);
         }
 
-        public static List<uint> GetPlayerEntities(uint playerIndex, string? entityType = null)
+        public static List<uint> GetPlayerEntities(uint ownerKey, string? entityType = null)
         {
-            return [.. trackedEntities
-                .Where(kvp => kvp.Value.PlayerIndex == playerIndex && (string.IsNullOrEmpty(entityType) || kvp.Value.EntityType == entityType))
-                .Select(kvp => kvp.Key)];
+            if (!byOwner.TryGetValue(ownerKey, out var owned)) return [];
+
+            List<uint> result = new(owned.Count);
+            foreach (var entityIndex in owned)
+                if (string.IsNullOrEmpty(entityType) || (trackedEntities.TryGetValue(entityIndex, out var data) && data.EntityType == entityType))
+                    result.Add(entityIndex);
+            return result;
         }
 
-        public static int GetTrackedCount(uint playerIndex) => GetPlayerEntities(playerIndex).Count;
+        public static int GetTrackedCount(uint ownerKey) => GetPlayerEntities(ownerKey).Count;
 
         public static uint? GetEntityOwner(uint entityIndex)
         {
             if (!trackedEntities.TryGetValue(entityIndex, out var data)) return null;
-            return data.PlayerIndex == SystemOwnerIndex ? null : data.PlayerIndex;
+            return data.OwnerKey == SystemOwnerIndex ? null : data.OwnerKey;
         }
 
         public static (int totalTracked, int ownerCount) GetStatistics()
         {
-            return (trackedEntities.Count, trackedEntities.Values.Select(e => e.PlayerIndex).Distinct().Count());
+            return (trackedEntities.Count, trackedEntities.Values.Select(e => e.OwnerKey).Distinct().Count());
         }
 
         public static string DescribeTracked(int topTypes = 4)
@@ -115,7 +143,7 @@ namespace src.utils
         }
 
 
-        public static CParticleSystem? CreateTrackedParticleSystem(uint playerIndex, string particleName, float? autoDestroySeconds = null)
+        public static CParticleSystem? CreateTrackedParticleSystem(uint ownerKey, string particleName, float? autoDestroySeconds = null)
         {
             try
             {
@@ -127,7 +155,7 @@ namespace src.utils
                 particle.StartActive = true;
                 particle.DispatchSpawn();
 
-                RegisterEntity(particle.Index, playerIndex, "particle_system");
+                RegisterEntity(particle.Index, ownerKey, "particle_system");
                 ScheduleAutoDestroy(particle.Index, autoDestroySeconds);
                 return particle;
             }
@@ -138,7 +166,7 @@ namespace src.utils
             }
         }
 
-        public static CParticleSystem? CreateTracer(uint playerIndex, string particleName, Vector start, Vector end, float lifetime = 1f)
+        public static CParticleSystem? CreateTracer(uint ownerKey, string particleName, Vector start, Vector end, float lifetime = 1f)
         {
             try
             {
@@ -158,7 +186,7 @@ namespace src.utils
 
                 particle.DispatchSpawn();
 
-                RegisterEntity(particle.Index, playerIndex, "tracer");
+                RegisterEntity(particle.Index, ownerKey, "tracer");
                 ScheduleAutoDestroy(particle.Index, lifetime);
                 return particle;
             }
@@ -169,7 +197,7 @@ namespace src.utils
             }
         }
 
-        public static CParticleSystem? CreateEntityParticle(uint playerIndex, string particleName, CBaseEntity target, float lifetime = 5f)
+        public static CParticleSystem? CreateEntityParticle(uint ownerKey, string particleName, CBaseEntity target, float lifetime = 5f)
         {
             try
             {
@@ -188,7 +216,7 @@ namespace src.utils
                 particle.DispatchSpawn();
                 particle.AcceptInput("SetParent", target, particle, "!activator");
 
-                RegisterEntity(particle.Index, playerIndex, "particle_system");
+                RegisterEntity(particle.Index, ownerKey, "particle_system");
                 ScheduleAutoDestroy(particle.Index, lifetime);
                 return particle;
             }
@@ -199,7 +227,7 @@ namespace src.utils
             }
         }
 
-        public static CDynamicProp? CreateTrackedDynamicProp(uint playerIndex, string designerName = "prop_dynamic", string? trackAs = null)
+        public static CDynamicProp? CreateTrackedDynamicProp(uint ownerKey, string designerName = "prop_dynamic", string? trackAs = null)
         {
             try
             {
@@ -207,7 +235,7 @@ namespace src.utils
                 var prop = Utilities.CreateEntityByName<CDynamicProp>(designerName);
                 if (prop == null || !prop.IsValid) return null;
 
-                RegisterEntity(prop.Index, playerIndex, trackAs ?? designerName);
+                RegisterEntity(prop.Index, ownerKey, trackAs ?? designerName);
                 return prop;
             }
             catch (Exception ex)
@@ -217,12 +245,12 @@ namespace src.utils
             }
         }
 
-        public static CDynamicProp? CreateTrackedPropOverride(uint playerIndex)
+        public static CDynamicProp? CreateTrackedPropOverride(uint ownerKey)
         {
-            return CreateTrackedDynamicProp(playerIndex, "prop_dynamic_override");
+            return CreateTrackedDynamicProp(ownerKey, "prop_dynamic_override");
         }
 
-        public static CChicken? CreateTrackedChicken(uint playerIndex)
+        public static CChicken? CreateTrackedChicken(uint ownerKey)
         {
             try
             {
@@ -231,7 +259,7 @@ namespace src.utils
                 if (chicken == null || !chicken.IsValid) return null;
 
                 chicken.DispatchSpawn();
-                RegisterEntity(chicken.Index, playerIndex, "chicken");
+                RegisterEntity(chicken.Index, ownerKey, "chicken");
                 return chicken;
             }
             catch (Exception ex)
@@ -241,7 +269,7 @@ namespace src.utils
             }
         }
 
-        public static CPhysicsPropMultiplayer? CreateTrackedPhysicsProp(uint playerIndex)
+        public static CPhysicsPropMultiplayer? CreateTrackedPhysicsProp(uint ownerKey)
         {
             try
             {
@@ -249,7 +277,7 @@ namespace src.utils
                 var prop = Utilities.CreateEntityByName<CPhysicsPropMultiplayer>("prop_physics_multiplayer");
                 if (prop == null || !prop.IsValid) return null;
 
-                RegisterEntity(prop.Index, playerIndex, "prop_physics_multiplayer");
+                RegisterEntity(prop.Index, ownerKey, "prop_physics_multiplayer");
                 return prop;
             }
             catch (Exception ex)
@@ -259,7 +287,7 @@ namespace src.utils
             }
         }
 
-        public static CTriggerMultiple? CreateTrackedTrigger(uint playerIndex, string name, float radius, Vector pos)
+        public static CTriggerMultiple? CreateTrackedTrigger(uint ownerKey, string name, float radius, Vector pos)
         {
             if (pos == null) return null;
 
@@ -272,7 +300,7 @@ namespace src.utils
                 trigger.Collision.SolidType = SolidType_t.SOLID_CAPSULE;
                 trigger.Collision.SolidFlags = 0;
                 trigger.Spawnflags = 1;
-                trigger.Globalname = $"{name}_{trigger.Index}";
+                trigger.Entity!.Name = $"{name}_{trigger.Index}";
                 trigger.Collision.SolidFlags = 1;
 
                 trigger.AbsOrigin.X = pos.X;
@@ -289,7 +317,7 @@ namespace src.utils
                 trigger.Collision.CollisionAttribute.CollisionGroup = 2;
 
                 trigger.DispatchSpawn();
-                RegisterEntity(trigger.Index, playerIndex, "trigger_multiple");
+                RegisterEntity(trigger.Index, ownerKey, "trigger_multiple");
                 return trigger;
             }
             catch (Exception ex)
@@ -299,7 +327,7 @@ namespace src.utils
             }
         }
 
-        public static CBeam? CreateTrackedBeam(uint playerIndex, Vector start, Vector end, Color color)
+        public static CBeam? CreateTrackedBeam(uint ownerKey, Vector start, Vector end, Color color)
         {
             try
             {
@@ -316,7 +344,7 @@ namespace src.utils
                 beam.EndPos.Z = end.Z;
 
                 beam.DispatchSpawn();
-                RegisterEntity(beam.Index, playerIndex, "beam");
+                RegisterEntity(beam.Index, ownerKey, "beam");
                 return beam;
             }
             catch (Exception ex)
@@ -330,9 +358,11 @@ namespace src.utils
         private readonly record struct DyingEntity(DateTime Expires, uint HandleRaw);
         private static readonly ConcurrentDictionary<uint, DyingEntity> recentlyDestroyed = new();
 
+        private static readonly List<uint> noDyingEntities = [];
+
         public static List<uint> GetRecentlyDestroyedSnapshot()
         {
-            if (recentlyDestroyed.IsEmpty) return [];
+            if (recentlyDestroyed.IsEmpty) return noDyingEntities;
 
             var now = DateTime.UtcNow;
             var result = new List<uint>();
@@ -361,9 +391,10 @@ namespace src.utils
         public static bool DestroyEntity(uint entityIndex, float delay = 0.1f, bool hideFromTransmit = true)
         {
             bool wasTracked = trackedEntities.TryRemove(entityIndex, out var removed);
+            if (wasTracked) RemoveOwned(removed.OwnerKey, entityIndex);
 
             if (wasTracked && Config.DebugEnabled(DebugCategory.Entity))
-                Debug.WriteToDebug($"[Entity] - {removed.EntityType} #{entityIndex} owner={DescribeOwner(removed.PlayerIndex)} tracked={trackedEntities.Count}", DebugCategory.Entity);
+                Debug.WriteToDebug($"[Entity] - {removed.EntityType} #{entityIndex} owner={DescribeOwner(removed.OwnerKey)} tracked={trackedEntities.Count}", DebugCategory.Entity);
 
             if (SuppressKills)
                 return false;
@@ -373,6 +404,13 @@ namespace src.utils
                 var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
                 if (entity != null && entity.IsValid)
                 {
+                    if (knownHandles.TryRemove(entityIndex, out var knownRaw) && knownRaw != entity.EntityHandle.Raw)
+                    {
+                        if (Config.DebugEnabled(DebugCategory.Entity))
+                            Debug.WriteToDebug($"[Entity] skip kill #{entityIndex}: index now holds {entity.DesignerName}", DebugCategory.Entity);
+                        return false;
+                    }
+
                     if (hideFromTransmit)
                         recentlyDestroyed[entityIndex] = new DyingEntity(DateTime.UtcNow.AddSeconds(delay + 0.5), entity.EntityHandle.Raw);
                     // Detach first so no follower is left on a freed parent.
@@ -410,13 +448,17 @@ namespace src.utils
                 LogEntityError($"DestroyBeam {entityIndex}: {ex.Message}");
             }
 
+            uint beamRaw = 0;
+            try { beamRaw = Utilities.GetEntityFromIndex<CBeam>((int)entityIndex)?.EntityHandle.Raw ?? 0; }
+            catch { }
+
             bool killed = DestroyEntity(entityIndex, hideFromTransmit: false);
 
-            if (!SuppressKills)
+            if (killed && !SuppressKills)
                 Server.NextFrame(() =>
                 {
                     var leftover = Utilities.GetEntityFromIndex<CBeam>((int)entityIndex);
-                    if (leftover != null && leftover.IsValid)
+                    if (leftover != null && leftover.IsValid && leftover.EntityHandle.Raw == beamRaw)
                         leftover.Remove();
                 });
 
@@ -429,42 +471,38 @@ namespace src.utils
             return DestroyEntity(entityIndex.Value);
         }
 
-        public static void DestroyPlayerEntities(uint playerIndex)
+        public static void DestroyPlayerEntities(uint ownerKey)
         {
             // Children die first (reverse creation order), same frame.
-            var ordered = trackedEntities
-                .Where(kvp => kvp.Value.PlayerIndex == playerIndex)
-                .OrderByDescending(kvp => kvp.Value.CreatedAt)
-                .Select(kvp => kvp.Key)
-                .ToList();
+            if (!byOwner.TryGetValue(ownerKey, out var owned)) return;
 
-            foreach (var entityIndex in ordered)
-                DestroyEntity(entityIndex);
+            for (int i = owned.Count - 1; i >= 0; i--)
+                if (i < owned.Count)
+                    DestroyEntity(owned[i]);
         }
 
         public static void DestroyAllTracked()
         {
             // Stagger between owners; each owner's chain dies child-first in one frame.
             int group = 0;
-            foreach (var owner in trackedEntities.Values.Select(e => e.PlayerIndex).Distinct().ToList())
+            foreach (var owner in byOwner.Keys.ToList())
             {
                 float delay = 0.1f + (group++ % 16) * 0.03f;
-                var ordered = trackedEntities
-                    .Where(kvp => kvp.Value.PlayerIndex == owner)
-                    .OrderByDescending(kvp => kvp.Value.CreatedAt)
-                    .Select(kvp => kvp.Key)
-                    .ToList();
+                if (!byOwner.TryGetValue(owner, out var owned)) continue;
 
-                foreach (var entityIndex in ordered)
-                    DestroyEntity(entityIndex, delay);
+                for (int i = owned.Count - 1; i >= 0; i--)
+                    if (i < owned.Count)
+                        DestroyEntity(owned[i], delay);
             }
 
             trackedEntities.Clear();
+            byOwner.Clear();
         }
 
         public static void Clear()
         {
             DestroyAllTracked();
+            knownHandles.Clear();
         }
 
         public static void ScheduleAutoDestroy(uint entityIndex, float? seconds)

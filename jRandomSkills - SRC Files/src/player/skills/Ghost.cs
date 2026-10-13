@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -12,6 +12,7 @@ namespace src.player.skills
 {
     public class Ghost : ISkill
     {
+        private static readonly List<CCSPlayerController> holderBuffer = [];
         private const Skills skillName = Skills.Ghost;
         private static readonly HashSet<string> alwaysAllowed = new(StringComparer.Ordinal)
         {
@@ -42,7 +43,7 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
 
             if (playerInfo?.Skill != skillName) return;
             SetWeaponAttack(player!, true);
@@ -52,7 +53,7 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (!Instance.IsPlayerValid(player)) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
 
             if (playerInfo?.Skill != skillName) return;
             SetWeaponAttack(player!, true);
@@ -81,14 +82,14 @@ namespace src.player.skills
 
                 foreach (var target in hidden)
                 {
-                    if (target.Index == player.Index) continue;
+                    if (target.Index == player.Key()) continue;
                     if (player.Team == target.Team) continue;
 
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
                     if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    if (info.TransmitEntities.Contains(target.Pawn.Index))
-                        info.TransmitEntities.Remove(target.Pawn.Index);
+                    if (info.TransmitEntities.Contains(target.PawnIndex))
+                        info.TransmitEntities.Remove(target.PawnIndex);
 
                     SkillUtils.HideCarriedEntities(info, target);
 
@@ -107,9 +108,9 @@ namespace src.player.skills
 
             SetWeaponAttack(player, true);
             SkillUtils.SetPlayerInvisibility(player, .5f);
-            invisiblePlayers.TryAdd(player.Index, 0);
+            invisiblePlayers.TryAdd(player.Key(), 0);
 
-            if (EntityManager.GetPlayerEntities(player.Index, "empty_prop").Count == 0)
+            if (EntityManager.GetPlayerEntities(player.Key(), "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
 
             SkillUtils.ForceFullUpdateToAll();
@@ -119,7 +120,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var emptyProp = EntityManager.CreateTrackedDynamicProp(player.Index, trackAs: "empty_prop");
+            var emptyProp = EntityManager.CreateTrackedDynamicProp(player.Key(), trackAs: "empty_prop");
             if (emptyProp == null || !emptyProp.IsValid) return;
 
             var playerPawn = player.PlayerPawn?.Value;
@@ -145,37 +146,26 @@ namespace src.player.skills
             SetWeaponAttack(player, false);
             SkillUtils.SetPlayerInvisibility(player, 0);
 
-            invisiblePlayers.TryRemove(player.Index, out _);
-            EntityManager.DestroyPlayerEntities(player.Index);
+            invisiblePlayers.TryRemove(player.Key(), out _);
+            EntityManager.DestroyPlayerEntities(player.Key());
         }
 
         public static void OnTick()
         {
             if (Server.TickCount % 2 != 0) return;
 
-            foreach (var player in PlayerManager.GetTickPlayers())
+            if (SkillUtils.IsHudFrame())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName && SkillUtils.IsHudFrame())
-                    UpdateHUD(player);
+                PlayerManager.FillSkillHolders(skillName, holderBuffer);
+                foreach (var holder in holderBuffer)
+                    UpdateHUD(holder);
+            }
 
-                if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                    invisiblePlayers.TryRemove(player.Index, out _);
-
-                if (!invisiblePlayers.ContainsKey(player.Index)) continue;
-
-                var props = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
-                if (props.Count == 0) continue;
-
-                var prop = Utilities.GetEntityFromIndex<CDynamicProp>((int)props[0]);
-                if (prop == null || !prop.IsValid) continue;
-
-                var pawn = player.PlayerPawn?.Value;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
-
-                Vector newPos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + 30);
-                QAngle newAngle = new(0, pawn.V_angle.Y, 0);
-                prop.Teleport(newPos, newAngle, null);
+            foreach (var key in invisiblePlayers.Keys)
+            {
+                var player = PlayerManager.GetController(key);
+                if (player != null)
+                    SkillUtils.FollowEmptyProp(key, player.PlayerPawn?.Value);
             }
         }
 
@@ -183,12 +173,12 @@ namespace src.player.skills
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
-            if (!invisiblePlayers.ContainsKey(player.Index)) return;
+            if (!invisiblePlayers.ContainsKey(player.Key())) return;
 
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null) return;
 
-            var particle = EntityManager.CreateTrackedParticleSystem(player.Index, bloodParticle, autoDestroySeconds: 3f);
+            var particle = EntityManager.CreateTrackedParticleSystem(player.Key(), bloodParticle, autoDestroySeconds: 3f);
             if (particle == null) return;
 
             Vector pos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 50);
@@ -223,7 +213,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.WeaponServices == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             var weapon = pawn.WeaponServices.ActiveWeapon.Value;

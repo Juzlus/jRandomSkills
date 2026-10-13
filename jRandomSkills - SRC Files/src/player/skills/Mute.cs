@@ -26,7 +26,7 @@ namespace src.player.skills
                 var pawn = grenade.OwnerEntity.Value.As<CCSPlayerPawn>();
                 var player = pawn.Controller.Value.As<CCSPlayerController>();
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) return;
 
                 Server.NextFrame(() => {

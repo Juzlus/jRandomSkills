@@ -30,10 +30,10 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
                 {
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                     {
                         if (skillInfo.LastClick.AddSeconds(4) >= DateTime.Now)
                             UpdateHUD(player, skillInfo, true);
@@ -49,9 +49,9 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             var cooldownBeforeUse = SkillsInfo.GetValue<float>(skillName, "cooldownBeforeUse");
-            SkillPlayerInfo.TryAdd(player.Index, new ZamianaMiejsc_PlayerInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new ZamianaMiejsc_PlayerInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = false,
                 Cooldown = cooldownBeforeUse <= 0 ? DateTime.MinValue : Event.GetFreezeTimeEnd().AddSeconds(cooldownBeforeUse - SkillsInfo.GetValue<float>(skillName, "cooldown")),
                 LastClick = DateTime.MinValue,
@@ -62,7 +62,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -80,7 +80,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -101,9 +101,9 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
-                List<CCSPlayerController> enemy = PlayerManager.GetTickPlayers().FindAll(p => Instance.IsPlayerValid(p) && p.Team != player.Team && p.PawnIsAlive);
+                List<CCSPlayerController> enemy = PlayerManager.GetTickPlayers().FindAll(p => Instance.IsPlayerValid(p) && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist && p.Team != player.Team);
                 if (enemy.Count == 0)
                 {
                     skillInfo.FindedEnemy = false;
@@ -112,7 +112,7 @@ namespace src.player.skills
                 }
 
                 CCSPlayerController randomEnemy = enemy[Instance.Random.Next(0, enemy.Count)];
-                if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || !randomEnemy.IsValid || !randomEnemy.PawnIsAlive) return;
+                if (!Instance.IsPlayerValid(player)) return;
                 if (skillInfo.CanUse)
                 {
                     skillInfo.FindedEnemy = true;
@@ -145,6 +145,8 @@ namespace src.player.skills
 
             victimPawn.Look(attackerAngles);
             attackerPawn.Look(victimAngles);
+
+            Debug.WriteToDebug($"SwapPosition: {attacker.PlayerName} {attackerPosition} <-> {victim.PlayerName} {victimPosition}", DebugCategory.Skill);
         }
 
         public class ZamianaMiejsc_PlayerInfo

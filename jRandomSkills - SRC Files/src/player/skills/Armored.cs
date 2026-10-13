@@ -20,7 +20,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             float newScale = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
@@ -44,7 +44,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index));
+            var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (playerInfo == null) return;
 
             if (playerInfo.Skill == skillName && victim.PawnIsAlive)

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -40,7 +40,7 @@ namespace src.player.skills
             {
                 foreach (var player in PlayerManager.GetTickPlayers())
                 {
-                    if (playersInDark.ContainsKey(player.Index))
+                    if (playersInDark.ContainsKey(player.Key()))
                         DisableSkill(player);
                     SkillUtils.CloseMenu(player);
                 }
@@ -54,14 +54,14 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Key().ToString()))];
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -69,7 +69,7 @@ namespace src.player.skills
         public static void TypeSkill(CCSPlayerController player, string[] commands)
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -89,7 +89,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
 
             if (enemy == null)
             {
@@ -98,7 +98,7 @@ namespace src.player.skills
             }
 
             SetUpPostProcessing(enemy);
-            playersToTarget[player.Index] = enemy.Index;
+            playersToTarget[player.Key()] = enemy.Key();
             playerInfo.SkillUsed = true;
 
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
@@ -116,14 +116,14 @@ namespace src.player.skills
             var player = @event.Userid;
             if (player == null || !player.IsValid) return;
 
-            if (!playersInDark.ContainsKey(bot.Index)) return;
+            if (!playersInDark.ContainsKey(bot.Key())) return;
 
             ApplyColor(player);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -133,7 +133,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Index.ToString()))];
+                ConcurrentBag<(string, string)> menuItems = [.. enemies.Select(e => (e.PlayerName, e.Key().ToString()))];
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -144,9 +144,9 @@ namespace src.player.skills
         {
             lock (setLock)
             {
-                if (playersToTarget.TryRemove(player.Index, out uint targetIndex))
+                if (playersToTarget.TryRemove(player.Key(), out uint targetIndex))
                 {
-                    var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)targetIndex));
+                    var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(targetIndex));
                     if (target != null && target.IsValid)
                     {
                         SetUpPostProcessing(target, true);
@@ -166,7 +166,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             SetUpPostProcessing(player, true);
-            playersInDark.TryRemove(player.Index, out _);
+            playersInDark.TryRemove(player.Key(), out _);
             SkillUtils.CloseMenu(player);
         }
 
@@ -174,7 +174,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             player = PlayerManager.GetPlayerFromEvent(player);
 
             lock (setLock)
@@ -193,7 +193,7 @@ namespace src.player.skills
                             return;
                         }
 
-                        var target = PlayerManager.GetPlayerFromEvent(Utilities.GetPlayerFromIndex((int)playerIndex));
+                        var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(playerIndex));
                         if (target == null || !target.IsValid)
                         {
                             darkTimer?.Kill();

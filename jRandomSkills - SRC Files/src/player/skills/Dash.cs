@@ -27,7 +27,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
                 Username = player.PlayerName,
                 CanUse = true,
@@ -40,7 +40,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -56,7 +56,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -74,10 +74,10 @@ namespace src.player.skills
                 if (player == null || !player.IsValid) return;
 
                 var eventPlayer = PlayerManager.GetPlayerEvent(player);
-                var playerInfo = PlayerManager.GetPlayerByIndex(eventPlayer!.Index);
+                var playerInfo = PlayerManager.GetPlayer(eventPlayer);
 
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(eventPlayer!.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(eventPlayer!.Key(), out var skillInfo))
                     {
                         if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
                         HandleDash(player, skillInfo);

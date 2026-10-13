@@ -22,7 +22,7 @@ namespace src.player.skills
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (!Instance.IsPlayerValid(attacker)) return;
 
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
             if (attackerInfo?.Skill != skillName) return;
 
             var pawn = attacker!.PlayerPawn.Value;

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -37,9 +37,9 @@ namespace src.player.skills
             if (!SkillUtils.IsHudFrame()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
@@ -47,9 +47,9 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             skillInThisRound = true;
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -57,7 +57,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -73,7 +73,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)
@@ -87,7 +87,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+            if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
             {
                 if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
@@ -103,14 +103,14 @@ namespace src.player.skills
         private static void CreateBox(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            var box = EntityManager.CreateTrackedPropOverride(player.Index);
+            var box = EntityManager.CreateTrackedPropOverride(player.Key());
             if (box == null || playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return;
 
             float distance = 50;
             Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
             QAngle angle = new(playerPawn.AbsRotation.X, playerPawn.V_angle.Y + 90, playerPawn.AbsRotation.Z);
 
-            box.Entity!.Name = box.Globalname = $"FortniteWall_{Server.TickCount}";
+            box.Entity!.Name = $"FortniteWall_{Server.TickCount}";
             box.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             box.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(box.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             box.Health = box.MaxHealth = 1_000_000;

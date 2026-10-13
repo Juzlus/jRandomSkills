@@ -27,7 +27,7 @@ namespace src.player.skills
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
 
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
@@ -37,11 +37,11 @@ namespace src.player.skills
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+                    var enemyInfo = PlayerManager.GetPlayer(enemy);
                     if (enemyInfo == null) continue;
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
-                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy.PlayerName}\u202C : {player.GetSkillName(skillData.Skill)}", enemy.Key().ToString()));
                 }
                 SkillUtils.UpdateMenu(player, menuItems);
             }
@@ -51,7 +51,7 @@ namespace src.player.skills
         {
             if (player == null) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerPawn = player.PlayerPawn.Value;
@@ -69,7 +69,7 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
 
             if (enemy == null)
             {
@@ -91,13 +91,13 @@ namespace src.player.skills
                 ConcurrentBag<(string, string)> menuItems = [];
                 foreach (var enemy in enemies)
                 {
-                    var enemyInfo = PlayerManager.GetPlayerByIndex(enemy?.Index);
+                    var enemyInfo = PlayerManager.GetPlayer(enemy);
                     if (enemyInfo == null) continue;
 
                     var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == enemyInfo.Skill);
                     if (skillData == null) continue;
 
-                    menuItems.Add(($"\u202A{enemy!.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Index.ToString()));
+                    menuItems.Add(($"\u202A{enemy!.PlayerName}\u202C : {playerEvent.GetSkillName(skillData.Skill)}", enemy.Key().ToString()));
                 }
                 SkillUtils.CreateMenu(player, menuItems);
             }
@@ -107,7 +107,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SpecialSkill = Skills.None;
             SkillUtils.CloseMenu(player);
@@ -115,8 +115,8 @@ namespace src.player.skills
 
         private static void DeacitvateSkill(CCSPlayerController player, CCSPlayerController enemy)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-            var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
+            var enemyInfo = PlayerManager.GetPlayer(enemy);
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
             if (playerEvent == null || !playerEvent.IsValid) return;

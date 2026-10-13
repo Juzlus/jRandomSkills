@@ -28,9 +28,9 @@ namespace src.player.skills
             if (!SkillUtils.IsHudFrame()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill == skillName)
-                    if (SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                    if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                         UpdateHUD(player, skillInfo);
             }
         }
@@ -43,9 +43,9 @@ namespace src.player.skills
             var victimEvent = PlayerManager.GetPlayerEvent(victim);
             if (victimEvent == null || !victimEvent.IsValid) return false;
 
-            if (PlayerManager.GetPlayerByIndex(victimEvent.Index)?.Skill != skillName) return false;
+            if (PlayerManager.GetPlayer(victimEvent)?.Skill != skillName) return false;
 
-            if (!SkillPlayerInfo.TryGetValue(victimEvent.Index, out var skillInfo) || !skillInfo.CanUse) return false;
+            if (!SkillPlayerInfo.TryGetValue(victimEvent.Key(), out var skillInfo) || !skillInfo.CanUse) return false;
 
             skillInfo.CanUse = false;
             skillInfo.Cooldown = DateTime.Now;
@@ -55,9 +55,9 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -65,7 +65,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -81,7 +81,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown == 0)

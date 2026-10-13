@@ -35,19 +35,19 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (SkillPlayerInfo.IsEmpty) return;
+            if (SkillPlayerInfo.IsEmpty || !SkillUtils.IsHudFrame()) return;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) continue;
 
-                if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
+                if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) continue;
 
                 GetTeamate(player, skillInfo);
-                if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
+                UpdateHUD(player, skillInfo);
             }
         }
 
@@ -55,9 +55,9 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
                 TeamateName = null,
@@ -71,7 +71,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null) return;
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -82,19 +82,20 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn?.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.Health <= 0) return;
 
-            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) return;
             if (!skillInfo.CanUse) return;
 
             skillInfo.NoEnemy = int.MinValue;
             skillInfo.NoSpace = int.MinValue;
 
+            GetTeamate(player, skillInfo);
             if (skillInfo.TeamateIndex == null || skillInfo.TeamatePosition == null)
             {
                 skillInfo.NoEnemy = Server.TickCount + (64 * 2);
                 return;
             }
 
-            var victim = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Index == skillInfo.TeamateIndex.Value);
+            var victim = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Key() == skillInfo.TeamateIndex.Value);
             if (victim == null || !victim.IsValid)
             {
                 skillInfo.NoEnemy = Server.TickCount + (64 * 2);
@@ -120,39 +121,40 @@ namespace src.player.skills
             skillInfo.TeamateName = null;
             skillInfo.TeamatePosition = null;
 
-            foreach (var teammate in PlayerManager.GetTickPlayers())
+            uint playerKey = player.Key();
+            var playerTeam = player.Team;
+            int found = -1;
+            var alive = PlayerManager.GetAliveSnapshot();
+
+            for (int i = 0; i < alive.Count; i++)
             {
-                if (teammate == null || !teammate.IsValid || teammate.Index == player.Index || teammate.Team != player.Team)
+                var teammate = alive[i];
+                if (teammate.Key == playerKey || teammate.Team != playerTeam)
                     continue;
 
-                var teammatePawn = teammate.PlayerPawn?.Value;
-                if (teammatePawn == null || !teammatePawn.IsValid || teammatePawn.Health <= 0 || teammatePawn.AbsOrigin == null)
-                    continue;
+                float tx = teammate.X - eyePos.X;
+                float ty = teammate.Y - eyePos.Y;
+                float tz = teammate.Z + (teammate.ViewZ * 0.5f) - eyePos.Z;
 
-                Vector targetPos = new(teammatePawn.AbsOrigin.X, teammatePawn.AbsOrigin.Y, teammatePawn.AbsOrigin.Z + (teammatePawn.ViewOffset.Z * 0.5f));
-                Vector toTarget = new(targetPos.X - eyePos.X, targetPos.Y - eyePos.Y, targetPos.Z - eyePos.Z);
-
-                float distanceSq = toTarget.X * toTarget.X + toTarget.Y * toTarget.Y + toTarget.Z * toTarget.Z;
+                float distanceSq = tx * tx + ty * ty + tz * tz;
                 if (distanceSq <= 0.0001f)
                     continue;
 
                 float distance = MathF.Sqrt(distanceSq);
-
-                float invLength = 1.0f / distance;
-
-                toTarget.X *= invLength;
-                toTarget.Y *= invLength;
-                toTarget.Z *= invLength;
-
-                float dot = playerForward.X * toTarget.X + playerForward.Y * toTarget.Y + playerForward.Z * toTarget.Z;
+                float dot = (playerForward.X * tx + playerForward.Y * ty + playerForward.Z * tz) / distance;
 
                 if (distance > 30.0f && dot < minDot)
                     continue;
 
-                skillInfo.TeamateIndex = teammate.Index;
-                skillInfo.TeamateName = teammate.PlayerName;
-                skillInfo.TeamatePosition = new Vector(teammatePawn.AbsOrigin.X, teammatePawn.AbsOrigin.Y, teammatePawn.AbsOrigin.Z);
+                found = i;
             }
+
+            if (found < 0) return;
+
+            var match = alive[found];
+            skillInfo.TeamateIndex = match.Key;
+            skillInfo.TeamateName = match.Controller.PlayerName;
+            skillInfo.TeamatePosition = new Vector(match.X, match.Y, match.Z);
         }
 
         private unsafe static bool CheckTeleport(CCSPlayerController attacker, CCSPlayerController victim, Vector startPos, Vector endPos, QAngle angle)
@@ -228,7 +230,7 @@ namespace src.player.skills
             if (cooldown == 0 && !skillInfo.CanUse)
                 skillInfo.CanUse = true;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             if (cooldown != 0)

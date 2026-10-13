@@ -38,6 +38,11 @@ namespace src.player.skills
             playersInAction.Clear();
         }
 
+        public static void PlayerDisconnect(uint playerKey)
+        {
+            activeTrails.TryRemove(playerKey, out _);
+        }
+
         private static readonly List<(CsTeam OwnerTeam, uint RelayEntityIndex)> transmitTrails = [];
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
@@ -49,7 +54,7 @@ namespace src.player.skills
             {
                 if (relayIndex == null) continue;
 
-                var trailOwner = Utilities.GetPlayerFromIndex((int)trackedPlayerIndex);
+                var trailOwner = PlayerManager.GetController(trackedPlayerIndex);
                 if (trailOwner == null || !trailOwner.IsValid) continue;
 
                 var relayEntity = Utilities.GetEntityFromIndex<CBaseEntity>((int)relayIndex);
@@ -64,7 +69,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
+                var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
                 bool isJackalOwner = playerInfo?.Skill == skillName;
 
                 if (!isJackalOwner)
@@ -76,7 +81,7 @@ namespace src.player.skills
                             .FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
                         if (observed != null && observed.IsValid)
                         {
-                            var observedInfo = PlayerManager.GetPlayerByIndex(observed.Index);
+                            var observedInfo = PlayerManager.GetPlayer(observed);
                             if (observedInfo?.Skill == skillName)
                                 isJackalOwner = true;
                         }
@@ -101,19 +106,19 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null
                 || playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || playerPawn.Health <= 0) return; ;
 
-            foreach (var old in EntityManager.GetPlayerEntities(player.Index, "prop_physics_multiplayer"))
+            foreach (var old in EntityManager.GetPlayerEntities(player.Key(), "prop_physics_multiplayer"))
                 EntityManager.DestroyEntity(old);
-            foreach (var old in EntityManager.GetPlayerEntities(player.Index, "particle_system"))
+            foreach (var old in EntityManager.GetPlayerEntities(player.Key(), "particle_system"))
                 EntityManager.DestroyEntity(old);
 
-            var relay = EntityManager.CreateTrackedPhysicsProp(player.Index);
+            var relay = EntityManager.CreateTrackedPhysicsProp(player.Key());
             if (relay == null || !relay.IsValid) return;
 
             // Register before parenting so the trail is filtered from its first snapshot.
-            activeTrails[player.Index] = relay.Index;
+            activeTrails[player.Key()] = relay.Index;
 
             CBaseEntity target = playerPawn;
-            var entities = EntityManager.GetPlayerEntities(player.Index, "empty_prop");
+            var entities = EntityManager.GetPlayerEntities(player.Key(), "empty_prop");
 
             if (entities.Count > 0)
             {
@@ -125,7 +130,7 @@ namespace src.player.skills
             relay.AcceptInput("SetParent", target, relay, "!activator");
 
             var particle = EntityManager.CreateTrackedParticleSystem(
-                player.Index,
+                player.Key(),
                 SkillsInfo.GetValue<string>(skillName, "particleName"));
 
             if (particle != null && particle.IsValid && target.AbsOrigin != null)
@@ -144,7 +149,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             Event.EnableTransmit();
-            playersInAction.TryAdd(player.Index, 0);
+            playersInAction.TryAdd(player.Key(), 0);
 
             mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
                     CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -161,7 +166,7 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
 
             playersInAction.TryRemove(playerIndex, out _);
             EntityManager.DestroyPlayerEntities(playerIndex);

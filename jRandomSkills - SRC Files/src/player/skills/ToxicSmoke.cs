@@ -36,10 +36,10 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), player.Index);
+            smokes.TryAdd(new Vector(@event.X, @event.Y, @event.Z), player.Key());
         }
 
         public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
@@ -65,7 +65,7 @@ namespace src.player.skills
             var player = pawn.Controller.Value.As<CCSPlayerController>();
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
+            var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
             if (playerInfo?.Skill != skillName) return;
 
             Server.NextFrame(() =>
@@ -88,7 +88,7 @@ namespace src.player.skills
 
             foreach (var smoke in smokes)
             {
-                var thrower = Utilities.GetPlayerFromIndex((int)smoke.Value);
+                var thrower = PlayerManager.GetController(smoke.Value);
                 if (thrower != null && !thrower.IsValid) thrower = null;
 
                 foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
@@ -102,7 +102,7 @@ namespace src.player.skills
                     if (SkillUtils.GetDistance(smoke.Key, pawn.AbsOrigin) > smokeRadius) continue;
 
                     int damage = smokeDamage;
-                    if (thrower != null && eventPlayer.Index != thrower.Index && pawn.TeamNum == thrower.TeamNum)
+                    if (thrower != null && eventPlayer.Key() != thrower.Key() && pawn.TeamNum == thrower.TeamNum)
                     {
                         if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire")) continue;
 
@@ -124,12 +124,12 @@ namespace src.player.skills
             var weapon = @event.Weapon;
             if (weapon != "smokegrenade") return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
-                playersWithSkill[player.Index] = grenadesLeft - 1;
+                playersWithSkill[player.Key()] = grenadesLeft - 1;
                 player!.GiveNamedItem($"weapon_{weapon}");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft - 1);
             }
@@ -141,7 +141,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
         }
 
@@ -153,7 +153,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "smokegrenade") return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
         }
 
@@ -162,7 +162,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill.TryAdd(player.Index, grenadeLimit);
+            playersWithSkill.TryAdd(player.Key(), grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
@@ -172,8 +172,8 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            playersWithSkill.TryRemove(player.Index, out _);
-            RemoveOwnerSmokes(player.Index);
+            playersWithSkill.TryRemove(player.Key(), out _);
+            RemoveOwnerSmokes(player.Key());
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
         }
 

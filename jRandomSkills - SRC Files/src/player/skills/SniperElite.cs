@@ -38,12 +38,22 @@ namespace src.player.skills
             }
         }
 
+        public static void PlayerDisconnect(uint playerKey)
+        {
+            if (playerAWPIndexes.TryRemove(playerKey, out var AWPs))
+                foreach (var index in AWPs.ToList())
+                    SkillUtils.SafeKillEntity<CBasePlayerWeapon>(index);
+
+            savedWeapons.TryRemove(playerKey, out _);
+            isProcessing.TryRemove(playerKey, out _);
+        }
+
         public static void PlayerDeath(EventPlayerDeath @event)
         {
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill == skillName)
                 DisableSkill(player);
         }
@@ -53,29 +63,29 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill == skillName)
             {
                 if (rifles.Contains(@event.Item) && @event.Item != weapon_awp)
-                    savedWeapons.AddOrUpdate(player.Index, string.Empty, (_, _) => string.Empty);
+                    savedWeapons.AddOrUpdate(player.Key(), string.Empty, (_, _) => string.Empty);
                 DeleteDroppedAWP(player);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            savedWeapons.TryAdd(player.Index, string.Empty);
+            savedWeapons.TryAdd(player.Key(), string.Empty);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             player.ExecuteClientCommand("slot3");
 
-            if (playerAWPIndexes.TryGetValue(player.Index, out var AWPs))
+            if (playerAWPIndexes.TryGetValue(player.Key(), out var AWPs))
                 foreach (var index in AWPs.ToList())
                     SkillUtils.SafeKillEntity<CBasePlayerWeapon>(index);
 
-            if (!SkillUtils.IsPistolRound() && savedWeapons.TryGetValue(player.Index, out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))
+            if (!SkillUtils.IsPistolRound() && savedWeapons.TryGetValue(player.Key(), out string? savedWeapon) && !string.IsNullOrWhiteSpace(savedWeapon))
                 Server.NextFrame(() =>
                 {
                     if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
@@ -94,21 +104,21 @@ namespace src.player.skills
                     player.ExecuteClientCommand("lastinv");
             });
 
-            savedWeapons.TryRemove(player.Index, out _);
-            playerAWPIndexes.TryRemove(player.Index, out _);
-            isProcessing.TryRemove(player.Index, out _);
+            savedWeapons.TryRemove(player.Key(), out _);
+            playerAWPIndexes.TryRemove(player.Key(), out _);
+            isProcessing.TryRemove(player.Key(), out _);
         }
 
         public static void UseSkill(CCSPlayerController player)
         {
-            if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || isProcessing.ContainsKey(player.Index)) return;
-            if (savedWeapons.ContainsKey(player.Index))
+            if (player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || isProcessing.ContainsKey(player.Key())) return;
+            if (savedWeapons.ContainsKey(player.Key()))
                 RemoveAndGiveWeapon(player);
         }
 
         private static void RemoveAndGiveWeapon(CCSPlayerController player)
         {
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             try
             {
                 if (!isProcessing.TryAdd(playerIndex, 0)) return;
@@ -158,8 +168,14 @@ namespace src.player.skills
 
                 Instance.AddTimer(.15f, () =>
                 {
-                    var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                    var player = PlayerManager.GetController(playerIndex);
                     if (player == null || !player.IsValid) return;
+
+                    if (PlayerManager.GetPlayerByKey(playerIndex)?.Skill != skillName)
+                    {
+                        isProcessing.TryRemove(playerIndex, out _);
+                        return;
+                    }
 
                     if (player != null && player.IsValid && player.PlayerPawn != null && player.PlayerPawn.Value != null && player.PlayerPawn.Value.IsValid)
                     {
@@ -206,7 +222,7 @@ namespace src.player.skills
 
             lock (setLock)
             {
-                if (playerAWPIndexes.TryGetValue(player.Index, out var AWPs))
+                if (playerAWPIndexes.TryGetValue(player.Key(), out var AWPs))
                     foreach (var index in AWPs.ToList())
                         if (!myWeaponsIndexes.Contains(index))
                         {

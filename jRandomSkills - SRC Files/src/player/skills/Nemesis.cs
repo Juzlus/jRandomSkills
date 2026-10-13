@@ -41,7 +41,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -51,7 +51,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -62,7 +62,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            if (ownerToTarget.TryRemove(player.Index, out uint targetIndex))
+            if (ownerToTarget.TryRemove(player.Key(), out uint targetIndex))
                 markedPlayers.TryRemove(targetIndex, out _);
 
             SkillUtils.CloseMenu(player);
@@ -74,13 +74,13 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -89,7 +89,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -107,15 +107,15 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
             if (enemy == null || !enemy.IsValid)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
                 return;
             }
 
-            markedPlayers[enemy.Index] = 0;
-            ownerToTarget[player.Index] = enemy.Index;
+            markedPlayers[enemy.Key()] = 0;
+            ownerToTarget[player.Key()] = enemy.Key();
             playerInfo.SkillUsed = true;
 
             playerEvent.PrintToChat($" {ChatColors.Green}{playerEvent.GetTranslation("nemesis_player_info", enemy.PlayerName)}");
@@ -140,7 +140,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid) return;
 
-            uint victimIndex = PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index;
+            uint victimIndex = PlayerManager.GetPlayerEvent(victim)?.Key() ?? victim.Key();
             if (!markedPlayers.ContainsKey(victimIndex)) return;
 
             if (SkillUtils.IsFriendlyFireBlocked(skillName, damageInfo, victimPawn)) return;

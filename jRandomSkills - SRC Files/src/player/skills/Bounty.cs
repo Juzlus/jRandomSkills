@@ -39,7 +39,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
@@ -49,7 +49,7 @@ namespace src.player.skills
             var enemies = SkillUtils.GetSelectableEnemies(player, true);
             if (enemies.Length > 0)
             {
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.CreateMenu(player, menuItems);
             }
             else
@@ -60,7 +60,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            if (ownerToTarget.TryRemove(player.Index, out uint targetIndex))
+            if (ownerToTarget.TryRemove(player.Key(), out uint targetIndex))
                 bountyTargets.TryRemove(targetIndex, out _);
 
             SkillUtils.CloseMenu(player);
@@ -72,13 +72,13 @@ namespace src.player.skills
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo == null || playerInfo.Skill != skillName) continue;
                 if (!SkillUtils.HasMenu(player)) continue;
 
                 var enemies = SkillUtils.GetSelectableEnemies(player, true);
 
-                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Index.ToString())));
+                ConcurrentBag<(string, string)> menuItems = new(enemies.Select(e => (e.PlayerName, e.Key().ToString())));
                 SkillUtils.UpdateMenu(player, menuItems);
             }
         }
@@ -87,7 +87,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);
@@ -105,15 +105,15 @@ namespace src.player.skills
                 return;
             }
 
-            var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
+            var enemy = PlayerManager.GetController(enemyIndex);
             if (enemy == null || !enemy.IsValid)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
                 return;
             }
 
-            bountyTargets[enemy.Index] = 0;
-            ownerToTarget[player.Index] = enemy.Index;
+            bountyTargets[enemy.Key()] = 0;
+            ownerToTarget[player.Key()] = enemy.Key();
             playerInfo.SkillUsed = true;
 
             int reward = SkillsInfo.GetValue<int>(skillName, "reward");
@@ -132,15 +132,15 @@ namespace src.player.skills
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);
             if (victim == null || !victim.IsValid) return;
 
-            if (!bountyTargets.TryRemove(victim.Index, out _)) return;
+            if (!bountyTargets.TryRemove(victim.Key(), out _)) return;
 
             foreach (var kvp in ownerToTarget)
-                if (kvp.Value == victim.Index)
+                if (kvp.Value == victim.Key())
                     ownerToTarget.TryRemove(kvp.Key, out _);
 
             var killer = PlayerManager.GetPlayerEvent(@event.Attacker);
             if (killer == null || !killer.IsValid) return;
-            if (killer.Index == victim.Index) return;
+            if (killer.Key() == victim.Key()) return;
             if (killer.Team == victim.Team) return;
 
             int reward = SkillsInfo.GetValue<int>(skillName, "reward");

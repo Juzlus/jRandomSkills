@@ -22,7 +22,7 @@ namespace src.player.skills
 
             if (!Instance.IsPlayerValid(attacker) || !Instance.IsPlayerValid(victim) || attacker == victim) return;
             if (!SkillUtils.FiresBullets(@event.Weapon)) return;
-            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
+            var attackerInfo = PlayerManager.GetPlayer(attacker);
 
             if (Heavyweight.Resists(victim)) return;
 
@@ -38,7 +38,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "chanceTo") - SkillsInfo.GetValue<float>(skillName, "chanceFrom")) + SkillsInfo.GetValue<float>(skillName, "chanceFrom");
             playerInfo.SkillChance = newChance;

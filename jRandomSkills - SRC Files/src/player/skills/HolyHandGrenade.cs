@@ -33,7 +33,7 @@ namespace src.player.skills
                 if (playerPawn == null || !playerPawn.IsValid) return;
 
                 var player = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.PlayerPawn.Index == playerPawn.Index);
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                var playerInfo = PlayerManager.GetPlayer(player);
                 if (playerInfo?.Skill != skillName) return;
 
                 hegrenade.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");
@@ -49,12 +49,12 @@ namespace src.player.skills
             var weapon = @event.Weapon;
             if (weapon != "hegrenade") return;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
-                playersWithSkill[player.Index] = grenadesLeft - 1;
+                playersWithSkill[player.Key()] = grenadesLeft - 1;
                 player!.GiveNamedItem($"weapon_{weapon}");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft - 1);
             }
@@ -66,7 +66,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft);
         }
 
@@ -78,7 +78,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "hegrenade") return;
 
-            if (playersWithSkill.TryGetValue(player.Index, out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
                 SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft);
         }
 
@@ -87,7 +87,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill.TryAdd(player.Index, grenadeLimit);
+            playersWithSkill.TryAdd(player.Key(), grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadeLimit);
@@ -97,7 +97,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            playersWithSkill.TryRemove(player.Index, out _);
+            playersWithSkill.TryRemove(player.Key(), out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
         }
 

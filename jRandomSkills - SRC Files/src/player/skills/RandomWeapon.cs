@@ -33,17 +33,17 @@ namespace src.player.skills
             var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
             {
-                var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
-                if (playerInfo?.Skill == skillName && SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
+                var playerInfo = PlayerManager.GetPlayer(player);
+                if (playerInfo?.Skill == skillName && SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                     UpdateHUD(player, skillInfo);
             }
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
+            SkillPlayerInfo.TryAdd(player.Key(), new PlayerSkillInfo
             {
-                SteamID = player.Index,
+                SteamID = player.Key(),
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
             });
@@ -51,7 +51,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
-            SkillPlayerInfo.TryRemove(player.Index, out _);
+            SkillPlayerInfo.TryRemove(player.Key(), out _);
             SkillUtils.ResetPrintHTML(player);
         }
 
@@ -67,7 +67,7 @@ namespace src.player.skills
                     skillInfo.CanUse = true;
             }
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
             playerInfo.PrintHTML = cooldown == 0
@@ -80,7 +80,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn?.CBodyComponent == null) return;
 
-            if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) return;
+            if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) return;
             if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             if (!skillInfo.CanUse)
@@ -152,10 +152,10 @@ namespace src.player.skills
                 }
             }
 
-            uint playerIndex = player.Index;
+            uint playerIndex = player.Key();
             Instance.AddTimer(.1f, () =>
             {
-                var pl = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var pl = PlayerManager.GetController(playerIndex);
                 if (pl == null || !pl.IsValid) return;
                 pl.GiveNamedItem(newWeapon);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);

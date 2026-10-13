@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -21,13 +21,13 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            zombies.TryRemove(player.Index, out _);
+            zombies.TryRemove(player.Key(), out _);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            zombies.TryRemove(player.Index, out _);
+            zombies.TryRemove(player.Key(), out _);
             SetPlayerColor(player.PlayerPawn.Value, true);
             ResetHealth(player);
         }
@@ -50,7 +50,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (!zombies.ContainsKey(player.Index) || weapon == "c4" || weapon.Contains("knife") || weapon.Contains("bayonet"))
+            if (!zombies.ContainsKey(player.Key()) || weapon == "c4" || weapon.Contains("knife") || weapon.Contains("bayonet"))
                 return;
 
             player.ExecuteClientCommand("slot3");
@@ -60,7 +60,7 @@ namespace src.player.skills
         {
             foreach (var playerIndex in zombies.Keys)
             {
-                var player = Utilities.GetPlayerFromIndex((int)playerIndex);
+                var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
                 DisableSkill(player);
@@ -81,7 +81,7 @@ namespace src.player.skills
             var victim = victimController.As<CCSPlayerController>();
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            var victimInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             // Friendly-fire-off teammate hit deals 0 damage; don't zombify over a hit that never lands.
@@ -98,15 +98,15 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || !victim.PawnIsAlive) return false;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
-            var victimInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(victim)?.Index ?? victim.Index);
+            var victimInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (victimInfo == null || victimInfo.Skill != skillName) return false;
 
             lock (setLock)
             {
-                if (zombies.ContainsKey(victim.Index)) return false;
+                if (zombies.ContainsKey(victim.Key())) return false;
                 if (victim.TeamChanged) return false;
 
-                zombies[victim.Index] = Server.TickCount;
+                zombies[victim.Key()] = Server.TickCount;
 
                 int zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
                 DropAllBotWeapons(victim);
@@ -163,13 +163,13 @@ namespace src.player.skills
             string weaponName = vdata.Name;
             if (string.IsNullOrEmpty(weaponName)) return false;
 
-            if (!zombies.ContainsKey(player.Index))
+            if (!zombies.ContainsKey(player.Key()))
                 return false;
 
             if (weaponName.Contains("knife") || weaponName.Contains("bayonet"))
                 return false;
 
-            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo?.Skill != skillName) return false;
 
             hook.SetReturn(AcquireResult.InvalidItem);
