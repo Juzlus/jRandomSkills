@@ -92,7 +92,7 @@ namespace src.player.skills
 
             if (uint.TryParse(option, out uint enemyIndex))
             {
-                var enemy = Utilities.GetEntityFromIndex<CCSPlayerController>((int)enemyIndex);
+                var enemy = PlayerManager.GetController(enemyIndex);
                 if (enemy != null && enemy.IsValid && enemy.PlayerPawn?.Value?.Health > 0 && enemy.Team != player.Team)
                 {
                     ResetMoney(enemy);

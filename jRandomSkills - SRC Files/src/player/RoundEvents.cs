@@ -141,7 +141,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                if (setSkillRanThisRound || IsWarmupPeriod() || DateTime.Now < setSkillDueAt.AddSeconds(.5))
+                if (setSkillRanThisRound || IsWarmupPeriod() || setSkillDueAt == DateTime.MaxValue || DateTime.Now < setSkillDueAt.AddSeconds(.5))
                     return HookResult.Continue;
 
                 Debug.WriteToDebug($"SetSkill did not run before freeze end (timer={(setSkillTimer == null ? "null" : "pending")}, due {(DateTime.Now - setSkillDueAt).TotalSeconds:F2}s ago, retries={setSkillRetries}); running now.", DebugCategory.Skill);
