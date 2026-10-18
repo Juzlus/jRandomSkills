@@ -421,6 +421,15 @@ This plugin uses content from the following projects:
 ## 📋 Changelog
 
 <details>
+<summary><b>v1.2.4.b5</b></summary>
+
+- #### General:
+    - ###### Updated CounterStrikeSharp to the latest version (1.0.376).
+    - ###### Updated MaxMind.Db to the latest version (5.2.0).
+    
+</details>
+
+<details>
 <summary><b>v1.2.4.b4</b></summary>
 
 - #### General

@@ -421,6 +421,15 @@ Plugin korzysta z zawartości następujących projektów:
 ## 📋 Lista Zmian
 
 <details>
+<summary><b>v1.2.4.b5</b></summary>
+
+- #### General:
+    - ###### Zaktualizowano CounterStrikeSharp do najnowszej wersji (1.0.376).
+    - ###### Zaktualizowano MaxMind.Db do najnowszej wersji (5.2.0).
+
+</details>
+
+<details>
 <summary><b>v1.2.4.b4</b></summary>
 
 - #### Ogólne

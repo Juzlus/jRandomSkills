@@ -19,8 +19,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.375" />
-        <PackageReference Include="MaxMind.Db" Version="5.1.0">
+        <PackageReference Include="CounterStrikeSharp.API" Version="1.0.376" />
+        <PackageReference Include="MaxMind.Db" Version="5.2.0">
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
