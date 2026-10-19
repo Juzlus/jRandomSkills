@@ -14,6 +14,9 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetVolumes = [];
         private static readonly object setLock = new();
+        private static readonly SpectatorMirror spectators = new(
+            ApplySpectatorVolume,
+            viewer => { lock (setLock) RemoveVolume(viewer.Key()); });
 
         public static void LoadSkill()
         {
@@ -34,10 +37,14 @@ namespace src.player.skills
                     if (kvp.Value == playerIndex)
                         playersToTarget.TryRemove(kvp.Key, out _);
             }
+
+            spectators.Forget(playerIndex);
         }
 
         public static void NewRound()
         {
+            spectators.Reset();
+
             lock (setLock)
             {
                 foreach (var targetIndex in targetVolumes.Keys.ToArray())
@@ -53,6 +60,9 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (SkillUtils.IsHudFrame())
+                spectators.Update(IsCursed);
+
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -181,12 +191,42 @@ namespace src.player.skills
             }
         }
 
+        private static bool IsCursed(uint targetKey)
+        {
+            foreach (var kvp in playersToTarget)
+                if (kvp.Value == targetKey)
+                    return true;
+            return false;
+        }
+
+        private static void ApplySpectatorVolume(CCSPlayerController viewer, uint targetKey)
+        {
+            var target = PlayerManager.GetController(targetKey);
+            var targetPawn = target?.PlayerPawn?.Value;
+            if (targetPawn == null || !targetPawn.IsValid) return;
+
+            uint ownerIndex = 0;
+            foreach (var kvp in playersToTarget)
+                if (kvp.Value == targetKey)
+                    ownerIndex = kvp.Key;
+
+            lock (setLock)
+                ApplyVolume(ownerIndex, viewer.Key(), targetPawn);
+        }
+
         private static bool ApplyVolume(uint ownerIndex, CCSPlayerController target)
         {
-            RemoveVolume(target.Key());
-
             var targetPawn = target.PlayerPawn?.Value;
-            if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) return false;
+            if (targetPawn == null || !targetPawn.IsValid) return false;
+
+            return ApplyVolume(ownerIndex, target.Key(), targetPawn);
+        }
+
+        private static bool ApplyVolume(uint ownerIndex, uint recipientKey, CCSPlayerPawn targetPawn)
+        {
+            RemoveVolume(recipientKey);
+
+            if (targetPawn.AbsOrigin == null) return false;
 
             if (EntityManager.OverBudget()) return false;
 
@@ -196,7 +236,7 @@ namespace src.player.skills
             var keys = new CEntityKeyValues();
             try
             {
-                keys.SetString("targetname", $"Nightmare_{target.Key()}");
+                keys.SetString("targetname", $"Nightmare_{recipientKey}");
                 keys.SetString("postprocessing", SkillsInfo.GetValue<string>(skillName, "postProcessing"));
                 keys.SetBool("master", true);
                 keys.SetBool("enableexposure", true);
@@ -221,7 +261,7 @@ namespace src.player.skills
             volume.AcceptInput("SetParent", targetPawn, null, "!activator");
 
             EntityManager.RegisterExisting(volume, ownerIndex, "post_processing_volume");
-            targetVolumes[target.Key()] = volume.Index;
+            targetVolumes[recipientKey] = volume.Index;
             return true;
         }
 
@@ -231,7 +271,7 @@ namespace src.player.skills
             EntityManager.DestroyEntity(volumeIndex);
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5b2c6f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, string postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost", float fadeTime = .25f, float minExposure = .5f, float maxExposure = 2f, float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5b2c6f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, string postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost", float fadeTime = 0f, float minExposure = .5f, float maxExposure = 2f, float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float SoundVolume { get; set; } = soundVolume;
             public string PostProcessing { get; set; } = postProcessing;

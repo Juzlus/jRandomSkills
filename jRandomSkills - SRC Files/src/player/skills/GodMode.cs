@@ -74,7 +74,7 @@ namespace src.player.skills
             skillInfo.OriginalRender ??= current;
 
             pawn.Render = Color.FromArgb(current.A, 255, 255, 0);
-            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+            SkillUtils.NetworkChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
 
         private static void RestoreRender(CCSPlayerPawn? pawn, Color? originalRender)
@@ -82,7 +82,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || originalRender == null) return;
 
             pawn.Render = originalRender.Value;
-            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+            SkillUtils.NetworkChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)

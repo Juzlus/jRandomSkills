@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.4.b5";
+        public override string ModuleVersion => "1.2.4.b6";
 
         public override void Load(bool hotReload)
         {
@@ -46,6 +46,7 @@ namespace src
             Command.Load();
             WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
             LoadAllSkills();
+            if (hotReload) PlayerManager.SetServerActive(true);
             Event.RegisterConnectedPlayers();
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
@@ -379,6 +380,7 @@ namespace src
         public string? Header;
         public string? Center;
         public string? Extra;
+        public string? Description;
         public bool IsDescription;
         public string? Content;
     }

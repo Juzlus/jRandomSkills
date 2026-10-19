@@ -147,8 +147,8 @@ namespace src.player.skills
                     rope.Width = width;
                     rope.EndWidth = width;
 
-                    Utilities.SetStateChanged(rope, "CBeam", "m_fWidth");
-                    Utilities.SetStateChanged(rope, "CBeam", "m_fEndWidth");
+                    SkillUtils.NetworkChanged(rope, "CBeam", "m_fWidth");
+                    SkillUtils.NetworkChanged(rope, "CBeam", "m_fEndWidth");
 
                     uint ropeIndex = rope.Index;
                     skillInfo.RopeIndex = ropeIndex;

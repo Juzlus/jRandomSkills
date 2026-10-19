@@ -147,8 +147,8 @@ namespace src.player.skills
             beam.Width = .6f;
             beam.EndWidth = .6f;
 
-            Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
-            Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
+            SkillUtils.NetworkChanged(beam, "CBeam", "m_fWidth");
+            SkillUtils.NetworkChanged(beam, "CBeam", "m_fEndWidth");
 
             skillInfo.MarkerIndex = beam.Index;
         }

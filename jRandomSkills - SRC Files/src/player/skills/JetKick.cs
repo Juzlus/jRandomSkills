@@ -159,7 +159,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             if (!targetedPlayers.ContainsKey(player.Key())) return;
-            if (!SkillUtils.FiresBullets(@event.Weapon)) return;
+            if (!SkillUtils.FiresBullets(@event.Weapon) || !SkillUtils.FiredLoadedShot(player)) return;
 
             PushPlayer(player);
         }

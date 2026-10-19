@@ -10,9 +10,13 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Glitch;
         private const string ownerTag = "Glitch";
+        private const string spectatorTag = "GlitchSpec";
         private static readonly ConcurrentDictionary<uint, byte> glitchedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
+        private static readonly SpectatorMirror spectators = new(
+            (viewer, _) => SkillUtils.SetRadarDisabled(viewer, spectatorTag, true),
+            viewer => SkillUtils.SetRadarDisabled(viewer, spectatorTag, false));
 
         public static void LoadSkill()
         {
@@ -30,6 +34,8 @@ namespace src.player.skills
                     if (kvp.Value == playerIndex)
                         playersToTarget.TryRemove(kvp.Key, out _);
             }
+
+            spectators.Forget(playerIndex);
         }
 
         public static void NewRound()
@@ -45,10 +51,15 @@ namespace src.player.skills
                 glitchedPlayers.Clear();
                 playersToTarget.Clear();
             }
+
+            spectators.Reset();
         }
 
         public static void OnTick()
         {
+            if (SkillUtils.IsHudFrame())
+                spectators.Update(key => glitchedPlayers.ContainsKey(key));
+
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {

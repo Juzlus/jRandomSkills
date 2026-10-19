@@ -142,7 +142,7 @@ namespace src.utils
                 prop.DispatchSpawn();
 
                 prop.Render = Color.FromArgb(discAlpha, 255, 255, 255);
-                Utilities.SetStateChanged(prop, "CBaseModelEntity", "m_clrRender");
+                SkillUtils.NetworkChanged(prop, "CBaseModelEntity", "m_clrRender");
 
                 var skeleton = prop.CBodyComponent?.SceneNode?.GetSkeletonInstance();
                 if (skeleton != null)
@@ -203,8 +203,8 @@ namespace src.utils
                 beam.Width = 1.2f;
                 beam.EndWidth = 1.2f;
 
-                Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
-                Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
+                SkillUtils.NetworkChanged(beam, "CBeam", "m_fWidth");
+                SkillUtils.NetworkChanged(beam, "CBeam", "m_fEndWidth");
 
                 ring.Beams.Add(beam.Index);
             }

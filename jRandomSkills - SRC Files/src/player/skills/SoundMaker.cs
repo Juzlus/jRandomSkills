@@ -12,6 +12,9 @@ namespace src.player.skills
         private const Skills skillName = Skills.SoundMaker;
         private static readonly ConcurrentDictionary<uint, byte> SkillPlayerInfo = [];
         private static readonly object setLock = new();
+        private static readonly List<CCSPlayerController> listeners = [];
+        private static readonly List<CCSPlayerController> targets = [];
+        private static bool emitting;
 
         private const string soundEventName = "Hostage.Pain";
         private const uint soundEventHash = 1876781570;
@@ -50,7 +53,7 @@ namespace src.player.skills
 
         public static void PlayerMakeSound(UserMessage um)
         {
-            if (SkillPlayerInfo.IsEmpty) return;
+            if (emitting || SkillPlayerInfo.IsEmpty) return;
 
             var soundevent = um.ReadUInt("soundevent_hash");
             if (soundevent != soundEventHash) return;
@@ -82,13 +85,7 @@ namespace src.player.skills
                 {
                     if (recipient == null || !recipient.IsValid) continue;
                     if (recipient.Team == emitter.Team) continue;
-
-                    bool hasSkill = SkillPlayerInfo.ContainsKey(recipient.Key());
-
-                    var bot = PlayerManager.GetPlayerEvent(recipient);
-                    bool botSkill = bot != null && bot.IsValid && SkillPlayerInfo.ContainsKey(bot.Key());
-
-                    if (!hasSkill && !botSkill) continue;
+                    if (!IsListener(recipient)) continue;
 
                     allowed.Add(recipient);
                 }
@@ -96,6 +93,14 @@ namespace src.player.skills
             um.Recipients.Clear();
             foreach (var recipient in allowed)
                 um.Recipients.Add(recipient);
+        }
+
+        private static bool IsListener(CCSPlayerController recipient)
+        {
+            if (SkillPlayerInfo.ContainsKey(recipient.Key())) return true;
+
+            var bot = PlayerManager.GetPlayerEvent(recipient);
+            return bot != null && bot.IsValid && SkillPlayerInfo.ContainsKey(bot.Key());
         }
 
         public static void OnTick()
@@ -109,23 +114,45 @@ namespace src.player.skills
             if ((Server.TickCount / 60) % cooldown != 0) return;
 
             float volume = SkillsInfo.GetValue<float>(skillName, "soundVolume");
+            var players = PlayerManager.GetTickPlayers();
 
-            foreach (var player in PlayerManager.GetTickPlayers())
+            listeners.Clear();
+            foreach (var player in players)
+                if (player != null && player.IsValid && !player.IsBot && IsListener(player))
+                    listeners.Add(player);
+
+            if (listeners.Count == 0) return;
+
+            foreach (var player in players)
             {
                 if (!CanEmit(player, out var pawn)) continue;
 
+                targets.Clear();
+                foreach (var listener in listeners)
+                    if (listener.Team != player.Team)
+                        targets.Add(listener);
+
+                if (targets.Count == 0) continue;
+
+                CBaseEntity source = pawn!;
                 var entities = EntityManager.GetPlayerEntities(player.Key(), "empty_prop");
 
-                if (entities.Count == 0)
+                if (entities.Count > 0)
                 {
-                    pawn!.EmitSound(soundEventName, volume: volume);
-                    continue;
+                    var entity = Utilities.GetEntityFromIndex<CDynamicProp>((int)entities[0]);
+                    if (entity == null || !entity.IsValid || IsAtWorldOrigin(entity.AbsOrigin)) continue;
+                    source = entity;
                 }
 
-                var entity = Utilities.GetEntityFromIndex<CDynamicProp>((int)entities[0]);
-                if (entity == null || !entity.IsValid || IsAtWorldOrigin(entity.AbsOrigin)) continue;
-
-                entity.EmitSound(soundEventName, volume: volume);
+                emitting = true;
+                try
+                {
+                    source.EmitSound(soundEventName, new RecipientFilter([.. targets]), volume);
+                }
+                finally
+                {
+                    emitting = false;
+                }
             }
         }
 

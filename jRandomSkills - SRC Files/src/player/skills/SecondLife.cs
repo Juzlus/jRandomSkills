@@ -73,8 +73,7 @@ namespace src.player.skills
 
                 usedThisRound.TryAdd(victim.Handle, Server.TickCount);
 
-                victimPawn.Health = SkillsInfo.GetValue<int>(skillName, "startHealth");
-                Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
+                SetHealth(victimPawn, StartHealth(), StartHealth());
 
                 Server.NextFrame(() =>
                 {
@@ -92,20 +91,30 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SetHealth(player, SkillsInfo.GetValue<int>(skillName, "startHealth"));
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) return;
+            SetHealth(pawn, StartHealth(), StartHealth());
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             usedThisRound.TryRemove(player.Handle, out _);
-            if (player.PlayerPawn.Value == null) return;
-            SetHealth(player, Math.Min(player.PlayerPawn.Value.Health + SkillsInfo.GetValue<int>(skillName, "startHealth"), 100));
-        }
-
-        private static void SetHealth(CCSPlayerController player, int health)
-        {
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
+
+            pawn.MaxHealth = 100;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+
+            if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) return;
+            SetHealth(pawn, Math.Clamp(pawn.Health + Math.Max(0, 100 - StartHealth()), 1, 100), 100);
+        }
+
+        private static int StartHealth() => Math.Max(1, SkillsInfo.GetValue<int>(skillName, "startHealth"));
+
+        private static void SetHealth(CCSPlayerPawn pawn, int health, int maxHealth)
+        {
+            pawn.MaxHealth = maxHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
 
             pawn.Health = health;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");

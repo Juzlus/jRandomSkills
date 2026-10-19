@@ -82,7 +82,7 @@ namespace src.player.skills
                 if (bomb == null || !bomb.IsValid) return;
 
                 bomb.Render = color;
-                Utilities.SetStateChanged(bomb, "CBaseModelEntity", "m_clrRender");
+                SkillUtils.NetworkChanged(bomb, "CBaseModelEntity", "m_clrRender");
             });
         }
 

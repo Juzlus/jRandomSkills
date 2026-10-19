@@ -115,6 +115,10 @@ namespace src.player.skills
             playerInfo.SkillUsed = true;
 
             playerEvent.PrintToChat($" {ChatColors.Green}{playerEvent.GetTranslation("voodoo_player_info", enemy.PlayerName)}");
+
+            var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
+            if (enemyEvent != null && enemyEvent.IsValid)
+                enemyEvent.PrintToChat($" {ChatColors.Red}{enemyEvent.GetTranslation("voodoo_enemy_info")}");
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)

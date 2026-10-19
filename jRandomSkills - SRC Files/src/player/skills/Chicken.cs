@@ -14,6 +14,8 @@ namespace src.player.skills
         private const string chickenModelPath = "models/chicken/chicken.vmdl";
         private static readonly ConcurrentDictionary<uint, uint> chickens = [];
 
+        private static int ChickenHealth() => Math.Max(1, SkillsInfo.GetValue<int>(skillName, "health"));
+
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -51,14 +53,18 @@ namespace src.player.skills
                 Event.EnableTransmit();
                 playerPawn.VelocityModifier = 1.1f;
 
-                playerPawn.Health = 50;
+                int health = ChickenHealth();
+                playerPawn.MaxHealth = health;
+                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iMaxHealth");
+
+                playerPawn.Health = health;
                 Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
 
                 SkillUtils.ChangePlayerScale(player, .2f);
 
                 playerPawn.Render = Color.FromArgb(0, 255, 255, 255);
                 playerPawn.ShadowStrength = 0f;
-                Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
+                SkillUtils.NetworkChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
 
                 SetWeaponAttack(player, true);
                 CreateChicken(player);
@@ -74,9 +80,12 @@ namespace src.player.skills
             {
                 playerPawn.VelocityModifier = 1f;
 
+                playerPawn.MaxHealth = 100;
+                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iMaxHealth");
+
                 if (playerPawn.Health > 0)
                 {
-                    playerPawn.Health = Math.Min(playerPawn.Health + 50, 100);
+                    playerPawn.Health = Math.Clamp(playerPawn.Health + Math.Max(0, 100 - ChickenHealth()), 1, 100);
                     Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
                 }
 
@@ -84,7 +93,7 @@ namespace src.player.skills
 
                 playerPawn.Render = Color.FromArgb(255, 255, 255, 255);
                 playerPawn.ShadowStrength = 1.0f;
-                Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
+                SkillUtils.NetworkChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
 
                 SetWeaponAttack(player, false);
             }
@@ -183,8 +192,9 @@ namespace src.player.skills
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("disabled_weapon")}</font>";
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FF8B42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FF8B42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int health = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
+            public int Health { get; set; } = health;
         }
     }
 }

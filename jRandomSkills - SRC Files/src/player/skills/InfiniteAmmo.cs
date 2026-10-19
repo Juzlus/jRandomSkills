@@ -48,9 +48,9 @@ namespace src.player.skills
 
         private static void ApplyInfiniteAmmo(CCSPlayerController player)
         {
-            var activeWeaponHandle = player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon;
-            if (activeWeaponHandle?.Value != null)
-                activeWeaponHandle.Value.Clip1 = 100;
+            var activeWeapon = player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            if (activeWeapon != null && activeWeapon.IsValid && SkillUtils.FiresBullets(activeWeapon.DesignerName))
+                activeWeapon.Clip1 = 100;
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#0000FF", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

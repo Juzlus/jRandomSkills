@@ -198,7 +198,7 @@ namespace src.player.skills
                 camera.DispatchSpawn();
 
                 camera.Render = Color.FromArgb(1, 255, 255, 255);
-                Utilities.SetStateChanged(camera, "CBaseModelEntity", "m_clrRender");
+                SkillUtils.NetworkChanged(camera, "CBaseModelEntity", "m_clrRender");
 
                 CBaseEntity? target = pawn != null && pawn.IsValid ? pawn : null;
                 var entities = EntityManager.GetPlayerEntities(enemy.Key(), "empty_prop");

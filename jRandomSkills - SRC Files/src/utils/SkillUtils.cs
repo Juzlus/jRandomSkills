@@ -54,12 +54,14 @@ namespace src.utils
                 catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] gamedata signature '{name}' could not be resolved: {ex.Message}"); return null; }
             });
 
-        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> HEGrenadeProjectile_CreateFunc =
-            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("HEGrenadeProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>?> HEGrenadeProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>>("HEGrenadeProjectile_CreateFunc", s => new(s));
         private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>?> SmokeGrenadeProjectile_CreateFunc =
             LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>>("SmokeGrenadeProjectile_CreateFunc", s => new(s));
-        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> CMolotovProjectile_CreateFunc =
-            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("CMolotovProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>?> CMolotovProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>>("CMolotovProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, IntPtr>?> DecoyProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, IntPtr>>("DecoyProjectile_CreateFunc", s => new(s));
         private static readonly Lazy<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>?> TerminateRoundFunc =
             LazySig<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>>("CCSGameRules_TerminateRound", s => new(s));
         private static readonly Lazy<MemoryFunctionVoid<CBasePlayerPawn, QAngle>?> SnapViewAngles =
@@ -130,34 +132,38 @@ namespace src.utils
             }
         }
 
+        public static bool FiredLoadedShot(CCSPlayerController player)
+        {
+            var weapon = player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            return weapon != null && weapon.IsValid && weapon.Clip1 > 0;
+        }
+
         public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
         {
             string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
             if (string.IsNullOrWhiteSpace(itemString)) return;
 
-            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            if (player.PlayerPawn.Value.WeaponServices == null) return;
+            var pawn = player?.PlayerPawn.Value;
+            if (player == null || !player.IsValid || pawn == null || !pawn.IsValid) return;
 
-            var weapon = player.PlayerPawn.Value.WeaponServices.MyWeapons
-                .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && !string.IsNullOrEmpty(w.Value.DesignerName) && w.Value.DesignerName == itemString);
+            var services = pawn.WeaponServices;
+            if (services == null) return;
 
-            if (weapon == null || !weapon.IsValid || weapon.Value == null || !weapon.Value.IsValid) return;
+            var weapon = services.MyWeapons
+                .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString)?.Value;
+            if (weapon == null) return;
 
-            weapon.Value.Clip1 = ammo;
-            Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_iClip1");
+            int ammoType = weapon.GetVData<CBasePlayerWeaponVData>()?.PrimaryAmmoType ?? -1;
+            if (ammoType < 0 || ammoType >= services.Ammo.Length) return;
 
-            if (ammo == 1) return;
+            services.Ammo[ammoType] = (ushort)Math.Clamp(ammo, 1, ushort.MaxValue);
+            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pWeaponServices");
 
-            uint weaponIndex = weapon.Value.Index;
-
-            jRandomSkills.Instance.AddTimer(.1f, () =>
+            if (weapon.Clip1 != -1)
             {
-                var tracked = Utilities.GetEntityFromIndex<CBasePlayerWeapon>((int)weaponIndex);
-                if (tracked == null || !tracked.IsValid || tracked.DesignerName != itemString) return;
-
-                tracked.Clip1 = 1;
-                Utilities.SetStateChanged(tracked, "CBasePlayerWeapon", "m_iClip1");
-            }, TimerFlags.STOP_ON_MAPCHANGE);
+                weapon.Clip1 = -1;
+                Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
+            }
         }
 
         public static void TryGiveWeapon(CCSPlayerController player, CsItem item, int count = 1, bool existValidator = true)
@@ -412,6 +418,70 @@ namespace src.utils
             CMolotovProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
         }
 
+        public enum GrenadeKind { HE, Smoke, Molotov, Incendiary, Flash, Decoy }
+
+        public static GrenadeKind? GetGrenadeKind(string? designerName) => designerName switch
+        {
+            "weapon_hegrenade" or "hegrenade_projectile" => GrenadeKind.HE,
+            "weapon_smokegrenade" or "smokegrenade_projectile" => GrenadeKind.Smoke,
+            "weapon_molotov" or "molotov_projectile" => GrenadeKind.Molotov,
+            "weapon_incgrenade" => GrenadeKind.Incendiary,
+            "weapon_flashbang" or "flashbang_projectile" => GrenadeKind.Flash,
+            "weapon_decoy" or "decoy_projectile" => GrenadeKind.Decoy,
+            _ => null,
+        };
+
+        public static CBaseCSGrenadeProjectile? SpawnGrenade(GrenadeKind kind, Vector pos, Vector vel, CCSPlayerPawn? owner, int teamNum)
+        {
+            QAngle angle = new(0, 0, 0);
+            nint ownerHandle = owner != null && owner.IsValid ? owner.Handle : IntPtr.Zero;
+            CBaseCSGrenadeProjectile? grenade = null;
+
+            switch (kind)
+            {
+                case GrenadeKind.HE:
+                    nint he = HEGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, ownerHandle, 44, teamNum) ?? IntPtr.Zero;
+                    if (he != IntPtr.Zero) grenade = new CBaseCSGrenadeProjectile(he);
+                    break;
+                case GrenadeKind.Smoke:
+                    grenade = SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, ownerHandle, 45, teamNum);
+                    break;
+                case GrenadeKind.Molotov:
+                case GrenadeKind.Incendiary:
+                    bool incendiary = kind == GrenadeKind.Incendiary;
+                    nint molotov = CMolotovProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, ownerHandle, incendiary ? 48 : 46, teamNum) ?? IntPtr.Zero;
+                    if (molotov == IntPtr.Zero) break;
+                    var fire = new CMolotovProjectile(molotov);
+                    if (incendiary && fire.IsValid) fire.IsIncGrenade = true;
+                    grenade = fire;
+                    break;
+                case GrenadeKind.Decoy:
+                    nint decoy = DecoyProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, ownerHandle, 47) ?? IntPtr.Zero;
+                    if (decoy != IntPtr.Zero) grenade = new CDecoyProjectile(decoy);
+                    break;
+                case GrenadeKind.Flash:
+                    grenade = Utilities.CreateEntityByName<CFlashbangProjectile>("flashbang_projectile");
+                    if (grenade == null || !grenade.IsValid) return null;
+
+                    grenade.TeamNum = (byte)teamNum;
+                    grenade.DispatchSpawn();
+                    grenade.Teleport(pos, angle, vel);
+                    grenade.IsLive = true;
+                    grenade.DetonateTime = Server.CurrentTime + 1.5f;
+                    break;
+            }
+
+            if (grenade == null || !grenade.IsValid) return null;
+
+            if (owner != null && owner.IsValid)
+            {
+                grenade.Thrower.Raw = owner.EntityHandle.Raw;
+                grenade.OwnerEntity.Raw = owner.EntityHandle.Raw;
+            }
+
+            return grenade;
+        }
+
         // True when this hit would be nullified by the server's friendly-fire rules (same-team hit,
         // mp_friendlyfire 0 and mp_teammates_are_enemies 0). The TakeDamage pre-hook still sees the raw
         // damage, so lethal victim-side skills (SecondLife/Phoenix) must skip it — otherwise they "revive"
@@ -556,7 +626,7 @@ namespace src.utils
             Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
             Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
             Skills.JetKick, Skills.PrimaryBan, Skills.Thief, Skills.WildThrow,
-            Skills.Voodoo, Skills.Nemesis, Skills.Bounty
+            Skills.Voodoo, Skills.Nemesis, Skills.Bounty, Skills.Bowlegs
         ];
 
         private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
@@ -668,7 +738,7 @@ namespace src.utils
             if (suppressed) pawn.HideHUD |= crosshairBit;
             else pawn.HideHUD &= ~crosshairBit;
 
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
+            ForceStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
         }
 
         public static void SetRadarDisabled(CCSPlayerController? player, string owner, bool disable)
@@ -726,6 +796,55 @@ namespace src.utils
 
             var withCapacity = enemies.Where(p => CanCurse(p.Key())).ToArray();
             return withCapacity.Length > 0 ? withCapacity : enemies;
+        }
+
+        public static CCSPlayerController[] GetSelectableTeammates(CCSPlayerController player)
+        {
+            if (player == null || !player.IsValid) return [];
+
+            uint self = player.Key();
+            return [.. PlayerManager.GetTickPlayers()
+                .Where(p => p != null && p.IsValid)
+                .Select(PlayerManager.GetPlayerEvent)
+                .Where(p => p != null && p.IsValid && p.Key() != self && p.Team == player.Team
+                    && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
+                    && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
+                .Cast<CCSPlayerController>()];
+        }
+
+        private static int observersTick = int.MinValue;
+        private static readonly Dictionary<uint, (CCSPlayerController Viewer, uint TargetKey)> observers = [];
+
+        public static Dictionary<uint, (CCSPlayerController Viewer, uint TargetKey)> GetFirstPersonObservers()
+        {
+            int tick = Server.TickCount;
+            if (tick == observersTick) return observers;
+            observersTick = tick;
+            observers.Clear();
+
+            foreach (var viewer in PlayerManager.GetTickPlayers())
+            {
+                if (viewer == null || !viewer.IsValid || viewer.IsBot || viewer.IsHLTV) continue;
+
+                var ownPawn = viewer.PlayerPawn?.Value;
+                if (ownPawn != null && ownPawn.IsValid && ownPawn.LifeState == (byte)LifeState_t.LIFE_ALIVE
+                    && viewer.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist)
+                    continue;
+
+                var pawn = viewer.Pawn?.Value;
+                var services = pawn?.ObserverServices;
+                if (services == null || (ObserverMode_t)services.ObserverMode != ObserverMode_t.OBS_MODE_IN_EYE) continue;
+
+                var target = services.ObserverTarget?.Value;
+                if (target == null || !target.IsValid) continue;
+
+                var observed = PlayerManager.GetControllerByPawn(target.Handle);
+                if (observed == null || !observed.IsValid) continue;
+
+                observers[viewer.Key()] = (viewer, observed.Key());
+            }
+
+            return observers;
         }
 
         public static bool AnyCurseCapacity(CCSPlayerController player)
@@ -1138,6 +1257,30 @@ namespace src.utils
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
         }
 
+        private static readonly Dictionary<string, bool> networkedFields = [];
+
+        public static void NetworkChanged(CBaseEntity entity, string className, string fieldName)
+        {
+            string key = className + "|" + fieldName;
+            if (!networkedFields.TryGetValue(key, out bool networked))
+            {
+                networked = Schema.IsSchemaFieldNetworked(className, fieldName);
+                networkedFields[key] = networked;
+            }
+            if (networked)
+                Utilities.SetStateChanged(entity, className, fieldName);
+        }
+
+        public static void ForceStateChanged(CBaseEntity entity, string className, string fieldName)
+        {
+            if (entity == null || !entity.IsValid) return;
+
+            int offset = Schema.GetSchemaOffset(className, fieldName);
+            if (offset <= 0) return;
+
+            NativeAPI.SchemaSetStateChanged(entity.Handle, (uint)offset, uint.MaxValue, uint.MaxValue);
+        }
+
         public static void SetPlayerInvisibility(CCSPlayerController player, float percentInvisibility)
         {
             if (player == null || !player.IsValid || player.PlayerPawn == null)
@@ -1148,7 +1291,7 @@ namespace src.utils
             {
                 var color = Color.FromArgb(Math.Max(255 - (int)(255 * percentInvisibility), 0), 255, 255, 255);
                 playerPawn.Render = color;
-                Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
+                NetworkChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
             }
         }
 

@@ -100,6 +100,7 @@ namespace src.player
             string infoLine = string.Empty;
             string skillLine = string.Empty;
             string remainingLine = string.Empty;
+            string? descriptionLine = null;
 
             bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || Config.LoadedConfig.DisplayAlwaysDescription;
             bool isDescription = true;
@@ -136,6 +137,8 @@ namespace src.player
                                 : skillPlayer.PrintHTML;
 
                             isDescription = string.IsNullOrEmpty(skillPlayer.PrintHTML);
+                            if (!isDescription && showDescriptionHUD)
+                                descriptionLine = player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance);
                         }
                     }
                 }
@@ -189,6 +192,8 @@ namespace src.player
                     {
                         remainingLine = observedSkill.PrintHTML;
                         isDescription = false;
+                        if (showDescriptionHUD)
+                            descriptionLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
                     }
                     else if (showDescriptionHUD)
                         remainingLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
@@ -197,7 +202,7 @@ namespace src.player
 
             if (string.IsNullOrEmpty(skillLine)) return;
 
-            Event.UpdateSkillHUD(player, skillPlayer, infoLine, skillLine, remainingLine, isDescription);
+            Event.UpdateSkillHUD(player, skillPlayer, infoLine, skillLine, remainingLine, isDescription, descriptionLine);
         }
     }
 }

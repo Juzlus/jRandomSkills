@@ -279,9 +279,9 @@ namespace src.player.skills
                 pooled.EndWidth = width;
                 pooled.Render = tracerColor;
 
-                Utilities.SetStateChanged(pooled, "CBeam", "m_fWidth");
-                Utilities.SetStateChanged(pooled, "CBeam", "m_fEndWidth");
-                Utilities.SetStateChanged(pooled, "CBaseModelEntity", "m_clrRender");
+                SkillUtils.NetworkChanged(pooled, "CBeam", "m_fWidth");
+                SkillUtils.NetworkChanged(pooled, "CBeam", "m_fEndWidth");
+                SkillUtils.NetworkChanged(pooled, "CBaseModelEntity", "m_clrRender");
 
                 flight.BeamIndex = pooledIndex;
                 return pooled;
@@ -350,9 +350,9 @@ namespace src.player.skills
             beam.EndWidth = 0;
             beam.Render = Color.FromArgb(0, 0, 0, 0);
 
-            Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
-            Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
-            Utilities.SetStateChanged(beam, "CBaseModelEntity", "m_clrRender");
+            SkillUtils.NetworkChanged(beam, "CBeam", "m_fWidth");
+            SkillUtils.NetworkChanged(beam, "CBeam", "m_fEndWidth");
+            SkillUtils.NetworkChanged(beam, "CBaseModelEntity", "m_clrRender");
 
             if (beam.AbsOrigin == null) return;
 

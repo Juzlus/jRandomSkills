@@ -47,7 +47,6 @@ namespace src.player.skills
             if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
             {
                 playersWithSkill[player.Key()] = grenadesLeft - 1;
-                player!.GiveNamedItem($"weapon_{weapon}");
                 SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, grenadesLeft - 1);
             }
         }

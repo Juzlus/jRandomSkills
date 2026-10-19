@@ -180,7 +180,7 @@ namespace src.player.skills
         {
             var color = normal ? Color.FromArgb(255, 255, 255, 255) : Color.FromArgb(255, 255, 0, 0);
             pawn.Render = color;
-            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+            SkillUtils.NetworkChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int zombieHealth = 500, int r = 255, int g = 0, int b = 0, int a = 60) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

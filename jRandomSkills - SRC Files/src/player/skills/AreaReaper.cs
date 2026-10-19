@@ -26,6 +26,15 @@ namespace src.player.skills
                     SkillUtils.CloseMenu(player);
             }
 
+            foreach (uint siteIndex in playersToTarget.Values.Distinct())
+            {
+                var site = Utilities.GetEntityFromIndex<CBombTarget>((int)siteIndex);
+                if (site == null || !site.IsValid) continue;
+
+                site.BombPlantedHere = false;
+                Utilities.SetStateChanged(site, "CBombTarget", "m_bBombPlantedHere");
+            }
+
             playersToTarget.Clear();
         }
 
@@ -88,26 +97,45 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             if (player != null && player.IsValid)
-                playersToTarget.TryRemove(player.Key(), out _);
-
-            Server.NextWorldUpdate(() =>
-            {
-                if (PlayerManager.GetPlayerCountBySkill(skillName) != 0) return;
-                EnableBombsite();
-            });
+                ReleaseSite(player, false);
 
             SkillUtils.CloseMenu(player);
         }
 
-        private static void EnableBombsite(uint? bombsiteIndex = null)
+        public static void PlayerDeath(EventPlayerDeath @event)
         {
-            var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target");
-            foreach (var bombTarget in bombTargets)
-                if (bombTarget != null && bombTarget.IsValid)
-                {
-                    bombTarget.BombPlantedHere = false;
-                    Utilities.SetStateChanged(bombTarget, "CBombTarget", "m_bBombPlantedHere");
-                }
+            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            if (player == null || !player.IsValid) return;
+
+            ReleaseSite(player, true);
+        }
+
+        private static void ReleaseSite(CCSPlayerController player, bool notify)
+        {
+            if (!playersToTarget.TryRemove(player.Key(), out uint siteIndex)) return;
+
+            foreach (var kvp in playersToTarget)
+                if (kvp.Value == siteIndex)
+                    return;
+
+            var site = Utilities.GetEntityFromIndex<CBombTarget>((int)siteIndex);
+            if (site == null || !site.IsValid) return;
+
+            site.BombPlantedHere = false;
+            Utilities.SetStateChanged(site, "CBombTarget", "m_bBombPlantedHere");
+
+            if (!notify) return;
+
+            string siteLetter = SiteLetter(site);
+            foreach (var teammate in PlayerManager.GetTickPlayers())
+                if (teammate != null && teammate.IsValid && !teammate.IsBot && teammate.Team == player.Team)
+                    teammate.PrintToChat($" {ChatColors.Red}" + teammate.GetTranslation("areareaper_owner_dead_info", siteLetter));
+        }
+
+        private static string SiteLetter(CBombTarget site)
+        {
+            var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToArray();
+            return bombTargets.Length == 2 && bombTargets[1].Index == site.Index ? "B" : "A";
         }
 
         public static void OnTick()

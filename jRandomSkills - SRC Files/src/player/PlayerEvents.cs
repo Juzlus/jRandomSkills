@@ -699,7 +699,7 @@ namespace src.player
             SkillUtils.ClearHudSuppression(player.Key());
 
             pawn.HideHUD = (uint)(pawn.HideHUD & ~(1 << 8));
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
+            SkillUtils.ForceStateChanged(pawn, "CBasePlayerPawn", "m_iHideHUD");
 
             player.ReplicateConVar("sv_disable_radar", "0");
 
@@ -900,7 +900,7 @@ namespace src.player
 
         private static readonly Dictionary<uint, jSkill_SkillInfo> nextRoundPicks = [];
 
-        public static void UpdateSkillHUD(CCSPlayerController? player, jSkill_PlayerInfo? skillPlayer, string? headerLine, string? centerLine, string? extraLine, bool isDescription)
+        public static void UpdateSkillHUD(CCSPlayerController? player, jSkill_PlayerInfo? skillPlayer, string? headerLine, string? centerLine, string? extraLine, bool isDescription, string? descriptionLine = null)
         {
             lock (setLock)
             {
@@ -910,6 +910,7 @@ namespace src.player
                 {
                     centerLine = Illiterate.GetRandomText(centerLine);
                     extraLine = Illiterate.GetRandomText(extraLine);
+                    descriptionLine = Illiterate.GetRandomText(descriptionLine);
                 }
 
                 var config = Config.LoadedConfig.HtmlHudCustomisation;
@@ -922,7 +923,8 @@ namespace src.player
                     && cache.IsDescription == isDescription
                     && string.Equals(cache.Header, headerLine, StringComparison.Ordinal)
                     && string.Equals(cache.Center, centerLine, StringComparison.Ordinal)
-                    && string.Equals(cache.Extra, extraLine, StringComparison.Ordinal))
+                    && string.Equals(cache.Extra, extraLine, StringComparison.Ordinal)
+                    && string.Equals(cache.Description, descriptionLine, StringComparison.Ordinal))
                 {
                     player.PrintToCenterHtml(cache.Content);
                     return;
@@ -942,6 +944,9 @@ namespace src.player
                     ? ""
                     : $"<br>{emptySymbol}<font class='fontSize-{extraLineSize}' color='{(isDescription ? config.SkillDescriptionLineColor : config.InfoLineColor)}'>{extraLine}</font>{emptySymbol}";
 
+                if (!isDescription && !string.IsNullOrWhiteSpace(descriptionLine) && !string.IsNullOrEmpty(config.SkillDescriptionLineSize))
+                    remainingLine = $"<br>{emptySymbol}<font class='fontSize-{config.SkillDescriptionLineSize}' color='{config.SkillDescriptionLineColor}'>{descriptionLine}</font>{emptySymbol}" + remainingLine;
+
                 var hudContent = "<jRS/>" + infoLine + skillLine + remainingLine;
 
                 if (skillPlayer != null)
@@ -952,6 +957,7 @@ namespace src.player
                     cache.Header = headerLine;
                     cache.Center = centerLine;
                     cache.Extra = extraLine;
+                    cache.Description = descriptionLine;
                     cache.IsDescription = isDescription;
                     cache.Content = hudContent;
                 }

@@ -52,7 +52,7 @@ namespace src.player.skills
 
                         var color = Color.FromArgb(255, 255, 255, 255);
                         pawn.Render = color;
-                        Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+                        SkillUtils.NetworkChanged(pawn, "CBaseModelEntity", "m_clrRender");
                     }
                 }
                 jesters.Clear();
@@ -231,7 +231,7 @@ namespace src.player.skills
 
             var color = jester?.Active == true && !forceDisable ? Color.FromArgb(255, 128, 0, 128) : Color.FromArgb(255, 255, 255, 255);
             pawn.Render = color;
-            Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+            SkillUtils.NetworkChanged(pawn, "CBaseModelEntity", "m_clrRender");
         }
 
         public static void OnTick()

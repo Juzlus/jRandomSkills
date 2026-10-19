@@ -41,7 +41,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
             if (!cursedPlayers.ContainsKey(player.Key())) return;
-            if (!SkillUtils.FiresBullets(@event.Weapon)) return;
+            if (!SkillUtils.FiresBullets(@event.Weapon) || !SkillUtils.FiredLoadedShot(player)) return;
 
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;

@@ -15,6 +15,11 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, byte> playersInDark = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
+        private const int FadePurge = 0x0001 | 0x0010;
+        private static readonly SpectatorMirror spectators = new(
+            (viewer, _) => ApplyColor(viewer, 1),
+            viewer => ClearColor(viewer),
+            32);
 
         public static void LoadSkill()
         {
@@ -32,6 +37,8 @@ namespace src.player.skills
                     if (kvp.Value == playerIndex)
                         playersToTarget.TryRemove(kvp.Key, out _);
             }
+
+            spectators.Forget(playerIndex);
         }
 
         public static void NewRound()
@@ -47,10 +54,15 @@ namespace src.player.skills
                 playersInDark.Clear();
                 playersToTarget.Clear();
             }
+
+            spectators.Reset();
         }
 
         public static void OnTick()
         {
+            if (SkillUtils.IsHudFrame())
+                spectators.Update(key => playersInDark.ContainsKey(key));
+
             if (Server.TickCount % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -206,20 +218,25 @@ namespace src.player.skills
                 }
                 else
                 {
-                    SkillUtils.ApplyScreenColor(player, r: 0, g: 0, b: 0, a: 0, duration: 200, holdTime: 0);
+                    ClearColor(player);
                     playersInDark.TryRemove(playerIndex, out _);
                 }
             }
         }
 
-        private static void ApplyColor(CCSPlayerController? player)
+        private static void ClearColor(CCSPlayerController? player)
+        {
+            SkillUtils.ApplyScreenColor(player, r: 0, g: 0, b: 0, a: 0, duration: 1, holdTime: 0, flags: FadePurge);
+        }
+
+        private static void ApplyColor(CCSPlayerController? player, int duration = 100)
         {
             SkillUtils.ApplyScreenColor(player,
                 r: SkillsInfo.GetValue<int>(skillName, "R"),
                 g: SkillsInfo.GetValue<int>(skillName, "G"),
                 b: SkillsInfo.GetValue<int>(skillName, "B"),
                 a: SkillsInfo.GetValue<int>(skillName, "A"),
-                duration: 100,
+                duration: duration,
                 holdTime: 3000);
         }
 

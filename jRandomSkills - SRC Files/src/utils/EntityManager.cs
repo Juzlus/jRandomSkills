@@ -143,7 +143,7 @@ namespace src.utils
         }
 
 
-        public static CParticleSystem? CreateTrackedParticleSystem(uint ownerKey, string particleName, float? autoDestroySeconds = null)
+        public static CParticleSystem? CreateTrackedParticleSystem(uint ownerKey, string particleName, float? autoDestroySeconds = null, Vector? origin = null, QAngle? angles = null)
         {
             try
             {
@@ -153,6 +153,7 @@ namespace src.utils
 
                 particle.EffectName = particleName;
                 particle.StartActive = true;
+                if (origin != null) particle.Teleport(origin, angles);
                 particle.DispatchSpawn();
 
                 RegisterEntity(particle.Index, ownerKey, "particle_system");
@@ -438,9 +439,9 @@ namespace src.utils
                     beam.EndWidth = 0;
                     beam.Render = Color.FromArgb(0, 0, 0, 0);
 
-                    Utilities.SetStateChanged(beam, "CBeam", "m_fWidth");
-                    Utilities.SetStateChanged(beam, "CBeam", "m_fEndWidth");
-                    Utilities.SetStateChanged(beam, "CBaseModelEntity", "m_clrRender");
+                    SkillUtils.NetworkChanged(beam, "CBeam", "m_fWidth");
+                    SkillUtils.NetworkChanged(beam, "CBeam", "m_fEndWidth");
+                    SkillUtils.NetworkChanged(beam, "CBaseModelEntity", "m_clrRender");
                 }
             }
             catch (Exception ex)
