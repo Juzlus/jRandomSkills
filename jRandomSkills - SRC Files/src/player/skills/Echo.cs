@@ -75,7 +75,7 @@ namespace src.player.skills
 
         public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event) => Detonated(@event.Entityid);
 
-        public static void DecoyDetonate(EventDecoyDetonate @event) => Detonated(@event.Entityid);
+        public static void DecoyStarted(EventDecoyStarted @event) => Detonated(@event.Entityid);
 
         private static void Detonated(int entityId)
         {
