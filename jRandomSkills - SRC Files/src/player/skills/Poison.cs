@@ -136,6 +136,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
+            SkillUtils.SetSkillHud(player, "poison_hud", SkillsInfo.GetValue<float>(skillName, "Cooldown"), SkillsInfo.GetValue<int>(skillName, "Damage"), SkillsInfo.GetValue<int>(skillName, "MinHealth"));
             var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
@@ -163,6 +164,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             targetToPlayer.TryRemove(player.Key(), out _);
 
             if (playersToTarget.TryRemove(player.Key(), out uint targetIndex))

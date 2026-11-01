@@ -113,9 +113,9 @@ namespace src.player.skills
                     skillInfo.LastPosition = playerPawn.AbsOrigin == null ? null : new Vector(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z);
 
                     SetNoclip(player, true);
-                    skillInfo.Timer?.Kill();
+                    SafeTimer.Kill(skillInfo.Timer);
 
-                    skillInfo.Timer = Instance.AddTimer(duration, () =>
+                    skillInfo.Timer = SafeTimer.Add(duration, () =>
                     {
                         var player = PlayerManager.GetController(playerIndex);
                         if (player == null || !player.IsValid) return;
@@ -138,12 +138,12 @@ namespace src.player.skills
 
             playerPawn.MoveType = noclip ? MoveType_t.MOVETYPE_NOCLIP : MoveType_t.MOVETYPE_WALK;
             Schema.SetSchemaValue(playerPawn.Handle, "CBaseEntity", "m_nActualMoveType", (int)playerPawn.MoveType);
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_MoveType");
+            NetStateFast.Changed(playerPawn, "CBaseEntity", "m_MoveType");
         }
 
         private static void StopFlying(CCSPlayerController player, PlayerSkillInfo skillInfo)
         {
-            skillInfo.Timer?.Kill();
+            SafeTimer.Kill(skillInfo.Timer);
             skillInfo.Timer = null;
 
             if (!skillInfo.IsFlying) return;

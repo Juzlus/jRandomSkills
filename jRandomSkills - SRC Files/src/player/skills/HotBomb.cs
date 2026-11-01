@@ -105,6 +105,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
+            SkillUtils.SetSkillHud(player, "hotbomb_hud", SkillsInfo.GetValue<float>(skillName, "cooldown"), SkillsInfo.GetValue<int>(skillName, "damage"));
             if (players.IsEmpty)
             {
                 ChangeC4Color(Color.Red);
@@ -117,6 +118,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             players.TryRemove(player.Key(), out _);
 
             if (players.IsEmpty && !SkillUtils.IsFreezeTime())

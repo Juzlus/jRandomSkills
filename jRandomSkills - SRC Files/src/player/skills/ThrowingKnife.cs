@@ -104,17 +104,17 @@ namespace src.player.skills
             );
 
             knife.Collision.CollisionAttribute.InteractsWith = knifeInfo.OriginalCollisionMask;
-            Utilities.SetStateChanged(knife, "CCollisionProperty", "m_collisionAttribute");
+            NetStateFast.Changed(knife, "CCollisionProperty", "m_collisionAttribute");
 
             var world = Utilities.GetEntityFromIndex<CBaseEntity>(0);
             if (world != null && world.IsValid)
                 knife.AcceptInput("SetParent", world, world, "!activator");
 
             if (knifeInfo.Timer != null)
-                knifeInfo.Timer?.Kill();
+                SafeTimer.Kill(knifeInfo.Timer);
 
             uint knifeIndex = knife.Index;
-            knifeInfo.Timer = Instance.AddTimer(3f, () =>
+            knifeInfo.Timer = SafeTimer.Add(3f, () =>
             {
                 var droppedKnife = Utilities.GetEntityFromIndex<CBaseEntity>((int)knifeIndex);
                 if (droppedKnife == null || !droppedKnife.IsValid) return;
@@ -149,7 +149,7 @@ namespace src.player.skills
                 knifeInfo.IsDropped = false;
                 if (knifeInfo.Timer != null)
                 {
-                    knifeInfo.Timer?.Kill();
+                    SafeTimer.Kill(knifeInfo.Timer);
                     knifeInfo.Timer = null;
                 }
 
@@ -165,7 +165,6 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController _)
         {
             Event.EnableTransmit();
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -205,7 +204,7 @@ namespace src.player.skills
                 return;
             }
 
-            Instance.AddTimer(1f, () =>
+            SafeTimer.Add(1f, () =>
             {
                 if (!owedKnife.ContainsKey(playerIndex)) return;
 
@@ -241,7 +240,7 @@ namespace src.player.skills
         {
             if (knifeInfo.Timer != null)
             {
-                knifeInfo.Timer?.Kill();
+                SafeTimer.Kill(knifeInfo.Timer);
                 knifeInfo.Timer = null;
             }
 
@@ -283,7 +282,7 @@ namespace src.player.skills
 
             playerEvent.ExecuteClientCommand("slot3");
 
-            Instance.AddTickTimer(8, () =>
+            SafeTimer.AddTick(8, () =>
             {
                 if (player == null || !player.IsValid || roundEnded) return;
 
@@ -521,8 +520,7 @@ namespace src.player.skills
                     if (knifeOwnerIndex == viewerIndex) continue;
                     if (observedPlayerIndex.HasValue && observedPlayerIndex.Value == knifeOwnerIndex) continue;
 
-                    if (info.TransmitEntities.Contains(glowEntityIndex))
-                        info.TransmitEntities.Remove(glowEntityIndex);
+                    SkillUtils.HideTransmitDormant(info, glowEntityIndex);
                 }
             }
         }

@@ -11,6 +11,8 @@ public class WASDMenuAPI
     public static string ModuleAuthor => "Interesting";
 
     public static readonly Dictionary<ulong, WasdMenuPlayer> Players = [];
+
+    public static Func<WasdMenuPlayer, bool>? Renderer;
     
     public static void LoadPlugin(BasePlugin basePlugin, bool hotReload)
     {
@@ -48,7 +50,7 @@ public class WASDMenuAPI
         foreach (var player in Players.Values.Where(p => p.MainMenu != null && p.Player?.IsValid == true))
         {
             if (player.Paused)
-                return;
+                continue;
 
             if ((player.Buttons & PlayerButtons.Forward) == 0 && (player.Player.Buttons & PlayerButtons.Forward) != 0)
                 player.ScrollUp();
@@ -58,6 +60,8 @@ public class WASDMenuAPI
                 player.Choose();
             
             player.Buttons = player.Player.Buttons;
+            if (Renderer?.Invoke(player) == true)
+                continue;
             if (!string.IsNullOrEmpty(player.CenterHtml))
                 player.Player.PrintToCenterHtml(player.CenterHtml);
         }

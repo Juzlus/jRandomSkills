@@ -99,6 +99,10 @@ namespace src.utils
             return _translations.ContainsKey(code.ToLowerInvariant());
         }
 
+        public static string[] LoadedLanguages() => [.. _translations.Keys.Order(StringComparer.Ordinal)];
+
+        public static string LangCodeOf(CCSPlayerController player) => GetLangCode(player);
+
         public static string GetSkillName(this CCSPlayerController player, Skills skill, float? chance = null)
         {
             string langCode = GetLangCode(player);

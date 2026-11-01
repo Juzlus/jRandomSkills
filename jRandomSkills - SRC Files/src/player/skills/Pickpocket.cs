@@ -101,7 +101,7 @@ namespace src.player.skills
             if (services != null && ammoType >= 0 && ammoType < services.Ammo.Length && services.Ammo[ammoType] > 1)
             {
                 services.Ammo[ammoType]--;
-                Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pWeaponServices");
+                NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pWeaponServices");
                 return;
             }
 

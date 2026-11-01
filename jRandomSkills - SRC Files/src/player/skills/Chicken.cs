@@ -55,10 +55,10 @@ namespace src.player.skills
 
                 int health = ChickenHealth();
                 playerPawn.MaxHealth = health;
-                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iMaxHealth");
+                NetStateFast.Changed(playerPawn, "CBaseEntity", "m_iMaxHealth");
 
                 playerPawn.Health = health;
-                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                NetStateFast.Changed(playerPawn, "CBaseEntity", "m_iHealth");
 
                 SkillUtils.ChangePlayerScale(player, .2f);
 
@@ -81,12 +81,12 @@ namespace src.player.skills
                 playerPawn.VelocityModifier = 1f;
 
                 playerPawn.MaxHealth = 100;
-                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iMaxHealth");
+                NetStateFast.Changed(playerPawn, "CBaseEntity", "m_iMaxHealth");
 
                 if (playerPawn.Health > 0)
                 {
                     playerPawn.Health = Math.Clamp(playerPawn.Health + Math.Max(0, 100 - ChickenHealth()), 1, 100);
-                    Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                    NetStateFast.Changed(playerPawn, "CBaseEntity", "m_iHealth");
                 }
 
                 SkillUtils.ChangePlayerScale(player, 1);
@@ -115,8 +115,8 @@ namespace src.player.skills
                         weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
                         weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
 
-                        Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
-                        Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
+                        NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+                        NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                     }
         }
 
@@ -134,10 +134,10 @@ namespace src.player.skills
             chickenModel.Teleport(playerPawn.AbsOrigin, playerPawn.AbsRotation, null);
             chickenModel.DispatchSpawn();
             chickenModel.AcceptInput("InitializeSpawnFromWorld", playerPawn, playerPawn, "");
-            Utilities.SetStateChanged(chickenModel, "CBaseEntity", "m_CBodyComponent");
+            NetStateFast.Changed(chickenModel, "CBaseEntity", "m_CBodyComponent");
 
             chickenModel.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = 1;
-            Utilities.SetStateChanged(chickenModel, "CBaseEntity", "m_CBodyComponent");
+            NetStateFast.Changed(chickenModel, "CBaseEntity", "m_CBodyComponent");
 
             Server.NextFrame(() =>
             {

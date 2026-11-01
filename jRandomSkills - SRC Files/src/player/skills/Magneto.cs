@@ -9,7 +9,7 @@ namespace src.player.skills
     public class Magneto : ISkill
     {
         private const Skills skillName = Skills.Magneto;
-        private readonly static ConcurrentDictionary<uint, byte> nades = [];
+        private readonly static ConcurrentDictionary<uint, uint> nades = [];
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 
         public static void LoadSkill()
@@ -28,10 +28,10 @@ namespace src.player.skills
             if (Server.TickCount % 5 != 0) return;
             float radius = SkillsInfo.GetValue<float>(skillName, "radius");
 
-            foreach (var nadeIndex in nades.Keys)
+            foreach ((var nadeIndex, var handle) in nades)
             {
                 var nade = Utilities.GetEntityFromIndex<CBaseCSGrenadeProjectile>((int)nadeIndex);
-                if (nade == null || !nade.IsValid)
+                if (nade == null || !nade.IsValid || nade.EntityHandle.Raw != handle)
                 {
                     nades.TryRemove(nadeIndex, out _);
                     continue;
@@ -66,7 +66,7 @@ namespace src.player.skills
             var grenade = @event.As<CBaseCSGrenadeProjectile>();
             if (grenade == null || !grenade.IsValid) return;
 
-            nades.TryAdd(grenade.Index, 0);
+            nades[grenade.Index] = grenade.EntityHandle.Raw;
         }
 
         public static void EnableSkill(CCSPlayerController player)

@@ -32,7 +32,7 @@ namespace src.player.skills
                 if (site == null || !site.IsValid) continue;
 
                 site.BombPlantedHere = false;
-                Utilities.SetStateChanged(site, "CBombTarget", "m_bBombPlantedHere");
+                NetStateFast.Changed(site, "CBombTarget", "m_bBombPlantedHere");
             }
 
             playersToTarget.Clear();
@@ -68,7 +68,7 @@ namespace src.player.skills
                 if (targetSite != null && targetSite.IsValid)
                 {
                     targetSite.BombPlantedHere = true;
-                    Utilities.SetStateChanged(targetSite, "CBombTarget", "m_bBombPlantedHere");
+                    NetStateFast.Changed(targetSite, "CBombTarget", "m_bBombPlantedHere");
                     playerInfo.SkillUsed = true;
 
                     playersToTarget[player.Key()] = targetSite.Index;
@@ -122,7 +122,7 @@ namespace src.player.skills
             if (site == null || !site.IsValid) return;
 
             site.BombPlantedHere = false;
-            Utilities.SetStateChanged(site, "CBombTarget", "m_bBombPlantedHere");
+            NetStateFast.Changed(site, "CBombTarget", "m_bBombPlantedHere");
 
             if (!notify) return;
 

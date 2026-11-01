@@ -36,7 +36,7 @@ namespace src.player.skills
                 newSize = (float)Math.Round(newSize, 2);
                 playerInfo.SkillChance = newSize;
 
-                SkillUtils.ChangePlayerScale(player, newSize);
+                SkillUtils.ChangePlayerScale(player, Math.Max(.1f, newSize + Giant.ExtraScale(player.Key())));
                 SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newSize)}",
                     border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");
             }
@@ -50,8 +50,8 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn?.Value;
             if (playerPawn != null && playerPawn?.CBodyComponent != null)
             {
-                SkillUtils.ChangePlayerScale(player, 1);
-                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+                SkillUtils.ChangePlayerScale(player, 1f + Giant.ExtraScale(player.Key()));
+                NetStateFast.Changed(playerPawn, "CBaseEntity", "m_CBodyComponent");
             }
         }
 

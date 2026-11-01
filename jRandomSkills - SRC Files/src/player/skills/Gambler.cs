@@ -91,7 +91,7 @@ namespace src.player.skills
                 return false;
 
             player.InGameMoneyServices.Account = remainingMoney;
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
             return true;
         }
 

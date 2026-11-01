@@ -70,9 +70,8 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "grenadeLimit"));
-            decoysLeft[player.Key()] = grenadeLimit;
-
             SkillUtils.TryGiveWeapon(player, CsItem.Decoy);
+            decoysLeft[player.Key()] = grenadeLimit;
             SkillUtils.UpdateGrenadeCount(player, CsItem.Decoy, grenadeLimit);
         }
 
@@ -103,7 +102,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (decoysLeft.TryGetValue(player.Key(), out int left) && left > 1)
+            if (decoysLeft.TryGetValue(player.Key(), out int left) && left > 1 && SkillUtils.ThrewGrenadeRecently(player))
                 SkillUtils.UpdateGrenadeCount(player, CsItem.Decoy, left);
         }
 
@@ -114,8 +113,8 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (decoysLeft.TryGetValue(player.Key(), out int left) && left > 1)
-                SkillUtils.UpdateGrenadeCount(player, CsItem.Decoy, left);
+            if (decoysLeft.TryGetValue(player.Key(), out int left))
+                decoysLeft[player.Key()] = SkillUtils.ClampGrenadeAfterPickup(player, CsItem.Decoy, left);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)

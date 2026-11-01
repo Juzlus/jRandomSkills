@@ -13,9 +13,9 @@ namespace src.command
 
         private static void StartVoteTimer(VoteData vote, string commandName)
         {
-            vote.ActiveTimer?.Kill();
+            SafeTimer.Kill(vote.ActiveTimer);
 
-            vote.ActiveTimer = jRandomSkills.Instance.AddTimer(vote.TimeToVote, () =>
+            vote.ActiveTimer = SafeTimer.Add(vote.TimeToVote, () =>
             {
                 if (!votes.ContainsKey(vote) || !vote.GetActive()) return;
 
@@ -45,7 +45,7 @@ namespace src.command
             StartVoteTimer(vote!, commandName);
 
             float[] times = [vote!.TimeToVote, vote.TimeToVote + vote.TimeToNextVoting, vote.TimeToVote + vote.TimeToNextSameVoting];
-            jRandomSkills.Instance.AddTimer(times.Max(), () =>
+            SafeTimer.Add(times.Max(), () =>
             {
                 if (!votes.ContainsKey(vote)) return;
                 votes.TryRemove(vote, out _);
@@ -93,7 +93,7 @@ namespace src.command
 
             if (voted >= playersNeeded)
             {
-                vote!.ActiveTimer?.Kill();
+                SafeTimer.Kill(vote!.ActiveTimer);
                 vote.SuccessAction.Invoke();
                 vote.SetActive(false);
             }

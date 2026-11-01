@@ -227,7 +227,7 @@ namespace src.player.skills
             if (pawn.ShotsFired != 0)
             {
                 pawn.ShotsFired = 0;
-                Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_iShotsFired");
+                NetStateFast.Changed(pawn, "CCSPlayerPawn", "m_iShotsFired");
             }
 
             var weapon = pawn.WeaponServices?.ActiveWeapon.Value;
@@ -239,25 +239,25 @@ namespace src.player.skills
             if (csWeapon.AccuracyPenalty != 0f)
             {
                 csWeapon.AccuracyPenalty = 0f;
-                Utilities.SetStateChanged(weapon, "CCSWeaponBase", "m_fAccuracyPenalty");
+                NetStateFast.Changed(weapon, "CCSWeaponBase", "m_fAccuracyPenalty");
             }
 
             if (csWeapon.FlRecoilIndex != 0f)
             {
                 csWeapon.FlRecoilIndex = 0f;
-                Utilities.SetStateChanged(weapon, "CCSWeaponBase", "m_flRecoilIndex");
+                NetStateFast.Changed(weapon, "CCSWeaponBase", "m_flRecoilIndex");
             }
 
             if (csWeapon.IRecoilIndex != 0)
             {
                 csWeapon.IRecoilIndex = 0;
-                Utilities.SetStateChanged(weapon, "CCSWeaponBase", "m_iRecoilIndex");
+                NetStateFast.Changed(weapon, "CCSWeaponBase", "m_iRecoilIndex");
             }
 
             if (csWeapon.TurningInaccuracy != 0f)
             {
                 csWeapon.TurningInaccuracy = 0f;
-                Utilities.SetStateChanged(weapon, "CCSWeaponBase", "m_flTurningInaccuracy");
+                NetStateFast.Changed(weapon, "CCSWeaponBase", "m_flTurningInaccuracy");
             }
         }
 
@@ -274,14 +274,14 @@ namespace src.player.skills
                 Zero(aim.PredictableBaseAngle);
                 Zero(aim.PredictableBaseAngleVel);
                 Zero(aim.UnpredictableBaseAngle);
-                Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_pAimPunchServices");
+                NetStateFast.Changed(pawn, "CCSPlayerPawn", "m_pAimPunchServices");
             }
 
             var camera = pawn.CameraServices;
             if (camera != null)
             {
                 Zero(camera.CsViewPunchAngle);
-                Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+                NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pCameraServices");
             }
         }
 

@@ -34,7 +34,7 @@ namespace src.player.skills
                 {
                     if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                     {
-                        UpdateHUD(player, skillInfo);
+                        if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
 
                         if (skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "duration")) > DateTime.Now)
                             LookAtEnemy(player);

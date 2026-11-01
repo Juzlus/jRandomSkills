@@ -251,6 +251,24 @@ namespace src.utils
             return CreateTrackedDynamicProp(ownerKey, "prop_dynamic_override");
         }
 
+        public static CCSCustomPlayerCamera? CreateTrackedPlayerCamera(uint ownerKey)
+        {
+            try
+            {
+                if (OverBudget()) return null;
+                var camera = Utilities.CreateEntityByName<CCSCustomPlayerCamera>("custom_player_camera");
+                if (camera == null || !camera.IsValid) return null;
+
+                RegisterEntity(camera.Index, ownerKey, "custom_player_camera");
+                return camera;
+            }
+            catch (Exception ex)
+            {
+                LogEntityError($"CreateTrackedPlayerCamera: {ex.Message}");
+                return null;
+            }
+        }
+
         public static CChicken? CreateTrackedChicken(uint ownerKey)
         {
             try

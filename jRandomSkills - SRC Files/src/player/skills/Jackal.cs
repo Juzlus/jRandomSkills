@@ -27,7 +27,7 @@ namespace src.player.skills
         {
             if (mainSkillTimer != null)
             {
-                mainSkillTimer.Kill();
+                SafeTimer.Kill(mainSkillTimer);
                 mainSkillTimer = null;
             }
 
@@ -92,8 +92,7 @@ namespace src.player.skills
                 foreach (var (ownerTeam, relayEntityIndex) in transmitTrails)
                 {
                     if (playerTeam == ownerTeam || !isJackalOwner)
-                        if (info.TransmitEntities.Contains(relayEntityIndex))
-                            info.TransmitEntities.Remove(relayEntityIndex);
+                        SkillUtils.HideTransmitDormant(info, relayEntityIndex);
                 }
             }
         }
@@ -151,10 +150,9 @@ namespace src.player.skills
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Key(), 0);
 
-            mainSkillTimer ??= Instance.AddTimer(2.5f, () => UpdateAllTrails(),
+            mainSkillTimer ??= SafeTimer.Add(2.5f, () => UpdateAllTrails(),
                     CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT | CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-            SkillUtils.ForceFullUpdateToAll();
         }
 
         private static void UpdateAllTrails()
@@ -174,7 +172,7 @@ namespace src.player.skills
 
             if (playersInAction.IsEmpty && mainSkillTimer != null)
             {
-                mainSkillTimer.Kill();
+                SafeTimer.Kill(mainSkillTimer);
                 mainSkillTimer = null;
             }
         }

@@ -128,6 +128,8 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             if (player == null || !player.IsValid) return;
+            SkillUtils.SetSkillHud(player, "empgrenade_hud", SkillsInfo.GetValue<float>(skillName, "jamSeconds"));
+
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
             playersWithSkill[player.Key()] = grenadeLimit;
@@ -138,6 +140,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             if (player == null || !player.IsValid) return;
 
             playersWithSkill.TryRemove(player.Key(), out _);

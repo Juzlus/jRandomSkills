@@ -103,7 +103,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid) return;
 
             pawn.MaxHealth = 100;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) return;
             SetHealth(pawn, Math.Clamp(pawn.Health + Math.Max(0, 100 - StartHealth()), 1, 100), 100);
@@ -114,10 +114,10 @@ namespace src.player.skills
         private static void SetHealth(CCSPlayerPawn pawn, int health, int maxHealth)
         {
             pawn.MaxHealth = maxHealth;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             pawn.Health = health;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int startHealth = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

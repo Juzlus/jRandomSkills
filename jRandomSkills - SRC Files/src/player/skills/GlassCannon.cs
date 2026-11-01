@@ -36,13 +36,13 @@ namespace src.player.skills
             if (pawn.MaxHealth != health)
             {
                 pawn.MaxHealth = health;
-                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+                NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
             }
 
             if (pawn.Health > health)
             {
                 pawn.Health = health;
-                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+                NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
             }
         }
 
@@ -72,12 +72,12 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid) return;
 
             pawn.MaxHealth = 100;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             if (SkillUtils.IsFreezeTime() && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE && pawn.Health > 0)
             {
                 pawn.Health = 100;
-                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+                NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
             }
         }
 

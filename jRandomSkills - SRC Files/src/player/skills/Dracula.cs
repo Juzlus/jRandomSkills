@@ -14,6 +14,11 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            SkillUtils.SetSkillHud(player, "dracula_hud", (int)MathF.Round(SkillsInfo.GetValue<float>(skillName, "healthRegainScale") * 100f));
+        }
+
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
@@ -28,18 +33,19 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             if (player == null || !player.IsValid) return;
 
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid) return;
 
             pawn.MaxHealth = 100;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             if (pawn.Health > 100)
             {
                 pawn.Health = 100;
-                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+                NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
             }
         }
 
@@ -61,12 +67,12 @@ namespace src.player.skills
                 if (attackerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || attackerPawn.Health <= 0) return;
 
                 attackerPawn.Health += extraHealth;
-                Utilities.SetStateChanged(attackerPawn, "CBaseEntity", "m_iHealth");
+                NetStateFast.Changed(attackerPawn, "CBaseEntity", "m_iHealth");
 
                 if (attackerPawn.MaxHealth < attackerPawn.Health)
                 {
                     attackerPawn.MaxHealth = attackerPawn.Health;
-                    Utilities.SetStateChanged(attackerPawn, "CBaseEntity", "m_iMaxHealth");
+                    NetStateFast.Changed(attackerPawn, "CBaseEntity", "m_iMaxHealth");
                 }
             });
         }

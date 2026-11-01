@@ -105,7 +105,7 @@ namespace src.player.skills
             }
 
             var enemy = PlayerManager.GetController(enemyIndex);
-            if (enemy == null || !enemy.IsValid)
+            if (enemy == null || !enemy.IsValid || !SkillUtils.GetSelectableEnemies(player).Any(e => e.Key() == enemy.Key()))
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}{playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index")}");
                 return;

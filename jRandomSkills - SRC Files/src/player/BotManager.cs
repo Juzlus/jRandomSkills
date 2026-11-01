@@ -21,23 +21,23 @@ namespace src.utils
             if (!Config.LoadedConfig.EnableBotSkills) return;
 
             Stop();
-            _skillTimer = Instance.AddTimer(SkillInterval, OnBotUseSkillTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+            _skillTimer = SafeTimer.Add(SkillInterval, OnBotUseSkillTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
 
             if (!Config.LoadedConfig.EnableBotKickDebug) return;
 
-            _rotationTimer = Instance.AddTimer(RotationInterval, OnBotRotationTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+            _rotationTimer = SafeTimer.Add(RotationInterval, OnBotRotationTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public static void Stop()
         {
             if (!Config.LoadedConfig.EnableBotSkills) return;
 
-            _skillTimer?.Kill();
+            SafeTimer.Kill(_skillTimer);
             _skillTimer = null;
 
             if (!Config.LoadedConfig.EnableBotKickDebug) return;
 
-            _rotationTimer?.Kill();
+            SafeTimer.Kill(_rotationTimer);
             _rotationTimer = null;
         }
 

@@ -36,11 +36,26 @@ namespace src.player.skills
                 SkillUtils.CloseMenu(player);
         }
 
-        public static void PlayerJump(EventPlayerJump @event)
+        public static int CursedTeamMask()
+        {
+            if (cursedPlayers.IsEmpty) return 0;
+
+            int mask = 0;
+            foreach (var kvp in cursedPlayers)
+            {
+                var cursed = PlayerManager.GetPlayerEvent(PlayerManager.GetController(kvp.Key));
+                if (cursed != null && cursed.IsValid)
+                    mask |= 1 << (int)cursed.Team;
+            }
+
+            return mask;
+        }
+
+        public static void PlayerJump(CCSPlayerController? jumpPlayer)
         {
             if (cursedPlayers.IsEmpty) return;
 
-            var jumper = PlayerManager.GetPlayerEvent(@event.Userid);
+            var jumper = PlayerManager.GetPlayerEvent(jumpPlayer);
             if (jumper == null || !jumper.IsValid) return;
             if (jumper.Team != CsTeam.Terrorist && jumper.Team != CsTeam.CounterTerrorist) return;
 
@@ -63,7 +78,8 @@ namespace src.player.skills
                 if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0) continue;
                 if ((pawn.Flags & (uint)PlayerFlags.FL_ONGROUND) == 0) continue;
 
-                pawn.AbsVelocity.Z = jumpVelocity;
+                var velocity = pawn.AbsVelocity;
+                pawn.Teleport(null, null, new Vector(velocity.X, velocity.Y, jumpVelocity));
             }
         }
 
@@ -108,7 +124,8 @@ namespace src.player.skills
 
             var enemy = PlayerManager.GetController(enemyIndex);
 
-            if (enemy == null || !enemy.IsValid || enemy.PlayerPawn.Value == null || !enemy.PlayerPawn.Value.IsValid)
+            if (enemy == null || !enemy.IsValid || enemy.PlayerPawn.Value == null || !enemy.PlayerPawn.Value.IsValid
+                || !SkillUtils.GetSelectableEnemies(player).Any(e => e.Key() == enemy.Key()))
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;

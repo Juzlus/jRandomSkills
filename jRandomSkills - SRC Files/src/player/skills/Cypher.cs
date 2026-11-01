@@ -6,7 +6,6 @@ using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Drawing;
 using System.Numerics;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
@@ -20,13 +19,11 @@ namespace src.player.skills
         private static readonly object setLock = new();
 
         private const string cameraPropModel = "models/props/de_train/hr_train_s2/train_electronics/train_electronics_security_camera_01.vmdl";
-        private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
             jRandomSkills.Instance.AddToManifest(cameraPropModel);
-            jRandomSkills.Instance.AddToManifest(cameraViewModel);
         }
 
         public static void NewRound()
@@ -114,13 +111,8 @@ namespace src.player.skills
                         DisableSkill(enemy);
                         continue;
                     }
-
-                    var cameraView = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerSkill.CameraView);
-                    if (cameraView == null || !cameraView.IsValid) continue;
-
-                    cameraView.Teleport(null, enemyPawn.V_angle);
                 }
-                UpdateHUD(playerSkill);
+                if (SkillUtils.IsHudFrame()) UpdateHUD(playerSkill);
             }
         }
 
@@ -143,7 +135,7 @@ namespace src.player.skills
                     return;
                 }
                 else
-                    playerInfo.CameraView = CreateCameraView(newProp)?.Index ?? null;
+                    playerInfo.CameraView = CreateCameraView(newProp, player)?.Index ?? null;
 
                 if (playerInfo.CameraView == null) return;
             }
@@ -156,7 +148,9 @@ namespace src.player.skills
 
             Server.NextWorldUpdate(() =>
             {
-                if (pawn != null && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+                if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return;
+
+                if (pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
                 {
                     if (playerInfo.CameraActive && playerInfo.CameraProp != null)
                     {
@@ -180,10 +174,10 @@ namespace src.player.skills
 
                 if (playerInfo.CameraActive && playerInfo.CameraView != null)
                 {
-                    var cameraView = Utilities.GetEntityFromIndex<CDynamicProp>((int)playerInfo.CameraView);
+                    var cameraView = Utilities.GetEntityFromIndex<CCSCustomPlayerCamera>((int)playerInfo.CameraView);
                     if (cameraView == null || !cameraView.IsValid) return;
 
-                    pawn!.CameraServices!.ViewEntity.Raw = cameraView.EntityHandle.Raw;
+                    pawn.CameraServices.ViewEntity.Raw = cameraView.EntityHandle.Raw;
 
                     var eventTarget = PlayerManager.GetPlayerFromEvent(player);
                     if (eventTarget != null && eventTarget.IsValid)
@@ -192,25 +186,25 @@ namespace src.player.skills
                     uint playerIndex = player.Key();
 
                     Timer? cameraTimer = null;
-                    cameraTimer = jRandomSkills.Instance.AddTimer(2f, () =>
+                    cameraTimer = SafeTimer.Add(2f, () =>
                     {
                         var target = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.IsValid && p.Key() == playerIndex);
                         if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                         {
-                            cameraTimer?.Kill();
+                            SafeTimer.Kill(cameraTimer);
                             return;
                         }
 
                         if (!playersInfo.TryGetValue(target.Key(), out var playerSkill) || playerSkill.CameraActive == false)
                         {
-                            cameraTimer?.Kill();
+                            SafeTimer.Kill(cameraTimer);
                             return;
                         }
 
                         var eventTarget = PlayerManager.GetPlayerFromEvent(player);
                         if (eventTarget == null || !eventTarget.IsValid)
                         {
-                            cameraTimer?.Kill();
+                            SafeTimer.Kill(cameraTimer);
                             return;
                         }
 
@@ -218,9 +212,9 @@ namespace src.player.skills
                     }, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
                 }
                 else
-                    pawn!.CameraServices!.ViewEntity.Raw = playerInfo.PlayerCameraRaw;
+                    pawn.CameraServices.ViewEntity.Raw = playerInfo.PlayerCameraRaw;
 
-                Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+                NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pCameraServices");
             });
         }
 
@@ -252,43 +246,19 @@ namespace src.player.skills
             return camera;
         }
 
-        private static CDynamicProp? CreateCameraView(CDynamicProp? cameraProp)
+        private static CCSCustomPlayerCamera? CreateCameraView(CDynamicProp? cameraProp, CCSPlayerController player)
         {
             if (cameraProp == null || !cameraProp.IsValid || cameraProp.AbsRotation == null || cameraProp.AbsOrigin == null)
                 return null;
+
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid) return null;
 
             Vector diffVector = SkillUtils.GetForwardVector(cameraProp.AbsRotation) * 25;
             Vector finalPos = cameraProp.AbsOrigin + diffVector;
             var camRot = new QAngle(cameraProp.AbsRotation.X, cameraProp.AbsRotation.Y, cameraProp.AbsRotation.Z);
 
-            uint ownerIndex = EntityManager.SystemOwnerIndex;
-            if (!string.IsNullOrEmpty(cameraProp.Entity?.Name))
-            {
-                var parts = cameraProp.Entity!.Name.Split('_');
-                if (parts.Length >= 3 && uint.TryParse(parts[^1], out var idx))
-                    ownerIndex = idx;
-            }
-
-            var camera = EntityManager.CreateTrackedDynamicProp(ownerIndex);
-            if (camera == null || !camera.IsValid) return null;
-
-            Server.NextFrame(() =>
-            {
-                if (camera == null || !camera.IsValid) return;
-
-                var camNode = camera.CBodyComponent?.SceneNode?.Owner?.Entity;
-                if (camNode != null)
-                    camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
-
-                camera.SetModel(cameraViewModel);
-                camera.Render = Color.FromArgb(1, 255, 255, 255);
-
-                camera.Teleport(finalPos, camRot);
-                camera.DispatchSpawn();
-                EntityManager.RegisterExisting(camera, ownerIndex, "prop_dynamic");
-            });
-
-            return camera;
+            return PlayerCamera.Create(player.Key(), pawn, CustomCameraMode_t.CUSTOM_CAMERA_MODE_CONTROLLED_POSITION, finalPos, camRot);
         }
 
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
@@ -327,8 +297,8 @@ namespace src.player.skills
                     weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
                     weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
 
-                    Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
-                    Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
+                    NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+                    NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                 }
         }
 

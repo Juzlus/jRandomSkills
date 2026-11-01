@@ -145,6 +145,7 @@ namespace src.player.skills
             float boostFactor = SkillsInfo.GetValue<float>(skillName, "boostFactor");
             int healAmount = SkillsInfo.GetValue<int>(skillName, "heal");
             float healRadius = SkillsInfo.GetValue<float>(skillName, "healRadius");
+            float returnDistance = SkillsInfo.GetValue<float>(skillName, "returnDistance");
 
             foreach (var (playerKey, chickens) in activeChickens)
             {
@@ -204,6 +205,15 @@ namespace src.player.skills
                     float pdz = pz - cz;
                     float distToPlayer = MathF.Sqrt(pdx * pdx + pdy * pdy + pdz * pdz);
 
+                    if (returnDistance > 0f && distToPlayer > returnDistance)
+                    {
+                        double angle = 2 * Math.PI * i / Math.Max(1, chickens.Count);
+                        chicken.Teleport(new Vector(px + 60f * (float)Math.Cos(angle), py + 60f * (float)Math.Sin(angle), pz), null, new Vector(0, 0, 0));
+                        state.HasLast = false;
+                        state.TickCounter = 0;
+                        continue;
+                    }
+
                     if (distToPlayer <= healRadius)
                     {
                         state.TickCounter++;
@@ -219,7 +229,7 @@ namespace src.player.skills
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f, int chickenHealth = 50, float boostFactor = 2.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f, int chickenHealth = 50, float boostFactor = 2.5f, float returnDistance = 500f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int Amount { get; set; } = amount;
             public int Heal { get; set; } = heal;
@@ -227,6 +237,7 @@ namespace src.player.skills
             public float HealRadius { get; set; } = healRadius;
             public int ChickenHealth { get; set; } = chickenHealth;
             public float BoostFactor { get; set; } = boostFactor;
+            public float ReturnDistance { get; set; } = returnDistance;
         }
     }
 }

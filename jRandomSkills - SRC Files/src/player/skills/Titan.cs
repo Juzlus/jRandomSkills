@@ -15,21 +15,21 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        private static float Scale => 1f + Math.Max(0f, SkillsInfo.GetValue<float>(skillName, "sizeBonus"));
+        public static float Scale => 1f + Math.Max(0f, SkillsInfo.GetValue<float>(skillName, "sizeBonus"));
 
         public static void EnableSkill(CCSPlayerController player)
         {
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            SkillUtils.ChangePlayerScale(player, Scale);
+            SkillUtils.ChangePlayerScale(player, Scale + Giant.ExtraScale(player.Key()));
 
             int health = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "health"));
             pawn.MaxHealth = health;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             pawn.Health = health;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -37,13 +37,13 @@ namespace src.player.skills
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            SkillUtils.ChangePlayerScale(player, 1f);
+            SkillUtils.ChangePlayerScale(player, 1f + Giant.ExtraScale(player.Key()));
 
             pawn.MaxHealth = 100;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             pawn.Health = Math.Min(pawn.Health, 100);
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
         }
 
         public static void OnTick()
@@ -53,9 +53,9 @@ namespace src.player.skills
             PlayerManager.FillSkillHolders(skillName, holderBuffer);
             if (holderBuffer.Count == 0) return;
 
-            float scale = Scale;
             foreach (var player in holderBuffer)
             {
+                float scale = Scale + Giant.ExtraScale(player.Key());
                 var pawn = player.PlayerPawn?.Value;
                 if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
 

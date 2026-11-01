@@ -21,13 +21,13 @@ namespace src.utils
 {
     public static class SkillUtils
     {
-        private static readonly ConcurrentDictionary<string, ConVar> cvarCache = [];
+        private static readonly ConcurrentDictionary<string, ConVarBase> cvarCache = [];
 
-        public static ConVar? Cvar(string name)
+        public static ConVarBase? Cvar(string name)
         {
             if (cvarCache.TryGetValue(name, out var cached)) return cached;
 
-            var cvar = ConVar.Find(name);
+            ConVarBase? cvar = ConVar<string>.Find(name);
             if (cvar != null) cvarCache[name] = cvar;
             return cvar;
         }
@@ -37,14 +37,19 @@ namespace src.utils
             var cvar = Cvar(name);
             if (cvar == null) return fallback;
 
-            try { return cvar.GetPrimitiveValue<T>(); }
+            try { return cvar.As<T>().Value; }
+            catch (InvalidOperationException)
+            {
+                try { return (T)Convert.ChangeType(cvar.ValueAsString, typeof(T), CultureInfo.InvariantCulture); }
+                catch { return fallback; }
+            }
             catch { return fallback; }
         }
 
         public static string CvarString(string name, string fallback)
         {
             var cvar = Cvar(name);
-            return cvar == null ? fallback : cvar.StringValue;
+            return cvar == null ? fallback : cvar.ValueAsString;
         }
 
         private static Lazy<T?> LazySig<T>(string name, Func<string, T> factory) where T : class =>
@@ -106,7 +111,7 @@ namespace src.utils
             var gameRules = jRandomSkills.Instance?.GameRules;
             if (gameRules == null) return false;
 
-            if (gameRules.TotalRoundsPlayed == 0 || gameRules.GameRestart) return true;
+            if (gameRules.TotalRoundsPlayed == 0 || (gameRules.GameRestart && gameRules.RestartRoundTime > Server.CurrentTime)) return true;
 
             try
             {
@@ -138,9 +143,16 @@ namespace src.utils
             return weapon != null && weapon.IsValid && weapon.Clip1 > 0;
         }
 
+        private static readonly ConcurrentDictionary<CsItem, string?> itemNames = [];
+
+        private static string? ItemName(CsItem item)
+        {
+            return itemNames.GetOrAdd(item, static i => EnumUtils.GetEnumMemberAttributeValue(i));
+        }
+
         public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
         {
-            string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
+            string? itemString = ItemName(item);
             if (string.IsNullOrWhiteSpace(itemString)) return;
 
             var pawn = player?.PlayerPawn.Value;
@@ -157,18 +169,89 @@ namespace src.utils
             if (ammoType < 0 || ammoType >= services.Ammo.Length) return;
 
             services.Ammo[ammoType] = (ushort)Math.Clamp(ammo, 1, ushort.MaxValue);
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pWeaponServices");
+            NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pWeaponServices");
 
             if (weapon.Clip1 != -1)
             {
                 weapon.Clip1 = -1;
-                Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
+                NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_iClip1");
             }
+        }
+
+        private static readonly ConcurrentDictionary<uint, int> lastGrenadeThrowTick = [];
+
+        public static void MarkGrenadeThrown(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid) return;
+            lastGrenadeThrowTick[player.Key()] = Server.TickCount;
+        }
+
+        public static bool ThrewGrenadeRecently(CCSPlayerController player)
+        {
+            return lastGrenadeThrowTick.TryGetValue(player.Key(), out int tick) && Server.TickCount - tick <= 128;
+        }
+
+        public static void ForgetGrenadeThrow(uint playerKey)
+        {
+            lastGrenadeThrowTick.TryRemove(playerKey, out _);
+        }
+
+        public static int ClampGrenadeAfterPickup(CCSPlayerController player, CsItem item, int allowed)
+        {
+            int limit = item == CsItem.FlashbangGrenade ? CvarValue("ammo_grenade_limit_flashbang", 2) : 1;
+            int held = Math.Min(Math.Clamp(GetGrenadeCount(player, item), 1, Math.Max(limit, 1)), Math.Max(allowed, 1));
+            UpdateGrenadeCount(player, item, held);
+            return held;
+        }
+
+        public static void HideTransmit(CCheckTransmitInfo info, uint index)
+        {
+            if (index != 0 && info.TransmitEntities.Contains(index))
+                info.TransmitEntities.Remove(index);
+        }
+
+        public static void HideTransmit(CCheckTransmitInfo info, int index)
+        {
+            if (index > 0) HideTransmit(info, (uint)index);
+        }
+
+        public static void HideTransmitDormant(CCheckTransmitInfo info, uint index)
+        {
+            if (index == 0 || !info.TransmitEntities.Contains(index)) return;
+
+            info.TransmitEntities.Remove(index);
+            info.TransmitAlways.Add(index);
+        }
+
+        public static void HideTransmitDormant(CCheckTransmitInfo info, int index)
+        {
+            if (index > 0) HideTransmitDormant(info, (uint)index);
+        }
+
+        public static int GetGrenadeCount(CCSPlayerController player, CsItem item)
+        {
+            string? itemString = ItemName(item);
+            if (string.IsNullOrWhiteSpace(itemString)) return 0;
+
+            var pawn = player?.PlayerPawn.Value;
+            if (player == null || !player.IsValid || pawn == null || !pawn.IsValid) return 0;
+
+            var services = pawn.WeaponServices;
+            if (services == null) return 0;
+
+            var weapon = services.MyWeapons
+                .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString)?.Value;
+            if (weapon == null) return 0;
+
+            int ammoType = weapon.GetVData<CBasePlayerWeaponVData>()?.PrimaryAmmoType ?? -1;
+            if (ammoType < 0 || ammoType >= services.Ammo.Length) return 0;
+
+            return services.Ammo[ammoType];
         }
 
         public static void TryGiveWeapon(CCSPlayerController player, CsItem item, int count = 1, bool existValidator = true)
         {
-            string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
+            string? itemString = ItemName(item);
             if (string.IsNullOrWhiteSpace(itemString)) return;
 
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
@@ -296,7 +379,7 @@ namespace src.utils
             Server.NextWorldUpdate(() =>
             {
                 if (playerPawn == null || !playerPawn.IsValid) return;
-                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+                NetStateFast.Changed(playerPawn, "CBaseEntity", "m_CBodyComponent");
             });
         }
 
@@ -808,6 +891,7 @@ namespace src.utils
                 .Select(PlayerManager.GetPlayerEvent)
                 .Where(p => p != null && p.IsValid && p.Key() != self && p.Team == player.Team
                     && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
+                    && p.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE
                     && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
                 .Cast<CCSPlayerController>()];
         }
@@ -862,6 +946,7 @@ namespace src.utils
                 .Select(PlayerManager.GetPlayerEvent)
                 .Where(p => p != null && p.IsValid && p.Team != player.Team
                     && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
+                    && p.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE
                     && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
                 .Cast<CCSPlayerController>()];
         }
@@ -933,7 +1018,7 @@ namespace src.utils
             }
 
             pawn.Health = newHealth;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
 
             if (pawn.Health <= 0)
             {
@@ -1067,8 +1152,7 @@ namespace src.utils
         public static void HideCarriedEntities(CCheckTransmitInfo info, in HiddenPawn target)
         {
             foreach (var index in target.CarriedIndexes)
-                if (info.TransmitEntities.Contains(index))
-                    info.TransmitEntities.Remove(index);
+                SkillUtils.HideTransmit(info, index);
         }
 
         public static void ResetPrintHTML(CCSPlayerController? player)
@@ -1077,6 +1161,19 @@ namespace src.utils
             var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
             playerInfo.PrintHTML = null;
+        }
+
+        public static void SetSkillHud(CCSPlayerController? player, string key, params object[] values)
+        {
+            if (player == null || !player.IsValid) return;
+            var playerInfo = PlayerManager.GetPlayer(player);
+            if (playerInfo == null) return;
+
+            var colored = new object[values.Length];
+            for (int i = 0; i < values.Length; i++)
+                colored[i] = $"<font color='#9fe8ff'>{values[i]}</font>";
+
+            playerInfo.PrintHTML = player.GetTranslation(key, colored);
         }
 
         public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
@@ -1134,27 +1231,7 @@ namespace src.utils
             if (tickCount == lastForceFullUpdateAll) return;
 
             lastForceFullUpdateAll = tickCount;
-            var playersToRestore = new List<(uint PlayerKey, QAngle LastAngle)>();
-
-            INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
-            foreach (var player in Utilities.GetPlayers())
-                ForceFullUpdate(player, playersToRestore, networkGameServer);
-
-            if (playersToRestore.Count <= 0) return;
-
-            jRandomSkills.Instance.AddTickTimer(3, () =>
-            {
-                foreach (var item in playersToRestore)
-                {
-                    var target = PlayerManager.GetController(item.PlayerKey);
-                    if (target == null) continue;
-
-                    var targetPawn = target.PlayerPawn?.Value;
-                    if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
-
-                    targetPawn.Look(item.LastAngle);
-                }
-            });
+            ForceFullUpdateToAllChunked(1);
         }
 
         public static void ForceFullUpdateToAllChunked(int clientsPerFrame = 2)
@@ -1165,6 +1242,19 @@ namespace src.utils
             if (pending.Count == 0) return;
 
             ForceFullUpdateChunk(pending, 0, Math.Max(clientsPerFrame, 1));
+        }
+
+        public static void ForceFullUpdateToEnemiesOf(CCSPlayerController player)
+        {
+            if (!Config.LoadedConfig.EnableFullForceUpdate || player == null || !player.IsValid) return;
+
+            var team = player.Team;
+            var pending = Utilities.GetPlayers()
+                .Where(p => p != null && p.IsValid && !p.IsBot && p.Team != team && p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist)
+                .Select(p => p.Key()).ToList();
+            if (pending.Count == 0) return;
+
+            ForceFullUpdateChunk(pending, 0, 1);
         }
 
         private static void ForceFullUpdateChunk(List<uint> pending, int start, int clientsPerFrame)
@@ -1212,10 +1302,10 @@ namespace src.utils
                 return false;
 
             pawn.Health = Math.Min(newHealth, (int)maxHealth);
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
 
             pawn.MaxHealth = (int)maxHealth;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             return true;
         }
@@ -1232,10 +1322,10 @@ namespace src.utils
 
             int newHealth = (int)(pawn.Health + extraHealth);
             pawn.Health = Math.Min(newHealth, (int)maxHealth);
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
 
             pawn.MaxHealth = (int)maxHealth;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             return true;
         }
@@ -1254,7 +1344,7 @@ namespace src.utils
                 return;
 
             pawn.Health = (int)p.PawnHealth;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
         }
 
         private static readonly Dictionary<string, bool> networkedFields = [];
@@ -1268,7 +1358,7 @@ namespace src.utils
                 networkedFields[key] = networked;
             }
             if (networked)
-                Utilities.SetStateChanged(entity, className, fieldName);
+                NetStateFast.Changed(entity, className, fieldName);
         }
 
         public static void ForceStateChanged(CBaseEntity entity, string className, string fieldName)
@@ -1428,7 +1518,6 @@ namespace src.utils
 
             var config = Config.LoadedConfig.HtmlHudCustomisation;
             var your_skill = player.GetTranslationWithoutIlliterate("your_skill");
-            var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(your_skill) ? "l" : "ml")}'> </font>";
 
             string infoLine = string.IsNullOrEmpty(your_skill) || string.IsNullOrEmpty(config.HeaderLineSize)
                 ? ""
@@ -1445,17 +1534,9 @@ namespace src.utils
 
             var hudContent = infoLine + skillLine + remainingLine;
 
-            string controllsLine = string.IsNullOrEmpty(config.WSADMenuControllsLineSize) ? "" :
-                $"{emptySymbol}<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor1}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_scroll")}</font>"
-                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor2}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_padding")}</font>"
-                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_select")}</font>{emptySymbol}<br>";
-
-            string itemText = $"<font class='fontSize-{config.WSADMenuItemLineSize}' color='{config.WSADMenuItemLineColor}'>{{0}}</font><br>";
-            string itemHoverText = $"<font class='fontSize-{config.WSADMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WSADMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
-
             bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
 
-            IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
+            IWasdMenu menu = NewMenu(manager, player, hudContent, string.IsNullOrEmpty(your_skill));
             foreach (var enemy in enemies)
             {
                 string encodedEnemyName = isIlliterate
@@ -1495,6 +1576,40 @@ namespace src.utils
             }
 
             manager.OpenMainMenu(player, menu);
+        }
+
+        private static IWasdMenu NewMenu(IWasdMenuManager manager, CCSPlayerController player, string hudContent, bool largeSpacer)
+        {
+            var config = Config.LoadedConfig.HtmlHudCustomisation;
+            var emptySymbol = $"<font class='fontSize-{(largeSpacer ? "l" : "ml")}'> </font>";
+
+            string controllsLine = string.IsNullOrEmpty(config.WSADMenuControllsLineSize) ? "" :
+                $"{emptySymbol}<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor1}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_scroll")}</font>"
+                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor2}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_padding")}</font>"
+                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslationWithoutIlliterate($"menu_controlls_select")}</font>{emptySymbol}<br>";
+
+            string itemText = $"<font class='fontSize-{config.WSADMenuItemLineSize}' color='{config.WSADMenuItemLineColor}'>{{0}}</font><br>";
+            string itemHoverText = $"<font class='fontSize-{config.WSADMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WSADMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
+
+            return manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
+        }
+
+        public static IWasdMenu? CreateListMenu(CCSPlayerController player, string title, string color, string info)
+        {
+            var manager = GetMenuManager();
+            if (manager == null) return null;
+
+            var config = Config.LoadedConfig.HtmlHudCustomisation;
+            string hudContent = $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{color}'>‪{title}‬</font><br>";
+            if (!string.IsNullOrWhiteSpace(info) && !string.IsNullOrEmpty(config.WSADMenuSelectInfoLineSize))
+                hudContent += $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{info}</font><br>";
+
+            return NewMenu(manager, player, hudContent, true);
+        }
+
+        public static void OpenMenu(CCSPlayerController player, IWasdMenu menu)
+        {
+            GetMenuManager()?.OpenMainMenu(player, menu);
         }
 
         public static void ToogleDoor(CBaseEntity entity, CBasePlayerPawn pawn)
@@ -1566,7 +1681,7 @@ namespace src.utils
                     reward += personalBonus;
 
                 moneyServices.Account = Math.Clamp(moneyServices.Account + reward, 0, maxMoney);
-                Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+                NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
             }
         }
 
@@ -1668,19 +1783,19 @@ namespace src.utils
                 ctTeam.ScoreFirstHalf = match.m_ctScoreFirstHalf;
                 ctTeam.ScoreSecondHalf = match.m_ctScoreSecondHalf;
                 ctTeam.ScoreOvertime = match.m_ctScoreOvertime;
-                Utilities.SetStateChanged(ctTeam, "CTeam", "m_iScore");
-                Utilities.SetStateChanged(ctTeam, "CCSTeam", "m_scoreFirstHalf");
-                Utilities.SetStateChanged(ctTeam, "CCSTeam", "m_scoreSecondHalf");
-                Utilities.SetStateChanged(ctTeam, "CCSTeam", "m_scoreOvertime");
+                NetStateFast.Changed(ctTeam, "CTeam", "m_iScore");
+                NetStateFast.Changed(ctTeam, "CCSTeam", "m_scoreFirstHalf");
+                NetStateFast.Changed(ctTeam, "CCSTeam", "m_scoreSecondHalf");
+                NetStateFast.Changed(ctTeam, "CCSTeam", "m_scoreOvertime");
 
                 tTeams.Score = match.m_terroristScoreTotal;
                 tTeams.ScoreFirstHalf = match.m_terroristScoreFirstHalf;
                 tTeams.ScoreSecondHalf = match.m_terroristScoreSecondHalf;
                 tTeams.ScoreOvertime = match.m_terroristScoreOvertime;
-                Utilities.SetStateChanged(tTeams, "CTeam", "m_iScore");
-                Utilities.SetStateChanged(tTeams, "CCSTeam", "m_scoreFirstHalf");
-                Utilities.SetStateChanged(tTeams, "CCSTeam", "m_scoreSecondHalf");
-                Utilities.SetStateChanged(tTeams, "CCSTeam", "m_scoreOvertime");
+                NetStateFast.Changed(tTeams, "CTeam", "m_iScore");
+                NetStateFast.Changed(tTeams, "CCSTeam", "m_scoreFirstHalf");
+                NetStateFast.Changed(tTeams, "CCSTeam", "m_scoreSecondHalf");
+                NetStateFast.Changed(tTeams, "CCSTeam", "m_scoreOvertime");
             }
         }
     }

@@ -151,7 +151,7 @@ namespace src.utils
                     prop.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
                 }
 
-                Utilities.SetStateChanged(prop, "CBaseEntity", "m_CBodyComponent");
+                NetStateFast.Changed(prop, "CBaseEntity", "m_CBodyComponent");
             });
         }
 

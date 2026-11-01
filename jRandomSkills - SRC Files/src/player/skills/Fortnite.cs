@@ -137,7 +137,7 @@ namespace src.player.skills
             {
                 if (box == null || !box.IsValid) return;
                 box.Teleport(pos, angle, null);
-                Utilities.SetStateChanged(box, "CBaseEntity", "m_CBodyComponent");
+                NetStateFast.Changed(box, "CBaseEntity", "m_CBodyComponent");
             });
         }
 

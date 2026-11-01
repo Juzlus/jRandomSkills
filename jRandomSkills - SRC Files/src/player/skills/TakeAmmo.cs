@@ -75,13 +75,13 @@ namespace src.player.skills
                 OriginalWeaponMaxAmmo.TryGetValue(weapon.DesignerName, out var items);
 
                 weapon.ReserveAmmo.Fill(items.Item1);
-                Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
+                NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
             }
         }
 
         public static void OnTick()
         {
-            if (SkillPlayerInfo.IsEmpty) return;
+            if (SkillPlayerInfo.IsEmpty || !SkillUtils.IsHudFrame()) return;
 
             var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
@@ -214,7 +214,7 @@ namespace src.player.skills
                 magazines = (int)(magazines * activeWeapon.VData.MaxClip1);
 
             activeWeapon.ReserveAmmo.Fill(magazines);
-            Utilities.SetStateChanged(activeWeapon, "CBasePlayerWeapon", "m_pReserveAmmo");
+            NetStateFast.Changed(activeWeapon, "CBasePlayerWeapon", "m_pReserveAmmo");
 
             string weaponName = activeWeapon.DesignerName;
             string weaponIndex = activeWeapon.AttributeManager.Item.ItemDefinitionIndex.ToString();
@@ -266,7 +266,7 @@ namespace src.player.skills
                 if (activeWeapon.ReserveAmmo.Length > 0 && activeWeapon.ReserveAmmo[0] > ammoLimit)
                 {
                     activeWeapon.ReserveAmmo.Fill(ammoLimit);
-                    Utilities.SetStateChanged(activeWeapon, "CBasePlayerWeapon", "m_pReserveAmmo");
+                    NetStateFast.Changed(activeWeapon, "CBasePlayerWeapon", "m_pReserveAmmo");
                 }
             }
         }

@@ -37,15 +37,15 @@ namespace src.player.skills
             weapon.Clip1 = weapon.VData.MaxClip1;
             weapon.ReserveAmmo.Fill(reserve);
 
-            Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
-            Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
+            NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_iClip1");
+            NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
             SkillUtils.AddHealth(pawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
 
             float effectDuration = SkillsInfo.GetValue<float>(skillName, "effectDuration");
             if (effectDuration > 0)
             {
                 pawn.HealthShotBoostExpirationTime = Server.CurrentTime + effectDuration;
-                Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_flHealthShotBoostExpirationTime");
+                NetStateFast.Changed(pawn, "CCSPlayerPawn", "m_flHealthShotBoostExpirationTime");
             }
         }
 

@@ -107,7 +107,7 @@ namespace src.player.skills
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
             enemyEvent.DesiredFOV = magnifierFov;
-            Utilities.SetStateChanged(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
+            NetStateFast.Changed(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
             playerInfo.SkillUsed = true;
 
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("magnifier_player_info", enemy.PlayerName));
@@ -131,7 +131,7 @@ namespace src.player.skills
                 Event.playersCustomFOV.AddOrUpdate(player.Key(), player.DesiredFOV, (k, v) => player.DesiredFOV);
 
             player.DesiredFOV = magnifierFov;
-            Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+            NetStateFast.Changed(player, "CBasePlayerController", "m_iDesiredFOV");
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -165,7 +165,7 @@ namespace src.player.skills
                     if (target.DesiredFOV == SkillsInfo.GetValue<uint>(skillName, "customFOV"))
                     {
                         target.DesiredFOV = Event.playersCustomFOV.TryGetValue(target.Key(), out uint fov) ? fov : 0;
-                        Utilities.SetStateChanged(target, "CBasePlayerController", "m_iDesiredFOV");
+                        NetStateFast.Changed(target, "CBasePlayerController", "m_iDesiredFOV");
                     }
 
                     if (target.PawnIsAlive)
@@ -177,7 +177,7 @@ namespace src.player.skills
             if (player.DesiredFOV != 0)
             {
                 player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Key(), out uint fov) ? fov : 0;
-                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+                NetStateFast.Changed(player, "CBasePlayerController", "m_iDesiredFOV");
             }
 
             SkillUtils.ResetPrintHTML(player);
@@ -191,7 +191,7 @@ namespace src.player.skills
             if (player.DesiredFOV == SkillsInfo.GetValue<uint>(skillName, "customFOV"))
             {
                 player.DesiredFOV = Event.playersCustomFOV.TryGetValue(player.Key(), out uint fov) ? fov : 0;
-                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+                NetStateFast.Changed(player, "CBasePlayerController", "m_iDesiredFOV");
             }
 
             SkillUtils.ResetPrintHTML(player);

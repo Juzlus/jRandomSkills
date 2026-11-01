@@ -22,10 +22,11 @@ namespace src.player.skills
         {
             lock (setLock)
             {
-                foreach (var targetIndex in enlargedEnemies.Values.ToArray())
-                    ResetScale(targetIndex);
-
+                var targets = enlargedEnemies.Values.ToArray();
                 enlargedEnemies.Clear();
+
+                foreach (var targetIndex in targets)
+                    ResetScale(targetIndex);
 
                 foreach (var player in PlayerManager.GetTickPlayers())
                     SkillUtils.CloseMenu(player);
@@ -110,7 +111,7 @@ namespace src.player.skills
             }
 
             var enemy = PlayerManager.GetController(enemyIndex);
-            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team)
+            if (enemy == null || !enemy.IsValid || enemy.Team == player.Team || !GetSelectableEnemies(player).Any(e => e.Key() == enemy.Key()))
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
@@ -129,8 +130,8 @@ namespace src.player.skills
                 if (enlargedEnemies.TryRemove(player.Key(), out uint previousTarget))
                     ResetScale(previousTarget, notify: true);
 
-                SkillUtils.ChangePlayerScale(enemy, newSize);
                 enlargedEnemies[player.Key()] = enemy.Key();
+                SkillUtils.ChangePlayerScale(enemy, TargetScale(enemy));
             }
 
             playerInfo.SkillUsed = true;
@@ -161,13 +162,12 @@ namespace src.player.skills
         {
             lock (setLock)
             {
-                foreach (var kvp in enlargedEnemies)
+                foreach (uint targetKey in enlargedEnemies.Values.Distinct())
                 {
-                    float expected = PlayerManager.GetPlayerByKey(kvp.Key)?.SkillChance ?? 0f;
-                    if (expected <= 0f) continue;
-
-                    var target = PlayerManager.GetController(kvp.Value);
+                    var target = PlayerManager.GetController(targetKey);
                     if (target == null || !target.IsValid) continue;
+
+                    float expected = TargetScale(target);
 
                     var pawn = target.PlayerPawn?.Value;
                     if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
@@ -188,14 +188,44 @@ namespace src.player.skills
             var pawn = target.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.CBodyComponent == null) return;
 
-            SkillUtils.ChangePlayerScale(target, 1);
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_CBodyComponent");
+            SkillUtils.ChangePlayerScale(target, TargetScale(target));
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_CBodyComponent");
 
             if (!notify) return;
 
             var targetEvent = PlayerManager.GetPlayerFromEvent(target);
             if (targetEvent != null && targetEvent.IsValid && targetEvent.PawnIsAlive)
                 targetEvent.PrintToChat($" {ChatColors.Green}" + targetEvent.GetTranslation("giant_disable_info"));
+        }
+
+        public static float ExtraScale(uint targetKey)
+        {
+            float extra = 0f;
+            foreach (var kvp in enlargedEnemies)
+            {
+                if (kvp.Value != targetKey) continue;
+
+                float size = PlayerManager.GetPlayerByKey(kvp.Key)?.SkillChance ?? 1f;
+                if (size > 0f) extra += size - 1f;
+            }
+
+            return extra;
+        }
+
+        private static float BaseScale(CCSPlayerController target)
+        {
+            var info = PlayerManager.GetPlayer(target);
+            return info?.Skill switch
+            {
+                Skills.Dwarf => info.SkillChance is float size && size > 0f ? size : 1f,
+                Skills.Titan => Titan.Scale,
+                _ => 1f,
+            };
+        }
+
+        private static float TargetScale(CCSPlayerController target)
+        {
+            return Math.Max(.1f, BaseScale(target) + ExtraScale(target.Key()));
         }
 
         private static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player)

@@ -56,12 +56,23 @@ namespace src.player.skills
             {
                 invisiblePlayers.TryAdd(player.Key(), 0);
                 SkillUtils.SetPlayerInvisibility(player, .5f);
+                UpdateHud(player, true);
             }
             else
             {
                 invisiblePlayers.TryRemove(player.Key(), out _);
                 SkillUtils.SetPlayerInvisibility(player, 0);
+                UpdateHud(player, false);
             }
+        }
+
+        private static void UpdateHud(CCSPlayerController player, bool hidden)
+        {
+            var playerInfo = PlayerManager.GetPlayer(player);
+            if (playerInfo == null) return;
+
+            string state = player.GetTranslation(hidden ? "c4camouflage_hidden" : "c4camouflage_visible");
+            playerInfo.PrintHTML = player.GetTranslation("c4camouflage_hud", $"<font color='{(hidden ? "#3ad15a" : "#ff4d4d")}'>{state}</font>");
         }
 
         public static void OnTick()
@@ -113,15 +124,13 @@ namespace src.player.skills
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
                     if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    if (info.TransmitEntities.Contains(target.PawnIndex))
-                        info.TransmitEntities.Remove(target.PawnIndex);
+                    SkillUtils.HideTransmit(info, target.PawnIndex);
 
                     SkillUtils.HideCarriedEntities(info, target);
 
                     if (bomb == null) continue;
 
-                    if (info.TransmitEntities.Contains(bomb.Index))
-                        info.TransmitEntities.Remove(bomb.Index);
+                    SkillUtils.HideTransmit(info, bomb.Index);
                 }
             }
         }
@@ -131,6 +140,7 @@ namespace src.player.skills
             Event.EnableTransmit();
 
             if (player == null || !player.IsValid) return;
+            UpdateHud(player, false);
             var playerPawn = player.PlayerPawn.Value;
 
             if (playerPawn == null || !playerPawn.IsValid) return;
@@ -146,12 +156,14 @@ namespace src.player.skills
 
             invisiblePlayers.TryAdd(player.Key(), 0);
             SkillUtils.SetPlayerInvisibility(player, .5f);
+            UpdateHud(player, true);
 
-            SkillUtils.ForceFullUpdateToAll();
+            SkillUtils.ForceFullUpdateToEnemiesOf(player);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             invisiblePlayers.TryRemove(player.Key(), out _);
             SkillUtils.SetPlayerInvisibility(player, 0);
             EntityManager.DestroyPlayerEntities(player.Key());
@@ -177,7 +189,7 @@ namespace src.player.skills
             emptyProp.DispatchSpawn();
             emptyProp.Teleport(newPos, newAngle);
 
-            Utilities.SetStateChanged(emptyProp, "CBaseEntity", "m_CBodyComponent");
+            NetStateFast.Changed(emptyProp, "CBaseEntity", "m_CBodyComponent");
 
         }
 
@@ -209,7 +221,7 @@ namespace src.player.skills
                 pawn.EntitySpottedState.SpottedByMask[1] = 0;
             }
 
-            if (bomb != null && bomb.IsValid && bomb.OwnerEntity?.Index is uint ownerEntity && (ownerEntity == player.Index || ownerEntity == player.PlayerPawn.Index))
+            if (bomb != null && bomb.IsValid && bomb.OwnerEntity?.Index is uint ownerEntity && (ownerEntity == player.Index || ownerEntity == player.PlayerPawn?.Index))
             {
                 bomb.EntitySpottedState.Spotted = false;
                 bomb.EntitySpottedState.SpottedByMask[0] = 0;

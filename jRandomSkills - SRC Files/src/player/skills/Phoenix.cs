@@ -75,7 +75,7 @@ namespace src.player.skills
             phoenixTicks[victim.Key()] = Server.TickCount;
 
             victimPawn.Health = 100;
-            Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(victimPawn, "CBaseEntity", "m_iHealth");
 
             SkillUtils.PrintToChat(victim, victim.GetTranslation("phoenix_respawn"));
 

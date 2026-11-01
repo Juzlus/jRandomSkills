@@ -38,7 +38,10 @@ namespace src.player.skills
             });
 
             if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
+            {
                 skillInfo.HaveGodMode = true;
+                skillInfo.ReadyHudShown = false;
+            }
         }
 
         public static void OnTick()
@@ -101,9 +104,16 @@ namespace src.player.skills
             if (playerInfo == null) return;
 
             if (cooldown == 0)
-                playerInfo.PrintHTML = null;
+            {
+                if (skillInfo == null || skillInfo.ReadyHudShown) return;
+                skillInfo.ReadyHudShown = true;
+                SkillUtils.SetSkillHud(player, "godmode_hud", SkillsInfo.GetValue<float>(skillName, "duration"));
+            }
             else
+            {
+                if (skillInfo != null) skillInfo.ReadyHudShown = false;
                 playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
+            }
         }
 
         public static void UseSkill(CCSPlayerController player)
@@ -158,6 +168,7 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
             public bool HaveGodMode { get; set; }
+            public bool ReadyHudShown { get; set; }
             public DateTime Cooldown { get; set; }
             public Color? OriginalRender { get; set; }
         }

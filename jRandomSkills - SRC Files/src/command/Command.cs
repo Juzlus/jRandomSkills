@@ -569,12 +569,18 @@ namespace src.command
             }
         }
 
-        [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_ONLY)]
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_ChangeLanguage(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_lang {command.ArgString} command.");
             if (player == null || !player.IsValid) return;
             if (!string.IsNullOrEmpty(config.NormalCommands.ChangeLanguageCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ChangeLanguageCommand.Permissions)) return;
+
+            if (command.ArgCount < 2)
+            {
+                Menu.DisplayLanguageList(player);
+                return;
+            }
 
             string fileName = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
             string newLangCode = command.GetArg(1).ToUpper();

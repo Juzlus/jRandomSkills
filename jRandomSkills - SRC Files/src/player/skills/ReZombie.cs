@@ -21,11 +21,13 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
+            SkillUtils.SetSkillHud(player, "rezombie_hud", SkillsInfo.GetValue<int>(skillName, "zombieHealth"));
             zombies.TryRemove(player.Key(), out _);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             zombies.TryRemove(player.Key(), out _);
             SetPlayerColor(player.PlayerPawn.Value, true);
@@ -38,10 +40,10 @@ namespace src.player.skills
             if (pawn == null) return;
 
             pawn.MaxHealth = 100;
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iMaxHealth");
 
             pawn.Health = Math.Min(pawn.Health, 100);
-            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
         }
 
         public static void WeaponEquip(EventItemEquip @event)

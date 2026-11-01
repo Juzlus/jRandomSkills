@@ -45,10 +45,10 @@ namespace src.player.skills
             if (transfer <= 0) return;
 
             victimMoneyServices.Account -= transfer;
-            Utilities.SetStateChanged(victim!, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(victim!, "CCSPlayerController", "m_pInGameMoneyServices");
 
             attackerMoneyServices.Account += transfer;
-            Utilities.SetStateChanged(attacker!, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(attacker!, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#119125", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int moneyMultiplier = 35) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

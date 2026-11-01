@@ -28,6 +28,13 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
             holders[player.Key()] = 0;
+
+            var playerInfo = PlayerManager.GetPlayer(player);
+            if (playerInfo != null)
+            {
+                int percent = (int)MathF.Round(SkillsInfo.GetValue<float>(skillName, "armorShare") * 100f);
+                playerInfo.PrintHTML = player.GetTranslation("truearmor_hud", $"<font color='#9ad3f5'>{percent}</font>");
+            }
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -35,6 +42,10 @@ namespace src.player.skills
             if (player == null) return;
             holders.TryRemove(player.Key(), out _);
             pending.TryRemove(player.Key(), out _);
+
+            var playerInfo = PlayerManager.GetPlayer(player);
+            if (playerInfo != null)
+                playerInfo.PrintHTML = null;
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -47,7 +58,7 @@ namespace src.player.skills
         {
             if (holders.IsEmpty) return;
 
-            if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out var info)) return;
+            if (!TryResolveVictim(damagedEntity, damageInfo, out var victim, out var victimPawn, out var info) || victim == null) return;
             if (!holders.ContainsKey(victim!.Key())) return;
 
             int armor = victimPawn!.ArmorValue;
@@ -68,7 +79,7 @@ namespace src.player.skills
             pending[victim.Key()] = new PendingArmor(restoredArmor, hadHelmet);
             victimPawn.ArmorValue = 0;
 
-            Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
+            NetStateFast.Changed(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
 
             Debug.WriteToDebug($"[TrueArmor] {victim.PlayerName}: raw={damage:0.#} absorbed={absorbed:0.#} " +
                 $"passed={info.Damage:0.#} armor={armor}->{restoredArmor} helmet={hadHelmet} hp={victimPawn.Health}", DebugCategory.Damage);
@@ -82,7 +93,7 @@ namespace src.player.skills
             if (!pending.TryRemove(victim!.Key(), out var restored)) return;
 
             victimPawn!.ArmorValue = restored.Armor;
-            Utilities.SetStateChanged(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
+            NetStateFast.Changed(victimPawn, "CCSPlayerPawn", "m_ArmorValue");
 
             if (!restored.HasHelmet) return;
 
@@ -94,7 +105,7 @@ namespace src.player.skills
             if (owner != null && owner.IsValid && !owner.PawnHasHelmet)
             {
                 owner.PawnHasHelmet = true;
-                Utilities.SetStateChanged(owner, "CCSPlayerController", "m_bPawnHasHelmet");
+                NetStateFast.Changed(owner, "CCSPlayerController", "m_bPawnHasHelmet");
             }
         }
 

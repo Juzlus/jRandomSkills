@@ -243,7 +243,7 @@ namespace src.player.skills
                 {
                     if (molotov == null || !molotov.IsValid) return;
                     molotov.DetonateTime += 30f;
-                    Utilities.SetStateChanged(molotov, "CBaseGrenade", "m_flDetonateTime");
+                    NetStateFast.Changed(molotov, "CBaseGrenade", "m_flDetonateTime");
                 });
 
                 return;

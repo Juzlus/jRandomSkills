@@ -116,7 +116,7 @@ namespace src.player.skills
             if (enemyMoneyServices == null) return;
 
             enemyMoneyServices.Account = 0;
-            Utilities.SetStateChanged(enemy, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(enemy, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public static void DisableSkill(CCSPlayerController player)

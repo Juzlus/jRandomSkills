@@ -12,7 +12,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.SoundMaker;
         private static readonly ConcurrentDictionary<uint, byte> SkillPlayerInfo = [];
         private static readonly object setLock = new();
-        private static readonly List<CCSPlayerController> listeners = [];
+        private static readonly List<(CCSPlayerController Player, CsTeam Team)> listeners = [];
         private static readonly List<CCSPlayerController> targets = [];
         private static bool emitting;
 
@@ -84,8 +84,7 @@ namespace src.player.skills
                 foreach (var recipient in um.Recipients)
                 {
                     if (recipient == null || !recipient.IsValid) continue;
-                    if (recipient.Team == emitter.Team) continue;
-                    if (!IsListener(recipient)) continue;
+                    if (!TryGetListenerTeam(recipient, out var team) || team == emitter.Team) continue;
 
                     allowed.Add(recipient);
                 }
@@ -103,6 +102,29 @@ namespace src.player.skills
             return bot != null && bot.IsValid && SkillPlayerInfo.ContainsKey(bot.Key());
         }
 
+        private static bool TryGetListenerTeam(CCSPlayerController recipient, out CsTeam team)
+        {
+            team = recipient.Team;
+            if (IsListener(recipient)) return true;
+
+            if (recipient.PawnIsAlive) return false;
+
+            var services = recipient.Pawn?.Value?.ObserverServices;
+            if (services == null) return false;
+
+            var mode = (ObserverMode_t)services.ObserverMode;
+            if (mode != ObserverMode_t.OBS_MODE_IN_EYE && mode != ObserverMode_t.OBS_MODE_CHASE) return false;
+
+            var observedPawn = services.ObserverTarget?.Value;
+            if (observedPawn == null || !observedPawn.IsValid) return false;
+
+            var target = PlayerManager.GetControllerByPawn(observedPawn.Handle);
+            if (target == null || !target.IsValid || !IsListener(target)) return false;
+
+            team = target.Team;
+            return true;
+        }
+
         public static void OnTick()
         {
             if (SkillPlayerInfo.IsEmpty) return;
@@ -118,8 +140,8 @@ namespace src.player.skills
 
             listeners.Clear();
             foreach (var player in players)
-                if (player != null && player.IsValid && !player.IsBot && IsListener(player))
-                    listeners.Add(player);
+                if (player != null && player.IsValid && !player.IsBot && TryGetListenerTeam(player, out var team))
+                    listeners.Add((player, team));
 
             if (listeners.Count == 0) return;
 
@@ -130,7 +152,7 @@ namespace src.player.skills
                 targets.Clear();
                 foreach (var listener in listeners)
                     if (listener.Team != player.Team)
-                        targets.Add(listener);
+                        targets.Add(listener.Player);
 
                 if (targets.Count == 0) continue;
 

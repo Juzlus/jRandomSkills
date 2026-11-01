@@ -14,6 +14,16 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            SkillUtils.SetSkillHud(player, "thorns_hud", (int)MathF.Round(SkillsInfo.GetValue<float>(skillName, "healthTakenScale") * 100f), SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            SkillUtils.ResetPrintHTML(player);
+        }
+
         public static void PlayerHurt(EventPlayerHurt @event)
         {
             var victim = @event.Userid;

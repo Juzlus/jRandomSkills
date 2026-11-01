@@ -108,7 +108,7 @@ namespace src.player.skills
             if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.VData == null) return false;
 
             activeWeapon.Clip1 = activeWeapon.VData.MaxClip1;
-            Utilities.SetStateChanged(activeWeapon, "CBasePlayerWeapon", "m_iClip1");
+            NetStateFast.Changed(activeWeapon, "CBasePlayerWeapon", "m_iClip1");
             return true;
         }
 

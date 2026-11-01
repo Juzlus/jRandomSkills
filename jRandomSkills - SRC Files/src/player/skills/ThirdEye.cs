@@ -1,24 +1,20 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Drawing;
 
 namespace src.player.skills
 {
     public class ThirdEye : ISkill
     {
         private const Skills skillName = Skills.ThirdEye;
-        private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            jRandomSkills.Instance.AddToManifest(cameraViewModel);
         }
 
         public static void NewRound()
@@ -63,9 +59,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (cameras.IsEmpty) return;
-
-            float distance = SkillsInfo.GetValue<float>(skillName, "distance");
+            if (cameras.IsEmpty || Server.TickCount % 8 != 0) return;
 
             foreach (var (playerKey, cameraInfo) in cameras)
             {
@@ -75,21 +69,9 @@ namespace src.player.skills
                 if (player == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
-                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                {
+                if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) continue;
+                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE && pawn.CameraServices.ViewEntity.Raw != cameraInfo.Item1)
                     ChangeCamera(player, true);
-                    continue;
-                }
-
-                if (pawn.CameraServices == null || pawn.CameraServices.ViewEntity.Raw == cameraInfo.Item1) continue;
-
-                var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * distance;
-                pos.Z += pawn.ViewOffset.Z;
-
-                var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
-                if (cam == null || !cam.IsValid) continue;
-                cam.Teleport(pos, pawn.V_angle);
             }
         }
 
@@ -102,7 +84,7 @@ namespace src.player.skills
             {
                 orginalCameraRaw = cameraInfo.Item1;
 
-                var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
+                var cam = Utilities.GetEntityFromIndex<CCSCustomPlayerCamera>((int)cameraInfo.Item2);
                 if (cam == null || !cam.IsValid) return;
 
                 newCameraRaw = cam.EntityHandle.Raw;
@@ -123,31 +105,18 @@ namespace src.player.skills
                                 pawn.CameraServices!.ViewEntity!.Raw == orginalCameraRaw
                                 ? newCameraRaw
                                 : orginalCameraRaw;
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+            NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pCameraServices");
         }
 
         private static uint CreateCamera(CCSPlayerController player)
         {
-            var camera = EntityManager.CreateTrackedDynamicProp(player.Key());
-            if (camera == null || !camera.IsValid) return 0;
-
             var pawn = player.PlayerPawn.Value;
-            if (pawn == null) return 0;
+            if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) return 0;
 
-            Server.NextFrame(() =>
-            {
-                if (camera == null || !camera.IsValid) return;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
+            var camera = PlayerCamera.Create(player.Key(), pawn, CustomCameraMode_t.CUSTOM_CAMERA_MODE_FOLLOW_POSITION);
+            if (camera == null) return 0;
 
-                var camNode = camera.CBodyComponent?.SceneNode?.Owner?.Entity;
-                if (camNode != null)
-                    camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
-
-                camera.SetModel(cameraViewModel);
-                camera.Render = Color.FromArgb(0, 255, 255, 255);
-                camera.Teleport(pawn.AbsOrigin, pawn.EyeAngles);
-                camera.DispatchSpawn();
-            });
+            PlayerCamera.Follow(camera, pawn, SkillsInfo.GetValue<float>(skillName, "distance"));
 
             cameras.AddOrUpdate(player.Key(), (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (v, k) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
             return camera.EntityHandle.Raw;

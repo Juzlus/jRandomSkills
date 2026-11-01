@@ -105,8 +105,8 @@ namespace src.player.skills
             if (playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || enemyPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             (enemyPawn.Health, playerPawn.Health) = (playerPawn.Health, enemyPawn.Health);
-            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
-            Utilities.SetStateChanged(enemyPawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(playerPawn, "CBaseEntity", "m_iHealth");
+            NetStateFast.Changed(enemyPawn, "CBaseEntity", "m_iHealth");
         }
 
         public static void DisableSkill(CCSPlayerController player)
