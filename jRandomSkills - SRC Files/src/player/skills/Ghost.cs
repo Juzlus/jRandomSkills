@@ -88,16 +88,14 @@ namespace src.player.skills
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
                     if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    if (info.TransmitEntities.Contains(target.PawnIndex))
-                        info.TransmitEntities.Remove(target.PawnIndex);
+                    SkillUtils.HideTransmit(info, target.PawnIndex);
 
                     SkillUtils.HideCarriedEntities(info, target);
 
                     // Hide the bomb as well, but only while this hidden player is the one holding it.
                     if (bomb == null || !target.HoldsBomb) continue;
 
-                    if (info.TransmitEntities.Contains(bomb.Index))
-                        info.TransmitEntities.Remove(bomb.Index);
+                    SkillUtils.HideTransmit(info, bomb.Index);
                 }
             }
         }
@@ -113,7 +111,7 @@ namespace src.player.skills
             if (EntityManager.GetPlayerEntities(player.Key(), "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
 
-            SkillUtils.ForceFullUpdateToAll();
+            SkillUtils.ForceFullUpdateToEnemiesOf(player);
         }
 
         private static void CreatePlayerPosProp(CCSPlayerController player)
@@ -136,7 +134,7 @@ namespace src.player.skills
             emptyProp.DispatchSpawn();
             emptyProp.Teleport(newPos, newAngle);
 
-            Utilities.SetStateChanged(emptyProp, "CBaseEntity", "m_CBodyComponent");
+            NetStateFast.Changed(emptyProp, "CBaseEntity", "m_CBodyComponent");
 
         }
 
@@ -201,8 +199,8 @@ namespace src.player.skills
                         weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
                         weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
 
-                        Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
-                        Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
+                        NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+                        NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                     }
                 }
         }

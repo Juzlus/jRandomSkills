@@ -21,6 +21,11 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            playersWithSkill.TryRemove(playerIndex, out _);
+        }
+
         public static void NewRound()
         {
             lock (setLock)
@@ -70,8 +75,7 @@ namespace src.player.skills
                 }
 
                 foreach (var index in smokeIndexes)
-                    if (info.TransmitEntities.Contains(index))
-                        info.TransmitEntities.Remove(index);
+                    SkillUtils.HideTransmit(info, index);
             }
         }
 
@@ -117,7 +121,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1 && SkillUtils.ThrewGrenadeRecently(player))
                 SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
         }
 
@@ -129,8 +133,8 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "smokegrenade") return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
-                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft))
+                playersWithSkill[player.Key()] = SkillUtils.ClampGrenadeAfterPickup(player, CsItem.SmokeGrenade, grenadesLeft);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -140,12 +144,12 @@ namespace src.player.skills
             Event.EnableTransmit();
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill.TryAdd(player.Key(), grenadeLimit);
-
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            playersWithSkill[player.Key()] = grenadeLimit;
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
 
-            SkillUtils.ForceFullUpdateToAll();
+            SkillUtils.ForceFullUpdate(player);
         }
 
         public static void DisableSkill(CCSPlayerController player)

@@ -1,0 +1,41 @@
+<root>
+	<styles>
+		<include src="s2r://panorama/styles/csgostyles.vcss_c" />
+		<include src="s2r://panorama/styles/custom_game/jrs_skills.vcss_c" />
+	</styles>
+	<Panel class="js-root" hittest="false">
+		<Panel id="js-scope" class="js-scope" hittest="false">
+			<Panel class="js-side" hittest="false">
+				<Panel id="js-c0" class="js-card js-off" hittest="false"><Label class="js-card-name" text="{s:name}" /><Label class="js-card-info" text="{s:info}" /></Panel>
+				<Panel id="js-c1" class="js-card js-off" hittest="false"><Label class="js-card-name" text="{s:name}" /><Label class="js-card-info" text="{s:info}" /></Panel>
+				<Panel id="js-c2" class="js-card js-off" hittest="false"><Label class="js-card-name" text="{s:name}" /><Label class="js-card-info" text="{s:info}" /></Panel>
+				<Panel id="js-c3" class="js-card js-off" hittest="false"><Label class="js-card-name" text="{s:name}" /><Label class="js-card-info" text="{s:info}" /></Panel>
+				<Panel id="js-c4" class="js-card js-off" hittest="false"><Label class="js-card-name" text="{s:name}" /><Label class="js-card-info" text="{s:info}" /></Panel>
+			</Panel>
+			<Panel id="js-skill" class="js-skill js-off" hittest="false">
+				<Panel class="js-body" hittest="false">
+					<Label class="js-info" text="{s:info}" />
+					<Label class="js-name" text="{s:name}" />
+					<Panel class="js-desc" hittest="false"><Label id="js-sd0" class="js-seg js-off" text="{s:text}" /><Label id="js-sd1" class="js-seg js-off" text="{s:text}" /><Label id="js-sd2" class="js-seg js-off" text="{s:text}" /><Label id="js-sd3" class="js-seg js-off" text="{s:text}" /></Panel>
+					<Panel class="js-status" hittest="false"><Label id="js-ss0" class="js-seg js-off" text="{s:text}" /><Label id="js-ss1" class="js-seg js-off" text="{s:text}" /><Label id="js-ss2" class="js-seg js-off" text="{s:text}" /><Label id="js-ss3" class="js-seg js-off" text="{s:text}" /></Panel>
+				</Panel>
+				<Panel class="js-cd" hittest="false" />
+			</Panel>
+			<Panel id="js-menu" class="js-menu js-off" hittest="false">
+				<Label class="js-menu-title" text="{s:title}" />
+				<Label class="js-menu-info" text="{s:info}" />
+				<Panel id="js-m0" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m1" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m2" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m3" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m4" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m5" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m6" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m7" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m8" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel id="js-m9" class="js-row js-off" hittest="false"><Panel class="js-row-bar" hittest="false" /><Label class="js-row-text" text="{s:text}" /></Panel>
+				<Panel class="js-menu-foot" hittest="false"><Label id="js-mf0" class="js-fseg js-off" text="{s:text}" /><Label id="js-mf1" class="js-fseg js-off" text="{s:text}" /><Label id="js-mf2" class="js-fseg js-off" text="{s:text}" /><Label id="js-mf3" class="js-fseg js-off" text="{s:text}" /></Panel>
+			</Panel>
+		</Panel>
+	</Panel>
+</root>

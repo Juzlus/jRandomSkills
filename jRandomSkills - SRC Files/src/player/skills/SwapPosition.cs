@@ -26,7 +26,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (SkillUtils.IsFreezeTime()) return;
+            if (SkillUtils.IsFreezeTime() || !SkillUtils.IsHudFrame()) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;

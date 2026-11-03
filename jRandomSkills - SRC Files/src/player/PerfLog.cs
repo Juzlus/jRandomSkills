@@ -138,6 +138,7 @@ namespace src.player
         public static void Sample(string label, long startTimestamp, double reportSeconds = 5.0, double maxThresholdMs = 0.5)
         {
             if (startTimestamp == 0 || !Enabled) return;
+            long endTimestamp = Stopwatch.GetTimestamp();
 
             var agg = _aggregates.GetOrAdd(label, _ => new Aggregate());
 
@@ -147,7 +148,7 @@ namespace src.player
                 return;
             }
 
-            double ms = (Stopwatch.GetTimestamp() - startTimestamp) * 1000.0 / Stopwatch.Frequency;
+            double ms = (endTimestamp - startTimestamp) * 1000.0 / Stopwatch.Frequency;
             lock (agg)
             {
                 agg.Add(ms);
@@ -161,6 +162,34 @@ namespace src.player
 
                 agg.Reset();
             }
+        }
+
+        private static long _lastProcessTimestamp;
+        private static long _lastAllocatedBytes;
+        private static TimeSpan _lastGcPause;
+        private static TimeSpan _lastCpuTime;
+
+        public static string ProcessStats()
+        {
+            long now = Stopwatch.GetTimestamp();
+            long allocated = GC.GetTotalAllocatedBytes();
+            TimeSpan pause = GC.GetTotalPauseDuration();
+            TimeSpan cpu;
+            using (var process = Process.GetCurrentProcess())
+                cpu = process.TotalProcessorTime;
+
+            double seconds = _lastProcessTimestamp == 0 ? 0 : (now - _lastProcessTimestamp) / (double)Stopwatch.Frequency;
+            string result = seconds <= 0
+                ? $"PROCESS heap={GC.GetTotalMemory(false) / 1048576}MB"
+                : $"PROCESS cpu={(cpu - _lastCpuTime).TotalSeconds / seconds * 100:F0}% alloc={(allocated - _lastAllocatedBytes) / seconds / 1024:F0}KB/s " +
+                  $"gcPause={(pause - _lastGcPause).TotalMilliseconds:F1}ms gen0={GC.CollectionCount(0)} gen1={GC.CollectionCount(1)} gen2={GC.CollectionCount(2)} " +
+                  $"heap={GC.GetTotalMemory(false) / 1048576}MB";
+
+            _lastProcessTimestamp = now;
+            _lastAllocatedBytes = allocated;
+            _lastGcPause = pause;
+            _lastCpuTime = cpu;
+            return result;
         }
 
         public static Func<string>? ContextProvider;

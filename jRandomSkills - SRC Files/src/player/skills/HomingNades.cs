@@ -10,12 +10,17 @@ namespace src.player.skills
     public class HomingNades : ISkill
     {
         private const Skills skillName = Skills.HomingNades;
-        private readonly static ConcurrentDictionary<uint, Vector> nades = [];
+        private readonly static ConcurrentDictionary<uint, (uint Handle, Vector Pos)> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+        }
+
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            playersWithSkill.TryRemove(playerIndex, out _);
         }
 
         public static void NewRound()
@@ -30,10 +35,10 @@ namespace src.player.skills
             foreach (var index in nades.Keys.ToList())
             {
                 if (!nades.TryGetValue(index, out var data)) continue;
-                Vector oldPos = data;
+                Vector oldPos = data.Pos;
 
                 var nade = Utilities.GetEntityFromIndex<CBaseCSGrenadeProjectile>((int)index);
-                if (nade == null || !nade.IsValid || nade.AbsOrigin == null)
+                if (nade == null || !nade.IsValid || nade.EntityHandle.Raw != data.Handle || nade.AbsOrigin == null)
                 {
                     nades.TryRemove(index, out _);
                     continue;
@@ -48,7 +53,7 @@ namespace src.player.skills
                 if (distanceMoved < 4 || calculatedVelocity == null || isZero)
                 {
                     nade.DetonateTime = isZero ? 0f : nade.CreateTime + 1.5f;
-                    Utilities.SetStateChanged(nade, "CBaseGrenade", "m_flDetonateTime");
+                    NetStateFast.Changed(nade, "CBaseGrenade", "m_flDetonateTime");
 
                     nades.TryRemove(index, out _);
                     continue;
@@ -62,7 +67,7 @@ namespace src.player.skills
                 if (speed > maxVelocity)
                     newVelocity *= (maxVelocity / speed);
 
-                nades[index] = currentPos;
+                nades[index] = (data.Handle, currentPos);
                 nade.Teleport(null, null, newVelocity);
             }
         }
@@ -131,13 +136,13 @@ namespace src.player.skills
             if (playerInfo?.Skill != skillName) return;
 
             Vector pos = new(grenade.AbsOrigin?.X, grenade.AbsOrigin?.Y, grenade.AbsOrigin?.Z);
-            nades.TryAdd(grenade.Index, pos);
+            nades.TryAdd(grenade.Index, (grenade.EntityHandle.Raw, pos));
 
             Server.NextWorldUpdate(() =>
             {
                 if (grenade == null || !grenade.IsValid) return;
                 grenade.DetonateTime += 30f;
-                Utilities.SetStateChanged(grenade, "CBaseGrenade", "m_flDetonateTime");
+                NetStateFast.Changed(grenade, "CBaseGrenade", "m_flDetonateTime");
             });
         }
 
@@ -165,7 +170,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1 && SkillUtils.ThrewGrenadeRecently(player))
                 SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft);
         }
 
@@ -177,8 +182,8 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "hegrenade") return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
-                SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadesLeft);
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft))
+                playersWithSkill[player.Key()] = SkillUtils.ClampGrenadeAfterPickup(player, CsItem.HEGrenade, grenadesLeft);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -186,9 +191,9 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill.TryAdd(player.Key(), grenadeLimit);
-
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
+            playersWithSkill[player.Key()] = grenadeLimit;
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, grenadeLimit);
         }
 

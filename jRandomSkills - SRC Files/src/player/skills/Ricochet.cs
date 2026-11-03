@@ -28,6 +28,11 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            SkillUtils.SetSkillHud(player, "ricochet_hud", Math.Max(SkillsInfo.GetValue<int>(skillName, "bounces"), 1));
+        }
+
         public static void NewRound()
         {
             impactBudgets.Clear();
@@ -46,6 +51,7 @@ namespace src.player.skills
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             if (player == null) return;
             impactBudgets.TryRemove(player.Key(), out _);
         }
@@ -256,7 +262,7 @@ namespace src.player.skills
             beam.EndPos.Y = head.Y;
             beam.EndPos.Z = head.Z;
 
-            Utilities.SetStateChanged(beam, "CBeam", "m_vecEndPos");
+            NetStateFast.Changed(beam, "CBeam", "m_vecEndPos");
         }
 
         private static CBeam? AcquireTracer(Flight flight)
@@ -360,7 +366,7 @@ namespace src.player.skills
             beam.EndPos.Y = beam.AbsOrigin.Y;
             beam.EndPos.Z = beam.AbsOrigin.Z;
 
-            Utilities.SetStateChanged(beam, "CBeam", "m_vecEndPos");
+            NetStateFast.Changed(beam, "CBeam", "m_vecEndPos");
         }
 
         private static void ResetPool(bool hideEntities)

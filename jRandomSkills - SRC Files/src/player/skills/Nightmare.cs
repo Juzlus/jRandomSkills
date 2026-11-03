@@ -185,8 +185,7 @@ namespace src.player.skills
                 foreach (var kvp in targetVolumes)
                 {
                     if (kvp.Key == viewer.Key()) continue;
-                    if (info.TransmitEntities.Contains(kvp.Value))
-                        info.TransmitEntities.Remove(kvp.Value);
+                    SkillUtils.HideTransmit(info, kvp.Value);
                 }
             }
         }

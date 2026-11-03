@@ -1,7 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using System.Drawing;
 using static src.jRandomSkills;
 using System.Collections.Concurrent;
 using src.utils;
@@ -11,13 +10,11 @@ namespace src.player.skills
     public class FalconEye : ISkill
     {
         private const Skills skillName = Skills.FalconEye;
-        private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            Instance.AddToManifest(cameraViewModel);
         }
 
         public static void NewRound()
@@ -60,9 +57,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (cameras.IsEmpty) return;
-
-            float distance = SkillsInfo.GetValue<float>(skillName, "distance");
+            if (cameras.IsEmpty || Server.TickCount % 8 != 0) return;
 
             foreach (var (playerKey, cameraInfo) in cameras)
             {
@@ -72,25 +67,10 @@ namespace src.player.skills
                 if (player == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid) continue;
+                if (pawn == null || !pawn.IsValid || pawn.CameraServices == null) continue;
 
-                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-                {
+                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE && pawn.CameraServices.ViewEntity.Raw != cameraInfo.Item1)
                     ChangeCamera(player, true);
-                    continue;
-                }
-
-                if (pawn.CameraServices == null || pawn.CameraServices.ViewEntity.Raw == cameraInfo.Item1) continue;
-
-                var origin = pawn.AbsOrigin;
-                if (origin == null) continue;
-
-                Vector pos = new(origin.X, origin.Y, origin.Z + distance);
-                QAngle angle = new(90, 0, -pawn.V_angle.Y);
-
-                var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
-                if (camera == null || !camera.IsValid) continue;
-                camera.Teleport(pos, angle);
             }
         }
 
@@ -106,7 +86,7 @@ namespace src.player.skills
                 if (tracked)
                 {
                     pawn.CameraServices.ViewEntity.Raw = cameraInfo.Item1;
-                    Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+                    NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pCameraServices");
                 }
 
                 BlockWeapon(player, false);
@@ -120,11 +100,11 @@ namespace src.player.skills
             {
                 orginalCameraRaw = cameraInfo.Item1;
 
-                var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
+                var camera = Utilities.GetEntityFromIndex<CCSCustomPlayerCamera>((int)cameraInfo.Item2);
                 if (camera == null || !camera.IsValid)
                 {
                     pawn.CameraServices.ViewEntity.Raw = orginalCameraRaw;
-                    Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+                    NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pCameraServices");
                     BlockWeapon(player, false);
                     return;
                 }
@@ -142,32 +122,20 @@ namespace src.player.skills
 
             bool defaultCam = pawn.CameraServices.ViewEntity.Raw != orginalCameraRaw;
             pawn!.CameraServices!.ViewEntity.Raw = defaultCam ? orginalCameraRaw : newCameraRaw;
-            Utilities.SetStateChanged(pawn, "CBasePlayerPawn", "m_pCameraServices");
+            NetStateFast.Changed(pawn, "CBasePlayerPawn", "m_pCameraServices");
             BlockWeapon(player, !defaultCam);
         }
 
         private static uint CreateCamera(CCSPlayerController player)
         {
-            var camera = EntityManager.CreateTrackedDynamicProp(player.Key());
-            if (camera == null || !camera.IsValid) return 0;
-
             var pawn = player.PlayerPawn.Value;
-            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return 0;
+            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.CameraServices == null) return 0;
             Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + SkillsInfo.GetValue<float>(skillName, "distance"));
 
-            Server.NextFrame(() =>
-            {
-                if (camera == null || !camera.IsValid) return;
+            var camera = PlayerCamera.Create(player.Key(), pawn, CustomCameraMode_t.CUSTOM_CAMERA_MODE_CONTROLLED, pos, new QAngle(90, pawn.AbsRotation?.Y ?? 0, 0));
+            if (camera == null) return 0;
 
-                var camNode = camera.CBodyComponent?.SceneNode?.Owner?.Entity;
-                if (camNode != null)
-                    camNode.Flags = (uint)(camNode.Flags & ~(1 << 2));
-
-                camera.SetModel(cameraViewModel);
-                camera.Render = Color.FromArgb(0, 255, 255, 255);
-                camera.Teleport(pos, new QAngle(90, 0, 0));
-                camera.DispatchSpawn();
-            });
+            camera.AcceptInput("SetParent", pawn, pawn, "!activator");
 
             cameras.AddOrUpdate(player.Key(), (pawn.CameraServices!.ViewEntity.Raw, camera.Index), (k, v) => (pawn.CameraServices!.ViewEntity.Raw, camera.Index));
             return camera.EntityHandle.Raw;
@@ -187,8 +155,8 @@ namespace src.player.skills
                     weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
                     weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
 
-                    Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
-                    Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
+                    NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+                    NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                 }
         }
 

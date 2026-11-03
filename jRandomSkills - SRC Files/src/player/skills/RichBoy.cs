@@ -34,11 +34,13 @@ namespace src.player.skills
             accountBeforeBonus[player.Key()] = moneyServices.Account;
 
             moneyServices.Account += moneyBonus;
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            SkillUtils.SetSkillHud(player, "richboy_hud", moneyBonus);
+            NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             if (player == null || !player.IsValid) return;
             if (!accountBeforeBonus.TryRemove(player.Key(), out int accountBefore)) return;
 
@@ -48,7 +50,7 @@ namespace src.player.skills
             if (moneyServices.Account <= accountBefore) return;
 
             moneyServices.Account = accountBefore;
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public static void PlayerDisconnect(uint playerIndex)

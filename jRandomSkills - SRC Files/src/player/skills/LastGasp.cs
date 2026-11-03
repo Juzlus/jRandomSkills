@@ -16,6 +16,16 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            SkillUtils.SetSkillHud(player, "lastgasp_hud", SkillsInfo.GetValue<int>(skillName, "DamageAfterDeath"));
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            SkillUtils.ResetPrintHTML(player);
+        }
+
         public static void PlayerDeath(EventPlayerDeath @event)
         {
             var victim = PlayerManager.GetPlayerEvent(@event.Userid);

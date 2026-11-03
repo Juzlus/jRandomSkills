@@ -47,7 +47,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (SkillPlayerInfo.IsEmpty) return;
+            if (SkillPlayerInfo.IsEmpty || !SkillUtils.IsHudFrame()) return;
 
             var players = PlayerManager.GetTickPlayers().ToArray();
             foreach (var player in players)
@@ -179,13 +179,13 @@ namespace src.player.skills
             if (pawn.ArmorValue != gear.Armor)
             {
                 pawn.ArmorValue = gear.Armor;
-                Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
+                NetStateFast.Changed(pawn, "CCSPlayerPawn", "m_ArmorValue");
             }
 
             if (pawn.Health != gear.Health)
             {
                 pawn.Health = gear.Health;
-                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+                NetStateFast.Changed(pawn, "CBaseEntity", "m_iHealth");
             }
 
             var itemServices = pawn.ItemServices?.As<CCSPlayer_ItemServices>();
@@ -260,9 +260,9 @@ namespace src.player.skills
                         weapon.Clip2 = enemyWeapon.Clip2;
                         weapon.ReserveAmmo.Fill(enemyWeapon.Reserve);
 
-                        Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
-                        Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip2");
-                        Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
+                        NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_iClip1");
+                        NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_iClip2");
+                        NetStateFast.Changed(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
                     }
             });
         }

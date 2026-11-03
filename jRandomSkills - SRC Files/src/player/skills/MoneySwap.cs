@@ -105,10 +105,10 @@ namespace src.player.skills
 
             int playerMoney = playerMoneyServices.Account;
             playerMoneyServices.Account = enemyMoneyServices.Account + enemyMoneyServices.CashSpentThisRound;
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
 
             enemyMoneyServices.Account = playerMoney;
-            Utilities.SetStateChanged(enemy, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(enemy, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public static void DisableSkill(CCSPlayerController player)

@@ -232,8 +232,7 @@ namespace src.player
                         {
                             if (player == null || !player.IsValid) continue;
                             foreach (var entityIndex in dying)
-                                if (info.TransmitEntities.Contains(entityIndex))
-                                    info.TransmitEntities.Remove(entityIndex);
+                                SkillUtils.HideTransmitDormant(info, entityIndex);
                         }
                     }
                 }

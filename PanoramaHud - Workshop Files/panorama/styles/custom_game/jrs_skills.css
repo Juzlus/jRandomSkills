@@ -1,0 +1,2693 @@
+@define panel-bg: rgba(9, 9, 11, 0.9);
+@define text: #fafafa;
+@define muted: #9f9fa9;
+@define soft: #d4d4d8;
+@define cooldown: #e5383b;
+@define selected: rgba(255, 255, 255, 0.07);
+
+.js-root,
+.js-scope
+{
+	width: 100%;
+	height: 100%;
+}
+
+.js-off
+{
+	visibility: collapse;
+}
+
+.js-skill
+{
+	horizontal-align: center;
+	vertical-align: bottom;
+	margin-bottom: 16px;
+	width: 300px;
+	height: fit-children;
+	flow-children: down;
+	background-color: panel-bg;
+	border-radius: 2px;
+}
+
+.js-scope.is-spec .js-skill,
+.js-scope.is-spec .js-menu
+{
+	margin-bottom: 86px;
+}
+
+.js-scope.is-spec.is-other .js-skill
+{
+	visibility: collapse;
+}
+
+.js-body
+{
+	width: 100%;
+	height: fit-children;
+	padding: 5px 12px 8px 12px;
+	flow-children: down;
+}
+
+.js-info
+{
+	horizontal-align: center;
+	text-align: center;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-weight: bold;
+	font-size: 13px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: muted;
+}
+
+.js-name
+{
+	horizontal-align: center;
+	text-align: center;
+	width: 100%;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-weight: bold;
+	font-size: 26px;
+	color: text;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.js-desc,
+.js-status
+{
+	horizontal-align: center;
+	width: fit-children;
+	max-width: 100%;
+	height: fit-children;
+	margin-top: 1px;
+	flow-children: right-wrap;
+}
+
+.js-desc
+{
+	max-height: 66px;
+}
+
+.js-seg
+{
+	max-width: 276px;
+	text-align: center;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-weight: bold;
+	font-size: 16px;
+	color: text;
+}
+
+.js-skill.no-info .js-info,
+.js-skill.no-desc .js-desc,
+.js-skill.no-status .js-status
+{
+	visibility: collapse;
+}
+
+.js-cd
+{
+	horizontal-align: left;
+	width: 0%;
+	height: 3px;
+	background-color: cooldown;
+	visibility: collapse;
+}
+
+.js-skill.has-cd .js-cd
+{
+	visibility: visible;
+}
+
+.js-side
+{
+	horizontal-align: left;
+	vertical-align: top;
+	margin-left: 12px;
+	margin-top: 452px;
+	width: 360px;
+	height: fit-children;
+	flow-children: down;
+}
+
+.js-card
+{
+	width: fit-children;
+	max-width: 360px;
+	height: fit-children;
+	margin-bottom: 6px;
+	padding: 6px 10px 5px 10px;
+	flow-children: right;
+	background-color: panel-bg;
+	border-radius: 2px;
+}
+
+.js-card-name
+{
+	vertical-align: middle;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-weight: bold;
+	font-size: 17px;
+	color: text;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.js-card-info
+{
+	vertical-align: middle;
+	max-width: 240px;
+	margin-left: 8px;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-size: 14px;
+	color: soft;
+}
+
+.js-card.no-info .js-card-info
+{
+	visibility: collapse;
+}
+
+.js-menu
+{
+	horizontal-align: center;
+	vertical-align: bottom;
+	margin-bottom: 16px;
+	width: 300px;
+	height: fit-children;
+	padding-bottom: 6px;
+	flow-children: down;
+	background-color: panel-bg;
+	border-radius: 2px;
+}
+
+.js-menu-title
+{
+	horizontal-align: center;
+	text-align: center;
+	width: 100%;
+	margin-top: 6px;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-weight: bold;
+	font-size: 21px;
+	color: text;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.js-menu-info
+{
+	horizontal-align: center;
+	text-align: center;
+	width: 100%;
+	margin-bottom: 4px;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-size: 13px;
+	color: muted;
+}
+
+.js-menu.no-info .js-menu-info
+{
+	visibility: collapse;
+}
+
+.js-row
+{
+	width: 100%;
+	height: 27px;
+	flow-children: right;
+}
+
+.js-row-bar
+{
+	width: 3px;
+	height: 100%;
+}
+
+.js-row-text
+{
+	vertical-align: middle;
+	width: fill-parent-flow( 1.0 );
+	margin-left: 14px;
+	margin-right: 14px;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-size: 15px;
+	color: soft;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.js-row.is-sel
+{
+	background-color: selected;
+}
+
+.js-row.is-sel .js-row-bar
+{
+	background-color: cooldown;
+}
+
+.js-row.is-sel .js-row-text
+{
+	font-weight: bold;
+	color: text;
+}
+
+.js-menu-foot
+{
+	horizontal-align: center;
+	width: fit-children;
+	height: fit-children;
+	margin-top: 4px;
+	flow-children: right;
+}
+
+.js-fseg
+{
+	margin: 0px 3px;
+	font-family: Stratum2, "Arial Unicode MS";
+	font-weight: bold;
+	font-size: 12px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: muted;
+}
+
+.js-scope.ff-stratum .js-info,
+.js-scope.ff-stratum .js-name,
+.js-scope.ff-stratum .js-seg,
+.js-scope.ff-stratum .js-card-name,
+.js-scope.ff-stratum .js-card-info,
+.js-scope.ff-stratum .js-menu-title,
+.js-scope.ff-stratum .js-menu-info,
+.js-scope.ff-stratum .js-row-text,
+.js-scope.ff-stratum .js-fseg
+{
+	font-family: Stratum2, "Arial Unicode MS";
+}
+
+.js-scope.ff-light .js-info,
+.js-scope.ff-light .js-name,
+.js-scope.ff-light .js-seg,
+.js-scope.ff-light .js-card-name,
+.js-scope.ff-light .js-card-info,
+.js-scope.ff-light .js-menu-title,
+.js-scope.ff-light .js-menu-info,
+.js-scope.ff-light .js-row-text,
+.js-scope.ff-light .js-fseg
+{
+	font-family: Stratum2 Light, "Arial Unicode MS";
+}
+
+.js-scope.ff-cond .js-info,
+.js-scope.ff-cond .js-name,
+.js-scope.ff-cond .js-seg,
+.js-scope.ff-cond .js-card-name,
+.js-scope.ff-cond .js-card-info,
+.js-scope.ff-cond .js-menu-title,
+.js-scope.ff-cond .js-menu-info,
+.js-scope.ff-cond .js-row-text,
+.js-scope.ff-cond .js-fseg
+{
+	font-family: Stratum2 Condensed, "Arial Unicode MS";
+}
+
+.js-scope.ff-boldcond .js-info,
+.js-scope.ff-boldcond .js-name,
+.js-scope.ff-boldcond .js-seg,
+.js-scope.ff-boldcond .js-card-name,
+.js-scope.ff-boldcond .js-card-info,
+.js-scope.ff-boldcond .js-menu-title,
+.js-scope.ff-boldcond .js-menu-info,
+.js-scope.ff-boldcond .js-row-text,
+.js-scope.ff-boldcond .js-fseg
+{
+	font-family: Stratum2 Bold Condensed, "Arial Unicode MS";
+}
+
+.js-scope.ff-mono .js-info,
+.js-scope.ff-mono .js-name,
+.js-scope.ff-mono .js-seg,
+.js-scope.ff-mono .js-card-name,
+.js-scope.ff-mono .js-card-info,
+.js-scope.ff-mono .js-menu-title,
+.js-scope.ff-mono .js-menu-info,
+.js-scope.ff-mono .js-row-text,
+.js-scope.ff-mono .js-fseg
+{
+	font-family: Stratum2 Mono, "Arial Unicode MS";
+}
+
+.js-scope.ff-noto .js-info,
+.js-scope.ff-noto .js-name,
+.js-scope.ff-noto .js-seg,
+.js-scope.ff-noto .js-card-name,
+.js-scope.ff-noto .js-card-info,
+.js-scope.ff-noto .js-menu-title,
+.js-scope.ff-noto .js-menu-info,
+.js-scope.ff-noto .js-row-text,
+.js-scope.ff-noto .js-fseg
+{
+	font-family: Noto Sans, "Arial Unicode MS";
+}
+
+.js-scope.ff-serif .js-info,
+.js-scope.ff-serif .js-name,
+.js-scope.ff-serif .js-seg,
+.js-scope.ff-serif .js-card-name,
+.js-scope.ff-serif .js-card-info,
+.js-scope.ff-serif .js-menu-title,
+.js-scope.ff-serif .js-menu-info,
+.js-scope.ff-serif .js-row-text,
+.js-scope.ff-serif .js-fseg
+{
+	font-family: Noto Serif, "Arial Unicode MS";
+}
+
+.js-scope.ff-notomono .js-info,
+.js-scope.ff-notomono .js-name,
+.js-scope.ff-notomono .js-seg,
+.js-scope.ff-notomono .js-card-name,
+.js-scope.ff-notomono .js-card-info,
+.js-scope.ff-notomono .js-menu-title,
+.js-scope.ff-notomono .js-menu-info,
+.js-scope.ff-notomono .js-row-text,
+.js-scope.ff-notomono .js-fseg
+{
+	font-family: Noto Mono, "Arial Unicode MS";
+}
+
+.js-scope.fs-80 .js-info
+{
+	font-size: 10px;
+}
+
+.js-scope.fs-80 .js-name
+{
+	font-size: 21px;
+}
+
+.js-scope.fs-80 .js-seg
+{
+	font-size: 13px;
+}
+
+.js-scope.fs-80 .js-card-name
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-80 .js-card-info
+{
+	font-size: 11px;
+}
+
+.js-scope.fs-80 .js-menu-title
+{
+	font-size: 17px;
+}
+
+.js-scope.fs-80 .js-menu-info
+{
+	font-size: 10px;
+}
+
+.js-scope.fs-80 .js-row-text
+{
+	font-size: 12px;
+}
+
+.js-scope.fs-80 .js-fseg
+{
+	font-size: 10px;
+}
+
+.js-scope.fs-85 .js-info
+{
+	font-size: 11px;
+}
+
+.js-scope.fs-85 .js-name
+{
+	font-size: 22px;
+}
+
+.js-scope.fs-85 .js-seg
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-85 .js-card-name
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-85 .js-card-info
+{
+	font-size: 12px;
+}
+
+.js-scope.fs-85 .js-menu-title
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-85 .js-menu-info
+{
+	font-size: 11px;
+}
+
+.js-scope.fs-85 .js-row-text
+{
+	font-size: 13px;
+}
+
+.js-scope.fs-85 .js-fseg
+{
+	font-size: 10px;
+}
+
+.js-scope.fs-90 .js-info
+{
+	font-size: 12px;
+}
+
+.js-scope.fs-90 .js-name
+{
+	font-size: 23px;
+}
+
+.js-scope.fs-90 .js-seg
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-90 .js-card-name
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-90 .js-card-info
+{
+	font-size: 13px;
+}
+
+.js-scope.fs-90 .js-menu-title
+{
+	font-size: 19px;
+}
+
+.js-scope.fs-90 .js-menu-info
+{
+	font-size: 12px;
+}
+
+.js-scope.fs-90 .js-row-text
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-90 .js-fseg
+{
+	font-size: 11px;
+}
+
+.js-scope.fs-95 .js-info
+{
+	font-size: 12px;
+}
+
+.js-scope.fs-95 .js-name
+{
+	font-size: 25px;
+}
+
+.js-scope.fs-95 .js-seg
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-95 .js-card-name
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-95 .js-card-info
+{
+	font-size: 13px;
+}
+
+.js-scope.fs-95 .js-menu-title
+{
+	font-size: 20px;
+}
+
+.js-scope.fs-95 .js-menu-info
+{
+	font-size: 12px;
+}
+
+.js-scope.fs-95 .js-row-text
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-95 .js-fseg
+{
+	font-size: 11px;
+}
+
+.js-scope.fs-105 .js-info
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-105 .js-name
+{
+	font-size: 27px;
+}
+
+.js-scope.fs-105 .js-seg
+{
+	font-size: 17px;
+}
+
+.js-scope.fs-105 .js-card-name
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-105 .js-card-info
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-105 .js-menu-title
+{
+	font-size: 22px;
+}
+
+.js-scope.fs-105 .js-menu-info
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-105 .js-row-text
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-105 .js-fseg
+{
+	font-size: 13px;
+}
+
+.js-scope.fs-110 .js-info
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-110 .js-name
+{
+	font-size: 29px;
+}
+
+.js-scope.fs-110 .js-seg
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-110 .js-card-name
+{
+	font-size: 19px;
+}
+
+.js-scope.fs-110 .js-card-info
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-110 .js-menu-title
+{
+	font-size: 23px;
+}
+
+.js-scope.fs-110 .js-menu-info
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-110 .js-row-text
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-110 .js-fseg
+{
+	font-size: 13px;
+}
+
+.js-scope.fs-115 .js-info
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-115 .js-name
+{
+	font-size: 30px;
+}
+
+.js-scope.fs-115 .js-seg
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-115 .js-card-name
+{
+	font-size: 20px;
+}
+
+.js-scope.fs-115 .js-card-info
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-115 .js-menu-title
+{
+	font-size: 24px;
+}
+
+.js-scope.fs-115 .js-menu-info
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-115 .js-row-text
+{
+	font-size: 17px;
+}
+
+.js-scope.fs-115 .js-fseg
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-120 .js-info
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-120 .js-name
+{
+	font-size: 31px;
+}
+
+.js-scope.fs-120 .js-seg
+{
+	font-size: 19px;
+}
+
+.js-scope.fs-120 .js-card-name
+{
+	font-size: 20px;
+}
+
+.js-scope.fs-120 .js-card-info
+{
+	font-size: 17px;
+}
+
+.js-scope.fs-120 .js-menu-title
+{
+	font-size: 25px;
+}
+
+.js-scope.fs-120 .js-menu-info
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-120 .js-row-text
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-120 .js-fseg
+{
+	font-size: 14px;
+}
+
+.js-scope.fs-125 .js-info
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-125 .js-name
+{
+	font-size: 32px;
+}
+
+.js-scope.fs-125 .js-seg
+{
+	font-size: 20px;
+}
+
+.js-scope.fs-125 .js-card-name
+{
+	font-size: 21px;
+}
+
+.js-scope.fs-125 .js-card-info
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-125 .js-menu-title
+{
+	font-size: 26px;
+}
+
+.js-scope.fs-125 .js-menu-info
+{
+	font-size: 16px;
+}
+
+.js-scope.fs-125 .js-row-text
+{
+	font-size: 19px;
+}
+
+.js-scope.fs-125 .js-fseg
+{
+	font-size: 15px;
+}
+
+.js-scope.fs-130 .js-info
+{
+	font-size: 17px;
+}
+
+.js-scope.fs-130 .js-name
+{
+	font-size: 34px;
+}
+
+.js-scope.fs-130 .js-seg
+{
+	font-size: 21px;
+}
+
+.js-scope.fs-130 .js-card-name
+{
+	font-size: 22px;
+}
+
+.js-scope.fs-130 .js-card-info
+{
+	font-size: 18px;
+}
+
+.js-scope.fs-130 .js-menu-title
+{
+	font-size: 27px;
+}
+
+.js-scope.fs-130 .js-menu-info
+{
+	font-size: 17px;
+}
+
+.js-scope.fs-130 .js-row-text
+{
+	font-size: 20px;
+}
+
+.js-scope.fs-130 .js-fseg
+{
+	font-size: 16px;
+}
+
+.js-skill.sc-0000ff .js-name,
+.js-seg.sc-0000ff,
+.js-card.sc-0000ff .js-card-name,
+.js-menu.sc-0000ff .js-menu-title,
+.js-row.sc-0000ff .js-row-text
+{
+	color: #0000ff;
+}
+
+.js-skill.sc-008000 .js-name,
+.js-seg.sc-008000,
+.js-card.sc-008000 .js-card-name,
+.js-menu.sc-008000 .js-menu-title,
+.js-row.sc-008000 .js-row-text
+{
+	color: #008000;
+}
+
+.js-skill.sc-00911f .js-name,
+.js-seg.sc-00911f,
+.js-card.sc-00911f .js-card-name,
+.js-menu.sc-00911f .js-menu-title,
+.js-row.sc-00911f .js-row-text
+{
+	color: #00911f;
+}
+
+.js-skill.sc-009905 .js-name,
+.js-seg.sc-009905,
+.js-card.sc-009905 .js-card-name,
+.js-menu.sc-009905 .js-menu-title,
+.js-row.sc-009905 .js-row-text
+{
+	color: #009905;
+}
+
+.js-skill.sc-00d5ff .js-name,
+.js-seg.sc-00d5ff,
+.js-card.sc-00d5ff .js-card-name,
+.js-menu.sc-00d5ff .js-menu-title,
+.js-row.sc-00d5ff .js-row-text
+{
+	color: #00d5ff;
+}
+
+.js-skill.sc-00eaff .js-name,
+.js-seg.sc-00eaff,
+.js-card.sc-00eaff .js-card-name,
+.js-menu.sc-00eaff .js-menu-title,
+.js-row.sc-00eaff .js-row-text
+{
+	color: #00eaff;
+}
+
+.js-skill.sc-00f2ff .js-name,
+.js-seg.sc-00f2ff,
+.js-card.sc-00f2ff .js-card-name,
+.js-menu.sc-00f2ff .js-menu-title,
+.js-row.sc-00f2ff .js-row-text
+{
+	color: #00f2ff;
+}
+
+.js-skill.sc-00ff00 .js-name,
+.js-seg.sc-00ff00,
+.js-card.sc-00ff00 .js-card-name,
+.js-menu.sc-00ff00 .js-menu-title,
+.js-row.sc-00ff00 .js-row-text
+{
+	color: #00ff00;
+}
+
+.js-skill.sc-00ffff .js-name,
+.js-seg.sc-00ffff,
+.js-card.sc-00ffff .js-card-name,
+.js-menu.sc-00ffff .js-menu-title,
+.js-row.sc-00ffff .js-row-text
+{
+	color: #00ffff;
+}
+
+.js-skill.sc-09ba00 .js-name,
+.js-seg.sc-09ba00,
+.js-card.sc-09ba00 .js-card-name,
+.js-menu.sc-09ba00 .js-menu-title,
+.js-row.sc-09ba00 .js-row-text
+{
+	color: #09ba00;
+}
+
+.js-skill.sc-10c212 .js-name,
+.js-seg.sc-10c212,
+.js-card.sc-10c212 .js-card-name,
+.js-menu.sc-10c212 .js-menu-title,
+.js-row.sc-10c212 .js-row-text
+{
+	color: #10c212;
+}
+
+.js-skill.sc-119125 .js-name,
+.js-seg.sc-119125,
+.js-card.sc-119125 .js-card-name,
+.js-menu.sc-119125 .js-menu-title,
+.js-row.sc-119125 .js-row-text
+{
+	color: #119125;
+}
+
+.js-skill.sc-1466f5 .js-name,
+.js-seg.sc-1466f5,
+.js-card.sc-1466f5 .js-card-name,
+.js-menu.sc-1466f5 .js-menu-title,
+.js-row.sc-1466f5 .js-row-text
+{
+	color: #1466f5;
+}
+
+.js-skill.sc-1b04cc .js-name,
+.js-seg.sc-1b04cc,
+.js-card.sc-1b04cc .js-card-name,
+.js-menu.sc-1b04cc .js-menu-title,
+.js-row.sc-1b04cc .js-row-text
+{
+	color: #1b04cc;
+}
+
+.js-skill.sc-1e9ab0 .js-name,
+.js-seg.sc-1e9ab0,
+.js-card.sc-1e9ab0 .js-card-name,
+.js-menu.sc-1e9ab0 .js-menu-title,
+.js-row.sc-1e9ab0 .js-row-text
+{
+	color: #1e9ab0;
+}
+
+.js-skill.sc-1fe070 .js-name,
+.js-seg.sc-1fe070,
+.js-card.sc-1fe070 .js-card-name,
+.js-menu.sc-1fe070 .js-menu-title,
+.js-row.sc-1fe070 .js-row-text
+{
+	color: #1fe070;
+}
+
+.js-skill.sc-2effc7 .js-name,
+.js-seg.sc-2effc7,
+.js-card.sc-2effc7 .js-card-name,
+.js-menu.sc-2effc7 .js-menu-title,
+.js-row.sc-2effc7 .js-row-text
+{
+	color: #2effc7;
+}
+
+.js-skill.sc-2effcb .js-name,
+.js-seg.sc-2effcb,
+.js-card.sc-2effcb .js-card-name,
+.js-menu.sc-2effcb .js-menu-title,
+.js-row.sc-2effcb .js-row-text
+{
+	color: #2effcb;
+}
+
+.js-skill.sc-2fc468 .js-name,
+.js-seg.sc-2fc468,
+.js-card.sc-2fc468 .js-card-name,
+.js-menu.sc-2fc468 .js-menu-title,
+.js-row.sc-2fc468 .js-row-text
+{
+	color: #2fc468;
+}
+
+.js-skill.sc-333333 .js-name,
+.js-seg.sc-333333,
+.js-card.sc-333333 .js-card-name,
+.js-menu.sc-333333 .js-menu-title,
+.js-row.sc-333333 .js-row-text
+{
+	color: #333333;
+}
+
+.js-skill.sc-343deb .js-name,
+.js-seg.sc-343deb,
+.js-card.sc-343deb .js-card-name,
+.js-menu.sc-343deb .js-menu-title,
+.js-row.sc-343deb .js-row-text
+{
+	color: #343deb;
+}
+
+.js-skill.sc-34ebd5 .js-name,
+.js-seg.sc-34ebd5,
+.js-card.sc-34ebd5 .js-card-name,
+.js-menu.sc-34ebd5 .js-menu-title,
+.js-row.sc-34ebd5 .js-row-text
+{
+	color: #34ebd5;
+}
+
+.js-skill.sc-383838 .js-name,
+.js-seg.sc-383838,
+.js-card.sc-383838 .js-card-name,
+.js-menu.sc-383838 .js-menu-title,
+.js-row.sc-383838 .js-row-text
+{
+	color: #383838;
+}
+
+.js-skill.sc-384728 .js-name,
+.js-seg.sc-384728,
+.js-card.sc-384728 .js-card-name,
+.js-menu.sc-384728 .js-menu-title,
+.js-row.sc-384728 .js-row-text
+{
+	color: #384728;
+}
+
+.js-skill.sc-38e0c4 .js-name,
+.js-seg.sc-38e0c4,
+.js-card.sc-38e0c4 .js-card-name,
+.js-menu.sc-38e0c4 .js-menu-title,
+.js-row.sc-38e0c4 .js-row-text
+{
+	color: #38e0c4;
+}
+
+.js-skill.sc-3ad15a .js-name,
+.js-seg.sc-3ad15a,
+.js-card.sc-3ad15a .js-card-name,
+.js-menu.sc-3ad15a .js-menu-title,
+.js-row.sc-3ad15a .js-row-text
+{
+	color: #3ad15a;
+}
+
+.js-skill.sc-3ad6e8 .js-name,
+.js-seg.sc-3ad6e8,
+.js-card.sc-3ad6e8 .js-card-name,
+.js-menu.sc-3ad6e8 .js-menu-title,
+.js-row.sc-3ad6e8 .js-row-text
+{
+	color: #3ad6e8;
+}
+
+.js-skill.sc-3c47de .js-name,
+.js-seg.sc-3c47de,
+.js-card.sc-3c47de .js-card-name,
+.js-menu.sc-3c47de .js-menu-title,
+.js-row.sc-3c47de .js-row-text
+{
+	color: #3c47de;
+}
+
+.js-skill.sc-3cded3 .js-name,
+.js-seg.sc-3cded3,
+.js-card.sc-3cded3 .js-card-name,
+.js-menu.sc-3cded3 .js-menu-title,
+.js-row.sc-3cded3 .js-row-text
+{
+	color: #3cded3;
+}
+
+.js-skill.sc-42bbfc .js-name,
+.js-seg.sc-42bbfc,
+.js-card.sc-42bbfc .js-card-name,
+.js-menu.sc-42bbfc .js-menu-title,
+.js-row.sc-42bbfc .js-row-text
+{
+	color: #42bbfc;
+}
+
+.js-skill.sc-42f5a7 .js-name,
+.js-seg.sc-42f5a7,
+.js-card.sc-42f5a7 .js-card-name,
+.js-menu.sc-42f5a7 .js-menu-title,
+.js-row.sc-42f5a7 .js-row-text
+{
+	color: #42f5a7;
+}
+
+.js-skill.sc-42f5da .js-name,
+.js-seg.sc-42f5da,
+.js-card.sc-42f5da .js-card-name,
+.js-menu.sc-42f5da .js-menu-title,
+.js-row.sc-42f5da .js-row-text
+{
+	color: #42f5da;
+}
+
+.js-skill.sc-42f5ef .js-name,
+.js-seg.sc-42f5ef,
+.js-card.sc-42f5ef .js-card-name,
+.js-menu.sc-42f5ef .js-menu-title,
+.js-row.sc-42f5ef .js-row-text
+{
+	color: #42f5ef;
+}
+
+.js-skill.sc-44ebd4 .js-name,
+.js-seg.sc-44ebd4,
+.js-card.sc-44ebd4 .js-card-name,
+.js-menu.sc-44ebd4 .js-menu-title,
+.js-row.sc-44ebd4 .js-row-text
+{
+	color: #44ebd4;
+}
+
+.js-skill.sc-4a6e21 .js-name,
+.js-seg.sc-4a6e21,
+.js-card.sc-4a6e21 .js-card-name,
+.js-menu.sc-4a6e21 .js-menu-title,
+.js-row.sc-4a6e21 .js-row-text
+{
+	color: #4a6e21;
+}
+
+.js-skill.sc-4d4d4d .js-name,
+.js-seg.sc-4d4d4d,
+.js-card.sc-4d4d4d .js-card-name,
+.js-menu.sc-4d4d4d .js-menu-title,
+.js-row.sc-4d4d4d .js-row-text
+{
+	color: #4d4d4d;
+}
+
+.js-skill.sc-4fc3f7 .js-name,
+.js-seg.sc-4fc3f7,
+.js-card.sc-4fc3f7 .js-card-name,
+.js-menu.sc-4fc3f7 .js-menu-title,
+.js-row.sc-4fc3f7 .js-row-text
+{
+	color: #4fc3f7;
+}
+
+.js-skill.sc-507529 .js-name,
+.js-seg.sc-507529,
+.js-card.sc-507529 .js-card-name,
+.js-menu.sc-507529 .js-menu-title,
+.js-row.sc-507529 .js-row-text
+{
+	color: #507529;
+}
+
+.js-skill.sc-52f54c .js-name,
+.js-seg.sc-52f54c,
+.js-card.sc-52f54c .js-card-name,
+.js-menu.sc-52f54c .js-menu-title,
+.js-row.sc-52f54c .js-row-text
+{
+	color: #52f54c;
+}
+
+.js-skill.sc-57bcff .js-name,
+.js-seg.sc-57bcff,
+.js-card.sc-57bcff .js-card-name,
+.js-menu.sc-57bcff .js-menu-title,
+.js-row.sc-57bcff .js-row-text
+{
+	color: #57bcff;
+}
+
+.js-skill.sc-5a4fd1 .js-name,
+.js-seg.sc-5a4fd1,
+.js-card.sc-5a4fd1 .js-card-name,
+.js-menu.sc-5a4fd1 .js-menu-title,
+.js-row.sc-5a4fd1 .js-row-text
+{
+	color: #5a4fd1;
+}
+
+.js-skill.sc-5b2c6f .js-name,
+.js-seg.sc-5b2c6f,
+.js-card.sc-5b2c6f .js-card-name,
+.js-menu.sc-5b2c6f .js-menu-title,
+.js-row.sc-5b2c6f .js-row-text
+{
+	color: #5b2c6f;
+}
+
+.js-skill.sc-5d00ff .js-name,
+.js-seg.sc-5d00ff,
+.js-card.sc-5d00ff .js-card-name,
+.js-menu.sc-5d00ff .js-menu-title,
+.js-row.sc-5d00ff .js-row-text
+{
+	color: #5d00ff;
+}
+
+.js-skill.sc-5eb8b0 .js-name,
+.js-seg.sc-5eb8b0,
+.js-card.sc-5eb8b0 .js-card-name,
+.js-menu.sc-5eb8b0 .js-menu-title,
+.js-row.sc-5eb8b0 .js-row-text
+{
+	color: #5eb8b0;
+}
+
+.js-skill.sc-5fd98a .js-name,
+.js-seg.sc-5fd98a,
+.js-card.sc-5fd98a .js-card-name,
+.js-menu.sc-5fd98a .js-menu-title,
+.js-row.sc-5fd98a .js-row-text
+{
+	color: #5fd98a;
+}
+
+.js-skill.sc-6effc7 .js-name,
+.js-seg.sc-6effc7,
+.js-card.sc-6effc7 .js-card-name,
+.js-menu.sc-6effc7 .js-menu-title,
+.js-row.sc-6effc7 .js-row-text
+{
+	color: #6effc7;
+}
+
+.js-skill.sc-7740c9 .js-name,
+.js-seg.sc-7740c9,
+.js-card.sc-7740c9 .js-card-name,
+.js-menu.sc-7740c9 .js-menu-title,
+.js-row.sc-7740c9 .js-row-text
+{
+	color: #7740c9;
+}
+
+.js-skill.sc-7a7a7a .js-name,
+.js-seg.sc-7a7a7a,
+.js-card.sc-7a7a7a .js-card-name,
+.js-menu.sc-7a7a7a .js-menu-title,
+.js-row.sc-7a7a7a .js-row-text
+{
+	color: #7a7a7a;
+}
+
+.js-skill.sc-7ac7ff .js-name,
+.js-seg.sc-7ac7ff,
+.js-card.sc-7ac7ff .js-card-name,
+.js-menu.sc-7ac7ff .js-menu-title,
+.js-row.sc-7ac7ff .js-row-text
+{
+	color: #7ac7ff;
+}
+
+.js-skill.sc-7ad1c4 .js-name,
+.js-seg.sc-7ad1c4,
+.js-card.sc-7ad1c4 .js-card-name,
+.js-menu.sc-7ad1c4 .js-menu-title,
+.js-row.sc-7ad1c4 .js-row-text
+{
+	color: #7ad1c4;
+}
+
+.js-skill.sc-7b2d8b .js-name,
+.js-seg.sc-7b2d8b,
+.js-card.sc-7b2d8b .js-card-name,
+.js-menu.sc-7b2d8b .js-menu-title,
+.js-row.sc-7b2d8b .js-row-text
+{
+	color: #7b2d8b;
+}
+
+.js-skill.sc-7d7d7d .js-name,
+.js-seg.sc-7d7d7d,
+.js-card.sc-7d7d7d .js-card-name,
+.js-menu.sc-7d7d7d .js-menu-title,
+.js-row.sc-7d7d7d .js-row-text
+{
+	color: #7d7d7d;
+}
+
+.js-skill.sc-7e10ad .js-name,
+.js-seg.sc-7e10ad,
+.js-card.sc-7e10ad .js-card-name,
+.js-menu.sc-7e10ad .js-menu-title,
+.js-row.sc-7e10ad .js-row-text
+{
+	color: #7e10ad;
+}
+
+.js-skill.sc-7eff47 .js-name,
+.js-seg.sc-7eff47,
+.js-card.sc-7eff47 .js-card-name,
+.js-menu.sc-7eff47 .js-menu-title,
+.js-row.sc-7eff47 .js-row-text
+{
+	color: #7eff47;
+}
+
+.js-skill.sc-7fd3c8 .js-name,
+.js-seg.sc-7fd3c8,
+.js-card.sc-7fd3c8 .js-card-name,
+.js-menu.sc-7fd3c8 .js-menu-title,
+.js-row.sc-7fd3c8 .js-row-text
+{
+	color: #7fd3c8;
+}
+
+.js-skill.sc-81f0c4 .js-name,
+.js-seg.sc-81f0c4,
+.js-card.sc-81f0c4 .js-card-name,
+.js-menu.sc-81f0c4 .js-menu-title,
+.js-row.sc-81f0c4 .js-row-text
+{
+	color: #81f0c4;
+}
+
+.js-skill.sc-88a31a .js-name,
+.js-seg.sc-88a31a,
+.js-card.sc-88a31a .js-card-name,
+.js-menu.sc-88a31a .js-menu-title,
+.js-row.sc-88a31a .js-row-text
+{
+	color: #88a31a;
+}
+
+.js-skill.sc-88bdba .js-name,
+.js-seg.sc-88bdba,
+.js-card.sc-88bdba .js-card-name,
+.js-menu.sc-88bdba .js-menu-title,
+.js-row.sc-88bdba .js-row-text
+{
+	color: #88bdba;
+}
+
+.js-skill.sc-8a2be2 .js-name,
+.js-seg.sc-8a2be2,
+.js-card.sc-8a2be2 .js-card-name,
+.js-menu.sc-8a2be2 .js-menu-title,
+.js-row.sc-8a2be2 .js-row-text
+{
+	color: #8a2be2;
+}
+
+.js-skill.sc-8a42f5 .js-name,
+.js-seg.sc-8a42f5,
+.js-card.sc-8a42f5 .js-card-name,
+.js-menu.sc-8a42f5 .js-menu-title,
+.js-row.sc-8a42f5 .js-row-text
+{
+	color: #8a42f5;
+}
+
+.js-skill.sc-8a6d3b .js-name,
+.js-seg.sc-8a6d3b,
+.js-card.sc-8a6d3b .js-card-name,
+.js-menu.sc-8a6d3b .js-menu-title,
+.js-row.sc-8a6d3b .js-row-text
+{
+	color: #8a6d3b;
+}
+
+.js-skill.sc-8ad3ff .js-name,
+.js-seg.sc-8ad3ff,
+.js-card.sc-8ad3ff .js-card-name,
+.js-menu.sc-8ad3ff .js-menu-title,
+.js-row.sc-8ad3ff .js-row-text
+{
+	color: #8ad3ff;
+}
+
+.js-skill.sc-8b4513 .js-name,
+.js-seg.sc-8b4513,
+.js-card.sc-8b4513 .js-card-name,
+.js-menu.sc-8b4513 .js-menu-title,
+.js-row.sc-8b4513 .js-row-text
+{
+	color: #8b4513;
+}
+
+.js-skill.sc-8d6e63 .js-name,
+.js-seg.sc-8d6e63,
+.js-card.sc-8d6e63 .js-card-name,
+.js-menu.sc-8d6e63 .js-menu-title,
+.js-row.sc-8d6e63 .js-row-text
+{
+	color: #8d6e63;
+}
+
+.js-skill.sc-8f108f .js-name,
+.js-seg.sc-8f108f,
+.js-card.sc-8f108f .js-card-name,
+.js-menu.sc-8f108f .js-menu-title,
+.js-row.sc-8f108f .js-row-text
+{
+	color: #8f108f;
+}
+
+.js-skill.sc-8f6dc9 .js-name,
+.js-seg.sc-8f6dc9,
+.js-card.sc-8f6dc9 .js-card-name,
+.js-menu.sc-8f6dc9 .js-menu-title,
+.js-row.sc-8f6dc9 .js-row-text
+{
+	color: #8f6dc9;
+}
+
+.js-skill.sc-902eff .js-name,
+.js-seg.sc-902eff,
+.js-card.sc-902eff .js-card-name,
+.js-menu.sc-902eff .js-menu-title,
+.js-row.sc-902eff .js-row-text
+{
+	color: #902eff;
+}
+
+.js-skill.sc-919191 .js-name,
+.js-seg.sc-919191,
+.js-card.sc-919191 .js-card-name,
+.js-menu.sc-919191 .js-menu-title,
+.js-row.sc-919191 .js-row-text
+{
+	color: #919191;
+}
+
+.js-skill.sc-962631 .js-name,
+.js-seg.sc-962631,
+.js-card.sc-962631 .js-card-name,
+.js-menu.sc-962631 .js-menu-title,
+.js-row.sc-962631 .js-row-text
+{
+	color: #962631;
+}
+
+.js-skill.sc-99140b .js-name,
+.js-seg.sc-99140b,
+.js-card.sc-99140b .js-card-name,
+.js-menu.sc-99140b .js-menu-title,
+.js-row.sc-99140b .js-row-text
+{
+	color: #99140b;
+}
+
+.js-skill.sc-999999 .js-name,
+.js-seg.sc-999999,
+.js-card.sc-999999 .js-card-name,
+.js-menu.sc-999999 .js-menu-title,
+.js-row.sc-999999 .js-row-text
+{
+	color: #999999;
+}
+
+.js-skill.sc-9ad3f5 .js-name,
+.js-seg.sc-9ad3f5,
+.js-card.sc-9ad3f5 .js-card-name,
+.js-menu.sc-9ad3f5 .js-menu-title,
+.js-row.sc-9ad3f5 .js-row-text
+{
+	color: #9ad3f5;
+}
+
+.js-skill.sc-9ba882 .js-name,
+.js-seg.sc-9ba882,
+.js-card.sc-9ba882 .js-card-name,
+.js-menu.sc-9ba882 .js-menu-title,
+.js-row.sc-9ba882 .js-row-text
+{
+	color: #9ba882;
+}
+
+.js-skill.sc-9c0000 .js-name,
+.js-seg.sc-9c0000,
+.js-card.sc-9c0000 .js-card-name,
+.js-menu.sc-9c0000 .js-menu-title,
+.js-row.sc-9c0000 .js-row-text
+{
+	color: #9c0000;
+}
+
+.js-skill.sc-9c9c9c .js-name,
+.js-seg.sc-9c9c9c,
+.js-card.sc-9c9c9c .js-card-name,
+.js-menu.sc-9c9c9c .js-menu-title,
+.js-row.sc-9c9c9c .js-row-text
+{
+	color: #9c9c9c;
+}
+
+.js-skill.sc-9fe8ff .js-name,
+.js-seg.sc-9fe8ff,
+.js-card.sc-9fe8ff .js-card-name,
+.js-menu.sc-9fe8ff .js-menu-title,
+.js-row.sc-9fe8ff .js-row-text
+{
+	color: #9fe8ff;
+}
+
+.js-skill.sc-a06cd5 .js-name,
+.js-seg.sc-a06cd5,
+.js-card.sc-a06cd5 .js-card-name,
+.js-menu.sc-a06cd5 .js-menu-title,
+.js-row.sc-a06cd5 .js-row-text
+{
+	color: #a06cd5;
+}
+
+.js-skill.sc-a3000b .js-name,
+.js-seg.sc-a3000b,
+.js-card.sc-a3000b .js-card-name,
+.js-menu.sc-a3000b .js-menu-title,
+.js-row.sc-a3000b .js-row-text
+{
+	color: #a3000b;
+}
+
+.js-skill.sc-a31912 .js-name,
+.js-seg.sc-a31912,
+.js-card.sc-a31912 .js-card-name,
+.js-menu.sc-a31912 .js-menu-title,
+.js-row.sc-a31912 .js-row-text
+{
+	color: #a31912;
+}
+
+.js-skill.sc-a3651a .js-name,
+.js-seg.sc-a3651a,
+.js-card.sc-a3651a .js-card-name,
+.js-menu.sc-a3651a .js-menu-title,
+.js-row.sc-a3651a .js-row-text
+{
+	color: #a3651a;
+}
+
+.js-skill.sc-a38c1a .js-name,
+.js-seg.sc-a38c1a,
+.js-card.sc-a38c1a .js-card-name,
+.js-menu.sc-a38c1a .js-menu-title,
+.js-row.sc-a38c1a .js-row-text
+{
+	color: #a38c1a;
+}
+
+.js-skill.sc-a68132 .js-name,
+.js-seg.sc-a68132,
+.js-card.sc-a68132 .js-card-name,
+.js-menu.sc-a68132 .js-menu-title,
+.js-row.sc-a68132 .js-row-text
+{
+	color: #a68132;
+}
+
+.js-skill.sc-a86eff .js-name,
+.js-seg.sc-a86eff,
+.js-card.sc-a86eff .js-card-name,
+.js-menu.sc-a86eff .js-menu-title,
+.js-row.sc-a86eff .js-row-text
+{
+	color: #a86eff;
+}
+
+.js-skill.sc-abab33 .js-name,
+.js-seg.sc-abab33,
+.js-card.sc-abab33 .js-card-name,
+.js-menu.sc-abab33 .js-menu-title,
+.js-row.sc-abab33 .js-row-text
+{
+	color: #abab33;
+}
+
+.js-skill.sc-adaec7 .js-name,
+.js-seg.sc-adaec7,
+.js-card.sc-adaec7 .js-card-name,
+.js-menu.sc-adaec7 .js-menu-title,
+.js-row.sc-adaec7 .js-row-text
+{
+	color: #adaec7;
+}
+
+.js-skill.sc-add8e6 .js-name,
+.js-seg.sc-add8e6,
+.js-card.sc-add8e6 .js-card-name,
+.js-menu.sc-add8e6 .js-menu-title,
+.js-row.sc-add8e6 .js-row-text
+{
+	color: #add8e6;
+}
+
+.js-skill.sc-adf542 .js-name,
+.js-seg.sc-adf542,
+.js-card.sc-adf542 .js-card-name,
+.js-menu.sc-adf542 .js-menu-title,
+.js-row.sc-adf542 .js-row-text
+{
+	color: #adf542;
+}
+
+.js-skill.sc-b01e5d .js-name,
+.js-seg.sc-b01e5d,
+.js-card.sc-b01e5d .js-card-name,
+.js-menu.sc-b01e5d .js-menu-title,
+.js-row.sc-b01e5d .js-row-text
+{
+	color: #b01e5d;
+}
+
+.js-skill.sc-b5ab8f .js-name,
+.js-seg.sc-b5ab8f,
+.js-card.sc-b5ab8f .js-card-name,
+.js-menu.sc-b5ab8f .js-menu-title,
+.js-row.sc-b5ab8f .js-row-text
+{
+	color: #b5ab8f;
+}
+
+.js-skill.sc-b8003a .js-name,
+.js-seg.sc-b8003a,
+.js-card.sc-b8003a .js-card-name,
+.js-menu.sc-b8003a .js-menu-title,
+.js-row.sc-b8003a .js-row-text
+{
+	color: #b8003a;
+}
+
+.js-skill.sc-baf081 .js-name,
+.js-seg.sc-baf081,
+.js-card.sc-baf081 .js-card-name,
+.js-menu.sc-baf081 .js-menu-title,
+.js-row.sc-baf081 .js-row-text
+{
+	color: #baf081;
+}
+
+.js-skill.sc-bcf542 .js-name,
+.js-seg.sc-bcf542,
+.js-card.sc-bcf542 .js-card-name,
+.js-menu.sc-bcf542 .js-menu-title,
+.js-row.sc-bcf542 .js-row-text
+{
+	color: #bcf542;
+}
+
+.js-skill.sc-c0392b .js-name,
+.js-seg.sc-c0392b,
+.js-card.sc-c0392b .js-card-name,
+.js-menu.sc-c0392b .js-menu-title,
+.js-row.sc-c0392b .js-row-text
+{
+	color: #c0392b;
+}
+
+.js-skill.sc-c2a04a .js-name,
+.js-seg.sc-c2a04a,
+.js-card.sc-c2a04a .js-card-name,
+.js-menu.sc-c2a04a .js-menu-title,
+.js-row.sc-c2a04a .js-row-text
+{
+	color: #c2a04a;
+}
+
+.js-skill.sc-c7e03a .js-name,
+.js-seg.sc-c7e03a,
+.js-card.sc-c7e03a .js-card-name,
+.js-menu.sc-c7e03a .js-menu-title,
+.js-row.sc-c7e03a .js-row-text
+{
+	color: #c7e03a;
+}
+
+.js-skill.sc-c91243 .js-name,
+.js-seg.sc-c91243,
+.js-card.sc-c91243 .js-card-name,
+.js-menu.sc-c91243 .js-menu-title,
+.js-row.sc-c91243 .js-row-text
+{
+	color: #c91243;
+}
+
+.js-skill.sc-c9a227 .js-name,
+.js-seg.sc-c9a227,
+.js-card.sc-c9a227 .js-card-name,
+.js-menu.sc-c9a227 .js-menu-title,
+.js-row.sc-c9a227 .js-row-text
+{
+	color: #c9a227;
+}
+
+.js-skill.sc-c9f8ff .js-name,
+.js-seg.sc-c9f8ff,
+.js-card.sc-c9f8ff .js-card-name,
+.js-menu.sc-c9f8ff .js-menu-title,
+.js-row.sc-c9f8ff .js-row-text
+{
+	color: #c9f8ff;
+}
+
+.js-skill.sc-cc2929 .js-name,
+.js-seg.sc-cc2929,
+.js-card.sc-cc2929 .js-card-name,
+.js-menu.sc-cc2929 .js-menu-title,
+.js-row.sc-cc2929 .js-row-text
+{
+	color: #cc2929;
+}
+
+.js-skill.sc-cc7504 .js-name,
+.js-seg.sc-cc7504,
+.js-card.sc-cc7504 .js-card-name,
+.js-menu.sc-cc7504 .js-menu-title,
+.js-row.sc-cc7504 .js-row-text
+{
+	color: #cc7504;
+}
+
+.js-skill.sc-d0d930 .js-name,
+.js-seg.sc-d0d930,
+.js-card.sc-d0d930 .js-card-name,
+.js-menu.sc-d0d930 .js-menu-title,
+.js-row.sc-d0d930 .js-row-text
+{
+	color: #d0d930;
+}
+
+.js-skill.sc-d1430a .js-name,
+.js-seg.sc-d1430a,
+.js-card.sc-d1430a .js-card-name,
+.js-menu.sc-d1430a .js-menu-title,
+.js-row.sc-d1430a .js-row-text
+{
+	color: #d1430a;
+}
+
+.js-skill.sc-d18cff .js-name,
+.js-seg.sc-d18cff,
+.js-card.sc-d18cff .js-card-name,
+.js-menu.sc-d18cff .js-menu-title,
+.js-row.sc-d18cff .js-row-text
+{
+	color: #d18cff;
+}
+
+.js-skill.sc-d1f542 .js-name,
+.js-seg.sc-d1f542,
+.js-card.sc-d1f542 .js-card-name,
+.js-menu.sc-d1f542 .js-menu-title,
+.js-row.sc-d1f542 .js-row-text
+{
+	color: #d1f542;
+}
+
+.js-skill.sc-d41c1c .js-name,
+.js-seg.sc-d41c1c,
+.js-card.sc-d41c1c .js-card-name,
+.js-menu.sc-d41c1c .js-menu-title,
+.js-row.sc-d41c1c .js-row-text
+{
+	color: #d41c1c;
+}
+
+.js-skill.sc-d4af37 .js-name,
+.js-seg.sc-d4af37,
+.js-card.sc-d4af37 .js-card-name,
+.js-menu.sc-d4af37 .js-menu-title,
+.js-row.sc-d4af37 .js-row-text
+{
+	color: #d4af37;
+}
+
+.js-skill.sc-d6e6ff .js-name,
+.js-seg.sc-d6e6ff,
+.js-card.sc-d6e6ff .js-card-name,
+.js-menu.sc-d6e6ff .js-menu-title,
+.js-row.sc-d6e6ff .js-row-text
+{
+	color: #d6e6ff;
+}
+
+.js-skill.sc-d9d9d9 .js-name,
+.js-seg.sc-d9d9d9,
+.js-card.sc-d9d9d9 .js-card-name,
+.js-menu.sc-d9d9d9 .js-menu-title,
+.js-row.sc-d9d9d9 .js-row-text
+{
+	color: #d9d9d9;
+}
+
+.js-skill.sc-dae01f .js-name,
+.js-seg.sc-dae01f,
+.js-card.sc-dae01f .js-card-name,
+.js-menu.sc-dae01f .js-menu-title,
+.js-row.sc-dae01f .js-row-text
+{
+	color: #dae01f;
+}
+
+.js-skill.sc-db6c35 .js-name,
+.js-seg.sc-db6c35,
+.js-card.sc-db6c35 .js-card-name,
+.js-menu.sc-db6c35 .js-menu-title,
+.js-row.sc-db6c35 .js-row-text
+{
+	color: #db6c35;
+}
+
+.js-skill.sc-ded678 .js-name,
+.js-seg.sc-ded678,
+.js-card.sc-ded678 .js-card-name,
+.js-menu.sc-ded678 .js-menu-title,
+.js-row.sc-ded678 .js-row-text
+{
+	color: #ded678;
+}
+
+.js-skill.sc-dedede .js-name,
+.js-seg.sc-dedede,
+.js-card.sc-dedede .js-card-name,
+.js-menu.sc-dedede .js-menu-title,
+.js-row.sc-dedede .js-row-text
+{
+	color: #dedede;
+}
+
+.js-skill.sc-e0873a .js-name,
+.js-seg.sc-e0873a,
+.js-card.sc-e0873a .js-card-name,
+.js-menu.sc-e0873a .js-menu-title,
+.js-row.sc-e0873a .js-row-text
+{
+	color: #e0873a;
+}
+
+.js-skill.sc-e0c341 .js-name,
+.js-seg.sc-e0c341,
+.js-card.sc-e0c341 .js-card-name,
+.js-menu.sc-e0c341 .js-menu-title,
+.js-row.sc-e0c341 .js-row-text
+{
+	color: #e0c341;
+}
+
+.js-skill.sc-e0d83a .js-name,
+.js-seg.sc-e0d83a,
+.js-card.sc-e0d83a .js-card-name,
+.js-menu.sc-e0d83a .js-menu-title,
+.js-row.sc-e0d83a .js-row-text
+{
+	color: #e0d83a;
+}
+
+.js-skill.sc-e3ed8c .js-name,
+.js-seg.sc-e3ed8c,
+.js-card.sc-e3ed8c .js-card-name,
+.js-menu.sc-e3ed8c .js-menu-title,
+.js-row.sc-e3ed8c .js-row-text
+{
+	color: #e3ed8c;
+}
+
+.js-skill.sc-e8e8ff .js-name,
+.js-seg.sc-e8e8ff,
+.js-card.sc-e8e8ff .js-card-name,
+.js-menu.sc-e8e8ff .js-menu-title,
+.js-row.sc-e8e8ff .js-row-text
+{
+	color: #e8e8ff;
+}
+
+.js-skill.sc-edf5b5 .js-name,
+.js-seg.sc-edf5b5,
+.js-card.sc-edf5b5 .js-card-name,
+.js-menu.sc-edf5b5 .js-menu-title,
+.js-row.sc-edf5b5 .js-row-text
+{
+	color: #edf5b5;
+}
+
+.js-skill.sc-f081ec .js-name,
+.js-seg.sc-f081ec,
+.js-card.sc-f081ec .js-card-name,
+.js-menu.sc-f081ec .js-menu-title,
+.js-row.sc-f081ec .js-row-text
+{
+	color: #f081ec;
+}
+
+.js-skill.sc-f2c14e .js-name,
+.js-seg.sc-f2c14e,
+.js-card.sc-f2c14e .js-card-name,
+.js-menu.sc-f2c14e .js-menu-title,
+.js-row.sc-f2c14e .js-row-text
+{
+	color: #f2c14e;
+}
+
+.js-skill.sc-f2c94c .js-name,
+.js-seg.sc-f2c94c,
+.js-card.sc-f2c94c .js-card-name,
+.js-menu.sc-f2c94c .js-menu-title,
+.js-row.sc-f2c94c .js-row-text
+{
+	color: #f2c94c;
+}
+
+.js-skill.sc-f542ef .js-name,
+.js-seg.sc-f542ef,
+.js-card.sc-f542ef .js-card-name,
+.js-menu.sc-f542ef .js-menu-title,
+.js-row.sc-f542ef .js-row-text
+{
+	color: #f542ef;
+}
+
+.js-skill.sc-f5b74c .js-name,
+.js-seg.sc-f5b74c,
+.js-card.sc-f5b74c .js-card-name,
+.js-menu.sc-f5b74c .js-menu-title,
+.js-row.sc-f5b74c .js-row-text
+{
+	color: #f5b74c;
+}
+
+.js-skill.sc-f5cb42 .js-name,
+.js-seg.sc-f5cb42,
+.js-card.sc-f5cb42 .js-card-name,
+.js-menu.sc-f5cb42 .js-menu-title,
+.js-row.sc-f5cb42 .js-row-text
+{
+	color: #f5cb42;
+}
+
+.js-skill.sc-fa050d .js-name,
+.js-seg.sc-fa050d,
+.js-card.sc-fa050d .js-card-name,
+.js-menu.sc-fa050d .js-menu-title,
+.js-row.sc-fa050d .js-row-text
+{
+	color: #fa050d;
+}
+
+.js-skill.sc-fa7b48 .js-name,
+.js-seg.sc-fa7b48,
+.js-card.sc-fa7b48 .js-card-name,
+.js-menu.sc-fa7b48 .js-menu-title,
+.js-row.sc-fa7b48 .js-row-text
+{
+	color: #fa7b48;
+}
+
+.js-skill.sc-fbff00 .js-name,
+.js-seg.sc-fbff00,
+.js-card.sc-fbff00 .js-card-name,
+.js-menu.sc-fbff00 .js-menu-title,
+.js-row.sc-fbff00 .js-row-text
+{
+	color: #fbff00;
+}
+
+.js-skill.sc-ff0000 .js-name,
+.js-seg.sc-ff0000,
+.js-card.sc-ff0000 .js-card-name,
+.js-menu.sc-ff0000 .js-menu-title,
+.js-row.sc-ff0000 .js-row-text
+{
+	color: #ff0000;
+}
+
+.js-skill.sc-ff3b3b .js-name,
+.js-seg.sc-ff3b3b,
+.js-card.sc-ff3b3b .js-card-name,
+.js-menu.sc-ff3b3b .js-menu-title,
+.js-row.sc-ff3b3b .js-row-text
+{
+	color: #ff3b3b;
+}
+
+.js-skill.sc-ff4500 .js-name,
+.js-seg.sc-ff4500,
+.js-card.sc-ff4500 .js-card-name,
+.js-menu.sc-ff4500 .js-menu-title,
+.js-row.sc-ff4500 .js-row-text
+{
+	color: #ff4500;
+}
+
+.js-skill.sc-ff462e .js-name,
+.js-seg.sc-ff462e,
+.js-card.sc-ff462e .js-card-name,
+.js-menu.sc-ff462e .js-menu-title,
+.js-row.sc-ff462e .js-row-text
+{
+	color: #ff462e;
+}
+
+.js-skill.sc-ff4d4d .js-name,
+.js-seg.sc-ff4d4d,
+.js-card.sc-ff4d4d .js-card-name,
+.js-menu.sc-ff4d4d .js-menu-title,
+.js-row.sc-ff4d4d .js-row-text
+{
+	color: #ff4d4d;
+}
+
+.js-skill.sc-ff5c0a .js-name,
+.js-seg.sc-ff5c0a,
+.js-card.sc-ff5c0a .js-card-name,
+.js-menu.sc-ff5c0a .js-menu-title,
+.js-row.sc-ff5c0a .js-row-text
+{
+	color: #ff5c0a;
+}
+
+.js-skill.sc-ff5cd9 .js-name,
+.js-seg.sc-ff5cd9,
+.js-card.sc-ff5cd9 .js-card-name,
+.js-menu.sc-ff5cd9 .js-menu-title,
+.js-row.sc-ff5cd9 .js-row-text
+{
+	color: #ff5cd9;
+}
+
+.js-skill.sc-ff5e3a .js-name,
+.js-seg.sc-ff5e3a,
+.js-card.sc-ff5e3a .js-card-name,
+.js-menu.sc-ff5e3a .js-menu-title,
+.js-row.sc-ff5e3a .js-row-text
+{
+	color: #ff5e3a;
+}
+
+.js-skill.sc-ff5e5e .js-name,
+.js-seg.sc-ff5e5e,
+.js-card.sc-ff5e5e .js-card-name,
+.js-menu.sc-ff5e5e .js-menu-title,
+.js-row.sc-ff5e5e .js-row-text
+{
+	color: #ff5e5e;
+}
+
+.js-skill.sc-ff7eb6 .js-name,
+.js-seg.sc-ff7eb6,
+.js-card.sc-ff7eb6 .js-card-name,
+.js-menu.sc-ff7eb6 .js-menu-title,
+.js-row.sc-ff7eb6 .js-row-text
+{
+	color: #ff7eb6;
+}
+
+.js-skill.sc-ff8a3d .js-name,
+.js-seg.sc-ff8a3d,
+.js-card.sc-ff8a3d .js-card-name,
+.js-menu.sc-ff8a3d .js-menu-title,
+.js-row.sc-ff8a3d .js-row-text
+{
+	color: #ff8a3d;
+}
+
+.js-skill.sc-ff8b42 .js-name,
+.js-seg.sc-ff8b42,
+.js-card.sc-ff8b42 .js-card-name,
+.js-menu.sc-ff8b42 .js-menu-title,
+.js-row.sc-ff8b42 .js-row-text
+{
+	color: #ff8b42;
+}
+
+.js-skill.sc-ff8c42 .js-name,
+.js-seg.sc-ff8c42,
+.js-card.sc-ff8c42 .js-card-name,
+.js-menu.sc-ff8c42 .js-menu-title,
+.js-row.sc-ff8c42 .js-row-text
+{
+	color: #ff8c42;
+}
+
+.js-skill.sc-ff8c92 .js-name,
+.js-seg.sc-ff8c92,
+.js-card.sc-ff8c92 .js-card-name,
+.js-menu.sc-ff8c92 .js-menu-title,
+.js-row.sc-ff8c92 .js-row-text
+{
+	color: #ff8c92;
+}
+
+.js-skill.sc-ffa500 .js-name,
+.js-seg.sc-ffa500,
+.js-card.sc-ffa500 .js-card-name,
+.js-menu.sc-ffa500 .js-menu-title,
+.js-row.sc-ffa500 .js-row-text
+{
+	color: #ffa500;
+}
+
+.js-skill.sc-ffb347 .js-name,
+.js-seg.sc-ffb347,
+.js-card.sc-ffb347 .js-card-name,
+.js-menu.sc-ffb347 .js-menu-title,
+.js-row.sc-ffb347 .js-row-text
+{
+	color: #ffb347;
+}
+
+.js-skill.sc-ffb73b .js-name,
+.js-seg.sc-ffb73b,
+.js-card.sc-ffb73b .js-card-name,
+.js-menu.sc-ffb73b .js-menu-title,
+.js-row.sc-ffb73b .js-row-text
+{
+	color: #ffb73b;
+}
+
+.js-skill.sc-ffbf47 .js-name,
+.js-seg.sc-ffbf47,
+.js-card.sc-ffbf47 .js-card-name,
+.js-menu.sc-ffbf47 .js-menu-title,
+.js-row.sc-ffbf47 .js-row-text
+{
+	color: #ffbf47;
+}
+
+.js-skill.sc-ffc061 .js-name,
+.js-seg.sc-ffc061,
+.js-card.sc-ffc061 .js-card-name,
+.js-menu.sc-ffc061 .js-menu-title,
+.js-row.sc-ffc061 .js-row-text
+{
+	color: #ffc061;
+}
+
+.js-skill.sc-ffd75e .js-name,
+.js-seg.sc-ffd75e,
+.js-card.sc-ffd75e .js-card-name,
+.js-menu.sc-ffd75e .js-menu-title,
+.js-row.sc-ffd75e .js-row-text
+{
+	color: #ffd75e;
+}
+
+.js-skill.sc-ffdd00 .js-name,
+.js-seg.sc-ffdd00,
+.js-card.sc-ffdd00 .js-card-name,
+.js-menu.sc-ffdd00 .js-menu-title,
+.js-row.sc-ffdd00 .js-row-text
+{
+	color: #ffdd00;
+}
+
+.js-skill.sc-fff52e .js-name,
+.js-seg.sc-fff52e,
+.js-card.sc-fff52e .js-card-name,
+.js-menu.sc-fff52e .js-menu-title,
+.js-row.sc-fff52e .js-row-text
+{
+	color: #fff52e;
+}
+
+.js-skill.sc-ffff00 .js-name,
+.js-seg.sc-ffff00,
+.js-card.sc-ffff00 .js-card-name,
+.js-menu.sc-ffff00 .js-menu-title,
+.js-row.sc-ffff00 .js-row-text
+{
+	color: #ffff00;
+}
+
+.js-skill.sc-ffffff .js-name,
+.js-seg.sc-ffffff,
+.js-card.sc-ffffff .js-card-name,
+.js-menu.sc-ffffff .js-menu-title,
+.js-row.sc-ffffff .js-row-text
+{
+	color: #ffffff;
+}
+
+.js-skill.cd-0 .js-cd
+{
+	width: 0%;
+}
+
+.js-skill.cd-1 .js-cd
+{
+	width: 1%;
+}
+
+.js-skill.cd-2 .js-cd
+{
+	width: 2%;
+}
+
+.js-skill.cd-3 .js-cd
+{
+	width: 3%;
+}
+
+.js-skill.cd-4 .js-cd
+{
+	width: 4%;
+}
+
+.js-skill.cd-5 .js-cd
+{
+	width: 5%;
+}
+
+.js-skill.cd-6 .js-cd
+{
+	width: 6%;
+}
+
+.js-skill.cd-7 .js-cd
+{
+	width: 7%;
+}
+
+.js-skill.cd-8 .js-cd
+{
+	width: 8%;
+}
+
+.js-skill.cd-9 .js-cd
+{
+	width: 9%;
+}
+
+.js-skill.cd-10 .js-cd
+{
+	width: 10%;
+}
+
+.js-skill.cd-11 .js-cd
+{
+	width: 11%;
+}
+
+.js-skill.cd-12 .js-cd
+{
+	width: 12%;
+}
+
+.js-skill.cd-13 .js-cd
+{
+	width: 13%;
+}
+
+.js-skill.cd-14 .js-cd
+{
+	width: 14%;
+}
+
+.js-skill.cd-15 .js-cd
+{
+	width: 15%;
+}
+
+.js-skill.cd-16 .js-cd
+{
+	width: 16%;
+}
+
+.js-skill.cd-17 .js-cd
+{
+	width: 17%;
+}
+
+.js-skill.cd-18 .js-cd
+{
+	width: 18%;
+}
+
+.js-skill.cd-19 .js-cd
+{
+	width: 19%;
+}
+
+.js-skill.cd-20 .js-cd
+{
+	width: 20%;
+}
+
+.js-skill.cd-21 .js-cd
+{
+	width: 21%;
+}
+
+.js-skill.cd-22 .js-cd
+{
+	width: 22%;
+}
+
+.js-skill.cd-23 .js-cd
+{
+	width: 23%;
+}
+
+.js-skill.cd-24 .js-cd
+{
+	width: 24%;
+}
+
+.js-skill.cd-25 .js-cd
+{
+	width: 25%;
+}
+
+.js-skill.cd-26 .js-cd
+{
+	width: 26%;
+}
+
+.js-skill.cd-27 .js-cd
+{
+	width: 27%;
+}
+
+.js-skill.cd-28 .js-cd
+{
+	width: 28%;
+}
+
+.js-skill.cd-29 .js-cd
+{
+	width: 29%;
+}
+
+.js-skill.cd-30 .js-cd
+{
+	width: 30%;
+}
+
+.js-skill.cd-31 .js-cd
+{
+	width: 31%;
+}
+
+.js-skill.cd-32 .js-cd
+{
+	width: 32%;
+}
+
+.js-skill.cd-33 .js-cd
+{
+	width: 33%;
+}
+
+.js-skill.cd-34 .js-cd
+{
+	width: 34%;
+}
+
+.js-skill.cd-35 .js-cd
+{
+	width: 35%;
+}
+
+.js-skill.cd-36 .js-cd
+{
+	width: 36%;
+}
+
+.js-skill.cd-37 .js-cd
+{
+	width: 37%;
+}
+
+.js-skill.cd-38 .js-cd
+{
+	width: 38%;
+}
+
+.js-skill.cd-39 .js-cd
+{
+	width: 39%;
+}
+
+.js-skill.cd-40 .js-cd
+{
+	width: 40%;
+}
+
+.js-skill.cd-41 .js-cd
+{
+	width: 41%;
+}
+
+.js-skill.cd-42 .js-cd
+{
+	width: 42%;
+}
+
+.js-skill.cd-43 .js-cd
+{
+	width: 43%;
+}
+
+.js-skill.cd-44 .js-cd
+{
+	width: 44%;
+}
+
+.js-skill.cd-45 .js-cd
+{
+	width: 45%;
+}
+
+.js-skill.cd-46 .js-cd
+{
+	width: 46%;
+}
+
+.js-skill.cd-47 .js-cd
+{
+	width: 47%;
+}
+
+.js-skill.cd-48 .js-cd
+{
+	width: 48%;
+}
+
+.js-skill.cd-49 .js-cd
+{
+	width: 49%;
+}
+
+.js-skill.cd-50 .js-cd
+{
+	width: 50%;
+}
+
+.js-skill.cd-51 .js-cd
+{
+	width: 51%;
+}
+
+.js-skill.cd-52 .js-cd
+{
+	width: 52%;
+}
+
+.js-skill.cd-53 .js-cd
+{
+	width: 53%;
+}
+
+.js-skill.cd-54 .js-cd
+{
+	width: 54%;
+}
+
+.js-skill.cd-55 .js-cd
+{
+	width: 55%;
+}
+
+.js-skill.cd-56 .js-cd
+{
+	width: 56%;
+}
+
+.js-skill.cd-57 .js-cd
+{
+	width: 57%;
+}
+
+.js-skill.cd-58 .js-cd
+{
+	width: 58%;
+}
+
+.js-skill.cd-59 .js-cd
+{
+	width: 59%;
+}
+
+.js-skill.cd-60 .js-cd
+{
+	width: 60%;
+}
+
+.js-skill.cd-61 .js-cd
+{
+	width: 61%;
+}
+
+.js-skill.cd-62 .js-cd
+{
+	width: 62%;
+}
+
+.js-skill.cd-63 .js-cd
+{
+	width: 63%;
+}
+
+.js-skill.cd-64 .js-cd
+{
+	width: 64%;
+}
+
+.js-skill.cd-65 .js-cd
+{
+	width: 65%;
+}
+
+.js-skill.cd-66 .js-cd
+{
+	width: 66%;
+}
+
+.js-skill.cd-67 .js-cd
+{
+	width: 67%;
+}
+
+.js-skill.cd-68 .js-cd
+{
+	width: 68%;
+}
+
+.js-skill.cd-69 .js-cd
+{
+	width: 69%;
+}
+
+.js-skill.cd-70 .js-cd
+{
+	width: 70%;
+}
+
+.js-skill.cd-71 .js-cd
+{
+	width: 71%;
+}
+
+.js-skill.cd-72 .js-cd
+{
+	width: 72%;
+}
+
+.js-skill.cd-73 .js-cd
+{
+	width: 73%;
+}
+
+.js-skill.cd-74 .js-cd
+{
+	width: 74%;
+}
+
+.js-skill.cd-75 .js-cd
+{
+	width: 75%;
+}
+
+.js-skill.cd-76 .js-cd
+{
+	width: 76%;
+}
+
+.js-skill.cd-77 .js-cd
+{
+	width: 77%;
+}
+
+.js-skill.cd-78 .js-cd
+{
+	width: 78%;
+}
+
+.js-skill.cd-79 .js-cd
+{
+	width: 79%;
+}
+
+.js-skill.cd-80 .js-cd
+{
+	width: 80%;
+}
+
+.js-skill.cd-81 .js-cd
+{
+	width: 81%;
+}
+
+.js-skill.cd-82 .js-cd
+{
+	width: 82%;
+}
+
+.js-skill.cd-83 .js-cd
+{
+	width: 83%;
+}
+
+.js-skill.cd-84 .js-cd
+{
+	width: 84%;
+}
+
+.js-skill.cd-85 .js-cd
+{
+	width: 85%;
+}
+
+.js-skill.cd-86 .js-cd
+{
+	width: 86%;
+}
+
+.js-skill.cd-87 .js-cd
+{
+	width: 87%;
+}
+
+.js-skill.cd-88 .js-cd
+{
+	width: 88%;
+}
+
+.js-skill.cd-89 .js-cd
+{
+	width: 89%;
+}
+
+.js-skill.cd-90 .js-cd
+{
+	width: 90%;
+}
+
+.js-skill.cd-91 .js-cd
+{
+	width: 91%;
+}
+
+.js-skill.cd-92 .js-cd
+{
+	width: 92%;
+}
+
+.js-skill.cd-93 .js-cd
+{
+	width: 93%;
+}
+
+.js-skill.cd-94 .js-cd
+{
+	width: 94%;
+}
+
+.js-skill.cd-95 .js-cd
+{
+	width: 95%;
+}
+
+.js-skill.cd-96 .js-cd
+{
+	width: 96%;
+}
+
+.js-skill.cd-97 .js-cd
+{
+	width: 97%;
+}
+
+.js-skill.cd-98 .js-cd
+{
+	width: 98%;
+}
+
+.js-skill.cd-99 .js-cd
+{
+	width: 99%;
+}
+
+.js-skill.cd-100 .js-cd
+{
+	width: 100%;
+}

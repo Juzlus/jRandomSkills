@@ -18,6 +18,18 @@ namespace src.player.skills
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly object setLock = new();
+        private const int BarLength = 10;
+        private const char FullBlock = '▓';
+        private const char EmptyBlock = '░';
+        private static readonly string[] bars = BuildBars();
+
+        private static string[] BuildBars()
+        {
+            var result = new string[BarLength + 1];
+            for (int level = 0; level <= BarLength; level++)
+                result[level] = new string(FullBlock, level) + new string(EmptyBlock, BarLength - level);
+            return result;
+        }
 
         public static void LoadSkill()
         {
@@ -86,15 +98,13 @@ namespace src.player.skills
                     // Only the actively spectated pawn stays transmitted; hiding it breaks the camera.
                     if (targetHandle != nint.Zero && target.Pawn.Handle == targetHandle) continue;
 
-                    if (info.TransmitEntities.Contains(target.PawnIndex))
-                        info.TransmitEntities.Remove(target.PawnIndex);
+                    SkillUtils.HideTransmit(info, target.PawnIndex);
 
                     SkillUtils.HideCarriedEntities(info, target);
 
                     if (bomb == null || !target.HoldsBomb) continue;
 
-                    if (info.TransmitEntities.Contains(bomb.Index))
-                        info.TransmitEntities.Remove(bomb.Index);
+                    SkillUtils.HideTransmit(info, bomb.Index);
                 }
             }
         }
@@ -118,13 +128,14 @@ namespace src.player.skills
             if (EntityManager.GetPlayerEntities(player.Key(), "empty_prop").Count == 0)
                 CreatePlayerPosProp(player);
 
-            SkillUtils.ForceFullUpdateToAll();
+            SkillUtils.ForceFullUpdateToEnemiesOf(player);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             SkillUtils.SetPlayerInvisibility(player, 0);
             invisiblePlayers.TryRemove(player.Key(), out _);
+            SkillUtils.ResetPrintHTML(player);
             EntityManager.DestroyPlayerEntities(player.Key());
         }
 
@@ -148,7 +159,7 @@ namespace src.player.skills
             emptyProp.DispatchSpawn();
             emptyProp.Teleport(newPos, newAngle);
 
-            Utilities.SetStateChanged(emptyProp, "CBaseEntity", "m_CBodyComponent");
+            NetStateFast.Changed(emptyProp, "CBaseEntity", "m_CBodyComponent");
 
         }
 
@@ -181,9 +192,15 @@ namespace src.player.skills
             if (!buttons.HasFlag(PlayerButtons.Moveleft) && !buttons.HasFlag(PlayerButtons.Moveright) && !buttons.HasFlag(PlayerButtons.Forward) && !buttons.HasFlag(PlayerButtons.Back) && flags.HasFlag(PlayerFlags.FL_ONGROUND))
                 percentInvisibility += SkillsInfo.GetValue<float>(skillName, "idlePercentInvisibility");
 
+            var playerInfo = PlayerManager.GetPlayer(playerEvent);
+            bool hudMissing = playerInfo != null && string.IsNullOrEmpty(playerInfo.PrintHTML);
+
             if (invisibilityChanged.TryGetValue(playerEvent.Handle, out float oldInvisibility))
-                if (percentInvisibility == oldInvisibility)
+                if (percentInvisibility == oldInvisibility && !hudMissing)
                     return;
+
+            if (playerInfo != null)
+                playerInfo.PrintHTML = BuildHud(playerEvent, percentInvisibility);
 
             invisibilityChanged.AddOrUpdate(playerEvent.Handle, percentInvisibility, (_, _) => percentInvisibility);
 
@@ -194,6 +211,13 @@ namespace src.player.skills
                 SkillUtils.SetPlayerInvisibility(playerEvent, percentInvisibility);
                 invisiblePlayers.TryRemove(playerEvent.Key(), out _);
             }
+        }
+
+        private static string BuildHud(CCSPlayerController player, float percentInvisibility)
+        {
+            int level = percentInvisibility > .9 ? BarLength : Math.Clamp((int)Math.Round(percentInvisibility * BarLength), 0, BarLength);
+            string color = level >= BarLength ? "#3ad15a" : level >= 6 ? "#f2c94c" : level >= 3 ? "#ff8a3d" : "#7a7a7a";
+            return player.GetTranslation("ninja_hud", $"<font color='{color}'>{bars[level]}</font>");
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)

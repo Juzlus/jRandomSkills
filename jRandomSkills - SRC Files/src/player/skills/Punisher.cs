@@ -26,6 +26,13 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
             storedDamage[player.Key()] = 0f;
+            UpdateHud(player.Key());
+        }
+
+        private static void UpdateHud(uint playerKey)
+        {
+            if (!storedDamage.TryGetValue(playerKey, out float stored)) return;
+            SkillUtils.SetSkillHud(PlayerManager.GetController(playerKey), "punisher_hud", (int)MathF.Round(stored));
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -47,7 +54,10 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid) return;
 
             if (storedDamage.ContainsKey(victim.Key()))
+            {
                 storedDamage[victim.Key()] = 0f;
+                UpdateHud(victim.Key());
+            }
         }
 
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
@@ -79,6 +89,7 @@ namespace src.player.skills
             {
                 storedDamage[attackerIndex.Value] = 0f;
                 damageInfo.Damage += banked;
+                UpdateHud(attackerIndex.Value);
 
                 var puncher = PlayerManager.GetController(attackerIndex.Value);
                 var puncherPawn = puncher?.PlayerPawn?.Value;
@@ -99,6 +110,7 @@ namespace src.player.skills
 
             float stored = storedDamage[victimIndex] + (damageInfo.Damage * ratio);
             storedDamage[victimIndex] = MathF.Min(stored, cap);
+            UpdateHud(victimIndex);
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffb347", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float storePercent = .5f, float maxStored = 100f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

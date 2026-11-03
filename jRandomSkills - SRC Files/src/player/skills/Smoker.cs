@@ -22,12 +22,17 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            playersWithSkill.TryRemove(playerIndex, out _);
+        }
+
         public static void NewRound()
         {
             lock (setLock)
             {
                 foreach (var timers in playerSmokes.Values)
-                    timers.ForEach(t => t?.Kill());
+                    timers.ForEach(t => SafeTimer.Kill(t));
                 playerSmokes.Clear();
             }
         }
@@ -56,7 +61,7 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1 && SkillUtils.ThrewGrenadeRecently(player))
                 SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
         }
 
@@ -68,8 +73,8 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "smokegrenade") return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
-                SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadesLeft);
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft))
+                playersWithSkill[player.Key()] = SkillUtils.ClampGrenadeAfterPickup(player, CsItem.SmokeGrenade, grenadesLeft);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -77,16 +82,16 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
-            playersWithSkill.TryAdd(player.Key(), grenadeLimit);
-
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
+            playersWithSkill[player.Key()] = grenadeLimit;
+
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             if (playerSmokes.TryRemove(player.Key(), out var timers))
-                timers.ForEach(t => t?.Kill());
+                timers.ForEach(t => SafeTimer.Kill(t));
 
             playersWithSkill.TryRemove(player.Key(), out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
@@ -106,13 +111,13 @@ namespace src.player.skills
             float refillInterval = 15.5f;
 
             Timer? smokeTimer = null;
-            smokeTimer = Instance.AddTimer(refillInterval, () =>
+            smokeTimer = SafeTimer.Add(refillInterval, () =>
             {
                 var player = PlayerManager.GetController(playerIndex);
 
                 if (player == null || !player.IsValid)
                 {
-                    smokeTimer?.Kill();
+                    SafeTimer.Kill(smokeTimer);
                     return;
                 }
 

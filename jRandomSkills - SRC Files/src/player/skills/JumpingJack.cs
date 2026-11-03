@@ -13,9 +13,19 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        public static void PlayerJump(EventPlayerJump @event)
+        public static void EnableSkill(CCSPlayerController player)
         {
-            var player = @event.Userid;
+            SkillUtils.SetSkillHud(player, "jumpingjack_hud", SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+        }
+
+        public static void DisableSkill(CCSPlayerController player)
+        {
+            SkillUtils.ResetPrintHTML(player);
+        }
+
+        public static void PlayerJump(CCSPlayerController? jumpPlayer)
+        {
+            var player = jumpPlayer;
             if (player == null || !player.IsValid) return;
 
             var playerEvent = PlayerManager.GetPlayerEvent(player);

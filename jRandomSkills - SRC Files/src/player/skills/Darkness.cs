@@ -197,18 +197,18 @@ namespace src.player.skills
                     ApplyColor(player);
 
                     Timer? darkTimer = null;
-                    darkTimer = Instance.AddTimer(5f, () =>
+                    darkTimer = SafeTimer.Add(5f, () =>
                     {
                         if (!playersInDark.ContainsKey(playerIndex))
                         {
-                            darkTimer?.Kill();
+                            SafeTimer.Kill(darkTimer);
                             return;
                         }
 
                         var target = PlayerManager.GetPlayerFromEvent(PlayerManager.GetController(playerIndex));
                         if (target == null || !target.IsValid)
                         {
-                            darkTimer?.Kill();
+                            SafeTimer.Kill(darkTimer);
                             return;
                         }
 

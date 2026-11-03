@@ -42,9 +42,9 @@ namespace src.player.skills
                 um.Recipients.Clear();
         }
 
-        public static void PlayerJump(EventPlayerJump @event)
+        public static void PlayerJump(CCSPlayerController? jumpPlayer)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var player = PlayerManager.GetPlayerEvent(jumpPlayer);
             if (player == null || !player.IsValid) return;
             if (!jumpedPlayers.TryGetValue(player.Key(), out _)) return;
             jumpedPlayers.AddOrUpdate(player.Key(), Server.TickCount + 20, (k, v) => Server.TickCount + 20);

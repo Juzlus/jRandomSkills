@@ -13,6 +13,7 @@ namespace src.player.skills
         private const Skills skillName = Skills.Berserker;
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
         private static readonly List<CCSPlayerController> holderBuffer = [];
+        private static readonly Dictionary<uint, int> hudShown = [];
 
         public static void LoadSkill()
         {
@@ -69,9 +70,9 @@ namespace src.player.skills
             }
         }
 
-        public static void PlayerJump(EventPlayerJump @event)
+        public static void PlayerJump(CCSPlayerController? jumpPlayer)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var player = PlayerManager.GetPlayerEvent(jumpPlayer);
             if (player == null || !player.IsValid) return;
             if (!jumpedPlayers.TryGetValue(player.Key(), out _)) return;
             jumpedPlayers.AddOrUpdate(player.Key(), Server.TickCount + 20, (k, v) => Server.TickCount + 20);
@@ -85,8 +86,22 @@ namespace src.player.skills
             jumpedPlayers.TryAdd(player.Key(), 0);
         }
 
+        private static void UpdateHud(CCSPlayerController player, float multiplier)
+        {
+            var playerInfo = PlayerManager.GetPlayer(player);
+            if (playerInfo == null) return;
+
+            int shown = (int)MathF.Round(multiplier * 100f);
+            if (!string.IsNullOrEmpty(playerInfo.PrintHTML) && hudShown.TryGetValue(player.Key(), out int last) && last == shown) return;
+
+            hudShown[player.Key()] = shown;
+            SkillUtils.SetSkillHud(player, "berserker_hud", (shown / 100f).ToString("0.00"));
+        }
+
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
+            hudShown.Remove(player.Key());
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null) return;
             playerPawn.VelocityModifier = 1;
@@ -106,6 +121,9 @@ namespace src.player.skills
 
                 var playerPawn = player.PlayerPawn?.Value;
                 if (playerPawn == null || playerPawn.VelocityModifier == 0) continue;
+
+                if (SkillUtils.IsHudFrame())
+                    UpdateHud(player, CalculateNewVelocity(playerPawn, SkillsInfo.GetValue<float>(skillName, "maxDamageVelocity")));
 
                 var buttons = player.Buttons;
                 float newSpeedVelocity = CalculateNewVelocity(playerPawn, maxSpeedVelocity);

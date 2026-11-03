@@ -36,7 +36,7 @@ namespace src.player.skills
 
         private static void ClearAllReplicas()
         {
-            foreach (var timer in ActiveTimers.Values) timer?.Kill();
+            foreach (var timer in ActiveTimers.Values) SafeTimer.Kill(timer);
             ActiveTimers.Clear();
 
             var entities = Utilities.FindAllEntitiesByDesignerName<CDynamicProp>("prop_dynamic_override");
@@ -145,13 +145,13 @@ namespace src.player.skills
             Vector forwardVec = SkillUtils.GetForwardVector(angle);
             int replicaIndex = (int)replica.Index;
 
-            Instance.AddTickTimer(10, () =>
+            SafeTimer.AddTick(10, () =>
             {
-                var moveTimer = Instance.AddTickTimer(1, () =>
+                var moveTimer = SafeTimer.AddTick(1, () =>
                 {
                     if (replica == null || !replica.IsValid)
                     {
-                        if (ActiveTimers.TryRemove(replicaIndex, out var timer)) timer?.Kill();
+                        if (ActiveTimers.TryRemove(replicaIndex, out var timer)) SafeTimer.Kill(timer);
                         return;
                     }
 
@@ -173,12 +173,12 @@ namespace src.player.skills
             }, TimerFlags.STOP_ON_MAPCHANGE);
 
             float duration = SkillsInfo.GetValue<float>(skillName, ducking ? "durationCrouch" : "durationRun");
-            Instance.AddTimer(duration, () =>
+            SafeTimer.Add(duration, () =>
             {
                 if (replica != null && replica.IsValid)
                 {
                     EntityManager.DestroyEntity(replica.Index);
-                    if (ActiveTimers.TryRemove(replicaIndex, out var timer)) timer?.Kill();
+                    if (ActiveTimers.TryRemove(replicaIndex, out var timer)) SafeTimer.Kill(timer);
                 }
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
@@ -199,7 +199,7 @@ namespace src.player.skills
             if (!consumedReplicas.TryAdd(replica.Index, 0)) return;
 
             replica.EmitSound("GlassBottle.BulletImpact", volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
-            if (ActiveTimers.TryRemove((int)replica.Index, out var timer)) timer?.Kill();
+            if (ActiveTimers.TryRemove((int)replica.Index, out var timer)) SafeTimer.Kill(timer);
 
             var owner = GetReplicaOwner(replica.Index);
             EntityManager.DestroyEntity(replica.Index);

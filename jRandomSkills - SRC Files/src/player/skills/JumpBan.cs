@@ -36,9 +36,9 @@ namespace src.player.skills
                 SkillUtils.CloseMenu(player);
         }
 
-        public static void PlayerJump(EventPlayerJump @event)
+        public static void PlayerJump(CCSPlayerController? jumpPlayer)
         {
-            var player = PlayerManager.GetPlayerEvent(@event.Userid);
+            var player = PlayerManager.GetPlayerEvent(jumpPlayer);
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
             if (!bannedPlayers.TryGetValue(player.Key(), out _)) return;
 

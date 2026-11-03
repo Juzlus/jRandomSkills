@@ -82,23 +82,20 @@ namespace src.player.skills
                     if (glow.Showable && seesGlows && glow.Team != player.Team) continue;
                     if (!glow.EntitiesValid) continue;
 
-                    if (info.TransmitEntities.Contains(glow.Relay))
-                        info.TransmitEntities.Remove(glow.Relay);
+                    SkillUtils.HideTransmitDormant(info, glow.Relay);
 
-                    if (info.TransmitEntities.Contains(glow.Glow))
-                        info.TransmitEntities.Remove(glow.Glow);
+                    SkillUtils.HideTransmitDormant(info, glow.Glow);
                 }
 
                 foreach (var kvp in temporaryBlockList)
-                    if (info.TransmitEntities.Contains(kvp.Key))
-                        info.TransmitEntities.Remove(kvp.Key);
+                    SkillUtils.HideTransmitDormant(info, kvp.Key);
             }
         }
 
         public static void NewRound()
         {
             buildInProgress = false;
-            buildScheduled = false;
+            buildGeneration++;
 
             foreach (var kvp in glows)
             {
@@ -145,21 +142,9 @@ namespace src.player.skills
             Event.EnableTransmit();
             playersInAction.TryAdd(player.Key(), 0);
 
-            if (buildScheduled || buildInProgress || !glows.IsEmpty) return;
+            if (buildInProgress || !glows.IsEmpty) return;
 
-            buildScheduled = true;
-
-            float delay = SkillUtils.IsFreezeTime()
-                ? Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0f)
-                : 0f;
-
-            jRandomSkills.Instance.AddTimer(delay, () =>
-            {
-                buildScheduled = false;
-
-                if (playersInAction.IsEmpty || buildInProgress || !glows.IsEmpty) return;
-                SetGlowEffectForAll();
-            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+            SetGlowEffectForAll();
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -173,9 +158,9 @@ namespace src.player.skills
             }
         }
 
-        private const int GlowsPerFrame = 4;
+        private const int FreezeMaxInterval = 8;
         private static bool buildInProgress;
-        private static bool buildScheduled;
+        private static int buildGeneration;
 
         private static void SetGlowEffectForAll()
         {
@@ -188,29 +173,40 @@ namespace src.player.skills
             (p.Team == CsTeam.Terrorist || p.Team == CsTeam.CounterTerrorist)).ToList();
 
             buildInProgress = true;
-            SpawnGlowChunk(enemies, 0);
+            SpawnGlowStep(enemies, 0, ++buildGeneration);
         }
 
-        private static void SpawnGlowChunk(List<CCSPlayerController> enemies, int start)
+        private static void SpawnGlowStep(List<CCSPlayerController> enemies, int next, int generation)
         {
-            if (!buildInProgress) return;
+            if (!buildInProgress || generation != buildGeneration || playersInAction.IsEmpty) return;
 
-            if (start >= enemies.Count)
+            if (next >= enemies.Count)
             {
                 buildInProgress = false;
-                SkillUtils.ForceFullUpdateToAllChunked();
                 return;
             }
 
-            int end = Math.Min(start + GlowsPerFrame, enemies.Count);
-            for (int i = start; i < end; i++)
+            var enemy = enemies[next];
+            if (enemy != null && enemy.IsValid && !glows.ContainsKey(enemy.Key()))
             {
-                var enemy = enemies[i];
-                if (enemy == null || !enemy.IsValid) continue;
-                SpawnGlowFor(enemy);
+                var pawn = enemy.PlayerPawn?.Value;
+                if (pawn != null && pawn.IsValid && pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+                    SpawnGlowFor(enemy);
             }
 
-            Server.NextFrame(() => SpawnGlowChunk(enemies, end));
+            int interval = StepInterval(enemies.Count - next - 1);
+            if (interval <= 1)
+                Server.NextFrame(() => SpawnGlowStep(enemies, next + 1, generation));
+            else
+                SafeTimer.AddTick(interval, () => SpawnGlowStep(enemies, next + 1, generation), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        private static int StepInterval(int remaining)
+        {
+            if (remaining <= 0 || !SkillUtils.IsFreezeTime()) return 1;
+
+            double freezeTicks = (Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds / Server.TickInterval;
+            return Math.Clamp((int)(freezeTicks * .75 / remaining), 1, FreezeMaxInterval);
         }
 
         private static void SpawnGlowFor(CCSPlayerController enemy)

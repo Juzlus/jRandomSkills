@@ -162,7 +162,7 @@ namespace src.player.skills
             if (moneyServices.Account >= maxMoney) return false;
 
             moneyServices.Account = Math.Clamp(moneyServices.Account + amount, 0, maxMoney);
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
             return true;
         }
 

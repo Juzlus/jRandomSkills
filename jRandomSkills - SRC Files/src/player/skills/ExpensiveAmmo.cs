@@ -50,7 +50,7 @@ namespace src.player.skills
             if (cost <= 0) return;
 
             moneyServices.Account = Math.Max(moneyServices.Account - cost, 0);
-            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(player, "CCSPlayerController", "m_pInGameMoneyServices");
         }
 
         public static void OnTick()

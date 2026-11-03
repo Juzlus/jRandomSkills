@@ -182,6 +182,7 @@ namespace src.utils
             public WeaponPools Weapons { get; set; }
             public LanguageSystem LanguageSystem { get; set; }
             public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
+            public PanoramaHudSettings PanoramaHud { get; set; }
             public ChatMessage ChatMessage { get; set; }
             public NormalCommands NormalCommands { get; set; }
             public VotingCommands VotingCommands { get; set; }
@@ -296,6 +297,8 @@ namespace src.utils
                     WSADMenuControllsLineColor3 = "green",
                 };
 
+                PanoramaHud = new PanoramaHudSettings();
+
                 ChatMessage = new ChatMessage
                 {
                     MaxWidth = 1280,
@@ -379,6 +382,14 @@ namespace src.utils
             public required string WSADMenuControllsLineColor1 { get; set; }
             public required string WSADMenuControllsLineColor2 { get; set; }
             public required string WSADMenuControllsLineColor3 { get; set; }
+        }
+
+        public class PanoramaHudSettings
+        {
+            public bool Enabled { get; set; } = false;
+            public string Layout { get; set; } = "panorama/layout/custom_game/jrs_skills.xml";
+            public string Font { get; set; } = "stratum";
+            public int FontSize { get; set; } = 100;
         }
 
         public class LanguageSystem

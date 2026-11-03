@@ -154,7 +154,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1 && SkillUtils.ThrewGrenadeRecently(player))
                 SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
         }
 
@@ -166,8 +166,8 @@ namespace src.player.skills
             var weapon = @event.Item;
             if (string.IsNullOrEmpty(weapon) || weapon != "decoy") return;
 
-            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft) && grenadesLeft > 1)
-                SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadesLeft);
+            if (playersWithSkill.TryGetValue(player.Key(), out int grenadesLeft))
+                playersWithSkill[player.Key()] = SkillUtils.ClampGrenadeAfterPickup(player, CsItem.DecoyGrenade, grenadesLeft);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -175,9 +175,9 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
             playersWithSkill[player.Key()] = grenadeLimit;
 
-            SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, grenadeLimit);
         }
 

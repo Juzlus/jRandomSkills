@@ -15,6 +15,9 @@ namespace src.player
             Instance.RegisterListener<OnTick>(() =>
             {
                 UpdateGameRules();
+                long panoramaStart = PanoramaHud.Enabled ? PerfLog.Start() : 0;
+                PanoramaHud.OnTick();
+                PerfLog.Sample("OnTick(panorama)", panoramaStart);
                 if (!SkillUtils.IsHudFrame()) return;
 
                 if (PerfLog.Enabled && Server.TickCount % 1920 == 0 && !PlayerManager.IsServerIdle())
@@ -22,6 +25,7 @@ namespace src.player
                     int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
                     var (tracked, owners) = EntityManager.GetStatistics();
                     PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}{EntityManager.DescribeTracked()}{Event.PerfContext()}");
+                    PerfLog.Info(PerfLog.ProcessStats());
                 }
 
                 long perfStart = PerfLog.Start();
@@ -43,6 +47,7 @@ namespace src.player
         private static void OnMapStart(string mapName)
         {
             skills.NoRecoil.ForgetSpread();
+            SafeTimer.ForgetMapTimers();
             PlayerManager.SetServerActive(true);
             Instance.GameRules = null;
             Event.OnMapChange();
@@ -55,6 +60,7 @@ namespace src.player
             skills.NoRecoil.ForgetSpread();
             PerfLog.Info("===== MAP END (clean map change) =====");
             Debug.WriteToDebug("===== MAP END (clean map change) =====");
+            SafeTimer.ForgetMapTimers();
             BotManager.Stop();
             PlayerManager.SetServerActive(false);
         }
@@ -91,7 +97,7 @@ namespace src.player
 
             if (player.PawnIsAlive && skillPlayer.SkillHudExpired < now && string.IsNullOrEmpty(skillPlayer.PrintHTML)) return;
 
-            if (SkillUtils.HasMenu(player))
+            if (SkillUtils.HasMenu(player) && !PanoramaHud.OtherHtmlActive(player))
             {
                 SkillUtils.SetMenuPaused(player, false);
                 return;

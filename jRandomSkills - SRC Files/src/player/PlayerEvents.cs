@@ -257,7 +257,7 @@ namespace src.player
 
         private static HookResult GetPrintToCenterHtml(UserMessage um)
         {
-            if (!Config.LoadedConfig.HideHudForOtherPlugins) return HookResult.Continue;
+            if (!Config.LoadedConfig.HideHudForOtherPlugins && !PanoramaHud.Enabled) return HookResult.Continue;
 
             int tickCount = Server.TickCount;
             if (tickCount % 10 != 0) return HookResult.Continue;
@@ -285,8 +285,16 @@ namespace src.player
 
                     if (isOtherPlugin && playerInfo.HideHUD != int.MaxValue)
                     {
-                        playerInfo.HideHUD = tickCount + 15;
-                        SkillUtils.SetMenuPaused(player, true);
+                        if (PanoramaHud.Active(player))
+                        {
+                            PanoramaHud.NoteOtherHtml(player);
+                            SkillUtils.SetMenuPaused(player, true);
+                        }
+                        else if (Config.LoadedConfig.HideHudForOtherPlugins)
+                        {
+                            playerInfo.HideHUD = tickCount + 15;
+                            SkillUtils.SetMenuPaused(player, true);
+                        }
                     }
                 }
 
@@ -344,6 +352,7 @@ namespace src.player
         {
             lock (setLock)
             {
+                SkillUtils.MarkGrenadeThrown(PlayerManager.GetPlayerEvent(@event.Userid));
                 DispatchToActiveSkills("GrenadeThrown", @event);
                 return HookResult.Continue;
             }
@@ -384,7 +393,7 @@ namespace src.player
                         if (pawn != null && pawn.IsValid)
                         {
                             pawn.ArmorValue += @event.DmgArmor;
-                            Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_ArmorValue");
+                            NetStateFast.Changed(pawn, "CCSPlayerPawn", "m_ArmorValue");
                         }
                     }
 
@@ -419,9 +428,76 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerJump", @event);
+                OnJump(@event.Userid);
                 return HookResult.Continue;
             }
+        }
+
+        private const int JumpDedupTicks = 8;
+        private static readonly HashSet<Skills> holderJumpSkills = [Skills.Berserker, Skills.Flash, Skills.JumpBan, Skills.JumpingJack];
+        private static readonly Dictionary<uint, (bool OnGround, int JumpTick)> jumpStates = [];
+
+        private static void OnJump(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid) return;
+
+            int tick = Server.TickCount;
+            uint key = player.Key();
+            if (jumpStates.TryGetValue(key, out var state) && tick - state.JumpTick <= JumpDedupTicks) return;
+            jumpStates[key] = (false, tick);
+
+            DispatchToActiveSkills("PlayerJump", player);
+        }
+
+        private static void DetectJumps()
+        {
+            bool holders = false, curse = false;
+            foreach (var skill in _activeSkillsList)
+            {
+                if (skill == Skills.JumpCurse) curse = true;
+                else if (holderJumpSkills.Contains(skill)) holders = true;
+            }
+
+            int curseTeams = curse ? JumpCurse.CursedTeamMask() : 0;
+            if (!holders && curseTeams == 0)
+            {
+                if (jumpStates.Count != 0) jumpStates.Clear();
+                return;
+            }
+
+            int tick = Server.TickCount;
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (player == null || !player.IsValid) continue;
+
+                uint key = player.Key();
+                if ((curseTeams & (1 << (int)player.Team)) == 0 && !(holders && IsJumpHolder(player)))
+                {
+                    jumpStates.Remove(key);
+                    continue;
+                }
+
+                var pawn = player.PlayerPawn?.Value;
+                if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
+
+                bool onGround = (pawn.Flags & (uint)PlayerFlags.FL_ONGROUND) != 0;
+                jumpStates.TryGetValue(key, out var state);
+
+                if (state.OnGround && !onGround && pawn.AbsVelocity.Z > 200f && tick - state.JumpTick > JumpDedupTicks)
+                {
+                    jumpStates[key] = (false, tick);
+                    DispatchToActiveSkills("PlayerJump", player);
+                    continue;
+                }
+
+                jumpStates[key] = (onGround, state.JumpTick);
+            }
+        }
+
+        private static bool IsJumpHolder(CCSPlayerController player)
+        {
+            var info = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
+            return info != null && holderJumpSkills.Contains(info.Skill);
         }
 
         private static HookResult BotTakeover(EventBotTakeover @event, GameEventInfo info)
@@ -517,6 +593,7 @@ namespace src.player
         private static void OnTick()
         {
             ReportStall();
+            CheckSetSkillOverdue();
             NoRecoil.RestoreSpread();
 
             long perfStart = PerfLog.Start();
@@ -532,6 +609,7 @@ namespace src.player
                 }
 
                 _activeSkillsList.Sort(_tickOrderCmp);
+                DetectJumps();
 
                 bool freeze = SkillUtils.IsFreezeTime();
                 _freezeDisabledSkills ??= BuildFreezeDisabledSkills();
@@ -635,6 +713,9 @@ namespace src.player
             lock (setLock)
             {
                 PlayerManager.ResetKeyCache();
+                if (@event.Userid is { IsValid: true } leaving)
+                    PanoramaHud.Forget(leaving.Slot);
+
                 var player = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (player == null || !player.IsValid) return HookResult.Continue;
 
@@ -652,6 +733,7 @@ namespace src.player
 
                 SkillUtils.ClearCursesFor(leavingKey);
                 SkillUtils.ForgetHealthBeforeHit(leavingKey);
+                SkillUtils.ForgetGrenadeThrow(leavingKey);
                 SkillUtils.InvalidateHiddenCache(leavingKey);
                 playersSkills.TryRemove(leavingKey, out _);
 
@@ -706,7 +788,7 @@ namespace src.player
             if (SkillsInfo.GetValue<bool>(Skills.Magnifier, "active") && player.DesiredFOV == SkillsInfo.GetValue<uint>(Skills.Magnifier, "customFOV"))
             {
                 player.DesiredFOV = playersCustomFOV.TryGetValue(player.Key(), out uint fov) ? fov : 0;
-                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
+                NetStateFast.Changed(player, "CBasePlayerController", "m_iDesiredFOV");
             }
         }
 
@@ -742,7 +824,7 @@ namespace src.player
                 if (matchStats != null)
                 {
                     matchStats.Kills++;
-                    Utilities.SetStateChanged(attacker, "CCSPlayerController", "m_pActionTrackingServices");
+                    NetStateFast.Changed(attacker, "CCSPlayerController", "m_pActionTrackingServices");
                 }
             }
             catch (Exception ex)
@@ -911,6 +993,12 @@ namespace src.player
                     centerLine = Illiterate.GetRandomText(centerLine);
                     extraLine = Illiterate.GetRandomText(extraLine);
                     descriptionLine = Illiterate.GetRandomText(descriptionLine);
+                }
+
+                if (PanoramaHud.Active(player))
+                {
+                    PanoramaHud.ShowSkill(player, skillPlayer, headerLine, centerLine, extraLine, isDescription, descriptionLine);
+                    return;
                 }
 
                 var config = Config.LoadedConfig.HtmlHudCustomisation;

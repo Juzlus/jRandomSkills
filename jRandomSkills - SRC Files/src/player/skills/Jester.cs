@@ -26,7 +26,7 @@ namespace src.player.skills
 
             jester.Generation++;
             jester.Active = false;
-            jester.Timer?.Kill();
+            SafeTimer.Kill(jester.Timer);
             jester.Timer = null;
         }
 
@@ -38,7 +38,7 @@ namespace src.player.skills
                 {
                     if (jester.Timer != null)
                     {
-                        jester.Timer?.Kill();
+                        SafeTimer.Kill(jester.Timer);
                         jester.Timer = null;
                     }
 
@@ -89,11 +89,11 @@ namespace src.player.skills
 
             if (jester.Timer != null)
             {
-                jester.Timer?.Kill();
+                SafeTimer.Kill(jester.Timer);
                 jester.Timer = null;
             }
 
-            jester.Timer = Instance.AddTimer(1, () =>
+            jester.Timer = SafeTimer.Add(1, () =>
             {
                 ChangeMode(playerIndex, false);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -110,11 +110,11 @@ namespace src.player.skills
 
             if (jester.Timer != null)
             {
-                jester.Timer?.Kill();
+                SafeTimer.Kill(jester.Timer);
                 jester.Timer = null;
             }
 
-            jester.Timer = Instance.AddTimer(1, () =>
+            jester.Timer = SafeTimer.Add(1, () =>
             {
                 if (player != null && player.IsValid)
                     ChangeMode(playerIndex, false);
@@ -165,7 +165,7 @@ namespace src.player.skills
             jester.Generation++;
             int generation = jester.Generation;
 
-            jester.Timer = Instance.AddTimer(wait, () =>
+            jester.Timer = SafeTimer.Add(wait, () =>
             {
                 if (!jesters.TryGetValue(playerIndex, out var info))
                     return;
@@ -207,7 +207,7 @@ namespace src.player.skills
             jester.Generation++;
             int generation = jester.Generation;
 
-            jester.Timer = Instance.AddTimer(wait, () =>
+            jester.Timer = SafeTimer.Add(wait, () =>
             {
                 if (!jesters.TryGetValue(playerIndex, out var info))
                     return;

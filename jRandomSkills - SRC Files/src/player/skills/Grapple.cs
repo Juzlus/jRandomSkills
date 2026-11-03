@@ -235,7 +235,7 @@ namespace src.player.skills
                     prop.AcceptInput("SetScale", null, null, scale.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 }
 
-                Utilities.SetStateChanged(prop, "CBaseEntity", "m_CBodyComponent");
+                NetStateFast.Changed(prop, "CBaseEntity", "m_CBodyComponent");
             });
         }
 

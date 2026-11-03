@@ -54,7 +54,7 @@ namespace src.player.skills
 
             var proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
             if (proxy == null) return;
-            Utilities.SetStateChanged(proxy, "CCSGameRulesProxy", "m_pGameRules");
+            NetStateFast.Changed(proxy, "CCSGameRulesProxy", "m_pGameRules");
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff462e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int changeRoundTime = 7, string soundEvent = "UIPanorama.sidemenu_select", float soundVolume = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

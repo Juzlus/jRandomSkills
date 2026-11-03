@@ -209,7 +209,7 @@ namespace src.player.skills
 
                 consumedClones.TryRemove(clone.Index, out _);
 
-                jRandomSkills.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () =>
+                SafeTimer.Add(SkillsInfo.GetValue<float>(skillName, "Duration"), () =>
                 {
                     if (playerSkill.CloneProp != null)
                         KillClone(playerSkill);
@@ -218,25 +218,25 @@ namespace src.player.skills
                 uint playerIndex = player.Key();
 
                 Timer? cloneTimer = null;
-                cloneTimer = jRandomSkills.Instance.AddTimer(2f, () =>
+                cloneTimer = SafeTimer.Add(2f, () =>
                 {
                     var target = PlayerManager.GetController(playerIndex);
                     if (target == null || !target.IsValid || target.LifeState != (byte)LifeState_t.LIFE_ALIVE)
                     {
-                        cloneTimer?.Kill();
+                        SafeTimer.Kill(cloneTimer);
                         return;
                     }
 
                     if (!playersInfo.TryGetValue(target.Key(), out var playerSkill) || playerSkill.CloneProp == null)
                     {
-                        cloneTimer?.Kill();
+                        SafeTimer.Kill(cloneTimer);
                         return;
                     }
 
                     var eventTarget = PlayerManager.GetPlayerFromEvent(player);
                     if (eventTarget == null || !eventTarget.IsValid)
                     {
-                        cloneTimer?.Kill();
+                        SafeTimer.Kill(cloneTimer);
                         return;
                     }
 
@@ -401,8 +401,8 @@ namespace src.player.skills
                     weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
                     weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
 
-                    Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
-                    Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
+                    NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+                    NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                 }
         }
 

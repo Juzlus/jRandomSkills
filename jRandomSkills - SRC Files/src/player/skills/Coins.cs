@@ -96,7 +96,7 @@ namespace src.player.skills
                 {
                     prop.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DEBRIS;
                     prop.Collision.CollisionAttribute.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DEBRIS;
-                    Utilities.SetStateChanged(prop, "CCollisionProperty", "m_collisionAttribute");
+                    NetStateFast.Changed(prop, "CCollisionProperty", "m_collisionAttribute");
                 }
 
                 float angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
@@ -167,7 +167,7 @@ namespace src.player.skills
 
             int maxMoney = SkillUtils.CvarValue("mp_maxmoney", 16000);
             money.Account = Math.Min(money.Account + value, Math.Max(maxMoney, money.Account));
-            Utilities.SetStateChanged(collector, "CCSPlayerController", "m_pInGameMoneyServices");
+            NetStateFast.Changed(collector, "CCSPlayerController", "m_pInGameMoneyServices");
 
             SkillUtils.EmitSoundToPlayer(collector, pickupSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
             collector.PrintToCenter($"+${value}");

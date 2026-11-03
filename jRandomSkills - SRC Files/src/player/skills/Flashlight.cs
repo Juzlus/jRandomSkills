@@ -374,8 +374,8 @@ namespace src.player.skills
             pawn.FlashDuration = blindDuration + (float)rng.NextDouble() * 0.05f;
             pawn.FlashMaxAlpha = blindAlpha + (float)rng.NextDouble() * 0.5f;
 
-            Utilities.SetStateChanged(pawn, "CCSPlayerPawnBase", "m_flFlashDuration");
-            Utilities.SetStateChanged(pawn, "CCSPlayerPawnBase", "m_flFlashMaxAlpha");
+            NetStateFast.Changed(pawn, "CCSPlayerPawnBase", "m_flFlashDuration");
+            NetStateFast.Changed(pawn, "CCSPlayerPawnBase", "m_flFlashMaxAlpha");
         }
 
         private static (bool, bool) ArePlayersSpottedBothWays(CCSPlayerController player, CCSPlayerPawn playerPawn, CCSPlayerController enemy, CCSPlayerPawn enemyPawn)

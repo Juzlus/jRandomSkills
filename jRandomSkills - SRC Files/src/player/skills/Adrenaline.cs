@@ -14,6 +14,8 @@ namespace src.player.skills
         private static readonly Dictionary<ulong, int> cooldowns = [];
         private static readonly List<uint> expired = [];
         private static readonly object setLock = new();
+        private static readonly List<CCSPlayerController> holderBuffer = [];
+        private static readonly Dictionary<uint, int> hudShown = [];
 
         public static void LoadSkill()
         {
@@ -39,8 +41,31 @@ namespace src.player.skills
             }
         }
 
+        private static void UpdateHuds()
+        {
+            PlayerManager.FillSkillHolders(skillName, holderBuffer);
+            foreach (var player in holderBuffer)
+            {
+                var playerInfo = PlayerManager.GetPlayer(player);
+                if (playerInfo == null) continue;
+
+                float gained;
+                lock (setLock)
+                    boosted.TryGetValue(player.Key(), out gained);
+
+                int shown = (int)MathF.Round(gained * 100f);
+                if (!string.IsNullOrEmpty(playerInfo.PrintHTML) && hudShown.TryGetValue(player.Key(), out int last) && last == shown) continue;
+
+                hudShown[player.Key()] = shown;
+                SkillUtils.SetSkillHud(player, "adrenaline_hud", shown);
+            }
+        }
+
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
+            hudShown.Remove(player.Key());
+
             lock (setLock)
             {
                 if (!boosted.Remove(player.Key())) return;
@@ -98,6 +123,9 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (SkillUtils.IsHudFrame())
+                UpdateHuds();
+
             lock (setLock)
             {
                 if (boosted.Count == 0 && drained.Count == 0) return;
