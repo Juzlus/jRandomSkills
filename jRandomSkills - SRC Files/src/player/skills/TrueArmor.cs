@@ -29,12 +29,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
             holders[player.Key()] = 0;
 
-            var playerInfo = PlayerManager.GetPlayer(player);
-            if (playerInfo != null)
-            {
-                int percent = (int)MathF.Round(SkillsInfo.GetValue<float>(skillName, "armorShare") * 100f);
-                playerInfo.PrintHTML = player.GetTranslation("truearmor_hud", $"<font color='#9ad3f5'>{percent}</font>");
-            }
+            SkillUtils.SetSkillHud(player, "truearmor_hud", (int)MathF.Round(SkillsInfo.GetValue<float>(skillName, "armorShare") * 100f));
         }
 
         public static void DisableSkill(CCSPlayerController player)
