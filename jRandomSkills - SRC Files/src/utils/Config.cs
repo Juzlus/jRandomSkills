@@ -387,7 +387,7 @@ namespace src.utils
         public class PanoramaHudSettings
         {
             public bool Enabled { get; set; } = false;
-            public string Layout { get; set; } = "panorama/layout/custom_game/jrs_skills.xml";
+            public string Layout { get; set; } = "panorama/layout/custom_game/jrandomskills/simple_skills.xml";
             public string Font { get; set; } = "stratum";
             public int FontSize { get; set; } = 100;
         }

@@ -1,0 +1,16 @@
+<root>
+    <styles>
+        <include src="s2r://panorama/styles/jrandomskills/main.vcss" />
+        <include src="s2r://panorama/styles/jrandomskills/skill_hud_1.vcss" />
+        <include src="s2r://panorama/styles/jrandomskills/colors.vcss" />
+    </styles>
+    <Panel class="jrs_screen" hittest="false">
+        <Panel id="jrs_root" class="skill_root pos_center_bottom" hittest="false">            
+            <Panel id="skill_card" class="skill_card">
+                <Label id="skill_type" class="skill_type" text="{s:skill_type}" />
+                <Label id="skill_name" class="skill_name frame" text="{s:skill_name}" />
+                <Label id="skill_description" class="skill_description" text="{s:skill_description}" />
+            </Panel>
+        </Panel>
+    </Panel>
+</root>

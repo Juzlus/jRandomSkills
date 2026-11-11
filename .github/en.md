@@ -239,6 +239,13 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 4. Install **jRandomSkills**
     - Download [jRandomSkills](https://github.com/Juzlus/jRandomSkills/releases)
 
+## How to use Custom HUD (Optional)
+1. Install [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager).
+2. Edit the configuration file: `game/csgo/cfg/multiaddonmanager/multiaddonmanager.cfg`
+3. Add the following line: `mm_extra_addons "3833386255"`
+
+Alternatively: Compile your own HUD by following the instructions in `VPK Addon/Readme.md`.
+
 ## </> Server Commands
 > [!TIP]
 > **Bind to use skills:** `bind x css_useSkill`
@@ -430,6 +437,35 @@ This plugin uses content from the following projects:
 [THANKS]
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.4.b7</b></summary>
+
+- #### General
+    - **Updated gamedata** for `SmokeGrenadeProjectile_CreateFunc` (Windows/Linux) and `DecoyProjectile_CreateFunc` (Windows).
+    - Built against **CounterStrikeSharp 1.0.379**, using the new `ConVar<T> API` with no obsolete warnings.
+
+- #### HUD
+    - **Panorama HUD**: Added an optional simple HUD panel via `custom_hud_layout`. 
+    - **!skills**: The list of all skills with their descriptions after selecting them.
+    - **!lang**: Language selection menu, with the current language shown first.
+
+- #### Skills
+    - **Homing Nades, Magneto, Miner, Weightless**: Fixed grenade entity index reuse.
+    - **Grenade skills**: Fixed grenade count resetting when picking up grenades.
+    - **Camera skills**: (Cypher, FalconEye, Spectator, ThirdEye): Moved to one shared player camera helper.
+    - **Giant, Titan**: Fixed stacking of size changes.
+    - **Sound Maker**: Fixed listener checks for spectators.
+
+- #### Reliability
+    - **Timers**: Fixed potential memory access issues when removing timers inside callbacks. All skill timers now use a safe wrapper.
+    - **Network updates**: Improved state-change calls using cached offsets.
+    - **WASDMenuAPI**: Added a Renderer hook and fixed menu loops stopping for all players when one player is paused.
+    - **Perf log**: Fixed tick sampling timing bias and added a PROCESS line every 30 seconds with CPU usage, allocations and GC pauses.
+
+**Full update contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#68](https://github.com/Juzlus/jRandomSkills/pull/68). Thanks to ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.4.b6</b></summary>

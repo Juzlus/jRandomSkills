@@ -1,7 +1,7 @@
 <root>
 	<styles>
 		<include src="s2r://panorama/styles/csgostyles.vcss_c" />
-		<include src="s2r://panorama/styles/custom_game/jrs_skills.vcss_c" />
+		<include src="s2r://panorama/styles/custom_game/jrandomskills/simple_skills.vcss_c" />
 	</styles>
 	<Panel class="js-root" hittest="false">
 		<Panel id="js-scope" class="js-scope" hittest="false">

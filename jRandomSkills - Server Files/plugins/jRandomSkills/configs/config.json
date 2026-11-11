@@ -149,7 +149,7 @@
   },
   "PanoramaHud": {
     "Enabled": false,
-    "Layout": "panorama/layout/custom_game/jrs_skills.xml",
+    "Layout": "panorama/layout/custom_game/jrandomskills/simple_skills.xml",
     "Font": "stratum",
     "FontSize": 100
   },
