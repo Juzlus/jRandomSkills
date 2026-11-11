@@ -82,13 +82,13 @@ namespace src.player.skills
                     if (glow.Showable && seesGlows && glow.Team != player.Team) continue;
                     if (!glow.EntitiesValid) continue;
 
-                    SkillUtils.HideTransmitDormant(info, glow.Relay);
+                    SkillUtils.HideTransmit(info, glow.Relay);
 
-                    SkillUtils.HideTransmitDormant(info, glow.Glow);
+                    SkillUtils.HideTransmit(info, glow.Glow);
                 }
 
                 foreach (var kvp in temporaryBlockList)
-                    SkillUtils.HideTransmitDormant(info, kvp.Key);
+                    SkillUtils.HideTransmit(info, kvp.Key);
             }
         }
 

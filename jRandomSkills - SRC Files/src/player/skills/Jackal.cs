@@ -44,6 +44,7 @@ namespace src.player.skills
         }
 
         private static readonly List<(CsTeam OwnerTeam, uint RelayEntityIndex)> transmitTrails = [];
+        private static readonly Dictionary<uint, CCSPlayerController> pawnOwners = [];
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
@@ -65,6 +66,8 @@ namespace src.player.skills
 
             if (transmitTrails.Count == 0) return;
 
+            bool pawnOwnersBuilt = false;
+
             foreach (var (info, player) in infoList)
             {
                 if (player == null || !player.IsValid) continue;
@@ -74,11 +77,23 @@ namespace src.player.skills
 
                 if (!isJackalOwner)
                 {
-                    var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
-                    if (targetHandle != nint.Zero)
+                    uint targetRaw = player.Pawn.Value?.ObserverServices?.ObserverTarget.Raw ?? 0;
+                    if (targetRaw != 0 && targetRaw != 0xFFFFFFFF)
                     {
-                        var observed = PlayerManager.GetTickPlayers()
-                            .FirstOrDefault(p => p?.Pawn?.Value?.Handle == targetHandle);
+                        if (!pawnOwnersBuilt)
+                        {
+                            pawnOwnersBuilt = true;
+                            pawnOwners.Clear();
+                            foreach (var p in PlayerManager.GetTickPlayers())
+                            {
+                                if (p == null) continue;
+                                uint h = p.Pawn.Raw;
+                                if (h == 0 || h == 0xFFFFFFFF) continue;
+                                pawnOwners.TryAdd(h, p);
+                            }
+                        }
+
+                        pawnOwners.TryGetValue(targetRaw, out var observed);
                         if (observed != null && observed.IsValid)
                         {
                             var observedInfo = PlayerManager.GetPlayer(observed);
@@ -92,7 +107,7 @@ namespace src.player.skills
                 foreach (var (ownerTeam, relayEntityIndex) in transmitTrails)
                 {
                     if (playerTeam == ownerTeam || !isJackalOwner)
-                        SkillUtils.HideTransmitDormant(info, relayEntityIndex);
+                        SkillUtils.HideTransmit(info, relayEntityIndex);
                 }
             }
         }

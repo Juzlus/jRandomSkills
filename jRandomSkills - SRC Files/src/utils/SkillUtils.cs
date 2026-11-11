@@ -215,18 +215,6 @@ namespace src.utils
             if (index > 0) HideTransmit(info, (uint)index);
         }
 
-        public static void HideTransmitDormant(CCheckTransmitInfo info, uint index)
-        {
-            if (index == 0 || !info.TransmitEntities.Contains(index)) return;
-
-            info.TransmitEntities.Remove(index);
-            info.TransmitAlways.Add(index);
-        }
-
-        public static void HideTransmitDormant(CCheckTransmitInfo info, int index)
-        {
-            if (index > 0) HideTransmitDormant(info, (uint)index);
-        }
 
         public static int GetGrenadeCount(CCSPlayerController player, CsItem item)
         {
@@ -589,6 +577,7 @@ namespace src.utils
         public static bool IsFriendlyFireBlocked(Skills skill, CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
         {
             if (!IsSameTeamHit(info, victimPawn)) return false;
+            if (CvarValue("mp_teammates_are_enemies", false)) return false;
             if (!SkillsInfo.GetValue<bool>(skill, "friendlyFire")) return true;
 
             bool ff = CvarValue("mp_friendlyfire", false);
@@ -1171,9 +1160,9 @@ namespace src.utils
 
             var colored = new object[values.Length];
             for (int i = 0; i < values.Length; i++)
-                colored[i] = $"<font color='#9fe8ff'>{values[i]}</font>";
+                colored[i] = $"<font color='{Localization.HudValueColor}'>{(values[i] is IFormattable f ? f.ToString(null, System.Globalization.CultureInfo.InvariantCulture) : values[i])}</font>";
 
-            playerInfo.PrintHTML = player.GetTranslation(key, colored);
+            playerInfo.PrintHTML = Localization.GlueHudValues(player.GetTranslation(key, colored));
         }
 
         public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)

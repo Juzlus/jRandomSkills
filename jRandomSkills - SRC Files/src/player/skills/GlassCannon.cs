@@ -22,7 +22,7 @@ namespace src.player.skills
             if (playerInfo != null)
             {
                 int percent = (int)MathF.Round(SkillsInfo.GetValue<float>(skillName, "extraDamagePercent") * 100f);
-                playerInfo.PrintHTML = player.GetTranslation("glasscannon_hud", $"<font color='#ff5e5e'>{MaxHealth()}</font>", $"<font color='#9fe8ff'>{percent}</font>");
+                playerInfo.PrintHTML = Localization.GlueHudValues(player.GetTranslation("glasscannon_hud", $"<font color='#ff5e5e'>{MaxHealth()}</font>", $"<font color='{Localization.HudValueColor}'>{percent}</font>"));
             }
 
             var pawn = player.PlayerPawn?.Value;

@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.4.b7";
+        public override string ModuleVersion => "1.2.4.b8";
 
         public override void Load(bool hotReload)
         {
@@ -115,6 +115,7 @@ namespace src
         }
 
         private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
+        private static readonly ConcurrentDictionary<(string, string), string> _perfLabels = new();
 
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
         {
@@ -167,7 +168,7 @@ namespace src
 
             long perfStart = PerfLog.Start();
             var result = method.Invoke(null, param);
-            PerfLog.Sample($"SkillAction {skill}.{methodName}", perfStart, 30.0, 1.0);
+            PerfLog.Sample(_perfLabels.GetOrAdd((skill, methodName), key => $"SkillAction {key.Item1}.{key.Item2}"), perfStart, 30.0, 1.0);
             return result;
         }
 

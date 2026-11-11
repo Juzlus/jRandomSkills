@@ -317,6 +317,7 @@ namespace src.player.skills
 
             if (PlayerManager.GetPlayer(victim)?.Skill != skillName) return;
             if (!playersInfo.TryGetValue(victim.Key(), out var playerSkill)) return;
+            if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
             bool hasClone = playerSkill.CloneProp != null;
             if (!hasClone && playerSkill.LastHit + 4 <= Server.TickCount) return;
@@ -348,6 +349,12 @@ namespace src.player.skills
 
             var player = PlayerManager.GetController(userIndex);
             if (player == null || !player.IsValid) return;
+
+            if (SkillUtils.IsFriendlyFireBlocked(damageInfo, player.PlayerPawn.Value))
+            {
+                damageInfo.Damage = 0;
+                return;
+            }
 
             float dealDamage = damageInfo.Damage;
 

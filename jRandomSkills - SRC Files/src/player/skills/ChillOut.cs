@@ -18,6 +18,11 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
+        public static void EnableSkill(CCSPlayerController player)
+        {
+            SkillUtils.SetSkillHud(player, "chillout_hud", SkillsInfo.GetValue<float>(skillName, "bombArmedTime").ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+        }
+
         public static void NewRound()
         {
             plantingPlayers.Clear();
