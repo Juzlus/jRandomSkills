@@ -27,7 +27,19 @@ namespace src.player
                 Write($"PerfMode enabled (plugin v{Instance.ModuleVersion})");
             }
 
-            return Stopwatch.GetTimestamp();
+            long timestamp = Stopwatch.GetTimestamp();
+            _starts ??= [];
+            if (_starts.Count > 256) _starts.Clear();
+            _starts[timestamp] = (GC.GetAllocatedBytesForCurrentThread(), GC.CollectionCount(0));
+            return timestamp;
+        }
+
+        [ThreadStatic] private static Dictionary<long, (long Alloc, int Gc)>? _starts;
+
+        private static (long Alloc, bool Gc) TakeStart(long startTimestamp)
+        {
+            if (_starts == null || !_starts.Remove(startTimestamp, out var start)) return (0, false);
+            return (GC.GetAllocatedBytesForCurrentThread() - start.Alloc, GC.CollectionCount(0) != start.Gc);
         }
 
         public static void Info(string message)
@@ -42,9 +54,10 @@ namespace src.player
             if (startTimestamp == 0 || !Enabled) return;
 
             double ms = (Stopwatch.GetTimestamp() - startTimestamp) * 1000.0 / Stopwatch.Frequency;
+            var (alloc, gc) = TakeStart(startTimestamp);
             if (ms < thresholdMs) return;
 
-            Write($"{label} took {ms:F2}ms");
+            Write($"{label} took {ms:F2}ms alloc={alloc / 1024}KB{(gc ? " gc=yes" : "")}");
         }
 
         private static readonly double[] bucketBoundsMs = [0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8, 16, 32, double.MaxValue];
@@ -55,6 +68,9 @@ namespace src.player
         {
             public double TotalMs;
             public double MaxMs;
+            public double MaxMsNoGc;
+            public long AllocBytes;
+            public int GcSamples;
             public int Count;
             public readonly int[] Buckets = new int[bucketBoundsMs.Length];
             public readonly List<double> Raw = [];
@@ -62,8 +78,11 @@ namespace src.player
 
             private bool rawSorted;
 
-            public void Add(double ms)
+            public void Add(double ms, long alloc, bool gc)
             {
+                AllocBytes += alloc;
+                if (gc) GcSamples++;
+                else if (ms > MaxMsNoGc) MaxMsNoGc = ms;
                 TotalMs += ms;
                 Count++;
                 if (ms > MaxMs) MaxMs = ms;
@@ -123,6 +142,9 @@ namespace src.player
             {
                 TotalMs = 0;
                 MaxMs = 0;
+                MaxMsNoGc = 0;
+                AllocBytes = 0;
+                GcSamples = 0;
                 Count = 0;
                 Array.Clear(Buckets);
                 Raw.Clear();
@@ -139,6 +161,7 @@ namespace src.player
         {
             if (startTimestamp == 0 || !Enabled) return;
             long endTimestamp = Stopwatch.GetTimestamp();
+            var (alloc, gc) = TakeStart(startTimestamp);
 
             var agg = _aggregates.GetOrAdd(label, _ => new Aggregate());
 
@@ -151,13 +174,14 @@ namespace src.player
             double ms = (endTimestamp - startTimestamp) * 1000.0 / Stopwatch.Frequency;
             lock (agg)
             {
-                agg.Add(ms);
+                agg.Add(ms, alloc, gc);
 
                 if ((DateTime.Now - agg.WindowStart).TotalSeconds < reportSeconds) return;
 
                 if (agg.MaxMs >= maxThresholdMs)
                     Write($"{label} avg={agg.TotalMs / agg.Count:F2}ms p50={agg.Percentile(.5):F2}ms " +
                           $"p95={agg.Percentile(.95):F2}ms p99={agg.Percentile(.99):F2}ms max={agg.MaxMs:F2}ms " +
+                          $"maxNoGc={agg.MaxMsNoGc:F2}ms gcHits={agg.GcSamples} alloc/call={agg.AllocBytes / agg.Count}B " +
                           $"samples={agg.Count}{ContextSuffix()}");
 
                 agg.Reset();
@@ -190,6 +214,14 @@ namespace src.player
             _lastGcPause = pause;
             _lastCpuTime = cpu;
             return result;
+        }
+
+        public static void MapHeap()
+        {
+            if (!Enabled) return;
+            var info = GC.GetGCMemoryInfo();
+            Write($"MAPHEAP heap={GC.GetTotalMemory(false) / 1048576}MB gcHeap={info.HeapSizeBytes / 1048576}MB frag={info.FragmentedBytes / 1048576}MB " +
+                  $"gen0={GC.CollectionCount(0)} gen1={GC.CollectionCount(1)} gen2={GC.CollectionCount(2)}");
         }
 
         public static Func<string>? ContextProvider;

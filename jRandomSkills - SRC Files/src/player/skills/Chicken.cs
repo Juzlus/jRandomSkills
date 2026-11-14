@@ -1,8 +1,10 @@
 using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
+using System.Globalization;
 using src.utils;
 
 namespace src.player.skills
@@ -11,15 +13,22 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Chicken;
         private static HashSet<string> disabledWeapons => WeaponPool.Rifles;
-        private const string chickenModelPath = "models/chicken/chicken.vmdl";
-        private static readonly ConcurrentDictionary<uint, uint> chickens = [];
+        private const string ChickenModelPath = "models/chicken/chicken_silkie.vmdl";
+        private const int MaterialGroupT = 5;
+        private const int MaterialGroupCT = 9;
+        private const float PlayerScale = .2f;
+        private const float ModelScale = .85f;
+        private const float ModelBack = 1.5f;
+        private static readonly ConcurrentDictionary<uint, (uint Index, uint Raw)> chickens = [];
 
         private static int ChickenHealth() => Math.Max(1, SkillsInfo.GetValue<int>(skillName, "health"));
+        private static float SpeedModifier() => SkillsInfo.GetValue<float>(skillName, "speedModifier");
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            jRandomSkills.Instance.AddToManifest(chickenModelPath);
+            jRandomSkills.Instance.AddToManifest(ChickenModelPath);
+            Localization.RegisterDescriptionArgs(skillName, () => [(object)(int)MathF.Round((SkillsInfo.GetValue<float>(skillName, "speedModifier") - 1f) * 100f), (object)ChickenHealth()]);
         }
 
         public static void NewRound()
@@ -27,9 +36,8 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
                 SetWeaponAttack(player, false);
 
-            var chickenIndices = chickens.Values.ToArray();
-            foreach (var idx in chickenIndices)
-                SkillUtils.SafeKillEntity<CBaseModelEntity>(idx);
+            foreach (var playerKey in chickens.Keys)
+                RemoveChicken(playerKey);
 
             chickens.Clear();
         }
@@ -51,7 +59,7 @@ namespace src.player.skills
             if (playerPawn != null && playerPawn.IsValid)
             {
                 Event.EnableTransmit();
-                playerPawn.VelocityModifier = 1.1f;
+                playerPawn.VelocityModifier = SpeedModifier();
 
                 int health = ChickenHealth();
                 playerPawn.MaxHealth = health;
@@ -60,7 +68,7 @@ namespace src.player.skills
                 playerPawn.Health = health;
                 NetStateFast.Changed(playerPawn, "CBaseEntity", "m_iHealth");
 
-                SkillUtils.ChangePlayerScale(player, .2f);
+                SkillUtils.ChangePlayerScale(player, PlayerScale);
 
                 playerPawn.Render = Color.FromArgb(0, 255, 255, 255);
                 playerPawn.ShadowStrength = 0f;
@@ -98,8 +106,7 @@ namespace src.player.skills
                 SetWeaponAttack(player, false);
             }
 
-            if (chickens.TryRemove(player.Key(), out var chickenIndex))
-                SkillUtils.SafeKillEntity<CBaseModelEntity>(chickenIndex);
+            RemoveChicken(player.Key());
         }
 
         private static void SetWeaponAttack(CCSPlayerController player, bool disableWeapon)
@@ -123,52 +130,90 @@ namespace src.player.skills
         private static void CreateChicken(CCSPlayerController player)
         {
             var playerPawn = player.PlayerPawn.Value;
-            if (playerPawn == null || !playerPawn.IsValid) return;
-            var chickenModel = EntityManager.CreateTrackedDynamicProp(player.Key());
-            if (chickenModel == null)
-                return;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null || playerPawn.AbsRotation == null) return;
 
-            chickenModel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(chickenModel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            chickenModel.SetModel(chickenModelPath);
-            chickenModel.Render = Color.FromArgb(255, 255, 255, 255);
-            chickenModel.Teleport(playerPawn.AbsOrigin, playerPawn.AbsRotation, null);
-            chickenModel.DispatchSpawn();
-            chickenModel.AcceptInput("InitializeSpawnFromWorld", playerPawn, playerPawn, "");
-            NetStateFast.Changed(chickenModel, "CBaseEntity", "m_CBodyComponent");
+            var chicken = EntityManager.CreateTrackedDynamicProp(player.Key());
+            if (chicken == null || !chicken.IsValid) return;
 
-            chickenModel.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = 1;
-            NetStateFast.Changed(chickenModel, "CBaseEntity", "m_CBodyComponent");
+            float yaw = playerPawn.AbsRotation.Y * MathF.PI / 180f;
+            float back = ModelBack;
+            var position = new Vector(playerPawn.AbsOrigin.X - MathF.Cos(yaw) * back, playerPawn.AbsOrigin.Y - MathF.Sin(yaw) * back, playerPawn.AbsOrigin.Z);
 
+            chicken.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(chicken.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
+            chicken.SetModel(ChickenModelPath);
+            chicken.Teleport(position, playerPawn.AbsRotation, null);
+            chicken.DispatchSpawn();
+
+            float scale = ModelScale;
+            string scaleText = scale.ToString(CultureInfo.InvariantCulture);
+            chicken.CBodyComponent.SceneNode.GetSkeletonInstance().Scale = scale;
+            chicken.AcceptInput("SetScale", chicken, chicken, scaleText);
+
+            string materialGroup = (player.Team == CsTeam.Terrorist ? MaterialGroupT : MaterialGroupCT).ToString();
+            chicken.AcceptInput("Skin", value: materialGroup);
+            chicken.AcceptInput("SetParent", playerPawn, playerPawn, "!activator");
+
+            uint chickenIndex = chicken.Index;
+            uint chickenRaw = chicken.EntityHandle.Raw;
             Server.NextFrame(() =>
             {
-                if (chickenModel == null || !chickenModel.IsValid) return;
-                chickenModel.AcceptInput("SetScale", chickenModel, chickenModel, "1");
+                var entity = GetChicken(chickenIndex, chickenRaw);
+                if (entity == null) return;
+                entity.AcceptInput("SetScale", entity, entity, scaleText);
+                entity.AcceptInput("Skin", value: materialGroup);
             });
 
-            chickenModel.AcceptInput("SetParent", playerPawn, playerPawn, "!activator");
-            chickens.TryAdd(player.Key(), chickenModel.Index);
+            chickens[player.Key()] = (chickenIndex, chickenRaw);
+        }
+
+        private static CDynamicProp? GetChicken(uint index, uint raw)
+        {
+            var entity = Utilities.GetEntityFromIndex<CDynamicProp>((int)index);
+            if (entity == null || !entity.IsValid || entity.EntityHandle.Raw != raw) return null;
+            return entity;
+        }
+
+        private static void RemoveChicken(uint playerKey)
+        {
+            if (!chickens.TryRemove(playerKey, out var entry)) return;
+            if (GetChicken(entry.Index, entry.Raw) != null)
+                EntityManager.DestroyEntity(entry.Index);
+        }
+
+        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        {
+            if (chickens.IsEmpty) return;
+
+            foreach (var (info, player) in infoList)
+            {
+                if (player == null || !player.IsValid) continue;
+                if (chickens.TryGetValue(player.Key(), out var entry))
+                    SkillUtils.HideTransmit(info, entry.Index);
+            }
         }
 
         public static void OnTick()
         {
             if (chickens.IsEmpty) return;
 
-            var pairs = chickens.ToArray();
-            foreach (var valuePair in pairs)
+            float speed = SpeedModifier();
+            foreach (var valuePair in chickens)
             {
-                var playerIndex = valuePair.Key;
-                var chickenIndex = valuePair.Value;
-
-                var player = PlayerManager.GetController(playerIndex);
+                var player = PlayerManager.GetController(valuePair.Key);
                 if (player == null || !player.IsValid) continue;
 
-                var chicken = Utilities.GetEntityFromIndex<CBaseModelEntity>((int)chickenIndex);
-                if (chicken == null || !chicken.IsValid) continue;
+                if (GetChicken(valuePair.Value.Index, valuePair.Value.Raw) == null) continue;
 
                 var pawn = player.PlayerPawn.Value;
-                if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || chicken.AbsOrigin == null) continue;
+                if (pawn == null || !pawn.IsValid) continue;
 
-                pawn.VelocityModifier = 1.1f;
+                if (pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                {
+                    RemoveChicken(valuePair.Key);
+                    continue;
+                }
+
+                pawn.VelocityModifier = speed;
                 UpdateHUD(player);
             }
         }
@@ -192,9 +237,10 @@ namespace src.player.skills
             playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("disabled_weapon")}</font>";
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FF8B42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int health = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FF8B42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int health = 50, float speedModifier = 1.1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int Health { get; set; } = health;
+            public float SpeedModifier { get; set; } = speedModifier;
         }
     }
 }

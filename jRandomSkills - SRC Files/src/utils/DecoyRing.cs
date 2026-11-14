@@ -26,12 +26,14 @@ namespace src.utils
         private const int spawnFrames = 4;
 
         private static readonly ConcurrentDictionary<string, Ring> rings = [];
+        private static int generationCounter;
 
         private sealed class Ring
         {
             public uint? Disc { get; set; }
             public List<uint> Beams { get; } = [];
             public bool Cancelled { get; set; }
+            public int Generation { get; set; }
         }
 
         public static void PreloadAssets()
@@ -44,7 +46,8 @@ namespace src.utils
             if (radius <= 0 || !Config.LoadedConfig.ShowDecoyRing) return;
 
             string key = MakeKey(skill, id);
-            var ring = new Ring();
+            int generation = Interlocked.Increment(ref generationCounter);
+            var ring = new Ring { Generation = generation };
             if (!rings.TryAdd(key, ring)) return;
 
             SpawnDisc(center, radius, ring);
@@ -58,7 +61,11 @@ namespace src.utils
                 SpawnBeamChunk(ring, segments, 0, GetSkillColor(skill));
             }
 
-            jRandomSkills.Instance.AddTimer(maxLifetime, () => Hide(skill, id), TimerFlags.STOP_ON_MAPCHANGE);
+            jRandomSkills.Instance.AddTimer(maxLifetime, () =>
+            {
+                if (rings.TryGetValue(key, out var current) && current.Generation == generation)
+                    Hide(skill, id);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         public static void Hide(Skills skill, uint id)

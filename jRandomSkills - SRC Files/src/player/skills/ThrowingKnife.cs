@@ -520,7 +520,7 @@ namespace src.player.skills
                     if (knifeOwnerIndex == viewerIndex) continue;
                     if (observedPlayerIndex.HasValue && observedPlayerIndex.Value == knifeOwnerIndex) continue;
 
-                    SkillUtils.HideTransmitDormant(info, glowEntityIndex);
+                    SkillUtils.HideTransmit(info, glowEntityIndex);
                 }
             }
         }

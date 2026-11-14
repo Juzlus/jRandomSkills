@@ -61,23 +61,20 @@ namespace src.player.skills
                 return;
             }
 
-            var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToArray();
-            if (bombTargets.Length == 2)
-            {
-                var targetSite = bombTargets[site];
-                if (targetSite != null && targetSite.IsValid)
-                {
-                    targetSite.BombPlantedHere = true;
-                    NetStateFast.Changed(targetSite, "CBombTarget", "m_bBombPlantedHere");
-                    playerInfo.SkillUsed = true;
+            var targetSite = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target")
+                .FirstOrDefault(t => t != null && t.IsValid && t.IsBombSiteB == (site == 1));
+            if (targetSite == null) return;
 
-                    playersToTarget[player.Key()] = targetSite.Index;
+            targetSite.BombPlantedHere = true;
+            NetStateFast.Changed(targetSite, "CBombTarget", "m_bBombPlantedHere");
+            playerInfo.SkillUsed = true;
 
-                    string siteLetter = site == 0 ? "A" : "B";
-                    foreach (var ct in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team == CsTeam.CounterTerrorist))
-                        ct.PrintToChat($" {ChatColors.Green}" + ct.GetTranslation("areareaper_teammates_info", siteLetter));
-                }
-            }
+            playersToTarget[player.Key()] = targetSite.Index;
+
+            string siteLetter = site == 0 ? "A" : "B";
+            playerInfo.PrintHTML = $"<font color='#9fe8ff'>{playerEvent.GetTranslation("areareaper_hud", siteLetter)}</font>";
+            foreach (var ct in PlayerManager.GetTickPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team == CsTeam.CounterTerrorist))
+                ct.PrintToChat($" {ChatColors.Green}" + ct.GetTranslation("areareaper_teammates_info", siteLetter));
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -113,6 +110,7 @@ namespace src.player.skills
         private static void ReleaseSite(CCSPlayerController player, bool notify)
         {
             if (!playersToTarget.TryRemove(player.Key(), out uint siteIndex)) return;
+            SkillUtils.ResetPrintHTML(player);
 
             foreach (var kvp in playersToTarget)
                 if (kvp.Value == siteIndex)
@@ -134,8 +132,7 @@ namespace src.player.skills
 
         private static string SiteLetter(CBombTarget site)
         {
-            var bombTargets = Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToArray();
-            return bombTargets.Length == 2 && bombTargets[1].Index == site.Index ? "B" : "A";
+            return site.IsBombSiteB ? "B" : "A";
         }
 
         public static void OnTick()

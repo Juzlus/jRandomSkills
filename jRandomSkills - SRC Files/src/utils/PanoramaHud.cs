@@ -15,6 +15,7 @@ namespace src.utils
         private const string MenuId = "js-menu";
         private const string OffClass = "js-off";
         private const int SegmentSlots = 4;
+        private const int OneLineChars = 30;
         private const int CurseSlots = 5;
         private const int MenuSlots = 10;
         private const int HideAfterTicks = 12;
@@ -243,6 +244,18 @@ namespace src.utils
             {
                 segments[0] = (segments[0].Text.TrimStart(), segments[0].Color);
                 segments[^1] = (segments[^1].Text.TrimEnd(), segments[^1].Color);
+            }
+
+            if (segments.Count > 1)
+            {
+                int length = 0;
+                foreach (var segment in segments) length += segment.Text.Length;
+                if (length > OneLineChars)
+                {
+                    string joined = string.Concat(segments.Select(segment => segment.Text));
+                    segments.Clear();
+                    segments.Add((joined, ""));
+                }
             }
             return segments;
         }

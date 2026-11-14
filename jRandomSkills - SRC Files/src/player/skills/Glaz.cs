@@ -12,9 +12,11 @@ namespace src.player.skills
     public class Glaz : ISkill
     {
         private const Skills skillName = Skills.Glaz;
-        private readonly static ConcurrentDictionary<int, byte> smokes = [];
+        private readonly static ConcurrentDictionary<uint, uint> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
         private static readonly object setLock = new();
+        private static readonly List<uint> smokeIndexes = [];
+        private static readonly Dictionary<nint, uint> pawnOwners = [];
 
         public static void LoadSkill()
         {
@@ -34,29 +36,47 @@ namespace src.player.skills
 
         public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate @event)
         {
-            smokes.TryAdd(@event.Entityid, 0);
+            var smoke = Utilities.GetEntityFromIndex<CBaseEntity>(@event.Entityid);
+            if (smoke == null || !smoke.IsValid) return;
+            smokes[smoke.Index] = smoke.EntityHandle.Raw;
         }
 
         public static void SmokegrenadeExpired(EventSmokegrenadeExpired @event)
         {
-            smokes.TryRemove(@event.Entityid, out _);
+            smokes.TryRemove((uint)@event.Entityid, out _);
+        }
+
+        private static bool TrackExistingSmokes()
+        {
+            bool found = false;
+            foreach (var smoke in Utilities.FindAllEntitiesByDesignerName<CSmokeGrenadeProjectile>("smokegrenade_projectile"))
+            {
+                if (smoke == null || !smoke.IsValid || !smoke.DidSmokeEffect) continue;
+                smokes[smoke.Index] = smoke.EntityHandle.Raw;
+                found = true;
+            }
+            return found;
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
         {
             if (smokes.IsEmpty || playersWithSkill.IsEmpty) return;
 
-            List<uint> smokeIndexes = new(smokes.Count);
-            foreach (var entityIndex in smokes.Keys)
+            smokeIndexes.Clear();
+            foreach (var (entityIndex, handleRaw) in smokes)
             {
                 var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
-                if (entity == null || !entity.IsValid) continue;
-                smokeIndexes.Add(entity.Index);
+                if (entity == null || !entity.IsValid || entity.EntityHandle.Raw != handleRaw)
+                {
+                    smokes.TryRemove(entityIndex, out _);
+                    continue;
+                }
+                smokeIndexes.Add(entityIndex);
             }
 
             if (smokeIndexes.Count == 0) return;
 
-            Dictionary<nint, uint>? pawnOwners = null;
+            bool pawnOwnersBuilt = false;
 
             foreach (var (info, player) in infoList)
             {
@@ -68,7 +88,11 @@ namespace src.player.skills
                     var observerTarget = player.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
                     if (observerTarget == nint.Zero) continue;
 
-                    pawnOwners ??= BuildPawnOwners();
+                    if (!pawnOwnersBuilt)
+                    {
+                        pawnOwnersBuilt = true;
+                        BuildPawnOwners();
+                    }
 
                     if (!pawnOwners.TryGetValue(observerTarget, out uint observedIndex)) continue;
                     if (PlayerManager.GetPlayerByKey(observedIndex)?.Skill != skillName) continue;
@@ -79,12 +103,12 @@ namespace src.player.skills
             }
         }
 
-        private static Dictionary<nint, uint> BuildPawnOwners()
+        private static void BuildPawnOwners()
         {
-            var players = PlayerManager.GetTickPlayers();
-            Dictionary<nint, uint> owners = new(players.Count);
+            pawnOwners.Clear();
+            var owners = pawnOwners;
 
-            foreach (var p in players)
+            foreach (var p in PlayerManager.GetTickPlayers())
             {
                 if (p == null || !p.IsValid) continue;
 
@@ -93,8 +117,6 @@ namespace src.player.skills
 
                 owners.TryAdd(handle, p.Key());
             }
-
-            return owners;
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)
@@ -149,7 +171,8 @@ namespace src.player.skills
 
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, grenadeLimit);
 
-            SkillUtils.ForceFullUpdate(player);
+            if (TrackExistingSmokes())
+                SkillUtils.ForceFullUpdate(player);
         }
 
         public static void DisableSkill(CCSPlayerController player)

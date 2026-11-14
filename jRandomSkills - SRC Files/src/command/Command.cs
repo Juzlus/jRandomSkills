@@ -660,23 +660,24 @@ namespace src.command
                 }
             }
 
-            if (targetPlayer == null)
-                return;
+            targetPlayer ??= player;
 
-            nextSkill.TryGetValue(targetPlayer.Key(), out int currentIndex);
-
-            int nextIndex = (currentIndex + 1) % skillsList.Count;
+            int count = skillsList.Count;
+            int currentIndex = nextSkill.TryGetValue(targetPlayer.Key(), out int storedIndex) ? storedIndex : -1;
+            int nextIndex = (currentIndex + 1) % count;
 
             string arg = command.GetArg(2);
             if (!string.IsNullOrEmpty(arg))
             {
                 if (arg == "-1")
-                    nextIndex--;
+                    nextIndex = currentIndex <= 0 ? count - 1 : currentIndex - 1;
                 else if (int.TryParse(arg, out int newIndex))
                     nextIndex = newIndex;
                 else
                     return;
             }
+
+            nextIndex = ((nextIndex % count) + count) % count;
 
             var skill = skillsList[nextIndex];
             player.PrintToChat(nextIndex.ToString());

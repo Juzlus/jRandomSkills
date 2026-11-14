@@ -574,7 +574,7 @@ namespace src.player
                 // GameRules null = not ready; keep polling so skills land right after warmup ends.
                 if (IsWarmupPeriod())
                 {
-                    if (++gameRulesPolls % 10 == 0)
+                    if (++gameRulesPolls is 10 or 60 || (gameRulesPolls > 60 && gameRulesPolls % 600 == 0))
                         Debug.WriteToDebug($"SetSkill waiting: gameRules={(Instance.GameRules == null ? "null" : "warmup")}, poll {gameRulesPolls}.", DebugCategory.Skill);
 
                     SafeTimer.Kill(setSkillTimer);

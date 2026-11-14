@@ -278,6 +278,12 @@ namespace src.player.skills
             var player = PlayerManager.GetController(userIndex);
             if (player == null) return;
 
+            if (SkillUtils.IsFriendlyFireBlocked(damageInfo, player.PlayerPawn.Value))
+            {
+                damageInfo.Damage = 0;
+                return;
+            }
+
             if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
             {
                 ChangeCamera(playerSkill, true);

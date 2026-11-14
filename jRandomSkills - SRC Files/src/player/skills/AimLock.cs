@@ -103,35 +103,50 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            var myEyePos = new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
+            var myOrigin = pawn.AbsOrigin;
+            float myX = myOrigin.X, myY = myOrigin.Y, myZ = myOrigin.Z;
+            float eyeZ = myZ + pawn.ViewOffset.Z;
+            var myTeam = player.Team;
 
-            var enemy = PlayerManager.GetTickPlayers()
-                .Where(p => p.IsValid && p.PawnIsAlive && p.Team != player.Team && p.PlayerPawn.Value != null && p.PlayerPawn.Value.AbsOrigin != null)
-                .OrderBy(p => (p.PlayerPawn.Value!.AbsOrigin! - pawn.AbsOrigin).LengthSqr())
-                .FirstOrDefault();
+            CCSPlayerPawn? enemyPawn = null;
+            float bestDist = float.MaxValue;
+            foreach (var p in PlayerManager.GetTickPlayers())
+            {
+                if (p == null || !p.IsValid || p.Team == myTeam) continue;
 
-            if (enemy == null) return;
+                var candidate = p.PlayerPawn.Value;
+                if (candidate == null || !candidate.IsValid || candidate.LifeState != (byte)LifeState_t.LIFE_ALIVE) continue;
+                var origin = candidate.AbsOrigin;
+                if (origin == null) continue;
 
-            var enemyPawn = enemy.PlayerPawn.Value;
-            if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null || enemyPawn.ViewOffset == null) return;
+                float dx = origin.X - myX, dy = origin.Y - myY, dz = origin.Z - myZ;
+                float dist = dx * dx + dy * dy + dz * dz;
+                if (dist >= bestDist) continue;
 
-            Vector diff = SkillUtils.GetForwardVector(enemyPawn.AbsRotation!) * 5;
-            Vector enemyHead = new(
-                enemyPawn.AbsOrigin.X + diff.X,
-                enemyPawn.AbsOrigin.Y + diff.Y,
-                enemyPawn.AbsOrigin.Z + enemyPawn.ViewOffset.Z + 2
-            );
+                bestDist = dist;
+                enemyPawn = candidate;
+            }
 
-            Vector direction = enemyHead - myEyePos;
-            QAngle angle = VectorToAngle(direction);
+            if (enemyPawn == null || enemyPawn.AbsOrigin == null || enemyPawn.ViewOffset == null || enemyPawn.AbsRotation == null) return;
+
+            var enemyOrigin = enemyPawn.AbsOrigin;
+            double yawRad = enemyPawn.AbsRotation.Y * Math.PI / 180.0;
+            double pitchRad = enemyPawn.AbsRotation.X * Math.PI / 180.0;
+            float fwdX = (float)(Math.Cos(pitchRad) * Math.Cos(yawRad)) * 5;
+            float fwdY = (float)(Math.Cos(pitchRad) * Math.Sin(yawRad)) * 5;
+
+            float dirX = enemyOrigin.X + fwdX - myX;
+            float dirY = enemyOrigin.Y + fwdY - myY;
+            float dirZ = enemyOrigin.Z + enemyPawn.ViewOffset.Z + 2 - eyeZ;
+            QAngle angle = VectorToAngle(dirX, dirY, dirZ);
 
             pawn.Look(angle);
         }
 
-        private static QAngle VectorToAngle(Vector direction)
+        private static QAngle VectorToAngle(float x, float y, float z)
         {
-            float pitch = (float)(-Math.Atan2(direction.Z, Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y)) * 180 / Math.PI);
-            float yaw = (float)(Math.Atan2(direction.Y, direction.X) * 180 / Math.PI);
+            float pitch = (float)(-Math.Atan2(z, Math.Sqrt(x * x + y * y)) * 180 / Math.PI);
+            float yaw = (float)(Math.Atan2(y, x) * 180 / Math.PI);
 
             return new QAngle(pitch, yaw, 0);
         }

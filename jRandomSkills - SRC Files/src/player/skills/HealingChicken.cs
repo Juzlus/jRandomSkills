@@ -87,10 +87,13 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             SpawnChicken(player);
+            float seconds = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown")) / 64f;
+            SkillUtils.SetSkillHud(player, "healingchicken_hud", SkillsInfo.GetValue<int>(skillName, "heal"), seconds.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
+            SkillUtils.ResetPrintHTML(player);
             if (activeChickens.TryRemove(player.Key(), out var chickens))
                 foreach (var state in chickens)
                     if (state.Chicken != null && state.Chicken.IsValid)
@@ -109,6 +112,7 @@ namespace src.player.skills
 
             int amount = SkillsInfo.GetValue<int>(skillName, "amount");
             int health = SkillsInfo.GetValue<int>(skillName, "chickenHealth");
+            string materialGroup = SkillsInfo.GetValue<int>(skillName, "materialGroup").ToString();
             var list = new List<ChickenState>();
 
             for (int i = 0; i < amount; i++)
@@ -117,6 +121,7 @@ namespace src.player.skills
                 if (chicken == null || !chicken.IsValid) continue;
 
                 chicken.Render = Color.LightGreen;
+                ApplyMaterialGroup(chicken, materialGroup);
                 chicken.MaxHealth = health;
                 chicken.Health = health;
 
@@ -135,6 +140,19 @@ namespace src.player.skills
             }
 
             activeChickens[player.Key()] = list;
+        }
+
+        private static void ApplyMaterialGroup(CChicken chicken, string materialGroup)
+        {
+            chicken.AcceptInput("Skin", value: materialGroup);
+            uint index = chicken.Index;
+            uint raw = chicken.EntityHandle.Raw;
+            Server.NextFrame(() =>
+            {
+                var entity = Utilities.GetEntityFromIndex<CChicken>((int)index);
+                if (entity == null || !entity.IsValid || entity.EntityHandle.Raw != raw) return;
+                entity.AcceptInput("Skin", value: materialGroup);
+            });
         }
 
         public static void OnTick()
@@ -229,7 +247,7 @@ namespace src.player.skills
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f, int chickenHealth = 50, float boostFactor = 2.5f, float returnDistance = 500f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f, int chickenHealth = 50, float boostFactor = 2.5f, float returnDistance = 500f, int materialGroup = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public int Amount { get; set; } = amount;
             public int Heal { get; set; } = heal;
@@ -238,6 +256,7 @@ namespace src.player.skills
             public int ChickenHealth { get; set; } = chickenHealth;
             public float BoostFactor { get; set; } = boostFactor;
             public float ReturnDistance { get; set; } = returnDistance;
+            public int MaterialGroup { get; set; } = materialGroup;
         }
     }
 }

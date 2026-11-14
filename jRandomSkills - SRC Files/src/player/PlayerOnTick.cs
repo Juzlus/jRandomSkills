@@ -59,6 +59,7 @@ namespace src.player
             skills.NoRecoil.RestoreSpread();
             skills.NoRecoil.ForgetSpread();
             PerfLog.Info("===== MAP END (clean map change) =====");
+            PerfLog.MapHeap();
             Debug.WriteToDebug("===== MAP END (clean map change) =====");
             SafeTimer.ForgetMapTimers();
             BotManager.Stop();
@@ -139,12 +140,12 @@ namespace src.player
                         if (skillInfo.Skill != Skills.None)
                         {
                             remainingLine = string.IsNullOrEmpty(skillPlayer.PrintHTML)
-                                ? (showDescriptionHUD ? player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance) : "")
+                                ? (showDescriptionHUD ? player.GetSkillDescriptionHud(skillInfo.Skill, skillPlayer.SkillChance) : "")
                                 : skillPlayer.PrintHTML;
 
                             isDescription = string.IsNullOrEmpty(skillPlayer.PrintHTML);
                             if (!isDescription && showDescriptionHUD)
-                                descriptionLine = player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance);
+                                descriptionLine = player.GetSkillDescriptionHud(skillInfo.Skill, skillPlayer.SkillChance);
                         }
                     }
                 }
@@ -199,10 +200,10 @@ namespace src.player
                         remainingLine = observedSkill.PrintHTML;
                         isDescription = false;
                         if (showDescriptionHUD)
-                            descriptionLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
+                            descriptionLine = player.GetSkillDescriptionHud(observedSkill.Skill, observedSkill.SkillChance);
                     }
                     else if (showDescriptionHUD)
-                        remainingLine = player.GetSkillDescription(observedSkill.Skill, observedSkill.SkillChance);
+                        remainingLine = player.GetSkillDescriptionHud(observedSkill.Skill, observedSkill.SkillChance);
                 }
             }
 

@@ -41,8 +41,19 @@ namespace src.utils
 
         private static readonly ConcurrentDictionary<(Skills Skill, string Lang, double Chance), string> _skillNameCache = [];
         private static readonly ConcurrentDictionary<(Skills Skill, string Lang, double Chance), string> _skillDescCache = [];
+        private static readonly ConcurrentDictionary<(Skills Skill, string Lang, double Chance), string> _skillDescHudCache = [];
+        public const string HudValueColor = "#9fe8ff";
+
+        private static readonly ConcurrentDictionary<Skills, Func<object[]>> _skillDescArgs = [];
 
         private const double NoChance = double.NegativeInfinity;
+
+        public static void RegisterDescriptionArgs(Skills skill, Func<object[]> args)
+        {
+            _skillDescArgs[skill] = args;
+            _skillDescCache.Clear();
+            _skillDescHudCache.Clear();
+        }
 
         public static void Load()
         {
@@ -51,6 +62,7 @@ namespace src.utils
             _lastSavedPlayersJson = string.Empty;
             _skillNameCache.Clear();
             _skillDescCache.Clear();
+            _skillDescHudCache.Clear();
             SetLangCode();
             LoadAllLanguages();
             LoadPlayersLanguage();
@@ -145,24 +157,66 @@ namespace src.utils
 
         public static string GetSkillDescription(this CCSPlayerController player, Skills skill, float? chance = null)
         {
+            return GetSkillDescriptionCached(player, skill, chance, false);
+        }
+
+        public static string GetSkillDescriptionHud(this CCSPlayerController player, Skills skill, float? chance = null)
+        {
+            return GetSkillDescriptionCached(player, skill, chance, true);
+        }
+
+        private static string GetSkillDescriptionCached(CCSPlayerController player, Skills skill, float? chance, bool hud)
+        {
             string langCode = GetLangCode(player);
 
             bool cacheable = !Illiterate.CheckIlliterateSkill(player);
             var cacheKey = (skill, langCode, chance == null ? NoChance : Math.Round((double)chance, 2));
+            var cache = hud ? _skillDescHudCache : _skillDescCache;
 
-            if (cacheable && _skillDescCache.TryGetValue(cacheKey, out var cached))
+            if (cacheable && cache.TryGetValue(cacheKey, out var cached))
                 return cached;
 
-            string result = BuildSkillDescription(player, skill, chance, langCode);
+            string result = BuildSkillDescription(player, skill, chance, langCode, hud && cacheable);
+            if (hud && cacheable)
+                result = GlueHudValues(result);
 
             if (cacheable)
-                _skillDescCache[cacheKey] = result;
+                cache[cacheKey] = result;
 
             return result;
         }
 
-        private static string BuildSkillDescription(CCSPlayerController player, Skills skill, float? chance, string langCode)
+        private static readonly System.Text.RegularExpressions.Regex HudPrefixRegex = new($"(?<![A-Za-z])([x%+$]+)(<font color='{HudValueColor}'>)", System.Text.RegularExpressions.RegexOptions.Compiled);
+        private static readonly System.Text.RegularExpressions.Regex HudSuffixRegex = new("</font>(%)", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        public static string GlueHudValues(string text)
         {
+            if (string.IsNullOrEmpty(text) || !text.Contains(HudValueColor)) return text;
+            text = HudPrefixRegex.Replace(text, "$2$1");
+            return HudSuffixRegex.Replace(text, "$1</font>");
+        }
+
+        private static object HudValue(object value, bool hud)
+        {
+            return hud ? $"<font color='{HudValueColor}'>{value}</font>" : value;
+        }
+
+        private static string BuildSkillDescription(CCSPlayerController player, Skills skill, float? chance, string langCode, bool hud)
+        {
+            if (_skillDescArgs.TryGetValue(skill, out var argsProvider))
+            {
+                var template = GetTranslation(SkillDescKey(skill), langCode);
+                try
+                {
+                    var args = argsProvider();
+                    if (hud)
+                        for (int i = 0; i < args.Length; i++)
+                            args[i] = HudValue(Convert.ToString(args[i], System.Globalization.CultureInfo.InvariantCulture) ?? "", true);
+                    return string.Format(System.Globalization.CultureInfo.InvariantCulture, template, args);
+                }
+                catch (FormatException) { return template; }
+            }
+
             if (chance == null)
             {
                 var translation = GetTranslation(SkillDescKey(skill), langCode);
@@ -177,14 +231,16 @@ namespace src.utils
                 return string.Join(' ', filtered);
             }
 
-            var skillName = SkillDesc2Key(skill);
-            var value = Math.Round((double)(chance ?? 1), 2);
-            var desc2 = GetTranslation(skillName, langCode, player, true, value);
+            var desc2Key = SkillDesc2Key(skill);
+            var desc2Template = GetTranslation(desc2Key, langCode, null, false);
+            if (desc2Template == desc2Key)
+                return player.GetTranslation(SkillDescKey(skill));
 
-            var skilLDescription = desc2 == skillName
-                ? player.GetTranslation(SkillDescKey(skill))
-                : desc2.Contains('%') ? desc2.Replace(value.ToString(), Math.Round(value * 100, 0).ToString()) : desc2;
-            return skilLDescription;
+            var value = Math.Round((double)(chance ?? 1), 2);
+            string shown = desc2Template.Contains('%')
+                ? Math.Round(value * 100, 0).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            return GetTranslation(desc2Key, langCode, player, true, HudValue(shown, hud));
         }
 
         public static void PrintTranslationToChatAll(string message, string[]? key, bool useIlliterate = true, params object[][]? args)
