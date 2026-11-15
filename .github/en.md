@@ -475,7 +475,7 @@ This plugin uses content from the following projects:
     - **Position Offset**: Added configurable HUD positioning. `yOffset` controls the bottom margin for alive players (0–50%), `ySpecOffset` controls it for spectators (0–50%), and `xOffset` adjusts the horizontal position (-100–100%).
 
 - #### Commands
-     **!next_skill**: With no target it did nothing. It now targets yourself, starts from the first skill, and `-1` goes back correctly.
+    - **!next_skill**: With no target it did nothing. It now targets yourself, starts from the first skill, and `-1` goes back correctly.
 
 - #### Performance
     - **AimLock**: The nearest-enemy search no longer allocates every tick.
