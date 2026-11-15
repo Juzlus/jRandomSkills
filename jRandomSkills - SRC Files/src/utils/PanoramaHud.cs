@@ -78,7 +78,18 @@ namespace src.utils
         {
             if (!Enabled || player == null || !player.IsValid || player.IsBot || player.IsHLTV) return false;
             if (player.Connected != PlayerConnectedState.Connected) return false;
-            return EnsureLayout();
+            
+            bool ensure = EnsureLayout();
+            if (!ensure) return false;
+
+            return ensure;
+        }
+
+        private static int GetOffset(bool isYOffset, int? value = null)
+        {
+            int configOffset = isYOffset ? Config.LoadedConfig.PanoramaHud?.yOffset ?? 0 : Config.LoadedConfig.PanoramaHud?.xOffset ?? 0;
+            if (value.HasValue) configOffset = value.Value;
+            return int.Clamp(configOffset, isYOffset ? 0 : -100, isYOffset ? 50: 100);
         }
 
         private static bool EnsureLayout()
@@ -439,8 +450,15 @@ namespace src.utils
                 if (!Active(player)) continue;
 
                 var view = GetView(player);
-                SetClass(player, view, ScopeId, "is-spec", !IsAlive(player));
+
+                SetClass(player, view, ScopeId, $"yOffset-{GetOffset(true, Config.LoadedConfig.PanoramaHud?.ySpecOffset)}", !IsAlive(player));
                 TickMenu(player, view, tick);
+
+                SetClass(player, GetView(player), "js-skill", $"yOffset-{GetOffset(true)}", IsAlive(player));
+                SetClass(player, GetView(player), "js-skill", $"xOffset-{GetOffset(false)}", true);
+
+                SetClass(player, GetView(player), "js-menu", $"yOffset-{GetOffset(true)}", IsAlive(player));
+                SetClass(player, GetView(player), "js-menu", $"xOffset-{GetOffset(false)}", true);
 
                 if (view.SkillShown && tick - view.LastSkillTick > HideAfterTicks)
                 {

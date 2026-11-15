@@ -92,6 +92,10 @@
   "bowlegs_enemy_info": "Artık tam tersi yönlere gideceksin ve titreyeceksin.",
   "bowlegs_disable_info": "Bacakların normale döndü.",
 
+  "breachzone": "Yarma Alanı",
+  "breachzone_desc": "Yem bomban, hasarı ve hasar direncini artıran bir alan oluşturur",
+  "breachzone_hud": "DMG: +{0}% | RES: +{1}%",
+
   "bunnyhop": "Tavşan",
   "bunnyhop_desc": "Otomatik BunnyHop yaparsın",
 

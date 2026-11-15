@@ -95,6 +95,10 @@
   "bunnyhop": "Lapin",
   "bunnyhop_desc": "Vous obtenez l’auto « BunnyHop »",
 
+  "breachzone": "Zone de percée",
+  "breachzone_desc": "Votre leurre crée une zone qui augmente les dégâts et leur résistance",
+  "breachzone_hud": "DMG : +{0}% | RES : +{1}%",
+
   "c4camouflage": "Camouflage C4",
   "c4camouflage_desc": "Vous êtes invisible en tenant la bombe",
   "c4camouflage_hud": "État : {0}",

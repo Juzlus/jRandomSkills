@@ -92,6 +92,10 @@
   "bowlegs_enemy_info": "Your controls are reversed and you stumble.",
   "bowlegs_disable_info": "Your legs are back to normal.",
 
+  "breachzone": "Breach Zone",
+  "breachzone_desc": "Your decoy creates a zone that boosts damage and damage resistance",
+  "breachzone_hud": "DMG: +{0}% | RES: +{1}%",
+
   "bunnyhop": "Bunny",
   "bunnyhop_desc": "You get auto \"BunnyHop\"",
 

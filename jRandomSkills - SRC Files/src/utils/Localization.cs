@@ -186,7 +186,7 @@ namespace src.utils
             return result;
         }
 
-        private static readonly System.Text.RegularExpressions.Regex HudPrefixRegex = new($"(?<![A-Za-z])([x%+$]+)(<font color='{HudValueColor}'>)", System.Text.RegularExpressions.RegexOptions.Compiled);
+        private static readonly System.Text.RegularExpressions.Regex HudPrefixRegex = new($"(?<![A-Za-z])([-x%+$]+)(<font color='{HudValueColor}'>)", System.Text.RegularExpressions.RegexOptions.Compiled);
         private static readonly System.Text.RegularExpressions.Regex HudSuffixRegex = new("</font>(%)", System.Text.RegularExpressions.RegexOptions.Compiled);
 
         public static string GlueHudValues(string text)

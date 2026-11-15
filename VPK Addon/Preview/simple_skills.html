@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>simple_skills</title>
+  <link rel="stylesheet" href="styles/simple_skills.css">
+  <style>
+    html, body { margin:0; height:100%; overflow:hidden; background:#000; }
+    button { background:none; border:0; color:inherit; font:inherit; cursor:pointer; text-align:inherit; }
+    #stage { position:absolute; left:0; top:0; width:1920px; height:1080px;
+      background:linear-gradient(135deg,#6b7f6b,#2b3a4a 60%,#1c2530);
+      transform-origin:0 0; overflow:hidden; }
+    :where(#stage div) { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr);
+      box-sizing:border-box; position:relative; }
+    :where(#stage div) > :where(*) { grid-area:1/1; justify-self:start; align-self:start; }
+    :where(#stage span) { display:block; white-space:nowrap; }
+    :where(#stage) > :where(div) { width:100%; height:100%; }
+    :where(#stage button) { padding:0; }
+    #pv_panel { position:fixed; right:12px; bottom:12px; z-index:99999; display:flex; flex-direction:column;
+      gap:6px; padding:8px 10px; min-width:170px; background:rgba(0,0,0,.68); color:#fff;
+      font:12px/1.3 Consolas,monospace; border:1px solid rgba(255,255,255,.25); border-radius:6px;
+      opacity:.35; transition:opacity .2s; }
+    #pv_panel:hover { opacity:1; }
+    #pv_name { font-weight:bold; }
+    #pv_panel .pv_row { display:flex; gap:6px; }
+    #pv_panel button, #pv_panel select { font:inherit; color:#fff; background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.3); border-radius:4px; padding:3px 8px; cursor:pointer; }
+    #pv_panel select option { color:#000; }
+    #pv_panel button.pv_on { background:#2e7d32; border-color:#66bb6a; }
+    #pv_panel button:disabled { opacity:.5; cursor:default; }
+    #pv_grid_overlay { position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none;
+      z-index:9999; display:none;
+      background-image:linear-gradient(to right,rgba(255,255,255,.35) 1px,transparent 1px),
+        linear-gradient(to bottom,rgba(255,255,255,.35) 1px,transparent 1px),
+        linear-gradient(to right,rgba(255,255,255,.12) 1px,transparent 1px),
+        linear-gradient(to bottom,rgba(255,255,255,.12) 1px,transparent 1px),
+        linear-gradient(to right,transparent 959px,rgba(255,80,80,.7) 959px,rgba(255,80,80,.7) 961px,transparent 961px),
+        linear-gradient(to bottom,transparent 539px,rgba(255,80,80,.7) 539px,rgba(255,80,80,.7) 541px,transparent 541px);
+      background-size:100px 100px,100px 100px,20px 20px,20px 20px,100% 100%,100% 100%;
+      background-repeat:repeat,repeat,repeat,repeat,no-repeat,no-repeat; }
+    #pv_grid_overlay.on { display:block; }
+  </style>
+</head>
+<body>
+<div id="stage">
+<div class="js-root"><div id="js-scope" class="js-scope" data-id="js-scope"><div class="js-side"><div id="js-c0" class="js-card js-off" data-id="js-c0"><span class="js-card-name">{s:name}</span><span class="js-card-info">{s:info}</span></div><div id="js-c1" class="js-card js-off" data-id="js-c1"><span class="js-card-name">{s:name}</span><span class="js-card-info">{s:info}</span></div><div id="js-c2" class="js-card js-off" data-id="js-c2"><span class="js-card-name">{s:name}</span><span class="js-card-info">{s:info}</span></div><div id="js-c3" class="js-card js-off" data-id="js-c3"><span class="js-card-name">{s:name}</span><span class="js-card-info">{s:info}</span></div><div id="js-c4" class="js-card js-off" data-id="js-c4"><span class="js-card-name">{s:name}</span><span class="js-card-info">{s:info}</span></div></div><div id="js-skill" class="js-skill js-off" data-id="js-skill"><div class="js-body"><span class="js-info">{s:info}</span><span class="js-name">{s:name}</span><div class="js-desc"><span id="js-sd0" class="js-seg js-off" data-id="js-sd0">{s:text}</span><span id="js-sd1" class="js-seg js-off" data-id="js-sd1">{s:text}</span><span id="js-sd2" class="js-seg js-off" data-id="js-sd2">{s:text}</span><span id="js-sd3" class="js-seg js-off" data-id="js-sd3">{s:text}</span></div><div class="js-status"><span id="js-ss0" class="js-seg js-off" data-id="js-ss0">{s:text}</span><span id="js-ss1" class="js-seg js-off" data-id="js-ss1">{s:text}</span><span id="js-ss2" class="js-seg js-off" data-id="js-ss2">{s:text}</span><span id="js-ss3" class="js-seg js-off" data-id="js-ss3">{s:text}</span></div></div><div class="js-cd"></div></div><div id="js-menu" class="js-menu js-off" data-id="js-menu"><span class="js-menu-title">{s:title}</span><span class="js-menu-info">{s:info}</span><div id="js-m0" class="js-row js-off" data-id="js-m0"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m1" class="js-row js-off" data-id="js-m1"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m2" class="js-row js-off" data-id="js-m2"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m3" class="js-row js-off" data-id="js-m3"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m4" class="js-row js-off" data-id="js-m4"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m5" class="js-row js-off" data-id="js-m5"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m6" class="js-row js-off" data-id="js-m6"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m7" class="js-row js-off" data-id="js-m7"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m8" class="js-row js-off" data-id="js-m8"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div id="js-m9" class="js-row js-off" data-id="js-m9"><div class="js-row-bar"></div><span class="js-row-text">{s:text}</span></div><div class="js-menu-foot"><span id="js-mf0" class="js-fseg js-off" data-id="js-mf0">{s:text}</span><span id="js-mf1" class="js-fseg js-off" data-id="js-mf1">{s:text}</span><span id="js-mf2" class="js-fseg js-off" data-id="js-mf2">{s:text}</span><span id="js-mf3" class="js-fseg js-off" data-id="js-mf3">{s:text}</span></div></div></div></div>
+<div id="pv_grid_overlay"></div>
+</div>
+<div id="pv_panel">
+  <div id="pv_name">simple_skills.xml</div>
+  <div class="pv_row"><label for="pv_html" style="align-content:center;">HTML:</label><select id="pv_html" style="width:65%;margin-left:auto;"><option value="simple_skills.html" selected>simple_skills</option><option value="skill_hud_1.html">skill_hud_1</option></select></div>
+  <div class="pv_row">
+    <button id="pv_show" type="button">show</button>
+    <button id="pv_grid" type="button">Grid: OFF</button>
+  </div>
+  <div id="pv_pos_row" class="pv_row" style="display:none;">
+    <label for="pv_pos" style="align-content:center;">Position:</label>
+    <select id="pv_pos" style="width:65%;margin-left:auto;">
+      <option value="">Unassigned</option>
+      <option value="pos_left_top">LeftTop</option>
+      <option value="pos_left_center">LeftCenter</option>
+      <option value="pos_left_bottom">LeftBottom</option>
+      <option value="pos_center_top">CenterTop</option>
+      <option value="pos_center_center">CenterCenter</option>
+      <option value="pos_center_bottom">CenterBottom</option>
+      <option value="pos_right_top">RightTop</option>
+      <option value="pos_right_center">RightCenter</option>
+      <option value="pos_right_bottom">RightBottom</option>
+    </select>
+  </div>
+  <div class="pv_row">
+    <label for="pv_bg" style="align-content:center;">Background:</label>
+    <select id="pv_bg" style="width:65%;margin-left:auto;"><option value="">Default background</option></select>
+  </div>
+</div>
+<script>
+  function fit() {
+    var scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    document.getElementById('stage').style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+  (function() {
+    var stage = document.getElementById('stage');
+    var root = document.getElementById('jrs_root') ||
+      document.querySelector('.jrs_root') ||
+      Array.from(document.querySelectorAll('[id^="jrs_"]')).find(function(el) {
+        return el.id.indexOf('root') !== -1;
+      }) || stage.firstElementChild;
+    var show = document.getElementById('pv_show');
+    var gridButton = document.getElementById('pv_grid');
+    var grid = document.getElementById('pv_grid_overlay');
+    var bg = document.getElementById('pv_bg');
+    var htmlSelect = document.getElementById('pv_html');
+    var posRow = document.getElementById('pv_pos_row');
+    var pos = document.getElementById('pv_pos');
+    var positionClasses = [
+      'pos_left_top','pos_left_center','pos_left_bottom',
+      'pos_center_top','pos_center_center','pos_center_bottom',
+      'pos_right_top','pos_right_center','pos_right_bottom'
+    ];
+    if (root) root.classList.add('show');
+    function refreshShow() {
+      if (!root) { show.disabled = true; show.textContent = 'No module root'; return; }
+      var on = root.classList.contains('show');
+      show.textContent = '#' + root.id + '.show: ' + (on ? 'ON' : 'OFF');
+      show.className = on ? 'pv_on' : '';
+    }
+    function refreshPosition() {
+      var current = root && positionClasses.find(function(name) { return root.classList.contains(name); });
+      posRow.style.display = 'flex';
+      pos.value = current || '';
+    }
+    show.onclick = function() { if (root) { root.classList.toggle('show'); refreshShow(); } };
+    pos.onchange = function() {
+      if (!root || !pos.value) return;
+      positionClasses.forEach(function(name) { root.classList.remove(name); });
+      root.classList.add(pos.value);
+      refreshPosition();
+    };
+    gridButton.onclick = function() {
+      var on = grid.classList.toggle('on');
+      gridButton.textContent = 'Grid: ' + (on ? 'ON' : 'OFF');
+      gridButton.className = on ? 'pv_on' : '';
+    };
+    function applyBg(value) {
+      stage.style.background = value ? 'url("' + value + '") center / cover no-repeat' : '';
+    }
+    bg.onchange = function() {
+      applyBg(bg.value);
+      try { localStorage.setItem('pv_bg', bg.value); } catch (e) {}
+    };
+    if (htmlSelect) {
+      htmlSelect.onchange = function() {
+        if (htmlSelect.value) window.location.href = htmlSelect.value;
+      };
+    }
+    try {
+      var saved = localStorage.getItem('pv_bg');
+      if (saved) { bg.value = saved; if (bg.value === saved) applyBg(saved); }
+    } catch (e) {}
+
+    document.getElementById('stage').addEventListener('click', function(event) {
+      var button = event.target.closest('button');
+      if (!button || !button.parentElement) return;
+      var siblings = Array.from(button.parentElement.children).filter(function(el) {
+        return el.tagName === 'BUTTON';
+      });
+      var classes = Array.from(button.classList).filter(function(name) {
+        return name !== 'active' && name !== 'disabled';
+      });
+      if (!classes.length) return;
+      var preferred = classes.find(function(name) {
+        return /tab|group|toggle|segment|switch/i.test(name) &&
+          siblings.filter(function(el) { return el.classList.contains(name); }).length > 1;
+      });
+      var candidates = classes.map(function(name) {
+        return {
+          name: name,
+          members: siblings.filter(function(el) { return el.classList.contains(name); })
+        };
+      }).filter(function(item) { return item.members.length > 1; });
+      candidates.sort(function(a, b) {
+        return b.members.length - a.members.length;
+      });
+      var groupClass = preferred || (candidates[0] && candidates[0].name);
+      var group = groupClass
+        ? siblings.filter(function(el) { return el.classList.contains(groupClass); })
+        : [button];
+      group.forEach(function(el) {
+        var selected = el === button;
+        el.classList.toggle('active', selected);
+        el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+    });
+    refreshShow();
+    refreshPosition();
+  })();
+</script>
+</body>
+</html>

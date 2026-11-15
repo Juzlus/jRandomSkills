@@ -80,6 +80,7 @@ public enum Skills
     BlastShot,
     Bounty,
     Bowlegs,
+    BreachZone,
     C4Camouflage,
     CarefulBullets,
     Catapult,

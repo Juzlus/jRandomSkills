@@ -86,6 +86,10 @@
   "bowlegs_enemy_info": "Twoje sterowanie jest odwrócone i się chwiejesz.",
   "bowlegs_disable_info": "Twoje nogi wróciły do normy.",
 
+  "breachzone": "Strefa Przełamania",
+  "breachzone_desc": "Wabik tworzy strefę zwiększającą obrażenia i odporność na nie",
+  "breachzone_hud": "DMG: +{0}% | RES: +{1}%",
+
   "bunnyhop": "Królik",
   "bunnyhop_desc": "Otrzymujesz auto \"BunnyHopa\"",
 

@@ -390,6 +390,9 @@ namespace src.utils
             public string Layout { get; set; } = "panorama/layout/custom_game/jrandomskills/simple_skills.xml";
             public string Font { get; set; } = "stratum";
             public int FontSize { get; set; } = 100;
+            public int yOffset { get; set; } = 1;
+            public int ySpecOffset { get; set; } = 9;
+            public int xOffset { get; set; } = 0;
         }
 
         public class LanguageSystem

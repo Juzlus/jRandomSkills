@@ -1094,7 +1094,7 @@ def select_layouts(layout_dir: Path, requested: Optional[str]) -> List[Path]:
 def build_previews(args: argparse.Namespace) -> List[Tuple[Path, Path]]:
     root = args.root.resolve()
     layout_dir = (args.layout_dir or (
-        root / "Content" / "panorama" / "layout" / "jRandomSkills"
+        root / "Content" / "panorama" / "layout" / "custom_game" / "jRandomSkills"
     )).resolve()
     output_dir = (args.output_dir or (root / "Preview")).resolve()
     layouts = select_layouts(layout_dir, args.layout)

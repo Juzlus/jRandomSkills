@@ -145,7 +145,7 @@ namespace src.player.skills
         {
             public float MaxSpeedVelocity { get; set; } = maxSpeedVelocity;
             public float MaxDamageVelocity { get; set; } = maxDamageVelocity;
-        public bool FriendlyFire { get; set; } = friendlyFire;
+            public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

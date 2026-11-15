@@ -7,8 +7,8 @@ The layout must reach the players through a Workshop addon, so you upload these 
 ## Files
 
 ```
-panorama/layout/jrandomskills/simple_skills.xml   layout
-panorama/styles/jrandomskills/simple_skills.css   styles (generated)
+panorama/layout/custom_game/jrandomskills/simple_skills.xml   layout
+panorama/styles/custom_game/jrandomskills/simple_skills.css   styles (generated)
 tools/build_css.py                           regenerates the CSS
 ```
 
@@ -31,7 +31,7 @@ tools/build_css.py                           regenerates the CSS
 | Key | Default | Description |
 |---|---|---|
 | `Enabled` | `false` | Use the Panorama HUD instead of the center HTML HUD. |
-| `Layout` | `panorama/layout/jrandomskills/simple_skills.xml` | Layout path inside your addon. Change it if you rename the files. |
+| `Layout` | `panorama/layout/custom_game/jrandomskills/simple_skills.xml` | Layout path inside your addon. Change it if you rename the files. |
 | `Font` | `stratum` | `stratum`, `light`, `cond`, `boldcond`, `mono`, `noto`, `serif` or `notomono`. |
 | `FontSize` | `100` | Text size in percent, from `80` to `130` in steps of `5`. |
 
@@ -40,5 +40,5 @@ tools/build_css.py                           regenerates the CSS
 Panorama cannot take a color from the server, so every skill color needs its own CSS class. The shipped CSS covers the default `skillsInfo.json`. If you change skill colors, regenerate the CSS and upload the addon again:
 
 ```
-python tools/build_css.py panorama/styles/jrandomskills/simple_skills.css <path to skillsInfo.json> <path to the plugin source folder (optional)>
+python tools/build_css.py Content/panorama/styles/custom_game/jrandomskills/simple_skills.css <path to skillsInfo.json> <path to the plugin source folder (optional)>
 ```

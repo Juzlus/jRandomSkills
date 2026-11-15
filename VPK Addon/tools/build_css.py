@@ -327,21 +327,32 @@ def colors(paths):
 
 
 def build(found):
-    out = [BASE]
-    for name, family in FONTS.items():
-        selectors = ',\n'.join(f'.js-scope.ff-{name} {element}' for element in SIZES)
-        out.append(f'{selectors}\n{{\n\tfont-family: {family}, "Arial Unicode MS";\n}}\n')
-    for size in range(80, 135, 5):
-        if size == 100:
-            continue
-        for element, base in SIZES.items():
-            out.append(f'.js-scope.fs-{size} {element}\n{{\n\tfont-size: {round(base * size / 100)}px;\n}}\n')
-    for color in found:
-        cls = 'sc-' + color[1:]
-        out.append(f'.js-skill.{cls} .js-name,\n.js-seg.{cls},\n.js-card.{cls} .js-card-name,\n.js-menu.{cls} .js-menu-title,\n.js-row.{cls} .js-row-text\n{{\n\tcolor: {color};\n}}\n')
-    for pct in range(101):
-        out.append(f'.js-skill.cd-{pct} .js-cd\n{{\n\twidth: {pct}%;\n}}\n')
-    return '\n'.join(out)
+	out = [BASE]
+
+	for name, family in FONTS.items():
+		selectors = ',\n'.join(f'.js-scope.ff-{name} {element}' for element in SIZES)
+		out.append(f'{selectors}\n{{\n\tfont-family: {family}, "Arial Unicode MS";\n}}\n')
+
+	for size in range(80, 135, 5):
+		if size == 100:
+			continue
+		for element, base in SIZES.items():
+			out.append(f'.js-scope.fs-{size} {element}\n{{\n\tfont-size: {round(base * size / 100)}px;\n}}\n')
+
+	for color in found:
+		cls = 'sc-' + color[1:]
+		out.append(f'.js-skill.{cls} .js-name,\n.js-seg.{cls},\n.js-card.{cls} .js-card-name,\n.js-menu.{cls} .js-menu-title,\n.js-row.{cls} .js-row-text\n{{\n\tcolor: {color};\n}}\n')
+
+	for pct in range(101):
+		out.append(f'.js-skill.cd-{pct} .js-cd\n{{\n\twidth: {pct}%;\n}}\n')
+
+	for y in range(0, 51):
+		out.append(f'.yOffset-{y} {{ margin-bottom: {y}%; }}\n')
+
+	for x in range(-100, 101):
+		out.append(f'.xOffset-{x} {{ margin-left: {x}%; }}\n')
+
+	return '\n'.join(out)
 
 
 output, sources = sys.argv[1], sys.argv[2:]

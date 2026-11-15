@@ -86,6 +86,10 @@
   "bowlegs_enemy_info": "Seus controles estão invertidos e você tropeça.",
   "bowlegs_disable_info": "Suas pernas voltaram ao normal.",
 
+  "breachzone": "Zona de Ruptura",
+  "breachzone_desc": "Sua isca cria uma área que aumenta o dano e a resistência a ele",
+  "breachzone_hud": "DMG: +{0}% | RES: +{1}%",
+
   "bunnyhop": "Coelho",
   "bunnyhop_desc": "Você ganha \"BunnyHop\" automático",
 

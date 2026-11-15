@@ -150,7 +150,6 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
             SkillUtils.SetSkillHud(player, "healingsmoke_hud", Math.Round(SkillsInfo.GetValue<int>(skillName, "smokeHeal") * 64f / Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown")), 1));
 
-
             int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
             playersWithSkill[player.Key()] = grenadeLimit;

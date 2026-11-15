@@ -86,6 +86,29 @@ namespace src.utils
             }
         }
 
+        private static Entry? GetByPosition(Skills skill, Vector position)
+        {
+            lock (gate)
+            {
+                foreach (var entry in entries)
+                    if (entry.Skill == skill && entry.Position == position)
+                        return entry;
+            }
+
+            return null;
+        }
+
+        public static CsTeam? GetPositionTeam(Skills skill, Vector position)
+        {
+            var entry = GetByPosition(skill, position);
+            if (entry == null) return null;
+
+            var player = PlayerManager.GetController(entry.Owner);
+            if (player == null || !player.IsValid) return null;
+            
+            return player.Team;
+        }
+
         public static bool IsEmpty(Skills skill) => Positions(skill).Length == 0;
     }
 }

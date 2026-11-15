@@ -92,6 +92,10 @@
   "bowlegs_enemy_info": "Deine Steuerung ist vertauscht und du stolperst.",
   "bowlegs_disable_info": "Deine Beine sind wieder normal.",
 
+  "breachzone": "Durchbruchszone",
+  "breachzone_desc": "Dein Köder erzeugt eine Zone, die Schaden und Schadensresistenz erhöht",
+  "breachzone_hud": "DMG: +{0}% | RES: +{1}%",
+
   "bunnyhop": "Hase",
   "bunnyhop_desc": "Du erhältst automatisch bunnyhop",
 

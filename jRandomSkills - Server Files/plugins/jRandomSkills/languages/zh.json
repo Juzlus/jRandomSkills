@@ -81,6 +81,10 @@
   "bowlegs_enemy_info": "你的操作被反转了，还会踉跄。",
   "bowlegs_disable_info": "你的腿恢复正常了。",
 
+  "breachzone": "突破区域",
+  "breachzone_desc": "诱饵弹会生成一个提升伤害和伤害抗性的区域",
+  "breachzone_hud": "伤害：{0}% | 抗性：{1}%",
+
   "bunnyhop": "连跳大佬",
   "bunnyhop_desc": "你获得自动连跳的能力",
 
