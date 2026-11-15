@@ -47,15 +47,16 @@ Join the 3v3 test server and try out the jRandomSkills plugin:
 
 Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.html).
 
-## ✨ Current Skills (164)
+## ✨ Current Skills (170)
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
 | Name              | Description                                                                                        | Cooldown / Range           |
 | ----------------- | -------------------------------------------------------------------------------------------------- | -------------------------- |
 | Adrenaline        | Hitting enemies steals their speed                                                                 | +0.2x Speed                |
-| Aim Lock          | Click [css_useSkill] to lock your aim on the nearest enemy                                         | 20 s                       |
 | Aimbot            | Every bullet you hit counts as a headshot                                                          | -                          |
+| Aim Lock          | Click [css_useSkill] to lock your aim on the nearest enemy                                         | 20 s                       |
+| Airstrike         | Press [css_useSkill] to call a missile airstrike on a location                                     | 30 s                       |
 | Anomaly           | Click [css_useSkill] to rewind a few seconds back in time                                          | 15 s                       |
 | Anti-Flash        | You are immune to flashbangs, and your flashbangs last 7 seconds                                   | -                          |
 | Armored           | You have a random damage taken multiplier                                                          | (0.65 - 0.85)x             |
@@ -70,9 +71,11 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Bounty            | Put a price on an enemy's head; whoever kills them takes the money                                 | 300$                       |
 | Bowlegs           | Reverses a chosen enemy's movement keys                                                            | -                          |
 | Bunny             | You get auto "BunnyHop"                                                                            | -                          |
+| Breach Zone       | Your decoy creates a zone that boosts damage and damage resistance for players inside it           | DMG: +75%, RES: +25%       |
 | C4 Camouflage     | You are invisible while holding the bomb                                                           | -                          |
 | Careful Bullets   | Select a player who takes damage for every missed shot                                             | -                          |
 | Catapult          | You have a random chance to launch an enemy upwards                                                | (20 - 40)%                 |
+| Chain Damage      | X% of your bullet damage jumps to enemies within X units of the target                             | 25%, 400 units             |
 | Chameleon         | The first player you kill gives you their skill                                                    | -                          |
 | Chicken           | You get a chicken model + 10% faster movement - 50 HP                                              | -                          |
 | Chillout          | Planting the bomb takes significantly longer                                                       | -                          |
@@ -126,6 +129,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Holy Hand Grenade | Your HE grenades deal double damage and have double range                                          | -                          |
 | Homing Grenades   | Your grenades (except smokes) are attracted to enemies                                             | -                          |
 | Hot Bomb          | As long as you are alive, the bomb deals damage to its carrier                                     | -                          |
+| Hunter            | Enemies at or below X% health show on your radar                                                   | 30%                        |
 | Illiterate        | As long as you are alive, your enemies cannot read                                                 | -                          |
 | Illusionist       | Click [css_useSkill] to deploy a replica that walks straight ahead                                 | 30 s                       |
 | Impostor          | You start the round with an enemy player model                                                     | -                          |
@@ -209,8 +213,10 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Tracker           | Choose a player who will leave a trail behind them                                                 | -                          |
 | Tripwire          | Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar | 20 s                       |
 | True Armor        | Part of the damage you take is paid by your armor instead of your health                           | 0.33x                      |
+| Turtle Shell      | Take X% less damage while crouching                                                                | 40%                        |
 | Voodoo            | The enemy you mark also takes part of the damage you take                                          | 0.5x                       |
 | Wallhack          | You can see enemies through walls                                                                  | -                          |
+| Wanderer          | Gain X HP for every X units you travel                                                             | 2 HP, 200 units            |
 | Watchmaker        | Every grenade throw alters the round time                                                          | -                          |
 | Weapon Swap       | Click [css_useSkill] to swap weapons with a random enemy                                           | 30 s                       |
 | Weightlessness    | Your grenades are not affected by gravity and fly faster                                           | -                          |
@@ -454,6 +460,47 @@ This plugin uses content from the following projects:
 </div>
 
 ## 📋 Changelog
+
+<details>
+<summary><b>v1.2.4.b8</b></summary>
+
+- #### General
+    - Updated compatibility with **CounterStrikeSharp v1.0.380**.
+    - **Decoy rings**: Fixed an issue where an expired timer from an old ring could remove a newer ring with the same id.
+
+- #### New skills (6)
+    - **Airstrike**: Press [css_useSkill] to call a missile airstrike on a location.
+    - **Chain Damage**: X% of your bullet damage jumps to enemies within X units of the target.
+    - **Hunter**: Enemies at or below X% health show on your radar.
+    - **Turtle Shell**: Take X% less damage while crouching.
+    - **Wanderer**: Gain X HP for every X units you travel.
+    - **Breach Zone**: Your decoy creates a zone that boosts damage and damage resistance for players inside it (idea by Ftamdy).
+
+- #### Skill Fixes
+    - **Chicken**: Now uses the silkie chicken model, red for T and aqua for CT. The player model is rescaled so shots at the chicken land on the real hitbox.
+    - **Healing Chicken**: The chicken now uses its white material, so it is fully green.
+    - **Zone Reaper**: The closed site could get the wrong letter. The HUD now shows which site is closed.
+    - **Glaz**: Smokes were stored by entity index, so a reused index could be treated as a smoke.
+    - **Cypher, Iana**: With friendly fire off, a teammate could still damage the Cypher camera or the Iana clone. Friendly fire is now checked, and `mp_teammates_are_enemies` is respected.
+    - **Jackal, Wallhack, Throwing Knife**: hidden glow and trail entities were kept dormant on the client, which could leave an enemy name label on screen. They are now fully hidden.
+
+- #### HUD
+    - **Values**: Numbers in skill descriptions and HUD lines are coloured. Multipliers are shown as `x0.85`, and decimals always use a dot.
+    - **New HUD lines**: Zone Reaper, Healing Chicken, Hermit, Demon Eye, Assassin and Chill Out now show their live values.
+    - **Shorter texts**: Toxic Smoke, Healing Smoke, True Armor, Thorns, ReZombie, Poison, Last Gasp, Jumping Jack and Hot Bomb HUD lines are shorter.
+    - **Panorama HUD**: In long descriptions, a coloured value could push the text after it to a new line. Long lines are now drawn as one piece, and symbols like `x`, `%` and `+` stay attached to their number.
+    - **Position Offset**: Added configurable HUD positioning. `yOffset` controls the bottom margin for alive players (0–50%), `ySpecOffset` controls it for spectators (0–50%), and `xOffset` adjusts the horizontal position (-100–100%).
+
+- #### Commands
+     **!next_skill**: With no target it did nothing. It now targets yourself, starts from the first skill, and `-1` goes back correctly.
+
+- #### Performance
+    - **AimLock**: The nearest-enemy search no longer allocates every tick.
+    - **Jackal, Glaz**: The spectator and pawn-owner lookups now reuse one table per tick and compare handles directly.
+
+**"Full update" contributed by [@ByDexterTR](https://github.com/ByDexterTR) in pull request [#70](https://github.com/Juzlus/jRandomSkills/pull/70). Thanks to ByDexterTR!**
+
+</details>
 
 <details>
 <summary><b>v1.2.4.b7</b></summary>
