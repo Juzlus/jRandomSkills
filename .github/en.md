@@ -104,6 +104,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Fire Rain         | Throw a decoy to call down a rain of Molotovs                                                      | -                          |
 | Flash             | Random player speed at the beginning of the round                                                  | (1.2 - 3.0)x               |
 | Flashlight        | Click [css_useSkill] to turn the flashlight on or off. Its light can blind enemies                 | 2 s                        |
+| Focus             | No recoil while shooting                                                                           | -                          |
 | Fortnite          | Click [css_useSkill] to create a destructible barricade                                            | 2 s                        |
 | Fragile Bomb      | Shooting the bomb damages it                                                                       | -                          |
 | Free Planter      | You can plant the bomb anywhere, with a detonation time of 60 seconds                              | -                          |
@@ -144,6 +145,7 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Killer Flash      | Anyone fully blinded by your flashbang dies (including you)                                        | -                          |
 | Knockback         | Firing while airborne pushes you backwards                                                         | -                          |
 | Last Gasp         | After you die, you deal damage to the enemy who killed you                                         | 30 HP                      |
+| Last Stand        | When you become the last survivor of your team, you instantly heal 50 HP and get 100 armor         | +50 HP, 100 armor          |
 | Legless           | Choose a player who cannot jump                                                                    | -                          |
 | Life Swap         | Choose a player to swap health with                                                                | -                          |
 | Long Knife        | A primary knife attack deals damage regardless of distance                                         | -                          |
@@ -155,7 +157,6 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Nemesis           | The player you mark takes extra damage                                                             | +0.25x                     |
 | Nightmare         | Force a chosen enemy to experience a terrifying vision                                             | -                          |
 | Ninja             | Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%    | -                          |
-| No Rifles         | Choose a player who cannot use rifles                                                              | -                          |
 | No Rifles         | Choose a player who cannot use rifles                                                              | -                          |
 | No-Nades          | Grenades deal no damage to you                                                                     | -                          |
 | NoClip            | Click [css_useSkill] to enable noclip for a short time                                             | 30 s                       |
@@ -189,7 +190,9 @@ Buying a server on pukawka? Use my [referral code](https://pukawka.pl/pp,juzlus.
 | Robin Hood        | Dealing damage to an enemy steals their money                                                      | -                          |
 | Rubber Bullets    | Your bullets significantly slow down players                                                       | -                          |
 | Sapper            | You can plant and defuse bombs faster                                                              | -                          |
+| Scavenger         | Every kill restores 25 HP and gives you 300$                                                       | +25 HP, +300$              |
 | Second Chance     | After death, you respawn with the same amount of health                                            | -                          |
+| Second Wind       | Once per round, a hit that would leave you at 30 HP or less heals you for 40 HP and cuts the damage you take by 50% for 3 s | +40 HP, -50% DMG           |
 | Shade             | You teleport behind the back of a hit enemy                                                        | -                          |
 | Short Fuse        | The bomb explodes much faster                                                                      | -                          |
 | Silent            | Your footsteps and jumps are silent to other players                                               | -                          |

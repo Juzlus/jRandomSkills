@@ -1,0 +1,26 @@
+name: Build and check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build plugin
+        run: dotnet build "jRandomSkills - SRC Files/jRandomSkills.sln" -c Release
+
+      - name: Unit tests
+        run: dotnet test tests/jRandomSkills.Tests/jRandomSkills.Tests.csproj -c Release
+
+      - name: Check translations
+        shell: pwsh
+        run: ./tools/check_lang.ps1

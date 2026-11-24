@@ -767,5 +767,18 @@
 
   "menu_controlls_scroll": "W/S - Kaydır",
   "menu_controlls_padding": "   |   ",
-  "menu_controlls_select": "E - Seç"
+  "menu_controlls_select": "E - Seç",
+  "set_health": "Can ayarlandı.",
+  "planted_bomb_spawned": "Kurulmuş bomba oluşturuldu. {0} saniye sonra patlayacak.",
+  "bot_placed_not_found": "Yerleştirilecek bot bulunamadı.",
+  "bot_placed": "Bot konumunuza yerleştirildi.",
+  "selectplayerskill_used_info": "Yeteneğin zaten kullanıldı.",
+  "secondwind": "İkinci Nefes",
+  "secondwind_desc": "Round başına bir kez, sizi {0} CAN veya altına düşürecek bir vuruş anında {1} CAN iyileştirir ve {3} sn boyunca aldığınız hasarı %{2} azaltır",
+  "secondwind_triggered": "İkinci Nefes devreye girdi!",
+  "scavenger": "Çöpçü",
+  "scavenger_desc": "Her öldürme {0} CAN yeniler ve size {1}$ verir",
+  "laststand": "Son Direniş",
+  "laststand_desc": "Takımınızın son hayatta kalanı olduğunuzda anında {0} CAN iyileşir ve {1} zırh kazanırsınız",
+  "laststand_triggered": "Son Direniş! Ayakta kalan son kişisiniz."
 }

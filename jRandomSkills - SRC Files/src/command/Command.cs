@@ -18,6 +18,9 @@ namespace src.command
         private static Config.SettingsModel config = Config.LoadedConfig;
         private static readonly ConcurrentDictionary<string, CommandInfo.CommandCallback> oldCommands = [];
         private static readonly ConcurrentDictionary<uint, int> nextSkill = [];
+
+        /// <summary>Forgets the per-player css_next position (player keys are not stable across maps).</summary>
+        internal static void ClearNextSkill() => nextSkill.Clear();
         private static readonly object setLock = new();
 
         public static void Load()
@@ -37,17 +40,17 @@ namespace src.command
                 var commands = new Dictionary<IEnumerable<string>, (string description, CommandInfo.CommandCallback handler)>
                 {
                     { SplitCommands(config.NormalCommands.SetSkillCommand.Alias), ("Set skill", Command_SetSkill) },
-                    { SplitCommands(config.NormalCommands.SkillsListCommand.Alias), ("Delete all records", Command_SkillsListMenu) },
+                    { SplitCommands(config.NormalCommands.SkillsListCommand.Alias), ("Open skills list menu", Command_SkillsListMenu) },
                     { SplitCommands(config.NormalCommands.UseSkillCommand.Alias), ("Use/Type skill", Command_UseTypeSkill) },
                     { SplitCommands(config.NormalCommands.ConsoleCommand.Alias), ("Console command", Command_CustomCommand) },
                     { SplitCommands(config.NormalCommands.HealCommand.Alias), ("Heal", Command_Heal) },
-                    { SplitCommands(config.NormalCommands.HealthCommand.Alias), ("Set heath", Command_Health) },
+                    { SplitCommands(config.NormalCommands.HealthCommand.Alias), ("Set health", Command_Health) },
                     { SplitCommands(config.NormalCommands.PlantedBomb.Alias), ("Spawn planted bomb", Command_PlantedBomb) },
                     { SplitCommands(config.NormalCommands.BotPlace.Alias), ("Place bot on your position", Command_BotPlace) },
                     { SplitCommands(config.NormalCommands.HudCommand.Alias), ("Enable/Disable HUD", Command_HUD) },
                     { SplitCommands(config.NormalCommands.SetStaticSkillCommand.Alias), ("Set static skill", Command_SetStaticSkill) },
                     { SplitCommands(config.NormalCommands.ChangeLanguageCommand.Alias), ("Change language", Command_ChangeLanguage) },
-                    { SplitCommands(config.NormalCommands.ReloadCommand.Alias), ("Reaload configs", Command_Reload) },
+                    { SplitCommands(config.NormalCommands.ReloadCommand.Alias), ("Reload configs", Command_Reload) },
                     { SplitCommands(config.NormalCommands.NextCommand.Alias), ("Next skill", Command_Next) },
                     { SplitCommands(config.NormalCommands.CheckEntityCommand.Alias), ("Check entity", Command_CheckEntity) },
 
@@ -104,7 +107,42 @@ namespace src.command
         private static void Command_SetSkill(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setskill {command.ArgString} command.");
-            if (!string.IsNullOrEmpty(config.NormalCommands.SetSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetSkillCommand.Permissions)) return;
+            AssignSkillFromCommand(player, command, config.NormalCommands.SetSkillCommand.Permissions, isStatic: false);
+        }
+
+        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+        private static void Command_SetStaticSkill(CCSPlayerController? player, CommandInfo command)
+        {
+            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setstaticskill {command.ArgString} command.");
+            AssignSkillFromCommand(player, command, config.NormalCommands.SetStaticSkillCommand.Permissions, isStatic: true);
+        }
+
+        /// <summary>
+        /// Enables a skill right away, unless it is flagged disableOnFreezeTime and the round is still in
+        /// freeze time. Then it is enabled once the configured start delay has passed (same rule as at round start).
+        /// </summary>
+        private static void EnableSkillRespectingFreezeTime(CCSPlayerController target, Skills skill)
+        {
+            if (!SkillsInfo.GetValue<bool>(skill, "disableOnFreezeTime") || !SkillUtils.IsFreezeTime())
+            {
+                Instance.SkillAction(skill.ToString(), "EnableSkill", [target]);
+                return;
+            }
+
+            uint targetKey = target.Key();
+            SafeTimer.Add(Config.LoadedConfig.SkillTimeBeforeStart, () =>
+            {
+                var current = PlayerManager.GetController(targetKey);
+                if (current == null || !current.IsValid) return;
+                if (PlayerManager.GetPlayer(current)?.Skill != skill) return;
+                Instance.SkillAction(skill.ToString(), "EnableSkill", [current]);
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        // Shared implementation of css_setskill / css_setstaticskill (a static skill is re-applied every round).
+        private static void AssignSkillFromCommand(CCSPlayerController? player, CommandInfo command, string permissions, bool isStatic)
+        {
+            if (!string.IsNullOrEmpty(permissions) && !AdminManager.PlayerHasPermissions(player, permissions)) return;
             var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => p != null && p.IsValid
                                                                           && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
                                                                           || p.PlayerName.Equals(command.GetArg(1), StringComparison.OrdinalIgnoreCase)));
@@ -151,7 +189,16 @@ namespace src.command
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
-                Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
+
+                if (isStatic)
+                {
+                    if (skill.Skill == Skills.None)
+                        Event.staticSkills.TryRemove(targetPlayer.Key(), out _);
+                    else
+                        Event.staticSkills[targetPlayer.Key()] = skill;
+                }
+
+                EnableSkillRespectingFreezeTime(targetPlayer, skill.Skill);
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
                 if (player == null)
@@ -195,8 +242,7 @@ namespace src.command
                 if (!string.IsNullOrEmpty(config.NormalCommands.CheckEntityCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.CheckEntityCommand.Permissions))
                         return;
 
-            int.TryParse(command.GetArg(1), out int index);
-            if (index == -1)
+            if (!int.TryParse(command.GetArg(1), out int index) || index < 0)
             {
                 if (player == null)
                 {
@@ -484,91 +530,6 @@ namespace src.command
             Server.ExecuteCommand(param);
         }
 
-        [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-        private static void Command_SetStaticSkill(CCSPlayerController? player, CommandInfo command)
-        {
-            Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setstaticskill {command.ArgString} command.");
-            if (!string.IsNullOrEmpty(config.NormalCommands.SetStaticSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetStaticSkillCommand.Permissions)) return;
-            var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => p != null && p.IsValid
-                                                                          && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
-                                                                          || p.PlayerName.Equals(command.GetArg(1), StringComparison.OrdinalIgnoreCase)));
-
-            if (command.ArgCount < 2)
-            {
-                if (player == null)
-                {
-                    Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("correct_form_setskill"));
-                    return;
-                }
-
-                SkillUtils.PrintToChat(player, player.GetTranslationWithoutIlliterate("correct_form_setskill"));
-                return;
-            }
-
-            if (targetPlayer == null)
-            {
-                if (player == null)
-                {
-                    Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("player_not_found_setskill"));
-                    return;
-                }
-
-                SkillUtils.PrintToChat(player, player.GetTranslationWithoutIlliterate("player_not_found_setskill"));
-                return;
-            }
-
-            var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
-
-            if (skill == null)
-            {
-                if (player == null)
-                {
-                    Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("skill_not_found_setskill"));
-                    return;
-                }
-
-                SkillUtils.PrintToChat(player, player.GetTranslationWithoutIlliterate("skill_not_found_setskill"));
-                return;
-            }
-
-            var skillPlayer = PlayerManager.GetPlayer(targetPlayer);
-            if (skillPlayer != null)
-            {
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
-                skillPlayer.Skill = skill.Skill;
-                skillPlayer.SpecialSkill = Skills.None;
-                Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
-
-                if (skill.Skill == Skills.None)
-                    Event.staticSkills.TryRemove(targetPlayer.Key(), out _);
-                else
-                    Event.staticSkills.TryAdd(targetPlayer.Key(), skill);
-                Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
-
-                if (player == null)
-                {
-                    Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("done_setskill"));
-                    return;
-                }
-
-                SkillUtils.PrintToChat(player, $"{player.GetTranslationWithoutIlliterate("done_setskill")}: {ChatColors.LightRed}{player.GetSkillName(skill.Skill)} {ChatColors.Lime}{player.GetTranslationWithoutIlliterate("for_setskill")} {ChatColors.LightRed}\u202A{targetPlayer.PlayerName}\u202C");
-
-                if (skill.Display)
-                    SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(skill.Skill)}", border: "b");
-            }
-            else
-            {
-                if (player == null)
-                {
-                    Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("error_setskill"));
-                    return;
-                }
-
-                SkillUtils.PrintToChat(player, player.GetTranslationWithoutIlliterate("error_setskill"));
-            }
-        }
-
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_ChangeLanguage(CCSPlayerController? player, CommandInfo command)
         {
@@ -585,7 +546,7 @@ namespace src.command
             string fileName = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
             string newLangCode = command.GetArg(1).ToUpper();
             foreach (var langInfo in Config.LoadedConfig.LanguageSystem.LanguageInfos)
-                if (langInfo.IsoCodes.Contains(newLangCode))
+                if (Localization.IsoCodesContain(langInfo.IsoCodes, newLangCode))
                     fileName = langInfo.FileName;
             if (Localization.HasTranslation(newLangCode))
                 fileName = newLangCode.ToLowerInvariant();
@@ -612,6 +573,7 @@ namespace src.command
 
                 SkillData.Invalidate();
                 Event.InvalidateFreezeDisabledCache();
+                Event.RefreshTeamSkillSnapshots();
 
                 if (player != null && player.IsValid)
                     player.PrintToChat($" {ChatColors.Green}{player.GetTranslationWithoutIlliterate("reload")}");
@@ -650,11 +612,7 @@ namespace src.command
                 
                 if (targetPlayer == null)
                 {
-                    if (player == null)
-                    {
-                        Server.PrintToConsole(Localization.GetTranslationWithoutIlliterate("player_not_found_setskill"));
-                        return;
-                    }
+                    // css_next is CLIENT_ONLY, so `player` is always a valid controller here.
                     SkillUtils.PrintToChat(player, player.GetTranslationWithoutIlliterate("player_not_found_setskill"));
                     return;
                 }
@@ -680,7 +638,6 @@ namespace src.command
             nextIndex = ((nextIndex % count) + count) % count;
 
             var skill = skillsList[nextIndex];
-            player.PrintToChat(nextIndex.ToString());
 
             var skillPlayer = PlayerManager.GetPlayer(targetPlayer);
             if (skillPlayer == null) return;
@@ -691,7 +648,7 @@ namespace src.command
 
             nextSkill[targetPlayer.Key()] = nextIndex;
 
-            Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
+            EnableSkillRespectingFreezeTime(targetPlayer, skill.Skill);
             Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
             if (skill.Display)

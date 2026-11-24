@@ -25,12 +25,69 @@ namespace src.command
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
+        /// <summary>
+        /// Validates and normalises the arguments of a vote. The result is later executed as a console
+        /// command, so anything that could chain extra commands (';', quotes, newlines...) is rejected.
+        /// Returns false when the arguments are not acceptable for the given vote type.
+        /// </summary>
+        public static bool TryNormalizeArgs(VoteType voteType, string? rawArgs, out string? args)
+        {
+            args = null;
+            string[] parts = (rawArgs ?? "").Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
+
+            switch (voteType)
+            {
+                case VoteType.ChangeMap:
+                    if (parts.Length == 0 || !IsSafeMapName(parts[0])) return false;
+                    args = parts[0].ToLowerInvariant();
+                    return true;
+
+                case VoteType.SetScore:
+                    if (parts.Length < 2
+                        || !short.TryParse(parts[0], out short ct) || !short.TryParse(parts[1], out short t)
+                        || ct < 0 || t < 0)
+                        return false;
+                    args = $"{ct} {t}";
+                    return true;
+
+                default:
+                    return parts.Length == 0;
+            }
+        }
+
+        private static bool IsSafeMapName(string map)
+        {
+            if (map.Length == 0 || map.Length > 128) return false;
+            foreach (char c in map)
+                if (!(char.IsAsciiLetterOrDigit(c) || c is '_' or '-' or '.' or '/')) return false;
+            return !map.Contains("..");
+        }
+
+        private static (float TimeToVote, float Percentages, float TimeToNext, float TimeToNextSame, int MinPlayers) GetVoteSettings(VoteType voteType)
+        {
+            var cfg = Config.LoadedConfig.VotingCommands;
+            return voteType switch
+            {
+                VoteType.StartGame => (cfg.StartGameCommand.TimeToVote, cfg.StartGameCommand.PercentagesToSuccess, cfg.StartGameCommand.TimeToNextVoting, cfg.StartGameCommand.TimeToNextSameVoting, cfg.StartGameCommand.MinimumPlayersToStartVoting),
+                VoteType.PauseGame => FromVotingCommand(cfg.PauseCommand),
+                VoteType.ShuffleTeam => FromVotingCommand(cfg.ShuffleCommand),
+                VoteType.SwapTeam => FromVotingCommand(cfg.SwapCommand),
+                VoteType.ChangeMap => FromVotingCommand(cfg.ChangeMapCommand),
+                VoteType.SetScore => FromVotingCommand(cfg.SetScoreCommand),
+                _ => (10, 60, 5, 2, 2),
+            };
+        }
+
+        private static (float, float, float, float, int) FromVotingCommand(Config.VotingCommand c)
+            => (c.TimeToVote, c.PercentagesToSuccess, c.TimeToNextVoting, c.TimeToNextSameVoting, c.MinimumPlayersToStartVoting);
+
         private static VoteData? CreateVote(VoteType voteType, string? args = null)
         {
-            var vote = new VoteData(10,
+            var (timeToVote, percentages, timeToNext, timeToNextSame, minPlayers) = GetVoteSettings(voteType);
+            var vote = new VoteData(timeToVote,
                 () => {
                     Server.ExecuteCommand($"{VoteTypeCommands.GetCommand(voteType)}{(!string.IsNullOrEmpty(args) ? $" {args}" : "")}");
-                }, 60, 2, 5, 2, voteType, args);
+                }, percentages, timeToNext, timeToNextSame, minPlayers, voteType, args);
 
             if (vote.MinimumPlayersToStartVoting > Utilities.GetPlayers().Count(p => !p.IsBot))
                 return null;
@@ -56,6 +113,13 @@ namespace src.command
 
         public static void Vote(this CCSPlayerController player, VoteType voteType, string? args = null)
         {
+            if (!TryNormalizeArgs(voteType, args, out args))
+            {
+                string key = voteType == VoteType.SetScore ? "correct_form_setscore" : "invalid_map";
+                player.PrintToChat($" {ChatColors.Red}{player.GetTranslationWithoutIlliterate(key)}");
+                return;
+            }
+
             var vote = votes.Keys.FirstOrDefault(v => v.Type == voteType && v.Args == args && v.GetActive());
             if (vote == null)
             {

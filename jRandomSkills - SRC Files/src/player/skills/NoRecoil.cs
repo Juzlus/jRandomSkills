@@ -75,7 +75,10 @@ namespace src.player.skills
             {
                 player.ReplicateConVar(NoSpreadConVar, "1");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                src.player.Debug.WriteToDebug($"NoRecoil: ReplicateConVar(1) failed for {player.PlayerName}: {ex.Message}", DebugCategory.Skill);
+            }
 
             ResetWeaponState(player);
             ResetViewPunch(player);
@@ -101,7 +104,10 @@ namespace src.player.skills
                 player.ReplicateConVar(NoSpreadConVar, value);
                 originalNoSpreadValues.TryRemove(player.Key(), out _);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                src.player.Debug.WriteToDebug($"NoRecoil: restoring sv_no_spread failed for {player.PlayerName}: {ex.Message}", DebugCategory.Skill);
+            }
         }
 
         public static void OnTick()

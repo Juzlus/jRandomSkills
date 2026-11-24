@@ -111,7 +111,7 @@ namespace src.player
             if (damageHooked)
             {
                 try { Instance.RemoveListener<OnEntityTakeDamagePre>(OnTakeDamage); }
-                catch { }
+                catch (Exception ex) { Server.PrintToConsole($"[jRandomSkills] Debug damage listener removal failed: {ex.Message}"); }
                 damageHooked = false;
             }
 
@@ -180,33 +180,39 @@ namespace src.player
             try
             {
                 Directory.CreateDirectory(debugFolder);
+                PruneOldLogs(debugFolder, "debug_");
                 string path = Path.Combine(debugFolder, $"debug_{sessionId}.txt");
                 return new StreamWriter(path, append: true, System.Text.Encoding.UTF8) { AutoFlush = true };
             }
-            catch
+            catch (Exception ex)
             {
+                Server.PrintToConsole($"[jRandomSkills] Could not open the debug log: {ex.Message}");
                 return null;
             }
         }
 
-        private static void GetAllEntityIndexes()
+        /// <summary>
+        /// Keeps only the newest log files (session ids sort chronologically) so logs/ cannot grow forever.
+        /// The file about to be created counts as one of them.
+        /// </summary>
+        internal static void PruneOldLogs(string folder, string prefix, int keep = 20)
         {
-            if (Instance.GameRules == null) return;
+            try
+            {
+                var old = Directory.GetFiles(folder, $"{prefix}*.txt")
+                    .OrderByDescending(f => Path.GetFileName(f), StringComparer.Ordinal)
+                    .Skip(Math.Max(keep - 1, 0));
 
-            var entities = Utilities.GetAllEntities();
-
-            foreach (var entity in entities)
-                if (entity != null && entity.IsValid && !string.IsNullOrEmpty(entity.DesignerName))
+                foreach (var file in old)
                 {
-                    string text = $"Entity: {entity.DesignerName}, ID: {entity.Index}";
-                    Console.WriteLine(text);
-
-                    string filename = $"debug_{sessionId}.txt";
-                    string path = Path.Combine(debugFolder, filename);
-
-                    Directory.CreateDirectory(debugFolder);
-                    File.AppendAllText(path, text, System.Text.Encoding.UTF8);
+                    try { File.Delete(file); }
+                    catch (IOException) { /* still open by another process: try again next session */ }
                 }
+            }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[jRandomSkills] Log cleanup failed: {ex.Message}");
+            }
         }
     }
 }

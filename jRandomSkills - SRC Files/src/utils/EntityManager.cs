@@ -63,7 +63,7 @@ namespace src.utils
 
             uint handleRaw = 0;
             try { handleRaw = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex)?.EntityHandle.Raw ?? 0; }
-            catch { }
+            catch (Exception ex) { Debug.WriteToDebug($"[Entity] RegisterEntity #{entityIndex}: {ex.Message}", DebugCategory.Entity); }
             if (handleRaw != 0) knownHandles[entityIndex] = handleRaw;
 
             if (alreadyTracked && previous.OwnerKey != ownerKey)
@@ -423,7 +423,9 @@ namespace src.utils
                 var entity = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex);
                 if (entity != null && entity.IsValid)
                 {
-                    if (knownHandles.TryRemove(entityIndex, out var knownRaw) && knownRaw != entity.EntityHandle.Raw)
+                    bool knownMismatch = knownHandles.TryRemove(entityIndex, out var knownRaw) && knownRaw != entity.EntityHandle.Raw;
+                    bool trackedMismatch = wasTracked && removed.HandleRaw != 0 && removed.HandleRaw != entity.EntityHandle.Raw;
+                    if (knownMismatch || trackedMismatch)
                     {
                         if (Config.DebugEnabled(DebugCategory.Entity))
                             Debug.WriteToDebug($"[Entity] skip kill #{entityIndex}: index now holds {entity.DesignerName}", DebugCategory.Entity);
@@ -469,7 +471,7 @@ namespace src.utils
 
             uint beamRaw = 0;
             try { beamRaw = Utilities.GetEntityFromIndex<CBeam>((int)entityIndex)?.EntityHandle.Raw ?? 0; }
-            catch { }
+            catch (Exception ex) { Debug.WriteToDebug($"[Entity] DestroyBeam handle #{entityIndex}: {ex.Message}", DebugCategory.Entity); }
 
             bool killed = DestroyEntity(entityIndex, hideFromTransmit: false);
 
@@ -526,8 +528,39 @@ namespace src.utils
 
         public static void ScheduleAutoDestroy(uint entityIndex, float? seconds)
         {
-            if (seconds is not > 0) return;
-            Instance?.AddTimer(seconds.Value, () => DestroyEntity(entityIndex), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
+            if (seconds is not > 0 || Instance == null) return;
+
+            // Remember which entity we meant: by the time the timer fires, the index may have been
+            // freed (round cleanup) and reused by an unrelated entity that must not be killed.
+            uint expectedHandle = 0;
+            try { expectedHandle = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex)?.EntityHandle.Raw ?? 0; }
+            catch (Exception ex) { Debug.WriteToDebug($"[Entity] ScheduleAutoDestroy #{entityIndex}: {ex.Message}", DebugCategory.Entity); }
+
+            SafeTimer.Add(seconds.Value, () =>
+            {
+                if (expectedHandle != 0)
+                {
+                    CBaseEntity? current = null;
+                    try { current = Utilities.GetEntityFromIndex<CBaseEntity>((int)entityIndex); }
+                    catch (Exception ex) { Debug.WriteToDebug($"[Entity] AutoDestroy #{entityIndex}: {ex.Message}", DebugCategory.Entity); }
+
+                    if (current == null || !current.IsValid || current.EntityHandle.Raw != expectedHandle)
+                    {
+                        // Entity is already gone (or the index was reused): only drop our bookkeeping.
+                        if (trackedEntities.TryGetValue(entityIndex, out var stale) && stale.HandleRaw == expectedHandle
+                            && trackedEntities.TryRemove(entityIndex, out var removedData))
+                        {
+                            RemoveOwned(removedData.OwnerKey, entityIndex);
+                            knownHandles.TryRemove(entityIndex, out _);
+                        }
+                        return;
+                    }
+                }
+                else if (!trackedEntities.ContainsKey(entityIndex))
+                    return;
+
+                DestroyEntity(entityIndex);
+            }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
     }
 }
