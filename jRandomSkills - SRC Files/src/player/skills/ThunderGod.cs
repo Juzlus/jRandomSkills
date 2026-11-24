@@ -31,6 +31,7 @@ namespace src.player.skills
         private static readonly ConcurrentDictionary<uint, uint> pendingDecoys = [];
         private static readonly ConcurrentDictionary<uint, Storm> storms = [];
         private static readonly ConcurrentDictionary<uint, int> decoysLeft = [];
+        private static jRandomSkills? registeredOn;
 
         public static void LoadSkill()
         {
@@ -39,6 +40,10 @@ namespace src.player.skills
             Instance.AddToManifest(lightningParticle);
             Instance.AddToManifest(shockParticle);
             Instance.AddToManifest(tracerParticle);
+
+            // LoadSkill runs again on css_reload; register the global handler only once per plugin instance.
+            if (ReferenceEquals(registeredOn, Instance)) return;
+            registeredOn = Instance;
 
             Instance.RegisterEventHandler<EventDecoyFiring>((@event, _) => { Strike(@event.Entityid); return HookResult.Continue; });
         }

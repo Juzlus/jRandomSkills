@@ -196,12 +196,14 @@ namespace src.utils
             _valueCache.Clear();
         }
 
-        public class SkillsInfoModel : ConcurrentBag<DefaultSkillInfo>
+        // A List (not a ConcurrentBag): the bag enumerates last-in-first-out, which wrote skillsInfo.json in
+        // reverse order. Skills are sorted by name so the file layout is stable and diff friendly.
+        public class SkillsInfoModel : List<DefaultSkillInfo>
         {
             public string Name { get; set; } = "Default";
             public SkillsInfoModel()
             {
-                foreach (var skill in
+                AddRange(
                     Assembly.GetExecutingAssembly().GetTypes()
                         .Where(t => typeof(DefaultSkillInfo).IsAssignableFrom(t) && t.Name == "SkillConfig")
                         .Select(t =>
@@ -212,8 +214,8 @@ namespace src.utils
                             return ctor.Invoke(args) as DefaultSkillInfo;
                         })
                         .Where(instance => instance != null)
-                        .Cast<DefaultSkillInfo>())
-                    Add(skill);
+                        .Cast<DefaultSkillInfo>()
+                        .OrderBy(instance => instance.Name, StringComparer.Ordinal));
             }
         }
 

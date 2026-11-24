@@ -81,7 +81,10 @@ namespace src.player.skills
                     float z = BitConverter.ToSingle(packedParams, 15);
                     soundPos = new Vector(x, y, z);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    src.player.Debug.WriteToDebug($"ThrowingKnife: could not read sound position ({ex.Message})", DebugCategory.Skill);
+                }
             }
             if (soundPos == null) return;
 

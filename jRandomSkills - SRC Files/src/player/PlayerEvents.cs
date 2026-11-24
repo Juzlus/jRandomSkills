@@ -33,9 +33,17 @@ namespace src.player
         private static jSkill_SkillInfo allSkill = noneSkill;
         private static List<jSkill_SkillInfo> debugSkills = [.. SkillData.Skills];
 
-        public static readonly SkillsInfo.DefaultSkillInfo[] terroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.Terrorist)];
-        public static readonly SkillsInfo.DefaultSkillInfo[] counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
-        private static readonly SkillsInfo.DefaultSkillInfo[] allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
+        public static SkillsInfo.DefaultSkillInfo[] terroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.Terrorist)];
+        public static SkillsInfo.DefaultSkillInfo[] counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
+        private static SkillsInfo.DefaultSkillInfo[] allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
+
+        /// <summary>Rebuilds the per-team skill snapshots after skillsInfo.json was reloaded (css_reload).</summary>
+        public static void RefreshTeamSkillSnapshots()
+        {
+            terroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.Terrorist)];
+            counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
+            allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
+        }
 
         private static readonly ConcurrentDictionary<uint, HashSet<Skills>> playersSkills = [];
         public static readonly ConcurrentDictionary<uint, jSkill_SkillInfo> staticSkills = [];
@@ -103,6 +111,10 @@ namespace src.player
 
         public static void Unload()
         {
+            // Strip skill effects and tracked entities first, so nothing outlives the plugin.
+            TryUnhook(DisableAllCore);
+            TryUnhook(RestoreLegacyJump);
+
             TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePre>(OnEntityTakeDamagePre));
             TryUnhook(() => Instance.RemoveListener<OnEntityTakeDamagePost>(OnEntityTakeDamagePost));
             TryUnhook(() => VirtualFunctions.CBaseTrigger_StartTouchFunc.Unhook(OnTriggerEnter, HookMode.Post));
@@ -135,14 +147,28 @@ namespace src.player
             }
         }
 
+        // Number of slots needed to index a per-skill flag by enum value (used with stackalloc below,
+        // which stays safe when a skill handler triggers a nested dispatch - unlike a shared static set).
+        private static readonly int SkillSlots = Enum.GetValues<Skills>().Max(s => (int)s) + 1;
+
         private static void DispatchToActiveSkills(string methodName, params object[] args)
         {
-            var seen = new HashSet<Skills>();
+            Span<bool> seen = stackalloc bool[SkillSlots];
             foreach (var p in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+                if (p.IsDrawing) continue;
+                int slot = (int)p.Skill;
+                if (seen[slot]) continue;
+                seen[slot] = true;
                 InvokeSkill(p.Skill, methodName, args);
             }
+        }
+
+        private static bool AnyPlayerHasSkill(Skills skill)
+        {
+            foreach (var p in Instance.SkillPlayer)
+                if (!p.IsDrawing && p.Skill == skill) return true;
+            return false;
         }
 
         private static void ReleaseCursesTargeting(uint victimKey)
@@ -183,12 +209,15 @@ namespace src.player
 
         private static void DispatchOnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, object[] args, bool post = false)
         {
-            var seen = new HashSet<Skills>();
+            Span<bool> seen = stackalloc bool[SkillSlots];
             List<Skills>? deferred = null;
 
             foreach (var p in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+                if (p.IsDrawing) continue;
+                int slot = (int)p.Skill;
+                if (seen[slot]) continue;
+                seen[slot] = true;
 
                 if (Array.IndexOf(lateDamageSkills, p.Skill) >= 0)
                 {
@@ -859,7 +888,6 @@ namespace src.player
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (attacker == null || victim == attacker) return HookResult.Continue;
 
-                if (victim == attacker) return HookResult.Continue;
                 if (Config.LoadedConfig.KillerSkillChatInfo)
                 {
                     var attackerInfo = PlayerManager.GetPlayer(attacker);

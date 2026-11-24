@@ -16,10 +16,15 @@ namespace src.player.skills
 
         private static readonly ConcurrentDictionary<uint, Throw> throws = [];
         private static bool spawningEcho;
+        private static jRandomSkills? registeredOn;
 
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+
+            // LoadSkill runs again on css_reload; register the global handlers only once per plugin instance.
+            if (ReferenceEquals(registeredOn, Instance)) return;
+            registeredOn = Instance;
 
             Instance.RegisterEventHandler<EventHegrenadeDetonate>((@event, _) => { Detonated(@event.Entityid); return HookResult.Continue; });
             Instance.RegisterEventHandler<EventFlashbangDetonate>((@event, _) => { Detonated(@event.Entityid); return HookResult.Continue; });

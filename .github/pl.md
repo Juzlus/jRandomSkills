@@ -77,6 +77,7 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Drakula              | Po trafieniu ofiary odzyskujesz zdrowie równe pewnemu procentowi zadanych obrażeń                                 | -               |
 | Droga Amunicja       | Wybrany przeciwnik musi płacić za każdy oddany strzał                                                             | -               |
 | Druga Szansa         | Po śmierci odradzasz się z taką samą ilością zdrowia                                                              | -               |
+| Drugi Oddech         | Raz na rundę trafienie, po którym zostałoby ci 30 HP lub mniej, leczy cię o 40 HP i zmniejsza otrzymywane obrażenia o 50% na 3 s | +40 HP, -50% obrażeń |
 | Duplikator           | Wybierasz gracza, od którego chcesz skopiować supermoc                                                            | -               |
 | Duszek               | Jesteś całkowicie niewidzialny                                                                                    | -               |
 | Dzikie Rzuty         | Wybierz gracza, który będzie miał trudności z rzucaniem granatami                                                 | -               |
@@ -145,8 +146,10 @@ Kupujesz serwer na pukawce? Skorzystaj z mojego [kodu polecającego](https://puk
 | Oko Demona           | Zadajesz obrażenia każdemu przeciwnikowi, na którego patrzysz                                                     | 2 s             |
 | Oko Sokoła           | Kliknij [css_useSkill], aby aktywować kamerę z lotu ptaka                                                         | -               |
 | Olbrzym              | Powiększ wybranego przeciwnika                                                                                    | (110 - 140)%    |
+| Ostatni Bastion      | Gdy zostajesz ostatnim żywym w drużynie, natychmiast leczysz 50 HP i otrzymujesz 100 pancerza                     | +50 HP, 100 pancerza |
 | Ostatnie Tchnienie   | Po śmierci zadajesz obrażenia przeciwnikowi, który Cię zabił                                                      | 30 HP           |
 | Ostrożne Pociski     | Wybierz gracza, który otrzymuje obrażenia za każdy niecelny strzał                                                | -               |
+| Padlinożerca         | Za każde zabójstwo odzyskujesz 25 HP i dostajesz 300$                                                             | +25 HP, +300$   |
 | Pajacyk              | Skakanie przywraca zdrowie                                                                                        | -               |
 | Pancernik            | Granaty nie zadają Ci obrażeń                                                                                     | -               |
 | Pancerz Reaktywny    | Pancerz pochłania pierwsze otrzymane obrażenia                                                                    | 15 s            |

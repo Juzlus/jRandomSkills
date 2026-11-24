@@ -264,6 +264,7 @@ namespace src.player
                 playersCustomFOV.Clear();
                 playersSkills.Clear();
                 staticSkills.Clear();
+                src.command.Command.ClearNextSkill();
 
                 ctSkill = noneSkill;
                 tSkill = noneSkill;
@@ -271,8 +272,21 @@ namespace src.player
 
                 PlayerManager.Clear();
 
-                if (SkillUtils.Cvar("sv_legacy_jump") is { } legacyJump) legacyJump.ValueAsString = "1";
+                if (SkillUtils.Cvar("sv_legacy_jump") is { } legacyJump)
+                {
+                    originalLegacyJump ??= legacyJump.ValueAsString;
+                    legacyJump.ValueAsString = "1";
+                }
             }
+        }
+
+        private static string? originalLegacyJump;
+
+        private static void RestoreLegacyJump()
+        {
+            if (originalLegacyJump == null) return;
+            if (SkillUtils.Cvar("sv_legacy_jump") is { } legacyJump) legacyJump.ValueAsString = originalLegacyJump;
+            originalLegacyJump = null;
         }
 
         private static HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
@@ -777,15 +791,23 @@ namespace src.player
             {
                 var validPlayers = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).ToList();
 
+                // TeamSkills: a late joiner must receive the skill their team already has this round.
+                // Only roll a team skill if none was set yet (never re-roll it under teammates' feet).
                 if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
                 {
-                    List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
-                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
-                    tSkill = tSkills.Count == 0 ? noneSkill : tSkills[0];
+                    if (tSkill.Skill == Skills.None)
+                    {
+                        List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
+                        tSkills.RemoveAll(s => s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                        tSkill = tSkills.Count == 0 ? noneSkill : tSkills[Instance.Random.Next(tSkills.Count)];
+                    }
 
-                    List<jSkill_SkillInfo> ctSkills = [.. SkillData.Skills];
-                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
-                    ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[0];
+                    if (ctSkill.Skill == Skills.None)
+                    {
+                        List<jSkill_SkillInfo> ctSkills = [.. SkillData.Skills];
+                        ctSkills.RemoveAll(s => s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                        ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[Instance.Random.Next(ctSkills.Count)];
+                    }
                 }
 
                 if (player == null) return;
@@ -807,38 +829,7 @@ namespace src.player
                         randomSkill = staticSkill;
                     else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
                     {
-                        List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-                        skillList.RemoveAll(s => s?.Skill == Skills.None);
-                        if (!player.IsBot)
-                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !HasPermission(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
-
-                        if (gameMode != Config.GameModes.FullRandom)
-                            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
-
-                        if (validPlayers.Count(p => p.Team == player.Team) == 1)
-                        {
-                            SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = [.. SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates)];
-                            skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
-                        }
-
-                        if (player.Team == CsTeam.Terrorist)
-                            skillList.RemoveAll(s => counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
-                        else
-                            skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
-
-                        if (SkillUtils.IsPistolRound())
-                            skillList.RemoveAll(s => SkillsInfo.GetValue<bool>(s.Skill, "disableOnPistolRound"));
-
-                        SkillsInfo.DefaultSkillInfo[] skillsMinPlayer = [.. SkillsInfo.LoadedConfig.Where(s => s.MinPlayer > 0 && validPlayers.Count < s.MinPlayer)];
-                        if (skillsMinPlayer.Length != 0)
-                            skillList.RemoveAll(s => skillsMinPlayer.Any(s2 => s2.Name == s.Skill.ToString()));
-
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Key(), out HashSet<Skills>? skills))
-                        {
-                            skillList.RemoveAll(s => skills.Contains(s.Skill));
-                            if (skillList.Count == 0) skills.Clear();
-                        }
-
+                        // Same pick pipeline as the round-start assignment (permissions, team, pistol round, NoRepeat...).
                         var assignmentCounts = new Dictionary<Skills, int>();
                         foreach (var sp in Instance.SkillPlayer)
                         {
@@ -847,7 +838,7 @@ namespace src.player
                             else assignmentCounts[sp.Skill] = 1;
                         }
 
-                        randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode, IsVip(player));
+                        randomSkill = PickSkillForPlayer(player, skillPlayer, BuildPickContext(validPlayers), assignmentCounts, gameMode);
                     }
                     else if (gameMode == Config.GameModes.TeamSkills)
                         randomSkill = player.Team == CsTeam.Terrorist ? tSkill : ctSkill;

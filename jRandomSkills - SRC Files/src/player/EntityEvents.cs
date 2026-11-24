@@ -95,8 +95,7 @@ namespace src.player
                 object[] args = [entity, info];
                 DispatchOnTakeDamage(entity, info, args);
 
-                if (Fortnite.skillInThisRound == true &&
-                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
+                if (Fortnite.skillInThisRound == true && !AnyPlayerHasSkill(Skills.Fortnite))
                     Instance.SkillAction("Fortnite", "OnTakeDamage", args);
 
                 SkillUtils.ApplyNativeKill(entity, info);
@@ -188,15 +187,18 @@ namespace src.player
                 CCSWeaponBaseVData vdata = VirtualFunctions.GetCSWeaponDataFromKeyFunc.Invoke(-1, econItem.ItemDefinitionIndex.ToString());
                 if (vdata == null || vdata.Handle == IntPtr.Zero) return HookResult.Continue;
 
-                var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
-                    .Select(p => p.Skill.ToString())
-                    .Distinct();
-
                 bool block = false;
-                foreach (string skillName in activeSkills)
+                Span<bool> seen = stackalloc bool[SkillSlots];
+                object[]? args = null;
+                foreach (var p in Instance.SkillPlayer)
                 {
-                    bool? result = (bool?)Instance.SkillAction(skillName, "OnWeaponCanAcquire", [hook, player, econItem, vdata]);
+                    if (p.IsDrawing) continue;
+                    int slot = (int)p.Skill;
+                    if (seen[slot]) continue;
+                    seen[slot] = true;
+
+                    args ??= [hook, player, econItem, vdata];
+                    bool? result = (bool?)Instance.SkillAction(SkillNames.Get(p.Skill), "OnWeaponCanAcquire", args);
                     if (result == true)
                     {
                         block = true;

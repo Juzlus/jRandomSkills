@@ -136,7 +136,10 @@ namespace src.player.skills
 
             Color color = Color.White;
             try { color = ColorTranslator.FromHtml(SkillsInfo.GetValue<string>(skillName, "color")); }
-            catch { }
+            catch (Exception ex)
+            {
+                src.player.Debug.WriteToDebug($"Rewind: invalid marker color, using white ({ex.Message})", DebugCategory.Skill);
+            }
 
             Vector bottom = new(skillInfo.Mark.X, skillInfo.Mark.Y, skillInfo.Mark.Z + 2);
             Vector top = new(skillInfo.Mark.X, skillInfo.Mark.Y, skillInfo.Mark.Z + 68);

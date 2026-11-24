@@ -767,5 +767,18 @@
 
   "menu_controlls_scroll": "W/S - Rolar",
   "menu_controlls_padding": "    |    ",
-  "menu_controlls_select": "E - Selecionar"
+  "menu_controlls_select": "E - Selecionar",
+  "set_health": "A vida foi definida.",
+  "planted_bomb_spawned": "Uma bomba plantada foi criada. Ela explodirá em {0} segundos.",
+  "bot_placed_not_found": "Nenhum bot encontrado para posicionar.",
+  "bot_placed": "O bot foi posicionado na sua posição.",
+  "selectplayerskill_used_info": "Sua habilidade já foi usada.",
+  "secondwind": "Segundo Fôlego",
+  "secondwind_desc": "Uma vez por rodada, um golpe que deixaria você com {0} de vida ou menos cura instantaneamente {1} de vida e reduz o dano recebido em {2}% por {3} s",
+  "secondwind_triggered": "Segundo Fôlego ativado!",
+  "scavenger": "Catador",
+  "scavenger_desc": "Cada abate restaura {0} de vida e dá a você {1}$",
+  "laststand": "Última Resistência",
+  "laststand_desc": "Quando você se torna o último sobrevivente da equipe, recupera {0} de vida instantaneamente e recebe {1} de colete",
+  "laststand_triggered": "Última Resistência! Você é o último de pé."
 }

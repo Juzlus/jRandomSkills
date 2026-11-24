@@ -767,5 +767,18 @@
 
   "menu_controlls_scroll": "W/S - Défilement",
   "menu_controlls_padding": "    |    ",
-  "menu_controlls_select": "E - Sélectionner"
+  "menu_controlls_select": "E - Sélectionner",
+  "set_health": "La santé a été définie.",
+  "planted_bomb_spawned": "Une bombe plantée a été créée. Elle explosera dans {0} secondes.",
+  "bot_placed_not_found": "Aucun bot à placer n'a été trouvé.",
+  "bot_placed": "Le bot a été placé à votre position.",
+  "selectplayerskill_used_info": "Votre compétence a déjà été utilisée.",
+  "secondwind": "Second souffle",
+  "secondwind_desc": "Une fois par round, un tir qui vous laisserait à {0} PV ou moins vous soigne instantanément de {1} PV et réduit les dégâts subis de {2}% pendant {3} s",
+  "secondwind_triggered": "Second souffle activé !",
+  "scavenger": "Charognard",
+  "scavenger_desc": "Chaque élimination restaure {0} PV et vous donne {1}$",
+  "laststand": "Dernier rempart",
+  "laststand_desc": "Lorsque vous devenez le dernier survivant de votre équipe, vous récupérez instantanément {0} PV et obtenez {1} d'armure",
+  "laststand_triggered": "Dernier rempart ! Vous êtes le dernier debout."
 }

@@ -251,6 +251,7 @@ namespace src.player
                     if (_writer == null)
                     {
                         Directory.CreateDirectory(logsFolder);
+                        Debug.PruneOldLogs(logsFolder, "perf_");
                         _writer = new StreamWriter(Path.Combine(logsFolder, $"perf_{sessionId}.txt"), append: true, System.Text.Encoding.UTF8) { AutoFlush = true };
                     }
                     _writer.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [PERF] {message}");

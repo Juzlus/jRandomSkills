@@ -767,5 +767,18 @@
 
   "menu_controlls_scroll": "W/S – Scrollen",
   "menu_controlls_padding": "    |    ",
-  "menu_controlls_select": "E – Auswählen"
+  "menu_controlls_select": "E – Auswählen",
+  "set_health": "Die Gesundheit wurde gesetzt.",
+  "planted_bomb_spawned": "Eine gelegte Bombe wurde erzeugt. Sie explodiert in {0} Sekunden.",
+  "bot_placed_not_found": "Kein Bot zum Platzieren gefunden.",
+  "bot_placed": "Der Bot wurde an deiner Position platziert.",
+  "selectplayerskill_used_info": "Deine Fähigkeit wurde bereits benutzt.",
+  "secondwind": "Zweiter Atem",
+  "secondwind_desc": "Einmal pro Runde heilt dich ein Treffer, der dich auf {0} HP oder weniger bringen würde, sofort um {1} HP und senkt den erlittenen Schaden {3} s lang um {2}%",
+  "secondwind_triggered": "Zweiter Atem aktiviert!",
+  "scavenger": "Plünderer",
+  "scavenger_desc": "Jeder Kill stellt {0} HP wieder her und gibt dir {1}$",
+  "laststand": "Letztes Gefecht",
+  "laststand_desc": "Wenn du der letzte Überlebende deines Teams wirst, heilst du sofort {0} HP und erhältst {1} Rüstung",
+  "laststand_triggered": "Letztes Gefecht! Du bist der Letzte, der noch steht."
 }

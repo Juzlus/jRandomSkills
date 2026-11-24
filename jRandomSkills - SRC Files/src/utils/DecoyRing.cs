@@ -117,7 +117,10 @@ namespace src.utils
                 if (!string.IsNullOrEmpty(hex))
                     return ColorTranslator.FromHtml(hex);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                src.player.Debug.WriteToDebug($"DecoyRing: invalid color for {skill}, using white ({ex.Message})", DebugCategory.Skill);
+            }
 
             return Color.White;
         }

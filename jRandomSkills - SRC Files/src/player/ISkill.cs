@@ -28,7 +28,6 @@ public interface ISkill
     public static bool PlayerHurtPre(EventPlayerHurt _) { return false; }
     public static void PlayerDeath(EventPlayerDeath _) { }
     public static void PlayerJump(EventPlayerJump _) { }
-    public static void SwitchTeam(EventSwitchTeam _, GameEventInfo __) { }
     public static void BotTakeover(EventBotTakeover _) { }
 
     public static void WeaponFire(EventWeaponFire _) { }
@@ -152,6 +151,7 @@ public enum Skills
     KillerFlash,
     Knockback,
     LastGasp,
+    LastStand,
     LifeSwap,
     LongKnife,
     LongZeus,
@@ -198,7 +198,9 @@ public enum Skills
     RobinHood,
     Rubber,
     Saper,
+    Scavenger,
     SecondLife,
+    SecondWind,
     Shade,
     ShortBomb,
     Silent,

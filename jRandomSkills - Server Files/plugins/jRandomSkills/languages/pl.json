@@ -767,5 +767,18 @@
 
   "menu_controlls_scroll": "W/S – Przewijanie",
   "menu_controlls_padding": "    |    ",
-  "menu_controlls_select": "E - Wybierz"
+  "menu_controlls_select": "E - Wybierz",
+  "set_health": "Zdrowie zostało ustawione.",
+  "planted_bomb_spawned": "Podłożona bomba została utworzona. Wybuchnie za {0} s.",
+  "bot_placed_not_found": "Nie znaleziono bota do ustawienia.",
+  "bot_placed": "Bot został ustawiony na twojej pozycji.",
+  "selectplayerskill_used_info": "Twoja umiejętność została już użyta.",
+  "secondwind": "Drugi oddech",
+  "secondwind_desc": "Raz na rundę trafienie, po którym zostałoby ci {0} HP lub mniej, natychmiast leczy cię o {1} HP i zmniejsza otrzymywane obrażenia o {2}% na {3} s",
+  "secondwind_triggered": "Drugi oddech zadziałał!",
+  "scavenger": "Padlinożerca",
+  "scavenger_desc": "Za każde zabójstwo odzyskujesz {0} HP i dostajesz {1}$",
+  "laststand": "Ostatni bastion",
+  "laststand_desc": "Gdy zostajesz ostatnim żywym w drużynie, natychmiast leczysz {0} HP i otrzymujesz {1} pancerza",
+  "laststand_triggered": "Ostatni bastion! Zostałeś ostatnim żywym."
 }

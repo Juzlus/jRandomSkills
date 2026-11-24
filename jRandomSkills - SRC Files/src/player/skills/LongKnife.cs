@@ -46,10 +46,11 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            if (hooked || Shoot_Secondary == null) return;
+            if (Shoot_Secondary == null) return;
+            playersInAction.TryAdd(player.Key(), 0);
+            if (hooked) return;
             hooked = true;
             Shoot_Secondary.Hook(ShootSecondary, HookMode.Pre);
-            playersInAction.TryAdd(player.Key(), 0);
         }
 
         public static void DisableSkill(CCSPlayerController player)

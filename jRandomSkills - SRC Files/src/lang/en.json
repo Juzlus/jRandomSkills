@@ -767,5 +767,18 @@
 
   "menu_controlls_scroll": "W/S - Scroll",
   "menu_controlls_padding": "   |   ",
-  "menu_controlls_select": "E - Select"
+  "menu_controlls_select": "E - Select",
+  "set_health": "Health has been set.",
+  "planted_bomb_spawned": "Planted bomb spawned. It will explode in {0} seconds.",
+  "bot_placed_not_found": "No bot found to place.",
+  "bot_placed": "The bot has been placed at your position.",
+  "selectplayerskill_used_info": "Your skill has already been used.",
+  "secondwind": "Second Wind",
+  "secondwind_desc": "Once per round, a hit that would leave you at {0} HP or less instantly heals you for {1} HP and cuts the damage you take by {2}% for {3} s",
+  "secondwind_triggered": "Second Wind kicked in!",
+  "scavenger": "Scavenger",
+  "scavenger_desc": "Every kill restores {0} HP and gives you {1}$",
+  "laststand": "Last Stand",
+  "laststand_desc": "When you become the last survivor of your team, you instantly heal {0} HP and get {1} armor",
+  "laststand_triggered": "Last Stand! You are the last one standing."
 }

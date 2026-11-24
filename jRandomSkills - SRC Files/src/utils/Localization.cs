@@ -88,22 +88,45 @@ namespace src.utils
                 return;
 
             var code = Path.GetFileNameWithoutExtension(langPath).ToLowerInvariant();
-            var jsonText = File.ReadAllText(langPath);
-            var translations = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(jsonText);
 
-            if (translations != null)
+            // One broken language file must not take the whole plugin down.
+            try
             {
-                string redColor = ChatColors.Red.ToString();
-                string? altButton = Config.LoadedConfig.AlternativeSkillButton;
-                foreach (var tkey in translations.Keys.ToList())
+                var jsonText = File.ReadAllText(langPath);
+                var translations = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(jsonText);
+
+                if (translations != null)
                 {
-                    var val = translations[tkey].Replace("CHATCOLORS.RED", redColor);
-                    if (!string.IsNullOrEmpty(altButton))
-                        val = val.Replace("css_useSkill", $"css_useSkill/{altButton}");
-                    translations[tkey] = val;
+                    string redColor = ChatColors.Red.ToString();
+                    string? altButton = Config.LoadedConfig.AlternativeSkillButton;
+                    foreach (var tkey in translations.Keys.ToList())
+                    {
+                        var val = (translations[tkey] ?? "").Replace("CHATCOLORS.RED", redColor);
+                        if (!string.IsNullOrEmpty(altButton))
+                            val = val.Replace("css_useSkill", $"css_useSkill/{altButton}");
+                        translations[tkey] = val;
+                    }
+                    _translations.AddOrUpdate(code, translations, (k, v) => translations);
                 }
-                _translations.AddOrUpdate(code, translations, (k, v) => translations);
             }
+            catch (Exception ex)
+            {
+                Server.PrintToConsole($"[jRandomSkills] Failed to load language file '{Path.GetFileName(langPath)}': {ex.Message}");
+                Debug.WriteToDebug($"Failed to load language file '{langPath}': {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Exact (whole-token, case-insensitive) match of an ISO country/language code in the configured
+        /// comma separated list. A plain string.Contains would also match substrings ("A" in "AU").
+        /// </summary>
+        public static bool IsoCodesContain(string? isoCodes, string? code)
+        {
+            if (string.IsNullOrWhiteSpace(isoCodes) || string.IsNullOrWhiteSpace(code)) return false;
+            foreach (var token in isoCodes.Split([',', ';', ' '], StringSplitOptions.RemoveEmptyEntries))
+                if (token.Equals(code.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return true;
+            return false;
         }
 
         public static bool HasTranslation(string code)
@@ -251,17 +274,20 @@ namespace src.utils
                 if (key == null)
                 {
                     player.PrintToChat(message);
-                    return;
+                    continue;
                 }
 
-                ConcurrentBag<string> translations = [];
+                // A List (not a ConcurrentBag) keeps the translations in key order for string.Format.
+                List<string> translations = new(key.Length);
                 for (int i = 0; i < key.Length; i++)
                 {
                     object[] currentArgs = args != null && i < args.Length ? args[i] : [];
                     string translation = GetTranslation(key[i], langCode, null, useIlliterate, currentArgs);
                     translations.Add(translation);
                 }
-                player.PrintToChat(string.Format(message, [.. translations]));
+
+                try { player.PrintToChat(string.Format(message, [.. translations])); }
+                catch (FormatException ex) { Debug.WriteToDebug($"PrintTranslationToChatAll format error: {ex.Message}"); }
             }
         }
 
@@ -286,11 +312,19 @@ namespace src.utils
         {
             langCode ??= defaultLangCode;
             if (_translations.TryGetValue(langCode, out var langDict) && langDict.TryGetValue(key, out var translation))
-                if (args.Length != 0 && args[0].ToString() == "welcome")
+                if (args.Length != 0 && args[0]?.ToString() == "welcome")
                     return translation;
                 else
                 {
-                    string output = args.Length == 0 ? translation : string.Format(translation, args);
+                    string output = translation;
+                    if (args.Length != 0)
+                    {
+                        try { output = string.Format(translation, args); }
+                        catch (FormatException ex)
+                        {
+                            Debug.WriteToDebug($"Bad format in translation '{key}' ({langCode}): {ex.Message}");
+                        }
+                    }
 
                     if (useIlliterate && Illiterate.CheckIlliterateSkill(player))
                         return Illiterate.GetRandomText(output)!;
@@ -371,7 +405,7 @@ namespace src.utils
                 {
                     string fileName = Config.LoadedConfig.LanguageSystem.DefaultLangCode;
                     foreach (var langInfo in Config.LoadedConfig.LanguageSystem.LanguageInfos)
-                        if (langInfo.IsoCodes.Contains(isoCode))
+                        if (IsoCodesContain(langInfo.IsoCodes, isoCode))
                             fileName = langInfo.FileName;
                     if (_translations.ContainsKey(fileName))
                         return fileName;
