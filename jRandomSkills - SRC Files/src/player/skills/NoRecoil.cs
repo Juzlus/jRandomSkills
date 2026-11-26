@@ -132,13 +132,48 @@ namespace src.player.skills
             }
         }
 
+        private sealed class WeaponCache
+        {
+            public uint PawnRaw;
+            public CCSPlayerPawn? Pawn;
+            public CPlayer_WeaponServices? Services;
+            public uint WeaponRaw;
+            public CCSWeaponBaseVData? VData;
+        }
+
+        private static readonly Dictionary<nint, WeaponCache> weaponCache = [];
+
         private static CCSWeaponBaseVData? GetActiveWeaponVData(CCSPlayerController player)
         {
-            var weapon = player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            if (!weaponCache.TryGetValue(player.Handle, out var cache))
+                weaponCache[player.Handle] = cache = new WeaponCache();
+
+            uint pawnRaw = player.PlayerPawn.Raw;
+            if (pawnRaw != cache.PawnRaw || cache.Pawn == null || !cache.Pawn.IsValid)
+            {
+                cache.PawnRaw = pawnRaw;
+                cache.Pawn = player.PlayerPawn.Value;
+                cache.Services = cache.Pawn?.WeaponServices;
+                cache.WeaponRaw = 0;
+                cache.VData = null;
+            }
+
+            var services = cache.Services;
+            if (services == null) return null;
+
+            uint weaponRaw = services.ActiveWeapon.Raw;
+            if (weaponRaw == cache.WeaponRaw) return cache.VData;
+
+            cache.WeaponRaw = weaponRaw;
+            cache.VData = null;
+            if (weaponRaw == 0 || weaponRaw == uint.MaxValue) return null;
+
+            var weapon = services.ActiveWeapon.Value;
             if (weapon == null || !weapon.IsValid) return null;
 
             var vdata = weapon.As<CCSWeaponBase>().VData;
-            return vdata == null || vdata.Handle == IntPtr.Zero ? null : vdata;
+            cache.VData = vdata == null || vdata.Handle == IntPtr.Zero ? null : vdata;
+            return cache.VData;
         }
 
         private static void PatchSpread(CCSWeaponBaseVData vdata)
@@ -202,6 +237,7 @@ namespace src.player.skills
         {
             activePatches.Clear();
             spreadPatches.Clear();
+            weaponCache.Clear();
         }
 
         public static void WeaponFire(EventWeaponFire @event)

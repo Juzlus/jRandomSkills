@@ -45,8 +45,8 @@ namespace src.player.skills
                 pawn.CameraServices.CsViewPunchAngleTick = 0;
                 pawn.CameraServices.CsViewPunchAngleTickRatio = 0f;
 
-                Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick", Server.TickCount);
-                Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick", Server.TickCount);
+                Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick", SkillUtils.Tick);
+                Schema.SetSchemaValue<Int32>(weapon.Handle, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick", SkillUtils.Tick);
             }
         }
 

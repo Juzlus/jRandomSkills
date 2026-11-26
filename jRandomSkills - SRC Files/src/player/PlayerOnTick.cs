@@ -14,34 +14,47 @@ namespace src.player
         {
             Instance.RegisterListener<OnTick>(() =>
             {
-                UpdateGameRules();
-                long panoramaStart = PanoramaHud.Enabled ? PerfLog.Start() : 0;
-                PanoramaHud.OnTick();
-                PerfLog.Sample("OnTick(panorama)", panoramaStart);
-                if (!SkillUtils.IsHudFrame()) return;
-
-                if (PerfLog.Enabled && Server.TickCount % 1920 == 0 && !PlayerManager.IsServerIdle())
-                {
-                    int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
-                    var (tracked, owners) = EntityManager.GetStatistics();
-                    PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}{EntityManager.DescribeTracked()}{Event.PerfContext()}");
-                    PerfLog.Info(PerfLog.ProcessStats());
-                }
-
-                long perfStart = PerfLog.Start();
-                // Shared per-tick controller snapshot: the skill OnTick loop already scans the
-                // player list this frame, so reuse that native scan instead of running a second one.
-                var now = DateTime.Now;
-                foreach (var player in PlayerManager.GetTickPlayers())
-                {
-                    if (player != null && player.IsValid)
-                        UpdatePlayerHud(player, now);
-                }
-                PerfLog.Sample("OnTick(hud)", perfStart);
+                SkillUtils.BeginFrame();
+                try { HudTick(); }
+                finally { SkillUtils.EndFrame(); }
             });
 
             Instance.RegisterListener<OnMapStart>(OnMapStart);
             Instance.RegisterListener<OnMapEnd>(OnMapEnd);
+        }
+
+        private static void HudTick()
+        {
+            UpdateGameRules();
+            long panoramaStart = PanoramaHud.Enabled ? PerfLog.Start() : 0;
+            PanoramaHud.OnTick();
+            PerfLog.Sample("OnTick(panorama)", panoramaStart);
+            if (!SkillUtils.IsHudFrame()) return;
+
+            if (PerfLog.Enabled && SkillUtils.Tick % 1920 == 0 && !PlayerManager.IsServerIdle())
+            {
+                int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
+                var (tracked, owners) = EntityManager.GetStatistics();
+                PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}{EntityManager.DescribeTracked()}{Event.PerfContext()}");
+                PerfLog.Info(PerfLog.ProcessStats());
+            }
+
+            long perfStart = PerfLog.Start();
+            // Shared per-tick controller snapshot: the skill OnTick loop already scans the
+            // player list this frame, so reuse that native scan instead of running a second one.
+            // No skill HUD during warmup or after the match ended.
+            var gameRules = Instance?.GameRules;
+            if (gameRules != null && gameRules.WarmupPeriod != true && gameRules.GamePhase < 5)
+            {
+                var now = DateTime.Now;
+                int tick = SkillUtils.Tick;
+                foreach (var player in PlayerManager.GetTickPlayers())
+                {
+                    if (player != null && player.IsValid)
+                        UpdatePlayerHud(player, now, tick);
+                }
+            }
+            PerfLog.Sample("OnTick(hud)", perfStart);
         }
 
         private static void OnMapStart(string mapName)
@@ -83,16 +96,12 @@ namespace src.player
                 Instance.GameRules.GameRestart = Instance.GameRules.RestartRoundTime < Server.CurrentTime;
         }
 
-        private static void UpdatePlayerHud(CCSPlayerController player, DateTime now)
+        private static void UpdatePlayerHud(CCSPlayerController player, DateTime now, int tick)
         {
             if (player == null || !player.IsValid || player.IsBot) return;
 
-            // No skill HUD during warmup or after the match ended.
-            var gameRules = Instance?.GameRules;
-            if (gameRules == null || gameRules.WarmupPeriod == true || gameRules.GamePhase >= 5) return;
-
             var skillPlayer = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
-            if (skillPlayer == null || skillPlayer.HideHUD >= Server.TickCount) return;
+            if (skillPlayer == null || skillPlayer.HideHUD >= tick) return;
 
             if (skillPlayer.HudSuppressedUntil > now) return;
 
@@ -134,8 +143,7 @@ namespace src.player
 
                     if (skillInfo != null)
                     {
-                        infoLine = player.GetTranslationWithoutIlliterate("your_skill");
-                        skillLine = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
+                        (infoLine, skillLine) = SkillLines(player, skillPlayer, skillInfo);
 
                         if (skillInfo.Skill != Skills.None)
                         {
@@ -157,13 +165,10 @@ namespace src.player
                     skillPlayer.HudOnDeathBlocked ??= AdminManager.PlayerHasPermissions(player, Config.LoadedConfig.DisableHUDOnDeathPermission);
                     if (skillPlayer.HudOnDeathBlocked == true) return;
 
-                    var pawn = player.Pawn.Value;
-                    if (pawn?.ObserverServices == null) return;
+                    uint targetRaw = player.Pawn.Value?.ObserverServices?.ObserverTarget.Raw ?? 0;
+                    if (targetRaw == 0 || targetRaw == 0xFFFFFFFF) return;
 
-                    var observerTarget = pawn.ObserverServices.ObserverTarget?.Value;
-                    if (observerTarget == null || !observerTarget.IsValid) return;
-
-                    var observedPlayer = PlayerManager.GetControllerByPawn(observerTarget.Handle);
+                    var observedPlayer = PlayerManager.GetControllerByPawnIndex(targetRaw & 0x7FFF);
                     if (observedPlayer == null) return;
 
                     var observedEvent = PlayerManager.GetPlayerEvent(observedPlayer);
@@ -210,6 +215,29 @@ namespace src.player
             if (string.IsNullOrEmpty(skillLine)) return;
 
             Event.UpdateSkillHUD(player, skillPlayer, infoLine, skillLine, remainingLine, isDescription, descriptionLine);
+        }
+
+        private static (string Info, string Line) SkillLines(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, jSkill_SkillInfo skillInfo)
+        {
+            if (skills.Illiterate.CheckIlliterateSkill(player))
+                return (player.GetTranslationWithoutIlliterate("your_skill"), $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>");
+
+            string lang = Localization.LangCodeOf(player);
+            var cache = skillPlayer.HudLines ??= new HudLineCache();
+            if (cache.Line == null
+                || cache.Skill != skillInfo.Skill
+                || cache.Chance != skillPlayer.SkillChance
+                || !string.Equals(cache.Lang, lang, StringComparison.Ordinal)
+                || !ReferenceEquals(cache.Color, skillInfo.Color))
+            {
+                cache.Skill = skillInfo.Skill;
+                cache.Chance = skillPlayer.SkillChance;
+                cache.Lang = lang;
+                cache.Color = skillInfo.Color;
+                cache.Info = player.GetTranslationWithoutIlliterate("your_skill");
+                cache.Line = $"<font color='{skillInfo.Color}'>{player.GetSkillName(skillInfo.Skill, skillPlayer.SkillChance)}</font>";
+            }
+            return (cache.Info!, cache.Line);
         }
     }
 }

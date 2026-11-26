@@ -16,7 +16,7 @@ namespace src.utils
                 var observers = SkillUtils.GetFirstPersonObservers();
                 if (viewers.Count == 0 && observers.Count == 0) return;
 
-                bool refresh = refreshTicks > 0 && Server.TickCount % refreshTicks == 0;
+                bool refresh = refreshTicks > 0 && SkillUtils.Tick % refreshTicks == 0;
 
                 stale.Clear();
                 foreach (var (viewerKey, targetKey) in viewers)

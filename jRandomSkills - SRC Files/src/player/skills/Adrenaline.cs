@@ -103,7 +103,7 @@ namespace src.player.skills
 
             float steal = Math.Max(0f, SkillsInfo.GetValue<float>(skillName, "stealPerHit"));
             float maxDrain = Math.Clamp(SkillsInfo.GetValue<float>(skillName, "maxSpeedLoss"), 0f, .95f);
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             ulong pair = (ulong)attacker.Key() << 32 | victim.Key();
 
             lock (setLock)

@@ -82,7 +82,7 @@ namespace src.player.skills
 
             skillInfo.Mark = new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z);
             skillInfo.MarkAngle = new QAngle(0, pawn.V_angle.Y, 0);
-            skillInfo.ReturnTick = Server.TickCount + (int)(SkillsInfo.GetValue<float>(skillName, "returnDelay") * 64);
+            skillInfo.ReturnTick = SkillUtils.Tick + (int)(SkillsInfo.GetValue<float>(skillName, "returnDelay") * 64);
             skillInfo.CanUse = false;
             skillInfo.Cooldown = DateTime.Now;
 
@@ -102,7 +102,7 @@ namespace src.player.skills
                 if (!SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo)) continue;
                 if (PlayerManager.GetPlayer(player)?.Skill != skillName) continue;
 
-                if (skillInfo.ReturnTick != 0 && Server.TickCount >= skillInfo.ReturnTick)
+                if (skillInfo.ReturnTick != 0 && SkillUtils.Tick >= skillInfo.ReturnTick)
                 {
                     skillInfo.ReturnTick = 0;
                     Teleport(player, skillInfo);
@@ -176,7 +176,7 @@ namespace src.player.skills
 
             if (skillInfo.ReturnTick != 0)
             {
-                int remaining = (int)Math.Ceiling((skillInfo.ReturnTick - Server.TickCount) / 64f);
+                int remaining = (int)Math.Ceiling((skillInfo.ReturnTick - SkillUtils.Tick) / 64f);
                 playerInfo.PrintHTML = $"<font color='#00FF00'>{player.GetTranslation("rewind_pending_info", Math.Max(remaining, 0))}</font>";
             }
             else if (cooldown == 0)

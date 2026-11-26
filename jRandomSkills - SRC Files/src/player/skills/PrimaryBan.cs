@@ -58,7 +58,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 32 != 0) return;
+            if (SkillUtils.Tick % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayer(player);
@@ -175,8 +175,8 @@ namespace src.player.skills
                     string weaponName = weapon.Value.DesignerName;
                     if (disabledWeapons.Contains(weaponName))
                     {
-                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
-                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
+                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : SkillUtils.Tick;
+                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : SkillUtils.Tick;
 
                         NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                         NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");

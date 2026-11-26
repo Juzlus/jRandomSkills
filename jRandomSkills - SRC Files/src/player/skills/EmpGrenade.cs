@@ -60,7 +60,7 @@ namespace src.player.skills
             if (victim == null || !victim.IsValid || victim.Team == attacker.Team) return;
 
             float duration = SkillsInfo.GetValue<float>(skillName, "jamSeconds");
-            jammedUntilTick[victim.Key()] = Server.TickCount + (int)(duration * 64);
+            jammedUntilTick[victim.Key()] = SkillUtils.Tick + (int)(duration * 64);
             SetHud(victim.Key(), true);
 
             var victimEvent = PlayerManager.GetPlayerFromEvent(victim);
@@ -72,7 +72,7 @@ namespace src.player.skills
         {
             if (jammedUntilTick.IsEmpty) return;
 
-            int now = Server.TickCount;
+            int now = SkillUtils.Tick;
 
             foreach (var kvp in jammedUntilTick)
             {

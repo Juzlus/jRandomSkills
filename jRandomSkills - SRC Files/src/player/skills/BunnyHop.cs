@@ -56,10 +56,10 @@ namespace src.player.skills
             var buttons = player.Buttons;
 
             if ((playerPawn.MovementServices?.QueuedButtonChangeMask & (ulong)PlayerButtons.Jump) != 0)
-                playersLastJump.AddOrUpdate(eventPlayer!.Key(), Server.TickCount, (_, _) => Server.TickCount);
+                playersLastJump.AddOrUpdate(eventPlayer!.Key(), SkillUtils.Tick, (_, _) => SkillUtils.Tick);
 
             bool jumpPressed = buttons.HasFlag(PlayerButtons.Jump)
-                || (playersLastJump.TryGetValue(eventPlayer!.Key(), out int tick) && tick + 20 >= Server.TickCount);
+                || (playersLastJump.TryGetValue(eventPlayer!.Key(), out int tick) && tick + 20 >= SkillUtils.Tick);
 
             if (jumpPressed && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !eventPlayerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
             {

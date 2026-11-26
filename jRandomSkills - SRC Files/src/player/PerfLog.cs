@@ -74,7 +74,7 @@ namespace src.player
             public int Count;
             public readonly int[] Buckets = new int[bucketBoundsMs.Length];
             public readonly List<double> Raw = [];
-            public DateTime WindowStart = DateTime.Now;
+            public long WindowStart = Stopwatch.GetTimestamp();
 
             private bool rawSorted;
 
@@ -149,7 +149,7 @@ namespace src.player
                 Array.Clear(Buckets);
                 Raw.Clear();
                 rawSorted = false;
-                WindowStart = DateTime.Now;
+                WindowStart = Stopwatch.GetTimestamp();
             }
         }
 
@@ -176,7 +176,7 @@ namespace src.player
             {
                 agg.Add(ms, alloc, gc);
 
-                if ((DateTime.Now - agg.WindowStart).TotalSeconds < reportSeconds) return;
+                if ((endTimestamp - agg.WindowStart) < reportSeconds * Stopwatch.Frequency) return;
 
                 if (agg.MaxMs >= maxThresholdMs)
                     Write($"{label} avg={agg.TotalMs / agg.Count:F2}ms p50={agg.Percentile(.5):F2}ms " +

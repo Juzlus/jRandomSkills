@@ -59,7 +59,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 4 != 0) return;
+            if (SkillUtils.Tick % 4 != 0) return;
 
             PlayerManager.FillSkillHolders(skillName, holderBuffer);
             foreach (var player in holderBuffer)

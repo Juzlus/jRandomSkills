@@ -23,7 +23,7 @@ namespace src.utils
 
         private const float maxLifetime = 25f;
 
-        private const int spawnFrames = 4;
+        private const int spawnFrames = 14;
 
         private static readonly ConcurrentDictionary<string, Ring> rings = [];
         private static int generationCounter;
@@ -58,7 +58,8 @@ namespace src.utils
                 CollectRing(center, radius, outerSegments, segments);
                 CollectRing(center, radius * .5f, innerSegments, segments);
 
-                SpawnBeamChunk(ring, segments, 0, GetSkillColor(skill));
+                var color = GetSkillColor(skill);
+                Server.NextFrame(() => SpawnBeamChunk(ring, segments, 0, color));
             }
 
             jRandomSkills.Instance.AddTimer(maxLifetime, () =>

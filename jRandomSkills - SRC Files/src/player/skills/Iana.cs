@@ -61,7 +61,7 @@ namespace src.player.skills
             if (playerPawn?.CBodyComponent == null) return;
 
             if (playersInfo.TryGetValue(player.Key(), out var playerSkill))
-                if (playerSkill.CloneProp == null && playerSkill.NextUse <= Server.TickCount)
+                if (playerSkill.CloneProp == null && playerSkill.NextUse <= SkillUtils.Tick)
                 {
                     UpdateWeapons(player, playerSkill);
                     CreateClone(playerSkill);
@@ -138,7 +138,7 @@ namespace src.player.skills
                 SkillUtils.ApplyScreenColor(eventTarget, 0, 0, 0, 0, 10, 0, 2);
 
             BlockWeapon(player, false);
-            playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+            playerSkill.NextUse = SkillUtils.Tick + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
             playerSkill.UseTime = 0;
         }
 
@@ -159,7 +159,7 @@ namespace src.player.skills
 
             if (!((PlayerFlags)playerPawn.Flags).HasFlag(PlayerFlags.FL_ONGROUND))
             {
-                playerSkill.InfoTime = Server.TickCount;
+                playerSkill.InfoTime = SkillUtils.Tick;
                 return null;
             }
 
@@ -172,7 +172,7 @@ namespace src.player.skills
                 pos.Z += 10;
                 if (!CheckPosition(player, pos))
                 {
-                    playerSkill.InfoTime = Server.TickCount;
+                    playerSkill.InfoTime = SkillUtils.Tick;
                     return null;
                 }
             }
@@ -182,7 +182,7 @@ namespace src.player.skills
 
             clone.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             clone.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(clone.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            clone.Entity!.Name = $"IanaClone_{Server.TickCount}_{player.Key()}";
+            clone.Entity!.Name = $"IanaClone_{SkillUtils.Tick}_{player.Key()}";
             clone.DispatchSpawn();
 
             Server.NextFrame(() =>
@@ -203,8 +203,8 @@ namespace src.player.skills
 
                 BlockWeapon(player, true);
 
-                playerSkill.UseTime = Server.TickCount;
-                playerSkill.NextUse = Server.TickCount + 64000;
+                playerSkill.UseTime = SkillUtils.Tick;
+                playerSkill.NextUse = SkillUtils.Tick + 64000;
                 playerSkill.CloneProp = clone.Index;
 
                 consumedClones.TryRemove(clone.Index, out _);
@@ -320,14 +320,14 @@ namespace src.player.skills
             if (SkillUtils.IsFriendlyFireBlocked(damageInfo, victimPawn)) return;
 
             bool hasClone = playerSkill.CloneProp != null;
-            if (!hasClone && playerSkill.LastHit + 4 <= Server.TickCount) return;
+            if (!hasClone && playerSkill.LastHit + 4 <= SkillUtils.Tick) return;
 
             damageInfo.Damage = 0;
 
             if (!hasClone) return;
 
             KillClone(playerSkill);
-            playerSkill.LastHit = Server.TickCount;
+            playerSkill.LastHit = SkillUtils.Tick;
         }
 
         public static void OnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo)
@@ -405,8 +405,8 @@ namespace src.player.skills
             foreach (var weapon in pawn.WeaponServices.MyWeapons)
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
                 {
-                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
-                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
+                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
+                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
 
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
@@ -421,17 +421,17 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             float cooldown = 0;
-            float time1 = (playerSkill.NextUse - Server.TickCount) / 64;
+            float time1 = (playerSkill.NextUse - SkillUtils.Tick) / 64;
             cooldown = (int)Math.Ceiling(Math.Max(time1, 0));
 
             float duration = 0;
-            float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (Server.TickCount - playerSkill.UseTime) / 64;
+            float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (SkillUtils.Tick - playerSkill.UseTime) / 64;
             duration = (int)Math.Ceiling(Math.Max(time2, 0));
 
             var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
-            if (playerSkill.InfoTime + (64 * 2) > Server.TickCount)
+            if (playerSkill.InfoTime + (64 * 2) > SkillUtils.Tick)
                 playerInfo.PrintHTML = $"{player.GetTranslation("shade_nospace")}";
             else if (cooldown == 0 && duration == 0)
                 playerInfo.PrintHTML = null;

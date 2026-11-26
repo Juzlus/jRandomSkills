@@ -100,7 +100,7 @@ namespace src.player.skills
             prop.Teleport(new Vector(x, y, z), new QAngle(0, yaw, 0), new Vector(0, 0, 0));
 
             lock (setLock)
-                souls.Add(new Soul { PropIndex = prop.Index, OwnerKey = ownerKey, Team = team, X = x, Y = y, Z = z, DirX = dirX, DirY = dirY, DirZ = dirZ, LaunchTick = Server.TickCount + LaunchDelayTicks });
+                souls.Add(new Soul { PropIndex = prop.Index, OwnerKey = ownerKey, Team = team, X = x, Y = y, Z = z, DirX = dirX, DirY = dirY, DirZ = dirZ, LaunchTick = SkillUtils.Tick + LaunchDelayTicks });
         }
 
         public static void OnTick()
@@ -112,7 +112,7 @@ namespace src.player.skills
                 float speed = Math.Max(50f, SkillsInfo.GetValue<float>(skillName, "speed"));
                 float maxDistance = Math.Max(100f, SkillsInfo.GetValue<float>(skillName, "maxDistance"));
                 float step = speed / 64f;
-                int tick = Server.TickCount;
+                int tick = SkillUtils.Tick;
                 var alive = PlayerManager.GetAliveSnapshot();
 
                 for (int i = souls.Count - 1; i >= 0; i--)

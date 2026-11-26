@@ -52,7 +52,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayer(attacker);
             if (attackerInfo?.Skill != skillName) return;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (victimCooldowns.TryGetValue(victim.Key(), out int readyTick) && tick < readyTick) return;
             if (Random.Shared.NextDouble() > (attackerInfo.SkillChance ?? 0f)) return;
 

@@ -19,7 +19,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")));
-            if (Server.TickCount % cooldown != 0) return;
+            if (SkillUtils.Tick % cooldown != 0) return;
             PlayerManager.FillSkillHolders(skillName, holderBuffer);
             if (holderBuffer.Count == 0) return;
 

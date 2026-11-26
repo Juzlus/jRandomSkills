@@ -53,7 +53,7 @@ namespace src.player.skills
 
             var rubberTime = SkillsInfo.GetValue<float>(skillName, "slownessTime");
             if (attackerInfo?.Skill == skillName)
-                playersToSlow.AddOrUpdate(victim.Key(), Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
+                playersToSlow.AddOrUpdate(victim.Key(), SkillUtils.Tick + (64 * rubberTime), (k, v) => SkillUtils.Tick + (64 * rubberTime));
         }
 
         public static void OnTick()
@@ -68,7 +68,7 @@ namespace src.player.skills
                 var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
-                if (time >= Server.TickCount)
+                if (time >= SkillUtils.Tick)
                     ChangeVelocity(player);
                 else
                     playersToSlow.TryRemove(item.Key, out _);

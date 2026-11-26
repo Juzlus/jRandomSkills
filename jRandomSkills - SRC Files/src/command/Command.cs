@@ -440,7 +440,7 @@ namespace src.command
             var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
             if (playerInfo == null) return;
 
-            int tickCount = Server.TickCount;
+            int tickCount = SkillUtils.Tick;
             bool isDisplayHUD = playerInfo.HideHUD < tickCount;
 
             playerInfo.HideHUD = isDisplayHUD ? int.MaxValue : int.MinValue;

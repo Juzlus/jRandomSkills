@@ -75,7 +75,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(jumpPlayer);
             if (player == null || !player.IsValid) return;
             if (!jumpedPlayers.TryGetValue(player.Key(), out _)) return;
-            jumpedPlayers.AddOrUpdate(player.Key(), Server.TickCount + 20, (k, v) => Server.TickCount + 20);
+            jumpedPlayers.AddOrUpdate(player.Key(), SkillUtils.Tick + 20, (k, v) => SkillUtils.Tick + 20);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -131,7 +131,7 @@ namespace src.player.skills
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newSpeedVelocity;
 
-                if (jumpedPlayers.TryGetValue(player.Key(), out var time) && time > Server.TickCount)
+                if (jumpedPlayers.TryGetValue(player.Key(), out var time) && time > SkillUtils.Tick)
                     continue;
 
                 if (playerPawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) continue;

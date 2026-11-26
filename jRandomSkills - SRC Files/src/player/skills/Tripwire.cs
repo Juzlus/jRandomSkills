@@ -196,7 +196,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (!SkillPlayerInfo.IsEmpty && Server.TickCount % 8 == 0)
+            if (!SkillPlayerInfo.IsEmpty && SkillUtils.Tick % 8 == 0)
             {
                 foreach (var player in PlayerManager.GetTickPlayers())
                 {
@@ -210,7 +210,7 @@ namespace src.player.skills
 
             if (revealed.IsEmpty && wires.IsEmpty) return;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             foreach (var kvp in revealed)
             {

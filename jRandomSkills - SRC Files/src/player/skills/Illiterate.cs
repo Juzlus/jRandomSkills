@@ -70,7 +70,7 @@ namespace src.player.skills
             if (!isActive || player == null || !player.IsValid) return false;
             if (player.Team == CsTeam.Spectator) return false;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick != holdersTick)
             {
                 holdersTick = tick;
@@ -98,10 +98,10 @@ namespace src.player.skills
         {
             if (string.IsNullOrEmpty(input)) return null;
 
-            if (Server.TickCount - lastChange > 64 || offset == 0)
+            if (SkillUtils.Tick - lastChange > 64 || offset == 0)
             {
                 EnsureOffset();
-                lastChange = Server.TickCount;
+                lastChange = SkillUtils.Tick;
             }
 
             var chars = input.Select(c =>

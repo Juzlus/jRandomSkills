@@ -84,15 +84,15 @@ namespace src.utils
                 SetClass(player, view, SkillId, OffClass, true);
                 SetClass(player, view, MenuId, OffClass, false);
             }
-            view.LastMenuTick = Server.TickCount;
+            view.LastMenuTick = SkillUtils.Tick;
             return true;
         }
 
         public static void NoteOtherHtml(CCSPlayerController player) =>
-            GetView(player).OtherHtmlUntil = Server.TickCount + 15;
+            GetView(player).OtherHtmlUntil = SkillUtils.Tick + 15;
 
         public static bool OtherHtmlActive(CCSPlayerController player) =>
-            Enabled && views.TryGetValue(player.Slot, out var view) && view.Key == player.Key() && view.OtherHtmlUntil > Server.TickCount;
+            Enabled && views.TryGetValue(player.Slot, out var view) && view.Key == player.Key() && view.OtherHtmlUntil > SkillUtils.Tick;
 
         private static void TickMenu(CCSPlayerController player, View view, int tick)
         {

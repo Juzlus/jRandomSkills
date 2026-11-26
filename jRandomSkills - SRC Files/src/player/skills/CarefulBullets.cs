@@ -45,7 +45,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 32 != 0) return;
+            if (SkillUtils.Tick % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayer(player);
@@ -137,7 +137,7 @@ namespace src.player.skills
                 return;
 
             uint playerIndex = player.Key();
-            int impactTick = Server.TickCount;
+            int impactTick = SkillUtils.Tick;
 
             Server.NextFrame(() =>
             {
@@ -193,7 +193,7 @@ namespace src.player.skills
             if (attacker == null || !attacker.IsValid) return;
             if (!targetPlayers.ContainsKey(attacker.Key())) return;
 
-            hitPlayer.AddOrUpdate(attacker.Key(), Server.TickCount, (_, _) => Server.TickCount);
+            hitPlayer.AddOrUpdate(attacker.Key(), SkillUtils.Tick, (_, _) => SkillUtils.Tick);
         }
 
         public static void DisableSkill(CCSPlayerController player)

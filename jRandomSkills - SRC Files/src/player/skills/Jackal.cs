@@ -46,7 +46,7 @@ namespace src.player.skills
         private static readonly List<(CsTeam OwnerTeam, uint RelayEntityIndex)> transmitTrails = [];
         private static readonly Dictionary<uint, CCSPlayerController> pawnOwners = [];
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             if (activeTrails.IsEmpty) return;
 
@@ -75,7 +75,7 @@ namespace src.player.skills
                 var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
                 bool isJackalOwner = playerInfo?.Skill == skillName;
 
-                if (!isJackalOwner)
+                if (!isJackalOwner && !player.PawnIsAlive)
                 {
                     uint targetRaw = player.Pawn.Value?.ObserverServices?.ObserverTarget.Raw ?? 0;
                     if (targetRaw != 0 && targetRaw != 0xFFFFFFFF)

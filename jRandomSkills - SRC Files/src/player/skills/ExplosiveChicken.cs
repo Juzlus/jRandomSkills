@@ -89,13 +89,13 @@
 //                {
 //                    if (skillInfo.ChickenIndex != null)
 //                    {
-//                        skillInfo.InfoMessageTime = Server.TickCount;
+//                        skillInfo.InfoMessageTime = SkillUtils.Tick;
 //                        skillInfo.InfoMessageType = 1;
 //                        return;
 //                    }
 
 //                    skillInfo.CanUse = false;
-//                    skillInfo.Cooldown = Server.TickCount;
+//                    skillInfo.Cooldown = SkillUtils.Tick;
 //                    SpawnChicken(player, skillInfo);
 //                }
 //            }
@@ -118,7 +118,7 @@
 //            {
 //                skillInfo.CanUse = true;
 //                skillInfo.Cooldown = 0;
-//                skillInfo.InfoMessageTime = Server.TickCount;
+//                skillInfo.InfoMessageTime = SkillUtils.Tick;
 //                skillInfo.InfoMessageType = 2;
 //                return;
 //            }
@@ -240,7 +240,7 @@
 //            float triggerRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
 //            float cooldownDuration = SkillsInfo.GetValue<float>(skillName, "cooldown");
 
-//            bool processMovement = Server.TickCount % tickCooldown == 0;
+//            bool processMovement = SkillUtils.Tick % tickCooldown == 0;
 
 //            var players = PlayerManager.GetTickPlayers().ToArray();
 
@@ -259,7 +259,7 @@
 //                if (!skillInfo.CanUse && skillInfo.ChickenIndex == null)
 //                {
 //                    float readyAtTick = skillInfo.Cooldown + (cooldownDuration * 64);
-//                    if (Server.TickCount >= readyAtTick)
+//                    if (SkillUtils.Tick >= readyAtTick)
 //                    {
 //                        skillInfo.CanUse = true;
 //                        skillInfo.Cooldown = 0;
@@ -365,7 +365,7 @@
 //            jRandomSkills.Instance.AddTickTimer(4, () =>
 //            {
 //                SkillUtils.CreateHEGrenadeProjectile(pos, angle, new Vector(0, 0, -10), owner.TeamNum);
-//                nades.AddOrUpdate(Server.TickCount, (owner.TeamNum, owner.Index), (_, _) => (owner.TeamNum, owner.Index));
+//                nades.AddOrUpdate(SkillUtils.Tick, (owner.TeamNum, owner.Index), (_, _) => (owner.TeamNum, owner.Index));
 //            });
 //        }
 
@@ -376,7 +376,7 @@
 //            var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
 //            if (heProjectile == null || !heProjectile.IsValid || heProjectile.AbsRotation == null) return;
 
-//            int lastTick = Server.TickCount;
+//            int lastTick = SkillUtils.Tick;
 
 //            Server.NextFrame(() =>
 //            {
@@ -410,13 +410,13 @@
 //            if (!skillInfo.CanUse)
 //            {
 //                float readyAtTick = skillInfo.Cooldown + (cooldownDuration * 64);
-//                float time1 = (readyAtTick - Server.TickCount) / 64;
+//                float time1 = (readyAtTick - SkillUtils.Tick) / 64;
 //                cooldown = (int)Math.Ceiling(Math.Max(time1, 0));
 //            }
 
 //            bool chickenActive = skillInfo.ChickenIndex != null;
 
-//            if (skillInfo.InfoMessageTime + (64 * 2) > Server.TickCount)
+//            if (skillInfo.InfoMessageTime + (64 * 2) > SkillUtils.Tick)
 //            {
 //                string? message = skillInfo.InfoMessageType switch
 //                {

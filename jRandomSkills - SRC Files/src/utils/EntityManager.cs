@@ -45,7 +45,7 @@ namespace src.utils
 
         public static bool OverBudget()
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick - _cachedCountTick > 64 || tick < _cachedCountTick)
             {
                 _cachedCountTick = tick;

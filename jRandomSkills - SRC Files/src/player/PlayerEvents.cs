@@ -135,14 +135,28 @@ namespace src.player
             }
         }
 
+        private static readonly Stack<HashSet<Skills>> seenPool = new();
+
+        private static HashSet<Skills> RentSeen() => seenPool.Count > 0 ? seenPool.Pop() : [];
+
+        private static void ReturnSeen(HashSet<Skills> seen)
+        {
+            seen.Clear();
+            seenPool.Push(seen);
+        }
+
         private static void DispatchToActiveSkills(string methodName, params object[] args)
         {
-            var seen = new HashSet<Skills>();
-            foreach (var p in Instance.SkillPlayer)
+            var seen = RentSeen();
+            try
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, methodName, args);
+                foreach (var p in Instance.SkillPlayer)
+                {
+                    if (p.IsDrawing || !seen.Add(p.Skill)) continue;
+                    InvokeSkill(p.Skill, methodName, args);
+                }
             }
+            finally { ReturnSeen(seen); }
         }
 
         private static void ReleaseCursesTargeting(uint victimKey)
@@ -183,21 +197,25 @@ namespace src.player
 
         private static void DispatchOnTakeDamage(CBaseEntity damagedEntity, CTakeDamageInfo damageInfo, object[] args, bool post = false)
         {
-            var seen = new HashSet<Skills>();
+            var seen = RentSeen();
             List<Skills>? deferred = null;
 
-            foreach (var p in Instance.SkillPlayer)
+            try
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-
-                if (Array.IndexOf(lateDamageSkills, p.Skill) >= 0)
+                foreach (var p in Instance.SkillPlayer)
                 {
-                    (deferred ??= []).Add(p.Skill);
-                    continue;
-                }
+                    if (p.IsDrawing || !seen.Add(p.Skill)) continue;
 
-                InvokeOnTakeDamage(p.Skill, damagedEntity, damageInfo, args, post);
+                    if (Array.IndexOf(lateDamageSkills, p.Skill) >= 0)
+                    {
+                        (deferred ??= []).Add(p.Skill);
+                        continue;
+                    }
+
+                    InvokeOnTakeDamage(p.Skill, damagedEntity, damageInfo, args, post);
+                }
             }
+            finally { ReturnSeen(seen); }
 
             if (deferred == null) return;
             foreach (var skill in deferred)
@@ -259,7 +277,7 @@ namespace src.player
         {
             if (!Config.LoadedConfig.HideHudForOtherPlugins && !PanoramaHud.Enabled) return HookResult.Continue;
 
-            int tickCount = Server.TickCount;
+            int tickCount = SkillUtils.Tick;
             if (tickCount % 10 != 0) return HookResult.Continue;
             
             lock (setLock)
@@ -441,7 +459,7 @@ namespace src.player
         {
             if (player == null || !player.IsValid) return;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             uint key = player.Key();
             if (jumpStates.TryGetValue(key, out var state) && tick - state.JumpTick <= JumpDedupTicks) return;
             jumpStates[key] = (false, tick);
@@ -465,7 +483,7 @@ namespace src.player
                 return;
             }
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (player == null || !player.IsValid) continue;
@@ -560,7 +578,7 @@ namespace src.player
             if (gapMs >= stallThresholdMs && !PlayerManager.IsServerIdle())
             {
                 var (tracked, owners) = EntityManager.GetStatistics();
-                PerfLog.Info($"STALL gap={gapMs:F2}ms tick={Server.TickCount} tracked={tracked} owners={owners}{PerfContext()}");
+                PerfLog.Info($"STALL gap={gapMs:F2}ms tick={SkillUtils.Tick} tracked={tracked} owners={owners}{PerfContext()}");
             }
         }
 
@@ -591,6 +609,13 @@ namespace src.player
         }
 
         private static void OnTick()
+        {
+            SkillUtils.BeginFrame();
+            try { OnTickCore(); }
+            finally { SkillUtils.EndFrame(); }
+        }
+
+        private static void OnTickCore()
         {
             ReportStall();
             CheckSetSkillOverdue();
@@ -733,6 +758,7 @@ namespace src.player
 
                 SkillUtils.ClearCursesFor(leavingKey);
                 SkillUtils.ForgetHealthBeforeHit(leavingKey);
+                SkillUtils.ForgetFollowedProp(leavingKey);
                 SkillUtils.ForgetGrenadeThrow(leavingKey);
                 SkillUtils.InvalidateHiddenCache(leavingKey);
                 playersSkills.TryRemove(leavingKey, out _);
@@ -879,20 +905,42 @@ namespace src.player
             }
         }
 
+        private static string? skillButtonSource;
+        private static PlayerButtons skillButtonCached;
+        private static bool skillButtonValid;
+
+        private static bool TryGetSkillButton(out PlayerButtons skillButton)
+        {
+            string? button = Config.LoadedConfig.AlternativeSkillButton;
+            if (!ReferenceEquals(button, skillButtonSource))
+            {
+                skillButtonSource = button;
+                skillButtonValid = false;
+                if (!string.IsNullOrEmpty(button) && button.Length >= 2)
+                {
+                    string buttonName = $"{char.ToUpperInvariant(button[0])}{button[1..].ToLowerInvariant()}";
+                    skillButtonValid = Enum.TryParse(buttonName, out skillButtonCached);
+                }
+            }
+
+            skillButton = skillButtonCached;
+            return skillButtonValid;
+        }
+
         private static void CheckUseSkill(CCSPlayerController player, PlayerButtons pressed, PlayerButtons released)
         {
+            SkillUtils.BeginFrame();
+            try { CheckUseSkillCore(player, pressed, released); }
+            finally { SkillUtils.EndFrame(); }
+        }
+
+        private static void CheckUseSkillCore(CCSPlayerController player, PlayerButtons pressed, PlayerButtons released)
+        {
+            if (!TryGetSkillButton(out var skillButton) || (pressed & skillButton) == 0) return;
             if (player == null || !player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
             lock (setLock)
             {
-                string? button = Config.LoadedConfig.AlternativeSkillButton;
-                if (string.IsNullOrEmpty(button) || button.Length < 2) return;
-
-                string buttonName = $"{char.ToUpperInvariant(button[0])}{button[1..].ToLowerInvariant()}";
-                if (!Enum.TryParse<PlayerButtons>(buttonName, out var skillButton)) return;
-
-                if ((pressed & skillButton) == 0) return;
-
                 if (SkillUtils.HasMenu(player)) return;
 
                 var playerInfo = PlayerManager.GetPlayer(player);
