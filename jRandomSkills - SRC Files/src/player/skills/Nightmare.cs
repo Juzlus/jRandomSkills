@@ -63,7 +63,7 @@ namespace src.player.skills
             if (SkillUtils.IsHudFrame())
                 spectators.Update(IsCursed);
 
-            if (Server.TickCount % 32 != 0) return;
+            if (SkillUtils.Tick % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayer(player);
@@ -174,7 +174,7 @@ namespace src.player.skills
                 RemoveVolume(player.Key());
         }
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             if (targetVolumes.IsEmpty) return;
 

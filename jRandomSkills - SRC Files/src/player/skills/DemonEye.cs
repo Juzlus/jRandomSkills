@@ -31,7 +31,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             int tickCooldown = (int)(64 * SkillsInfo.GetValue<float>(skillName, "SecondCooldown"));
-            if (Server.TickCount % tickCooldown != 0) return;
+            if (SkillUtils.Tick % tickCooldown != 0) return;
 
             int damage = SkillsInfo.GetValue<int>(skillName, "damage");
 

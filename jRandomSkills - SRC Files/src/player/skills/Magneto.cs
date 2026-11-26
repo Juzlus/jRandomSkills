@@ -25,7 +25,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 5 != 0) return;
+            if (SkillUtils.Tick % 5 != 0) return;
             float radius = SkillsInfo.GetValue<float>(skillName, "radius");
 
             foreach ((var nadeIndex, var handle) in nades)

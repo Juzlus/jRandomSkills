@@ -37,7 +37,7 @@ namespace src.player.skills
                     if (SkillPlayerInfo.TryGetValue(player.Key(), out var skillInfo))
                     {
                         if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
-                        if (Server.TickCount % tickRate != 0) continue;
+                        if (SkillUtils.Tick % tickRate != 0) continue;
 
                         var pawn = player.PlayerPawn.Value;
                         if (pawn != null && pawn.IsValid && pawn.AbsOrigin != null)

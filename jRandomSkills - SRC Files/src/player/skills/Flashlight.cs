@@ -72,7 +72,7 @@ namespace src.player.skills
 
                 UpdateLightPosition(player, lightEntity);
 
-                if (Server.TickCount % 32 != 0) continue;
+                if (SkillUtils.Tick % 32 != 0) continue;
                 CanBlind(player, lightEntity);
             }
         }

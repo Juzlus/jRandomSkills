@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
+using src.utils;
 
 namespace src.player;
 
@@ -17,7 +18,7 @@ public interface ISkill
     public static void OnTakeDamagePost(CBaseEntity _, CTakeDamageInfo __, CTakeDamageResult ___) { }
     public static void OnEntitySpawned(CEntityInstance _) { }
     public static void OnTick() { }
-    public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList _) { }
+    public static void CheckTransmit(TransmitList _) { }
 
     public static void NewRound() { }
     public static void RoundEnd() { }

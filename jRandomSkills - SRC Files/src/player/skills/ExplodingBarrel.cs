@@ -45,7 +45,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (SkillPlayerInfo.IsEmpty || Server.TickCount % 8 != 0) return;
+            if (SkillPlayerInfo.IsEmpty || SkillUtils.Tick % 8 != 0) return;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -127,7 +127,7 @@ namespace src.player.skills
             Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
             QAngle rotation = new(playerPawn.AbsRotation.X, playerPawn.AbsRotation.Y, playerPawn.AbsRotation.Z);
 
-            barrel.Entity!.Name = $"Barrel_{Server.TickCount}_{player.TeamNum}_{player.Key()}";
+            barrel.Entity!.Name = $"Barrel_{SkillUtils.Tick}_{player.TeamNum}_{player.Key()}";
             barrel.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             barrel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(barrel.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
 
@@ -151,7 +151,7 @@ namespace src.player.skills
             var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
             if (heProjectile == null || !heProjectile.IsValid || heProjectile.AbsRotation == null) return;
 
-            int lastTick = Server.TickCount;
+            int lastTick = SkillUtils.Tick;
 
             Server.NextFrame(() =>
             {
@@ -204,7 +204,7 @@ namespace src.player.skills
             jRandomSkills.Instance.AddTickTimer(4, () =>
             {
                 SkillUtils.CreateHEGrenadeProjectile(new Vector(x, y, z), angle, new Vector(0, 0, -10), teamNum);
-                nades.AddOrUpdate(Server.TickCount, ((byte)teamNum, ownerIndex), (_, _) => ((byte)teamNum, ownerIndex));
+                nades.AddOrUpdate(SkillUtils.Tick, ((byte)teamNum, ownerIndex), (_, _) => ((byte)teamNum, ownerIndex));
             });
 
             return true;

@@ -48,8 +48,8 @@ namespace src.player.skills
 
         private static void SpawnExplosion(Vector vector, CCSPlayerController player)
         {
-            lastTickByPlayer[player.Key()] = Server.TickCount;
-            nades.GetOrAdd(Server.TickCount, static _ => new ConcurrentQueue<(byte, uint)>()).Enqueue((player.TeamNum, player.Key()));
+            lastTickByPlayer[player.Key()] = SkillUtils.Tick;
+            nades.GetOrAdd(SkillUtils.Tick, static _ => new ConcurrentQueue<(byte, uint)>()).Enqueue((player.TeamNum, player.Key()));
             SkillUtils.CreateHEGrenadeProjectile(vector, angle, new Vector(0, 0, 0), player.TeamNum);
         }
 
@@ -60,7 +60,7 @@ namespace src.player.skills
             var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
             if (heProjectile == null || !heProjectile.IsValid || heProjectile.AbsRotation == null) return;
 
-            int spawnTick = Server.TickCount;
+            int spawnTick = SkillUtils.Tick;
 
             Server.NextFrame(() =>
             {
@@ -133,7 +133,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             // One explosion per player per tick: a shotgun reports every pellet as its own impact.
-            if (lastTickByPlayer.TryGetValue(player.Key(), out int last) && last == Server.TickCount) return;
+            if (lastTickByPlayer.TryGetValue(player.Key(), out int last) && last == SkillUtils.Tick) return;
 
             var pos = new Vector(@event.X, @event.Y, @event.Z);
 

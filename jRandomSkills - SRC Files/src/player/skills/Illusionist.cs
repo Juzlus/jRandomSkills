@@ -125,7 +125,7 @@ namespace src.player.skills
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
 
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
-            replica.Entity!.Name = $"Illusionist_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
+            replica.Entity!.Name = $"Illusionist_{SkillUtils.Tick}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
 
             replica.UseAnimGraph = false;
             replica.DispatchSpawn();
@@ -155,7 +155,7 @@ namespace src.player.skills
                         return;
                     }
 
-                    if (ducking && Server.TickCount % 50 == 0)
+                    if (ducking && SkillUtils.Tick % 50 == 0)
                     {
                         replica.AcceptInput("SetAnimation", value: animName);
                         replica.AcceptInput("SetPlaybackRate", value: "1.0");

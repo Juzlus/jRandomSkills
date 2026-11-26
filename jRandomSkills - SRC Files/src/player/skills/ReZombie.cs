@@ -108,7 +108,7 @@ namespace src.player.skills
                 if (zombies.ContainsKey(victim.Key())) return false;
                 if (victim.TeamChanged) return false;
 
-                zombies[victim.Key()] = Server.TickCount;
+                zombies[victim.Key()] = SkillUtils.Tick;
 
                 int zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
                 DropAllBotWeapons(victim);

@@ -31,7 +31,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 10 != 0) return;
+            if (SkillUtils.Tick % 10 != 0) return;
             float detonationRange = SkillsInfo.GetValue<float>(skillName, "detonationRange");
             float currentTime = Server.CurrentTime;
 
@@ -45,17 +45,22 @@ namespace src.player.skills
                 }
 
                 if (nade.CreateTime + 3 > currentTime) return;
-                Vector currentPos = new(nade.AbsOrigin.X, nade.AbsOrigin.Y, nade.AbsOrigin.Z);
+                var nadeOrigin = nade.AbsOrigin;
+                float nx = nadeOrigin.X, ny = nadeOrigin.Y, nz = nadeOrigin.Z;
+                int nadeTeam = nade.TeamNum;
+                float rangeSqr = detonationRange * detonationRange;
 
-                foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.PawnIsAlive && p.TeamNum != nade.TeamNum))
+                foreach (var enemy in PlayerManager.GetTickPlayers())
                 {
+                    if (!enemy.IsValid || !enemy.PawnIsAlive || enemy.TeamNum == nadeTeam) continue;
+
                     var enemyPawn = enemy.PlayerPawn.Value;
-                    if (enemyPawn == null || !enemyPawn.IsValid || enemyPawn.AbsOrigin == null) continue;
+                    if (enemyPawn == null || !enemyPawn.IsValid) continue;
+                    var enemyOrigin = enemyPawn.AbsOrigin;
+                    if (enemyOrigin == null) continue;
 
-                    Vector enemyPos = new(enemyPawn.AbsOrigin.X, enemyPawn.AbsOrigin.Y, enemyPawn.AbsOrigin.Z);
-                    double distance = SkillUtils.GetDistance(currentPos, enemyPos);
-
-                    if (distance <= detonationRange)
+                    float dx = enemyOrigin.X - nx, dy = enemyOrigin.Y - ny, dz = enemyOrigin.Z - nz;
+                    if (dx * dx + dy * dy + dz * dz <= rangeSqr)
                     {
                         Detonate(nade);
                         nades.TryRemove(index, out _);

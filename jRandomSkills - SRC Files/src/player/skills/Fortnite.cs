@@ -110,7 +110,7 @@ namespace src.player.skills
             Vector pos = playerPawn.AbsOrigin + SkillUtils.GetForwardVector(playerPawn.AbsRotation) * distance;
             QAngle angle = new(playerPawn.AbsRotation.X, playerPawn.V_angle.Y + 90, playerPawn.AbsRotation.Z);
 
-            box.Entity!.Name = $"FortniteWall_{Server.TickCount}";
+            box.Entity!.Name = $"FortniteWall_{SkillUtils.Tick}";
             box.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             box.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(box.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             box.Health = box.MaxHealth = 1_000_000;

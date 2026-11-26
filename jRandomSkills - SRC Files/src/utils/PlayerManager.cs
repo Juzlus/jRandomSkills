@@ -3,12 +3,30 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
 using src.player;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 
 namespace src.utils
 {
     public static class PlayerManager
     {
         private static readonly ConcurrentDictionary<uint, jSkill_PlayerInfo> playersByKey = [];
+        private static readonly object playersSnapshotLock = new();
+        private static jSkill_PlayerInfo[] playersSnapshot = [];
+        private static volatile bool playersDirty = true;
+
+        private static jSkill_PlayerInfo[] PlayersSnapshot()
+        {
+            if (!playersDirty) return playersSnapshot;
+            lock (playersSnapshotLock)
+            {
+                if (playersDirty)
+                {
+                    playersDirty = false;
+                    playersSnapshot = [.. playersByKey.Values];
+                }
+                return playersSnapshot;
+            }
+        }
 
         private static readonly Dictionary<nint, uint> keyByController = [];
         private static int cachedKeyMapTick = int.MinValue;
@@ -32,6 +50,7 @@ namespace src.utils
 
         private static int cachedTick = int.MinValue;
         private static List<CCSPlayerController> cachedControllers = [];
+        private static readonly CCSPlayerController?[] slotControllers = new CCSPlayerController?[65];
 
         private static int cachedBombTick = int.MinValue;
         private static CC4? cachedBomb;
@@ -47,7 +66,7 @@ namespace src.utils
         {
             if (!serverActive) return true;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick == cachedIdleTick) return cachedIdle;
             cachedIdleTick = tick;
 
@@ -73,15 +92,34 @@ namespace src.utils
 
         private static void EnsureTickCache()
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick == cachedTick) return;
             cachedTick = tick;
-            cachedControllers = Utilities.GetPlayers();
+
+            int max = Math.Min(Server.MaxPlayers, slotControllers.Length);
+            var list = new List<CCSPlayerController>(cachedControllers.Count + 2);
+            for (int slot = 0; slot < max; slot++)
+            {
+                nint? pointer = EntitySystem.GetEntityByIndex((uint)slot + 1);
+                if (pointer is not { } ptr || ptr == nint.Zero)
+                {
+                    slotControllers[slot] = null;
+                    continue;
+                }
+
+                var controller = slotControllers[slot];
+                if (controller == null || controller.Handle != ptr)
+                    slotControllers[slot] = controller = new CCSPlayerController(ptr);
+
+                if (controller.IsValid && controller.Connected == PlayerConnectedState.Connected)
+                    list.Add(controller);
+            }
+            cachedControllers = list;
         }
 
         private static void EnsureBotMapCache()
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick == cachedBotMapTick) return;
             cachedBotMapTick = tick;
 
@@ -101,6 +139,20 @@ namespace src.utils
             }
         }
 
+        public static CCSPlayerController? GetControllerBySlot(int slot)
+        {
+            if (slot < 0 || slot >= slotControllers.Length) return null;
+            if (!serverActive) return Utilities.GetPlayerFromSlot(slot);
+
+            EnsureTickCache();
+            var controller = slotControllers[slot];
+            if (controller != null) return controller;
+
+            nint? pointer = EntitySystem.GetEntityByIndex((uint)slot + 1);
+            if (pointer is not { } ptr || ptr == nint.Zero) return null;
+            return slotControllers[slot] = new CCSPlayerController(ptr);
+        }
+
         public static List<CCSPlayerController> GetTickPlayers()
         {
             if (!serverActive) return [];
@@ -116,7 +168,7 @@ namespace src.utils
             if (cachedBomb != null && cachedBomb.IsValid) return cachedBomb;
             if (bombPlanted) return null;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (cachedBombTick != int.MinValue && tick >= cachedBombTick && tick - cachedBombTick < BombRescanTicks) return null;
 
             cachedBombTick = tick;
@@ -157,23 +209,26 @@ namespace src.utils
             ResetKeyCache();
             if (playerInfo == null) return;
             playersByKey[playerInfo.PlayerKey] = playerInfo;
+            playersDirty = true;
         }
 
         public static void UnregisterPlayer(uint playerKey)
         {
             ResetKeyCache();
             playersByKey.TryRemove(playerKey, out _);
+            playersDirty = true;
         }
 
         public static List<jSkill_PlayerInfo> RemoveStale(uint playerIndex, uint currentKey)
         {
             List<jSkill_PlayerInfo> removed = [];
-            foreach (var info in playersByKey.Values)
+            foreach (var info in PlayersSnapshot())
             {
                 if (info.PlayerIndex != playerIndex || info.PlayerKey == currentKey) continue;
                 if (playersByKey.TryRemove(info.PlayerKey, out var stale))
                     removed.Add(stale);
             }
+            if (removed.Count > 0) playersDirty = true;
             return removed;
         }
 
@@ -193,7 +248,7 @@ namespace src.utils
 
         public static CCSPlayerController? GetController(uint playerKey)
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick != cachedKeyMapTick)
             {
                 cachedKeyMapTick = tick;
@@ -237,11 +292,37 @@ namespace src.utils
             return tickPlayerHandles.Contains(original.Handle) ? original : player;
         }
 
+        private static int cachedPawnIndexTick = int.MinValue;
+        private static readonly Dictionary<uint, CCSPlayerController> controllersByPawnIndex = [];
+
+        public static CCSPlayerController? GetControllerByPawnIndex(uint pawnIndex)
+        {
+            if (pawnIndex == 0) return null;
+
+            int tick = SkillUtils.Tick;
+            if (tick != cachedPawnIndexTick)
+            {
+                cachedPawnIndexTick = tick;
+                controllersByPawnIndex.Clear();
+
+                foreach (var player in GetTickPlayers())
+                {
+                    if (player == null || !player.IsValid) continue;
+
+                    uint raw = player.Pawn.Raw;
+                    if (raw == 0 || raw == 0xFFFFFFFF) continue;
+                    controllersByPawnIndex[raw & 0x7FFF] = player;
+                }
+            }
+
+            return controllersByPawnIndex.TryGetValue(pawnIndex, out var controller) ? controller : null;
+        }
+
         public static CCSPlayerController? GetControllerByPawn(nint pawnHandle)
         {
             if (pawnHandle == nint.Zero) return null;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick != cachedPawnMapTick)
             {
                 cachedPawnMapTick = tick;
@@ -251,9 +332,12 @@ namespace src.utils
                 {
                     if (player == null || !player.IsValid) continue;
 
-                    var handle = player.Pawn?.Value?.Handle;
-                    if (handle != null && handle.Value != nint.Zero)
-                        controllersByPawn[handle.Value] = player;
+                    uint raw = player.Pawn.Raw;
+                    if (raw == 0 || raw == 0xFFFFFFFF) continue;
+
+                    nint? handle = EntitySystem.GetEntityByHandle(raw);
+                    if (handle is { } pawnPtr && pawnPtr != nint.Zero)
+                        controllersByPawn[pawnPtr] = player;
                 }
             }
 
@@ -264,7 +348,7 @@ namespace src.utils
         {
             buffer.Clear();
 
-            foreach (var info in playersByKey.Values)
+            foreach (var info in PlayersSnapshot())
             {
                 if (info.Skill != skill) continue;
 
@@ -281,7 +365,7 @@ namespace src.utils
 
         public static List<AlivePlayer> GetAliveSnapshot()
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick == cachedSnapshotTick) return aliveSnapshot;
             cachedSnapshotTick = tick;
 
@@ -305,19 +389,23 @@ namespace src.utils
             return aliveSnapshot;
         }
 
-        public static IEnumerable<jSkill_PlayerInfo> GetAllPlayers()
+        public static jSkill_PlayerInfo[] GetAllPlayers()
         {
-            return playersByKey.Values;
+            return PlayersSnapshot();
         }
 
         public static int GetPlayerCountBySkill(Skills skills)
         {
-            return playersByKey.Values.Count(p => p.Skill == skills);
+            int count = 0;
+            foreach (var p in PlayersSnapshot())
+                if (p.Skill == skills) count++;
+            return count;
         }
 
         public static void Clear()
         {
             playersByKey.Clear();
+            playersDirty = true;
             ResetKeyCache();
         }
 

@@ -166,10 +166,43 @@ namespace src.player
             }
         }
 
+        private static readonly Dictionary<string, HashSet<Skills>> skillsWithMethod = [];
+
+        private static HashSet<Skills> SkillsWithMethod(string method)
+        {
+            lock (skillsWithMethod)
+            {
+                if (skillsWithMethod.TryGetValue(method, out var set)) return set;
+
+                set = [];
+                var assembly = typeof(Event).Assembly;
+                foreach (Skills skill in Enum.GetValues<Skills>())
+                {
+                    var type = assembly.GetType($"src.player.skills.{skill}");
+                    if (type != null && type.GetMethod(method, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public) != null)
+                        set.Add(skill);
+                }
+
+                skillsWithMethod[method] = set;
+                return set;
+            }
+        }
+
+        private static bool HasActiveSkillWith(HashSet<Skills> skills, bool includeDrawing = false)
+        {
+            if (skills.Count == 0) return false;
+            foreach (var p in Instance.SkillPlayer)
+                if ((includeDrawing || !p.IsDrawing) && skills.Contains(p.Skill)) return true;
+            return false;
+        }
+
         private static HookResult OnWeaponCanAcquire(DynamicHook hook)
         {
             lock (setLock)
             {
+                var acquireSkills = SkillsWithMethod("OnWeaponCanAcquire");
+                if (!HasActiveSkillWith(acquireSkills)) return HookResult.Continue;
+
                 CCSPlayer_ItemServices itemServices = hook.GetParam<CCSPlayer_ItemServices>(0);
                 if (itemServices == null || itemServices.Pawn.Value == null || !itemServices.Pawn.Value.IsValid) return HookResult.Continue;
 
@@ -189,7 +222,7 @@ namespace src.player
                 if (vdata == null || vdata.Handle == IntPtr.Zero) return HookResult.Continue;
 
                 var activeSkills = Instance.SkillPlayer
-                    .Where(p => !p.IsDrawing)
+                    .Where(p => !p.IsDrawing && acquireSkills.Contains(p.Skill))
                     .Select(p => p.Skill.ToString())
                     .Distinct();
 
@@ -217,18 +250,36 @@ namespace src.player
             }
         }
 
+        private static readonly TransmitList transmitList = new();
+        private static readonly object[] transmitArgs = [transmitList];
+
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        {
+            SkillUtils.BeginFrame();
+            try { CheckTransmitCore(infoList); }
+            finally { SkillUtils.EndFrame(); }
+        }
+
+        private static void CheckTransmitCore(CCheckTransmitInfoList infoList)
         {
             long perfStart = PerfLog.Start();
             lock (setLock)
             {
+                var dying = EntityManager.GetRecentlyDestroyedSnapshot();
+                bool skillsNeedIt = HasActiveSkillWith(SkillsWithMethod("CheckTransmit"), true);
+                if (dying.Count == 0 && !skillsNeedIt)
+                {
+                    PerfLog.Sample("CheckTransmit", perfStart);
+                    return;
+                }
+
+                transmitList.Load(infoList);
                 try
                 {
                     // Keep dying entities out of snapshots until the engine processes the kill.
-                    var dying = EntityManager.GetRecentlyDestroyedSnapshot();
                     if (dying.Count > 0)
                     {
-                        foreach (var (info, player) in infoList)
+                        foreach (var (info, player) in transmitList)
                         {
                             if (player == null || !player.IsValid) continue;
                             foreach (var entityIndex in dying)
@@ -241,7 +292,8 @@ namespace src.player
                     Server.PrintToConsole($"[jRandomSkills] CheckTransmit dying-filter failed: {ex.Message}");
                 }
 
-                DispatchCheckTransmit([infoList]);
+                if (skillsNeedIt)
+                    DispatchCheckTransmit(transmitArgs);
             }
             PerfLog.Sample("CheckTransmit", perfStart);
         }

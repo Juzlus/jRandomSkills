@@ -228,8 +228,8 @@ namespace src.player.skills
             foreach (var weapon in pawn.WeaponServices.MyWeapons)
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
                 {
-                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
-                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
+                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
+                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
 
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");

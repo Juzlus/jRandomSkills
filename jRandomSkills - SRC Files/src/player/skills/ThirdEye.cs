@@ -59,7 +59,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (cameras.IsEmpty || Server.TickCount % 8 != 0) return;
+            if (cameras.IsEmpty || SkillUtils.Tick % 8 != 0) return;
 
             foreach (var (playerKey, cameraInfo) in cameras)
             {

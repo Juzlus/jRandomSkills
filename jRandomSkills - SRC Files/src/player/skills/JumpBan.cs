@@ -46,7 +46,7 @@ namespace src.player.skills
             if (pawn.AbsVelocity != null && pawn.AbsVelocity.Z > 0)
                 pawn.AbsVelocity.Z = 0;
 
-            bannedPlayers.AddOrUpdate(player.Key(), Server.TickCount + JumpBlockTicks, (k, v) => Server.TickCount + JumpBlockTicks);
+            bannedPlayers.AddOrUpdate(player.Key(), SkillUtils.Tick + JumpBlockTicks, (k, v) => SkillUtils.Tick + JumpBlockTicks);
         }
 
         private const int JumpBlockTicks = 24;
@@ -66,11 +66,11 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
 
-                if (time > Server.TickCount && pawn.AbsVelocity != null && pawn.AbsVelocity.Z > -300)
+                if (time > SkillUtils.Tick && pawn.AbsVelocity != null && pawn.AbsVelocity.Z > -300)
                     pawn.AbsVelocity.Z = -300;
             }
 
-            if (Server.TickCount % 32 != 0) return;
+            if (SkillUtils.Tick % 32 != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerInfo = PlayerManager.GetPlayer(player);

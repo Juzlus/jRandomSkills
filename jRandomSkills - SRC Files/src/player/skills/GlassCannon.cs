@@ -48,7 +48,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 8 != 0) return;
+            if (SkillUtils.Tick % 8 != 0) return;
 
             int health = MaxHealth();
             foreach (var player in PlayerManager.GetTickPlayers())

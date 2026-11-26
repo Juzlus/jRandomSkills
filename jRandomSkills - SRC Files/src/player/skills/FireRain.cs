@@ -81,19 +81,28 @@ namespace src.player.skills
                 }
             }
 
-            if (!foundPosition || skyCenter == null)
-            {
-                QueueRain(pawn, player.TeamNum, grenadeGroundCount);
-                CreateMolotovSplash(targetPos, grenadeGroundCount, player.TeamNum);
-                return;
-            }
+            var shots = !foundPosition || skyCenter == null
+                ? CreateMolotovSplash(targetPos, grenadeGroundCount)
+                : CreateMolotovRaid(targetPos, skyCenter, grenadeCount);
 
-            QueueRain(pawn, player.TeamNum, grenadeCount);
-            CreateMolotovRaid(targetPos, skyCenter, grenadeCount, player.TeamNum);
+            SpawnStaggered(pawn, player.TeamNum, shots, 0);
         }
 
-        private static void CreateMolotovSplash(Vector targetPos, int grenadeCount, byte teamNum)
+        private static void SpawnStaggered(CCSPlayerPawn pawn, byte team, List<(Vector Pos, QAngle Angle, Vector Velocity)> shots, int index)
         {
+            if (index >= shots.Count || pawn == null || !pawn.IsValid) return;
+
+            var shot = shots[index];
+            QueueRain(pawn, team, 1);
+            SkillUtils.CreateMolotovProjectile(shot.Pos, shot.Angle, shot.Velocity, team);
+
+            if (index + 1 < shots.Count)
+                Server.NextFrame(() => SpawnStaggered(pawn, team, shots, index + 1));
+        }
+
+        private static List<(Vector Pos, QAngle Angle, Vector Velocity)> CreateMolotovSplash(Vector targetPos, int grenadeCount)
+        {
+            var shots = new List<(Vector Pos, QAngle Angle, Vector Velocity)>(grenadeCount);
             const float spreadSpeed = 100.0f;
             const float upwardVelocity = 100.0f;
 
@@ -119,14 +128,17 @@ namespace src.player.skills
                 float pitch = -MathF.Atan2(vz, horizontalSpeed) * (180.0f / MathF.PI);
 
                 QAngle launchAngle = new(pitch, yaw, 0.0f);
-                SkillUtils.CreateMolotovProjectile(spawnPos, launchAngle, velocity, teamNum);
+                shots.Add((spawnPos, launchAngle, velocity));
             }
+
+            return shots;
         }
 
-        private static void CreateMolotovRaid(Vector targetPos, Vector? skyCenter, int grenadeCount, byte teamNum)
+        private static List<(Vector Pos, QAngle Angle, Vector Velocity)> CreateMolotovRaid(Vector targetPos, Vector? skyCenter, int grenadeCount)
         {
+            var shots = new List<(Vector Pos, QAngle Angle, Vector Velocity)>(grenadeCount);
             if (skyCenter == null)
-                return;
+                return shots;
 
             const float clusterRadius = 130.0f;
             const float flightTime = 1.2f;
@@ -195,8 +207,10 @@ namespace src.player.skills
                     skyCenter.Z
                 );
 
-                SkillUtils.CreateMolotovProjectile(spawnPos, launchAngle, velocity, teamNum);
+                shots.Add((spawnPos, launchAngle, velocity));
             }
+
+            return shots;
         }
 
         private sealed class RainBatch
@@ -208,7 +222,11 @@ namespace src.player.skills
 
         private static void QueueRain(CCSPlayerPawn thrower, byte team, int count)
         {
-            rainBatches.GetOrAdd(Server.TickCount, static _ => new ConcurrentQueue<RainBatch>())
+            int tick = SkillUtils.Tick;
+            foreach (int old in rainBatches.Keys)
+                if (old < tick - 64 || old > tick) rainBatches.TryRemove(old, out _);
+
+            rainBatches.GetOrAdd(tick, static _ => new ConcurrentQueue<RainBatch>())
                 .Enqueue(new RainBatch { Thrower = thrower, Team = team, Remaining = count });
         }
 
@@ -224,7 +242,7 @@ namespace src.player.skills
 
             if (name == "molotov_projectile")
             {
-                if (!rainBatches.TryGetValue(Server.TickCount, out var queue) || !queue.TryPeek(out var batch)) return;
+                if (!rainBatches.TryGetValue(SkillUtils.Tick, out var queue) || !queue.TryPeek(out var batch)) return;
 
                 var thrower = batch.Thrower;
                 if (thrower == null || !thrower.IsValid) { ConsumeOne(queue, batch); return; }

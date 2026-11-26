@@ -320,7 +320,7 @@ namespace src.utils
         public static void ShowSkill(CCSPlayerController player, jSkill_PlayerInfo? skillPlayer, string? header, string? center, string? extra, bool isDescription, string? description)
         {
             var view = GetView(player);
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             bool drawing = skillPlayer?.IsDrawing == true && player.PawnIsAlive;
             string info = string.IsNullOrEmpty(Config.LoadedConfig.HtmlHudCustomisation.HeaderLineSize) ? "" : Plain(header);
@@ -441,24 +441,29 @@ namespace src.utils
         {
             if (!Enabled) return;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick % 4 != 0) return;
             bool slow = tick % 8 == 0;
+
+            string specYClass = $"yOffset-{GetOffset(true, Config.LoadedConfig.PanoramaHud?.ySpecOffset)}";
+            string yClass = $"yOffset-{GetOffset(true)}";
+            string xClass = $"xOffset-{GetOffset(false)}";
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 if (!Active(player)) continue;
 
                 var view = GetView(player);
+                bool alive = IsAlive(player);
 
-                SetClass(player, view, ScopeId, $"yOffset-{GetOffset(true, Config.LoadedConfig.PanoramaHud?.ySpecOffset)}", !IsAlive(player));
+                SetClass(player, view, ScopeId, specYClass, !alive);
                 TickMenu(player, view, tick);
 
-                SetClass(player, GetView(player), "js-skill", $"yOffset-{GetOffset(true)}", IsAlive(player));
-                SetClass(player, GetView(player), "js-skill", $"xOffset-{GetOffset(false)}", true);
+                SetClass(player, view, "js-skill", yClass, alive);
+                SetClass(player, view, "js-skill", xClass, true);
 
-                SetClass(player, GetView(player), "js-menu", $"yOffset-{GetOffset(true)}", IsAlive(player));
-                SetClass(player, GetView(player), "js-menu", $"xOffset-{GetOffset(false)}", true);
+                SetClass(player, view, "js-menu", yClass, alive);
+                SetClass(player, view, "js-menu", xClass, true);
 
                 if (view.SkillShown && tick - view.LastSkillTick > HideAfterTicks)
                 {

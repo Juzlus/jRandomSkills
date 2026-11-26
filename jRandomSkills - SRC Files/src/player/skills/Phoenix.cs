@@ -66,13 +66,13 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(victim) ?? victim);
             if (victimInfo == null || victimInfo.Skill != skillName) return false;
 
-            if (phoenixTicks.TryGetValue(victim.Key(), out int savedTick) && savedTick + 4 > Server.TickCount)
+            if (phoenixTicks.TryGetValue(victim.Key(), out int savedTick) && savedTick + 4 > SkillUtils.Tick)
                 return true;
 
             if (victim.TeamChanged) return false;
             if (victimInfo.SkillChance is float chance && Instance.Random.NextDouble() > chance) return false; // roll failed -> die
 
-            phoenixTicks[victim.Key()] = Server.TickCount;
+            phoenixTicks[victim.Key()] = SkillUtils.Tick;
 
             victimPawn.Health = 100;
             NetStateFast.Changed(victimPawn, "CBaseEntity", "m_iHealth");

@@ -74,7 +74,7 @@ namespace src.player.skills
             int count = Math.Clamp((int)Math.Ceiling(total / (double)coinValue), 1, maxCoins);
             float speed = Math.Max(0f, SkillsInfo.GetValue<float>(skillName, "launchSpeed"));
             int lifetime = (int)(Math.Max(1f, SkillsInfo.GetValue<float>(skillName, "lifetime")) * 64);
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             for (int i = 0; i < count; i++)
             {
@@ -112,13 +112,13 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 4 != 0) return;
+            if (SkillUtils.Tick % 4 != 0) return;
 
             lock (setLock)
             {
                 if (coins.Count == 0) return;
 
-                int tick = Server.TickCount;
+                int tick = SkillUtils.Tick;
                 float radius = Math.Max(8f, SkillsInfo.GetValue<float>(skillName, "pickupRadius"));
                 float radiusSq = radius * radius;
                 var alive = PlayerManager.GetAliveSnapshot();

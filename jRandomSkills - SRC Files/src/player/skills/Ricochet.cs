@@ -146,7 +146,7 @@ namespace src.player.skills
                 float speed = MathF.Max(SkillsInfo.GetValue<float>(skillName, "tracerSpeed"), 100f);
                 float trail = MathF.Max(SkillsInfo.GetValue<float>(skillName, "tracerLength"), 16f);
                 float step = speed / 64f;
-                int tick = Server.TickCount;
+                int tick = SkillUtils.Tick;
 
                 for (int i = flights.Count - 1; i >= 0; i--)
                 {
@@ -197,7 +197,7 @@ namespace src.player.skills
                     Points = points,
                     Cumulative = cumulative,
                     TotalLength = total,
-                    DeadlineTick = Server.TickCount + (int)(total / speed * 64f) + 128,
+                    DeadlineTick = SkillUtils.Tick + (int)(total / speed * 64f) + 128,
                     SoundAt = [.. soundAt.Where(index => index < points.Length)],
                 });
             }
@@ -587,7 +587,7 @@ namespace src.player.skills
 
         private static bool TryConsumeBudget(uint playerIndex)
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             var budget = impactBudgets.GetOrAdd(playerIndex, _ => new ImpactBudget());
 
             if (budget.Tick != tick)

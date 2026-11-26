@@ -307,14 +307,44 @@ namespace src.utils
         public static void PreResolveLanguage(CCSPlayerController? player)
         {
             if (player == null || !player.IsValid || player.IsBot) return;
+            lock (langCacheLock)
+                langCache.Remove(player.Handle);
             GetLangCode(player);
         }
 
         private static bool _geoLiteBroken = false;
 
+        private static readonly object langCacheLock = new();
+        private static readonly Dictionary<nint, string> langCache = [];
+        private static int langCacheTick = -100000;
+
         private static string GetLangCode(CCSPlayerController? player)
         {
-            if (player == null || !player.IsValid || player.IsBot) return defaultLangCode;
+            if (player == null) return defaultLangCode;
+
+            nint handle = player.Handle;
+            int tick = SkillUtils.Tick;
+            lock (langCacheLock)
+            {
+                if (tick < langCacheTick || tick - langCacheTick >= 64)
+                {
+                    langCacheTick = tick;
+                    langCache.Clear();
+                }
+                else if (handle != nint.Zero && langCache.TryGetValue(handle, out var cached))
+                    return cached;
+            }
+
+            string code = ResolveLangCode(player);
+            if (handle != nint.Zero)
+                lock (langCacheLock)
+                    langCache[handle] = code;
+            return code;
+        }
+
+        private static string ResolveLangCode(CCSPlayerController player)
+        {
+            if (!player.IsValid || player.IsBot) return defaultLangCode;
 
             string? fileLangCode = GetLangCodeFromFile(player.SteamID);
             if (!string.IsNullOrEmpty(fileLangCode))
@@ -474,6 +504,8 @@ namespace src.utils
             if (string.IsNullOrEmpty(language)) return;
 
             _playersLanguage.AddOrUpdate(player.SteamID, language, (k, v) => language);
+            lock (langCacheLock)
+                langCache.Clear();
             SavePlayersLanguage();
         }
     }

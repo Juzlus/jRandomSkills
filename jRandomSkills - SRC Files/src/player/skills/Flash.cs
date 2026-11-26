@@ -32,7 +32,7 @@ namespace src.player.skills
             if (userIndex == 0) return;
             if (!Instance.footstepSoundEvents.Contains(soundevent)) return;
 
-            var player = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Pawn?.Value != null && p.Pawn.Value.IsValid && p.Pawn.Value.Index == userIndex);
+            var player = PlayerManager.GetControllerByPawnIndex(userIndex);
             if (!Instance.IsPlayerValid(player)) return;
 
             var playerInfo = PlayerManager.GetPlayer(player);
@@ -47,7 +47,7 @@ namespace src.player.skills
             var player = PlayerManager.GetPlayerEvent(jumpPlayer);
             if (player == null || !player.IsValid) return;
             if (!jumpedPlayers.TryGetValue(player.Key(), out _)) return;
-            jumpedPlayers.AddOrUpdate(player.Key(), Server.TickCount + 20, (k, v) => Server.TickCount + 20);
+            jumpedPlayers.AddOrUpdate(player.Key(), SkillUtils.Tick + 20, (k, v) => SkillUtils.Tick + 20);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -92,7 +92,7 @@ namespace src.player.skills
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newVelocity;
 
-                if (jumpedPlayers.TryGetValue(player.Key(), out var time) && time > Server.TickCount)
+                if (jumpedPlayers.TryGetValue(player.Key(), out var time) && time > SkillUtils.Tick)
                     continue;
 
                 if (playerPawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) continue;

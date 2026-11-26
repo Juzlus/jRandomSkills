@@ -63,7 +63,7 @@ namespace src.player.skills
 
             player.EmitSound(voiceLines[Random.Shared.Next(voiceLines.Length)], volume: SkillsInfo.GetValue<float>(skillName, "soundVolume"));
 
-            nades.AddOrUpdate(Server.TickCount, (player.TeamNum, player.Key()), (_, _) => (player.TeamNum, player.Key()));
+            nades.AddOrUpdate(SkillUtils.Tick, (player.TeamNum, player.Key()), (_, _) => (player.TeamNum, player.Key()));
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -73,7 +73,7 @@ namespace src.player.skills
             var heProjectile = entity.As<CBaseCSGrenadeProjectile>();
             if (heProjectile == null || !heProjectile.IsValid || heProjectile.AbsRotation == null) return;
 
-            int lastTick = Server.TickCount;
+            int lastTick = SkillUtils.Tick;
 
             Server.NextFrame(() =>
             {

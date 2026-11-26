@@ -52,7 +52,7 @@ namespace src.player.skills
         {
             int cooldown = poisonedPlayers.IsEmpty ? 0 : Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")));
 
-            if (cooldown != 0 && Server.TickCount % cooldown == 0)
+            if (cooldown != 0 && SkillUtils.Tick % cooldown == 0)
             {
                 int cooldown2 = cooldown * 2;
 
@@ -70,12 +70,12 @@ namespace src.player.skills
 
                     SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), KillfeedIcons.Spray);
 
-                    if (Server.TickCount % cooldown2 == 0)
+                    if (SkillUtils.Tick % cooldown2 == 0)
                         SkillUtils.EmitSoundToPlayer(player, poisonSound, SkillsInfo.GetValue<float>(skillName, "soundVolume"));
                 }
             }
 
-            if (Server.TickCount % 32 != 0) return;
+            if (SkillUtils.Tick % 32 != 0) return;
 
             PlayerManager.FillSkillHolders(skillName, holderBuffer);
             if (holderBuffer.Count == 0) return;

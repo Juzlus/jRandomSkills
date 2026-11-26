@@ -64,7 +64,7 @@ namespace src.player.skills
             invisiblePlayers.TryRemove(playerIndex, out _);
         }
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             if (invisiblePlayers.IsEmpty) return;
 
@@ -78,7 +78,7 @@ namespace src.player.skills
             {
                 if (player == null || !player.IsValid || player.Team == CsTeam.Spectator) continue;
 
-                var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
+                var targetHandle = player.PawnIsAlive ? nint.Zero : player.Pawn.Value?.ObserverServices?.ObserverTarget.Value?.Handle ?? nint.Zero;
 
                 foreach (var target in hidden)
                 {
@@ -150,7 +150,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 2 != 0) return;
+            if (SkillUtils.Tick % 2 != 0) return;
 
             if (SkillUtils.IsHudFrame())
             {
@@ -196,8 +196,8 @@ namespace src.player.skills
                     string weaponName = weapon.Value.DesignerName;
                     if (!IsAllowed(weaponName))
                     {
-                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
-                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
+                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : SkillUtils.Tick;
+                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : SkillUtils.Tick;
 
                         NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                         NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");

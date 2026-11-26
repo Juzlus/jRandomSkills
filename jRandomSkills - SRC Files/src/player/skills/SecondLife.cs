@@ -48,7 +48,7 @@ namespace src.player.skills
 
             if (usedThisRound.TryGetValue(victim.Handle, out int savedTick))
             {
-                if (savedTick == Server.TickCount)
+                if (savedTick == SkillUtils.Tick)
                     damageInfo.Damage = 0;
                 return;
             }
@@ -71,7 +71,7 @@ namespace src.player.skills
                 var spawnpoint = SkillUtils.GetSpawnPointVector(victim);
                 if (spawnpoint == null) return false; // no clean respawn point -> let the normal death happen
 
-                usedThisRound.TryAdd(victim.Handle, Server.TickCount);
+                usedThisRound.TryAdd(victim.Handle, SkillUtils.Tick);
 
                 SetHealth(victimPawn, StartHealth(), StartHealth());
 

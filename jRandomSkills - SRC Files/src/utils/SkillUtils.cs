@@ -126,7 +126,22 @@ namespace src.utils
             }
         }
 
-        public static bool IsHudFrame() => Server.TickCount % 4 == 0;
+        private static int frameTick;
+        private static int frameDepth;
+
+        public static int Tick => frameDepth > 0 ? frameTick : Server.TickCount;
+
+        public static void BeginFrame()
+        {
+            if (frameDepth++ == 0) frameTick = Server.TickCount;
+        }
+
+        public static void EndFrame()
+        {
+            if (frameDepth > 0) frameDepth--;
+        }
+
+        public static bool IsHudFrame() => Tick % 4 == 0;
 
         public static void RegisterSkill(Skills skill, string color, bool display = true)
         {
@@ -183,12 +198,12 @@ namespace src.utils
         public static void MarkGrenadeThrown(CCSPlayerController? player)
         {
             if (player == null || !player.IsValid) return;
-            lastGrenadeThrowTick[player.Key()] = Server.TickCount;
+            lastGrenadeThrowTick[player.Key()] = SkillUtils.Tick;
         }
 
         public static bool ThrewGrenadeRecently(CCSPlayerController player)
         {
-            return lastGrenadeThrowTick.TryGetValue(player.Key(), out int tick) && Server.TickCount - tick <= 128;
+            return lastGrenadeThrowTick.TryGetValue(player.Key(), out int tick) && SkillUtils.Tick - tick <= 128;
         }
 
         public static void ForgetGrenadeThrow(uint playerKey)
@@ -609,7 +624,7 @@ namespace src.utils
 
         public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null, bool native = false)
         {
-            pendingKillCredits[victimIndex] = (attackerIndex, killfeedIcon == null ? null : KillfeedIconsExtensions.ToIcon((KillfeedIcons)killfeedIcon), native, Server.TickCount + 64);
+            pendingKillCredits[victimIndex] = (attackerIndex, killfeedIcon == null ? null : KillfeedIconsExtensions.ToIcon((KillfeedIcons)killfeedIcon), native, SkillUtils.Tick + 64);
         }
 
         public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon, out bool native)
@@ -618,7 +633,7 @@ namespace src.utils
             weapon = null;
             native = false;
             if (!pendingKillCredits.TryRemove(victimIndex, out var credit)) return false;
-            if (credit.ExpiryTick < Server.TickCount) return false;
+            if (credit.ExpiryTick < SkillUtils.Tick) return false;
 
             attackerIndex = credit.AttackerIndex;
             weapon = credit.Weapon;
@@ -648,7 +663,7 @@ namespace src.utils
 
         public static void RegisterNativeKill(CCSPlayerPawn victimPawn, CBaseEntity attacker, CBaseEntity inflictor, DamageTypes_t damageType)
         {
-            pendingNativeKills[victimPawn.Index] = (attacker.EntityHandle.Raw, inflictor.EntityHandle.Raw, damageType, Server.TickCount + 64);
+            pendingNativeKills[victimPawn.Index] = (attacker.EntityHandle.Raw, inflictor.EntityHandle.Raw, damageType, SkillUtils.Tick + 64);
         }
 
         public static void ApplyNativeKill(CEntityInstance victim, CTakeDamageInfo info)
@@ -656,7 +671,7 @@ namespace src.utils
             if (pendingNativeKills.IsEmpty) return;
             if (!pendingNativeKills.TryGetValue(victim.Index, out var kill)) return;
 
-            if (kill.ExpiryTick < Server.TickCount)
+            if (kill.ExpiryTick < SkillUtils.Tick)
             {
                 pendingNativeKills.TryRemove(victim.Index, out _);
                 return;
@@ -768,7 +783,20 @@ namespace src.utils
         public static uint[] GetCursersOf(uint victimIndex)
         {
             lock (curseLock)
-                return [.. curserToVictim.Where(kvp => kvp.Value == victimIndex).Select(kvp => kvp.Key)];
+            {
+                if (curserToVictim.Count == 0) return [];
+
+                int count = 0;
+                foreach (var victim in curserToVictim.Values)
+                    if (victim == victimIndex) count++;
+                if (count == 0) return [];
+
+                var result = new uint[count];
+                int i = 0;
+                foreach (var (curser, victim) in curserToVictim)
+                    if (victim == victimIndex) result[i++] = curser;
+                return result;
+            }
         }
 
         public static void ClearCursesFor(uint playerIndex)
@@ -890,7 +918,7 @@ namespace src.utils
 
         public static Dictionary<uint, (CCSPlayerController Viewer, uint TargetKey)> GetFirstPersonObservers()
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             if (tick == observersTick) return observers;
             observersTick = tick;
             observers.Clear();
@@ -1056,7 +1084,7 @@ namespace src.utils
         public static List<HiddenPawn> ResolveHiddenPawns(ICollection<uint> playerKeys, uint? bombOwnerIndex)
         {
             hiddenBuffer.Clear();
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             foreach (var playerKey in playerKeys)
             {
@@ -1122,6 +1150,8 @@ namespace src.utils
             return [.. indexes];
         }
 
+        private static readonly Dictionary<uint, (uint Prop, float X, float Y, float Z, float Yaw)> followedProps = [];
+
         public static void FollowEmptyProp(uint ownerKey, CCSPlayerPawn? pawn)
         {
             if (pawn == null || !pawn.IsValid) return;
@@ -1129,14 +1159,27 @@ namespace src.utils
             var props = EntityManager.GetPlayerEntities(ownerKey, "empty_prop");
             if (props.Count == 0) return;
 
-            var prop = Utilities.GetEntityFromIndex<CDynamicProp>((int)props[0]);
-            if (prop == null || !prop.IsValid) return;
-
             var origin = pawn.AbsOrigin;
             if (origin == null) return;
 
-            prop.Teleport(new Vector(origin.X, origin.Y, origin.Z + 30), new QAngle(0, pawn.V_angle.Y, 0), null);
+            uint propIndex = props[0];
+            nint? propPointer = CounterStrikeSharp.API.Modules.Entities.EntitySystem.GetEntityByIndex(propIndex);
+            if (propPointer is not { } propPtr || propPtr == nint.Zero) return;
+            uint propRaw = CounterStrikeSharp.API.Modules.Entities.EntitySystem.GetRawHandleFromEntityPointer(propPtr);
+
+            float x = origin.X, y = origin.Y, z = origin.Z + 30, yaw = pawn.V_angle.Y;
+            if (followedProps.TryGetValue(ownerKey, out var last) && last.Prop == propRaw
+                && MathF.Abs(last.X - x) < 0.5f && MathF.Abs(last.Y - y) < 0.5f && MathF.Abs(last.Z - z) < 0.5f && MathF.Abs(last.Yaw - yaw) < 1f)
+                return;
+
+            var prop = Utilities.GetEntityFromIndex<CDynamicProp>((int)propIndex);
+            if (prop == null || !prop.IsValid) return;
+
+            prop.Teleport(new Vector(x, y, z), new QAngle(0, yaw, 0), null);
+            followedProps[ownerKey] = (propRaw, x, y, z, yaw);
         }
+
+        public static void ForgetFollowedProp(uint ownerKey) => followedProps.Remove(ownerKey);
 
         public static void HideCarriedEntities(CCheckTransmitInfo info, in HiddenPawn target)
         {
@@ -1216,7 +1259,7 @@ namespace src.utils
         {
             if (!Config.LoadedConfig.EnableFullForceUpdate) return;
 
-            int tickCount = Server.TickCount;
+            int tickCount = SkillUtils.Tick;
             if (tickCount == lastForceFullUpdateAll) return;
 
             lastForceFullUpdateAll = tickCount;
@@ -1477,7 +1520,7 @@ namespace src.utils
             if (player == null || !player.IsValid) return;
 
             var playerInfo = PlayerManager.GetPlayer(player);
-            if (playerInfo == null || playerInfo.HideHUD >= Server.TickCount) return;
+            if (playerInfo == null || playerInfo.HideHUD >= SkillUtils.Tick) return;
 
             if (player.IsBot)
             {

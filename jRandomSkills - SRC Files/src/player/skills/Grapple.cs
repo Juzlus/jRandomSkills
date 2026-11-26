@@ -132,7 +132,7 @@ namespace src.player.skills
             if (SkillUtils.GetDistance(eyePos, anchor) < SkillsInfo.GetValue<float>(skillName, "minDistance")) return false;
 
             skillInfo.Anchor = anchor;
-            skillInfo.EndTick = Server.TickCount + (int)(SkillsInfo.GetValue<float>(skillName, "maxPullSeconds") * 64);
+            skillInfo.EndTick = SkillUtils.Tick + (int)(SkillsInfo.GetValue<float>(skillName, "maxPullSeconds") * 64);
 
             SpawnHook(player, skillInfo, anchor, result.Value.NormalX, result.Value.NormalY, result.Value.NormalZ);
 
@@ -306,7 +306,7 @@ namespace src.player.skills
                 return;
             }
 
-            if (Server.TickCount >= skillInfo.EndTick)
+            if (SkillUtils.Tick >= skillInfo.EndTick)
             {
                 DestroyRope(skillInfo);
                 return;

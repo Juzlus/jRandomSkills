@@ -57,7 +57,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (cameras.IsEmpty || Server.TickCount % 8 != 0) return;
+            if (cameras.IsEmpty || SkillUtils.Tick % 8 != 0) return;
 
             foreach (var (playerKey, cameraInfo) in cameras)
             {
@@ -152,8 +152,8 @@ namespace src.player.skills
             foreach (var weapon in weaponServices.MyWeapons)
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
                 {
-                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
-                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
+                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
+                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
 
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");

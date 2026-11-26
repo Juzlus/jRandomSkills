@@ -91,7 +91,7 @@ namespace src.player.skills
             }
 
             playerSkill.CameraActive = false;
-            playerSkill.NextCamera = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+            playerSkill.NextCamera = SkillUtils.Tick + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
         }
 
         public static void OnTick()
@@ -124,14 +124,14 @@ namespace src.player.skills
             playerInfo.CameraActive = forceToDefault ? false : !playerInfo.CameraActive;
             if (playerInfo.CameraProp == null && !forceToDefault)
             {
-                if (playerInfo.NextCamera > Server.TickCount) return;
+                if (playerInfo.NextCamera > SkillUtils.Tick) return;
 
                 var newProp = CreateCameraProp(player);
                 playerInfo.CameraProp = newProp?.Index ?? null;
 
                 if (playerInfo.CameraProp == null)
                 {
-                    playerInfo.NoSpace = Server.TickCount + (64 * 2);
+                    playerInfo.NoSpace = SkillUtils.Tick + (64 * 2);
                     return;
                 }
                 else
@@ -237,7 +237,7 @@ namespace src.player.skills
 
             camera.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(camera.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
-            camera.Entity!.Name = $"CypherCamera_{Server.TickCount}_{player.Key()}";
+            camera.Entity!.Name = $"CypherCamera_{SkillUtils.Tick}_{player.Key()}";
 
             camera.SetModel(cameraPropModel);
             camera.Teleport(cameraVector, new QAngle(0, playerPawn.V_angle.Y + 180, 0));
@@ -300,8 +300,8 @@ namespace src.player.skills
             foreach (var weapon in pawn.WeaponServices.MyWeapons)
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
                 {
-                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Server.TickCount;
-                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Server.TickCount;
+                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
+                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : SkillUtils.Tick;
 
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
@@ -364,10 +364,10 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayer(player);
             if (playerInfo == null) return;
 
-            float ticksLeft = playerSkill.NextCamera - Server.TickCount;
+            float ticksLeft = playerSkill.NextCamera - SkillUtils.Tick;
             int secondsLeft = (int)Math.Ceiling(Math.Max(ticksLeft / 64.0f, 0));
 
-            if (playerSkill.NoSpace >= Server.TickCount)
+            if (playerSkill.NoSpace >= SkillUtils.Tick)
                 playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("cypher_nospace")}</font>";
             else if (secondsLeft > 0 && playerSkill.CameraProp == null)
                 playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{secondsLeft}</font>")}";

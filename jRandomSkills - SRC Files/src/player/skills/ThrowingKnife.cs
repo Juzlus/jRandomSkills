@@ -473,7 +473,7 @@ namespace src.player.skills
 
         private static readonly List<(uint OwnerIndex, uint GlowEntityIndex)> transmitGlows = [];
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             if (knivesInfo.IsEmpty) return;
 
@@ -501,17 +501,17 @@ namespace src.player.skills
                 uint viewerIndex = PlayerManager.GetPlayerEvent(player)?.Key() ?? player.Key();
 
                 uint? observedPlayerIndex = null;
-                var playerPawn = player.Pawn?.Value;
-                if (playerPawn != null && playerPawn.IsValid)
+                if (!player.PawnIsAlive)
                 {
-                    var obs = playerPawn.ObserverServices?.ObserverTarget?.Value;
-                    if (obs != null && obs.IsValid)
+                    uint targetRaw = player.Pawn.Value?.ObserverServices?.ObserverTarget.Raw ?? 0;
+                    if (targetRaw != 0 && targetRaw != 0xFFFFFFFF)
                     {
-                        var observed = PlayerManager.GetTickPlayers().FirstOrDefault(p =>
-                            p != null && p.IsValid &&
-                            p.Pawn?.Value?.Handle == obs.Handle);
-                        if (observed != null)
-                            observedPlayerIndex = observed.Key();
+                        foreach (var p in PlayerManager.GetTickPlayers())
+                        {
+                            if (p == null || !p.IsValid || p.Pawn.Raw != targetRaw) continue;
+                            observedPlayerIndex = p.Key();
+                            break;
+                        }
                     }
                 }
 

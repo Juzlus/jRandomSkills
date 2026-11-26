@@ -146,7 +146,7 @@ namespace src.player
 
         private static void CheckSetSkillOverdue()
         {
-            if (Server.TickCount % 8 != 0) return;
+            if (SkillUtils.Tick % 8 != 0) return;
             RunOverdueSetSkill("on time");
         }
 

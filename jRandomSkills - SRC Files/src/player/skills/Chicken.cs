@@ -119,8 +119,8 @@ namespace src.player.skills
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
                     if (disabledWeapons.Contains(weapon.Value.DesignerName))
                     {
-                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
-                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : Server.TickCount;
+                        weapon.Value.NextPrimaryAttackTick = disableWeapon ? int.MaxValue : SkillUtils.Tick;
+                        weapon.Value.NextSecondaryAttackTick = disableWeapon ? int.MaxValue : SkillUtils.Tick;
 
                         NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                         NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
@@ -180,7 +180,7 @@ namespace src.player.skills
                 EntityManager.DestroyEntity(entry.Index);
         }
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             if (chickens.IsEmpty) return;
 

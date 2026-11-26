@@ -110,7 +110,7 @@ namespace src.player.skills
                 return;
             }
 
-            bonds[player.Key()] = new Bond { PartnerKey = partner.Key(), NextHealTick = Server.TickCount + SkillsInfo.GetValue<int>(skillName, "tickCooldown") };
+            bonds[player.Key()] = new Bond { PartnerKey = partner.Key(), NextHealTick = SkillUtils.Tick + SkillsInfo.GetValue<int>(skillName, "tickCooldown") };
             playerInfo.SkillUsed = true;
             SkillUtils.CloseMenu(player);
 
@@ -123,7 +123,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             if (tick % 32 == 0)
                 RefreshMenus();

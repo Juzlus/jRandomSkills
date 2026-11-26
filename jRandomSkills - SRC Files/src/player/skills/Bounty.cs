@@ -68,7 +68,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 32 != 0) return;
+            if (SkillUtils.Tick % 32 != 0) return;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {

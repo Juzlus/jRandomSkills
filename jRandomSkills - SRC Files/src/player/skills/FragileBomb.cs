@@ -52,7 +52,7 @@ namespace src.player.skills
 
         public static void BulletImpact(EventBulletImpact @event)
         {
-            if (lastTick == Server.TickCount) return;
+            if (lastTick == SkillUtils.Tick) return;
 
             var player = PlayerManager.GetPlayerEvent(@event.Userid);
             if (player == null || !player.IsValid) return;
@@ -72,7 +72,7 @@ namespace src.player.skills
             if (DistanceToSegment(plantedC4, eyePos, impactPos) >= 8)
                 return;
 
-            lastTick = Server.TickCount;
+            lastTick = SkillUtils.Tick;
             bombHealth -= Instance.Random.Next(25, 42);
 
             if (bombHealth <= 0)

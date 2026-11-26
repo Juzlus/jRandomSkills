@@ -91,14 +91,14 @@ namespace src.player.skills
             GetTeamate(player, skillInfo);
             if (skillInfo.TeamateIndex == null || skillInfo.TeamatePosition == null)
             {
-                skillInfo.NoEnemy = Server.TickCount + (64 * 2);
+                skillInfo.NoEnemy = SkillUtils.Tick + (64 * 2);
                 return;
             }
 
             var victim = PlayerManager.GetTickPlayers().FirstOrDefault(p => p.Key() == skillInfo.TeamateIndex.Value);
             if (victim == null || !victim.IsValid)
             {
-                skillInfo.NoEnemy = Server.TickCount + (64 * 2);
+                skillInfo.NoEnemy = SkillUtils.Tick + (64 * 2);
                 return;
             }
 
@@ -210,7 +210,7 @@ namespace src.player.skills
             }
 
             if (!teleported)
-                skillInfo.NoSpace = Server.TickCount + (64 * 2);
+                skillInfo.NoSpace = SkillUtils.Tick + (64 * 2);
             else
             {
                 skillInfo.NoSpace = int.MinValue;
@@ -235,9 +235,9 @@ namespace src.player.skills
 
             if (cooldown != 0)
                 playerInfo.PrintHTML = $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}";
-            else if (skillInfo.NoSpace >= Server.TickCount)
+            else if (skillInfo.NoSpace >= SkillUtils.Tick)
                 playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("shade_nospace")}</font>";
-            else if (skillInfo.NoEnemy >= Server.TickCount)
+            else if (skillInfo.NoEnemy >= SkillUtils.Tick)
                 playerInfo.PrintHTML = $"<font color='#FF0000'>{player.GetTranslation("teamteleport_noenemy")}</font>";
             else
             {

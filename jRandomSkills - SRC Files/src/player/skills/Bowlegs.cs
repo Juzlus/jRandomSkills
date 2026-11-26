@@ -145,7 +145,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % 32 == 0)
+            if (SkillUtils.Tick % 32 == 0)
                 RefreshMenus();
 
             if (targets.IsEmpty) return;

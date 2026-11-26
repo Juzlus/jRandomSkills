@@ -20,10 +20,10 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
         }
 
-        private static readonly Dictionary<nint, jSkill_PlayerInfo?> infoByPawnHandleBuffer = [];
+        private static readonly Dictionary<uint, jSkill_PlayerInfo?> infoByPawnHandleBuffer = [];
         private static readonly List<(uint Relay, uint Glow, CsTeam Team, bool Showable, bool EntitiesValid)> glowStatesBuffer = [];
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             foreach (var kvp in temporaryBlockList)
             {
@@ -38,9 +38,10 @@ namespace src.player.skills
             infoByPawnHandle.Clear();
             foreach (var p in PlayerManager.GetTickPlayers())
             {
-                var h = p?.Pawn?.Value?.Handle;
-                if (p != null && p.IsValid && h != null)
-                    infoByPawnHandle[h.Value] = PlayerManager.GetPlayer(p);
+                if (p == null || !p.IsValid) continue;
+                uint h = p.Pawn.Raw;
+                if (h != 0 && h != 0xFFFFFFFF)
+                    infoByPawnHandle[h] = PlayerManager.GetPlayer(p);
             }
 
             var glowStates = glowStatesBuffer;
@@ -70,10 +71,13 @@ namespace src.player.skills
                 if (player == null || !player.IsValid) continue;
 
                 var playerInfo = PlayerManager.GetPlayer(PlayerManager.GetPlayerEvent(player) ?? player);
-                var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
                 jSkill_PlayerInfo? observerInfo = null;
-                if (targetHandle != nint.Zero)
-                    infoByPawnHandle.TryGetValue(targetHandle, out observerInfo);
+                if (!player.PawnIsAlive)
+                {
+                    uint targetRaw = player.Pawn.Value?.ObserverServices?.ObserverTarget.Raw ?? 0;
+                    if (targetRaw != 0 && targetRaw != 0xFFFFFFFF)
+                        infoByPawnHandle.TryGetValue(targetRaw, out observerInfo);
+                }
 
                 bool seesGlows = playerInfo?.Skill == skillName || (observerInfo != null && observerInfo?.Skill == skillName);
 

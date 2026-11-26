@@ -69,7 +69,7 @@ namespace src.player.skills
                 var player = PlayerManager.GetController(playerIndex);
                 if (player == null || !player.IsValid) continue;
 
-                if (time >= Server.TickCount)
+                if (time >= SkillUtils.Tick)
                     UpdateHUD(player);
                 else
                     SkillUtils.ResetPrintHTML(player);
@@ -141,7 +141,7 @@ namespace src.player.skills
             }
 
             if (!teleported)
-                noSpace.AddOrUpdate(attacker.Key(), Server.TickCount + (64 * 2), (_, _) => Server.TickCount + (64 * 2));
+                noSpace.AddOrUpdate(attacker.Key(), SkillUtils.Tick + (64 * 2), (_, _) => SkillUtils.Tick + (64 * 2));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#4d4d4d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float teleportDistance = 100f, float chanceFrom = .3f, float chanceTo = .45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

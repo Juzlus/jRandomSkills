@@ -129,11 +129,11 @@ namespace src.player.skills
         {
             if (SkillPlayerInfo.IsEmpty) return;
 
-            if (Server.TickCount % 60 != 0) return;
+            if (SkillUtils.Tick % 60 != 0) return;
 
             int cooldown = SkillsInfo.GetValue<int>(skillName, "cooldown");
             if (cooldown < 1) cooldown = 1;
-            if ((Server.TickCount / 60) % cooldown != 0) return;
+            if ((SkillUtils.Tick / 60) % cooldown != 0) return;
 
             float volume = SkillsInfo.GetValue<float>(skillName, "soundVolume");
             var players = PlayerManager.GetTickPlayers();

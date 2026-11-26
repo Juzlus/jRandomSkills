@@ -186,7 +186,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null || pawn.CameraServices == null) return;
 
             uint key = player.Key();
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             var activeAim = FindAim(key);
             if (activeAim != null)
@@ -231,7 +231,7 @@ namespace src.player.skills
             if (aims.Count == 0 && missiles.Count == 0 && strikes.Count == 0 && cooldowns.Count == 0 && nades.Count == 0 && infernos.Count == 0 && impacts.Count == 0)
                 return;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             for (int i = aims.Count - 1; i >= 0; i--)
                 TickAim(aims[i], tick);
@@ -425,7 +425,7 @@ namespace src.player.skills
                     pawn.VelocityModifier = 1f;
                 }
 
-                BlockWeapon(player, false, Server.TickCount + weaponResumeTicks);
+                BlockWeapon(player, false, SkillUtils.Tick + weaponResumeTicks);
                 SkillUtils.ResetPrintHTML(player);
             }
 
@@ -434,7 +434,7 @@ namespace src.player.skills
 
             if (startCooldown)
             {
-                int start = Server.TickCount + (int)MathF.Ceiling(aim.Cooldown * 64f);
+                int start = SkillUtils.Tick + (int)MathF.Ceiling(aim.Cooldown * 64f);
                 cooldowns[aim.Key] = new Cd { NextUse = start };
             }
         }
@@ -450,8 +450,8 @@ namespace src.player.skills
             foreach (var weapon in weaponServices.MyWeapons)
                 if (weapon != null && weapon.IsValid && weapon.Value != null && weapon.Value.IsValid)
                 {
-                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Math.Max(resumeTick, Server.TickCount);
-                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Math.Max(resumeTick, Server.TickCount);
+                    weapon.Value.NextPrimaryAttackTick = block ? int.MaxValue : Math.Max(resumeTick, SkillUtils.Tick);
+                    weapon.Value.NextSecondaryAttackTick = block ? int.MaxValue : Math.Max(resumeTick, SkillUtils.Tick);
 
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     NetStateFast.Changed(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
@@ -502,7 +502,7 @@ namespace src.player.skills
                 TargetY = target.Y,
                 TargetZ = target.Z,
                 Remaining = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "missileCount")),
-                NextTick = Server.TickCount + 1,
+                NextTick = SkillUtils.Tick + 1,
                 Spread = SkillsInfo.GetValue<float>(skillName, "missileSpread"),
                 Speed = Math.Max(100f, SkillsInfo.GetValue<float>(skillName, "missileSpeed")),
                 Scale = SkillsInfo.GetValue<float>(skillName, "modelScale"),
@@ -754,7 +754,7 @@ namespace src.player.skills
 
             uint throwerRaw = ownerPawn != null ? ownerPawn.EntityHandle.Raw : 0;
             Vector pos = new(x, y, z);
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
 
             var he = SkillUtils.SpawnGrenade(SkillUtils.GrenadeKind.HE, pos, new Vector(0, 0, 0), ownerPawn, missile.Team);
             if (he != null && he.IsValid)
@@ -790,14 +790,14 @@ namespace src.player.skills
             {
                 inferno.TeamNum = origin.Team;
                 if (origin.ThrowerRaw != 0) ownerHandle.Raw = origin.ThrowerRaw;
-                infernos[inferno.Index] = Server.TickCount + infernoTrackTicks;
+                infernos[inferno.Index] = SkillUtils.Tick + infernoTrackTicks;
                 return;
             }
 
             var pos = inferno.AbsOrigin;
             if (pos == null) return;
 
-            int tick = Server.TickCount;
+            int tick = SkillUtils.Tick;
             foreach (var impact in impacts)
             {
                 if (tick > impact.Expiry) continue;
@@ -885,7 +885,7 @@ namespace src.player.skills
             }
         }
 
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff7043", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Epic, float aimSeconds = 5f, float cooldown = 30f, int missileCount = 4, float missileSpread = 150f, float explosionDamage = 80f, float explosionRadius = 200f, float missileSpeed = 700f, float modelScale = 1f, float cameraHeight = 1000f, float cameraSpeed = 700f, bool friendlyFire = false) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
+        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff7043", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Epic, float aimSeconds = 5f, float cooldown = 30f, int missileCount = 4, float missileSpread = 150f, float explosionDamage = 80f, float explosionRadius = 200f, float missileSpeed = 700f, float modelScale = 1f, float cameraHeight = 1000f, float cameraSpeed = 700f, bool friendlyFire = false) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
         {
             public float AimSeconds { get; set; } = aimSeconds;
             public float Cooldown { get; set; } = cooldown;

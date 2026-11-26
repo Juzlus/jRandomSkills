@@ -58,7 +58,7 @@ namespace src.player.skills
             return found;
         }
 
-        public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)
+        public static void CheckTransmit(TransmitList infoList)
         {
             if (smokes.IsEmpty || playersWithSkill.IsEmpty) return;
 
@@ -85,7 +85,7 @@ namespace src.player.skills
 
                 if (playerInfo?.Skill != skillName)
                 {
-                    var observerTarget = player.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
+                    var observerTarget = player.PawnIsAlive ? nint.Zero : player.Pawn?.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
                     if (observerTarget == nint.Zero) continue;
 
                     if (!pawnOwnersBuilt)

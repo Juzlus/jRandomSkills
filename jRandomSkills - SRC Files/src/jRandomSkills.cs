@@ -19,7 +19,7 @@ namespace src
 #pragma warning disable CS8618
         public static jRandomSkills Instance { get; private set; }
 #pragma warning restore CS8618
-        public IEnumerable<jSkill_PlayerInfo> SkillPlayer => PlayerManager.GetAllPlayers();
+        public jSkill_PlayerInfo[] SkillPlayer => PlayerManager.GetAllPlayers();
         public Random Random => Random.Shared;
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
@@ -31,7 +31,7 @@ namespace src
         public override string ModuleName => "[CS2] [ jRandomSkills ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.2.4.b8";
+        public override string ModuleVersion => "1.2.4.b9";
 
         public override void Load(bool hotReload)
         {
@@ -116,6 +116,7 @@ namespace src
 
         private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
         private static readonly ConcurrentDictionary<(string, string), string> _perfLabels = new();
+        private static readonly ConcurrentDictionary<MethodInfo, Action?> _noArgActions = new();
 
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
         {
@@ -163,11 +164,19 @@ namespace src
 
             if (method == null) return null;
 
+            Action? action = param == null ? _noArgActions.GetOrAdd(method, m => m.ReturnType == typeof(void) && m.GetParameters().Length == 0 ? m.CreateDelegate<Action>() : null) : null;
+
             if (!PerfLog.Enabled)
-                return method.Invoke(null, param);
+            {
+                if (action == null) return method.Invoke(null, param);
+                action();
+                return null;
+            }
 
             long perfStart = PerfLog.Start();
-            var result = method.Invoke(null, param);
+            object? result = null;
+            if (action == null) result = method.Invoke(null, param);
+            else action();
             PerfLog.Sample(_perfLabels.GetOrAdd((skill, methodName), key => $"SkillAction {key.Item1}.{key.Item2}"), perfStart, 30.0, 1.0);
             return result;
         }
@@ -373,6 +382,17 @@ namespace src
         public bool SkillUsed = false;
         public bool? HudOnDeathBlocked { get; set; }
         public HudCacheEntry? HudCache { get; set; }
+        public HudLineCache? HudLines { get; set; }
+    }
+
+    public sealed class HudLineCache
+    {
+        public Skills Skill;
+        public float? Chance;
+        public string? Lang;
+        public string? Color;
+        public string? Info;
+        public string? Line;
     }
 
     public sealed class HudCacheEntry

@@ -123,7 +123,7 @@ namespace src.player.skills
             replica.Collision.SolidType = SolidType_t.SOLID_VPHYSICS;
             replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags = (uint)(replica.CBodyComponent!.SceneNode!.Owner!.Entity!.Flags & ~(1 << 2));
             replica.SetModel(playerPawn!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName);
-            replica.Entity!.Name = $"Replica_{Server.TickCount}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
+            replica.Entity!.Name = $"Replica_{SkillUtils.Tick}_{(player.Team == CsTeam.CounterTerrorist ? "CT" : "TT")}";
 
             replica.UseAnimGraph = true;
             replica.AnimGraphUpdateEnabled = true;
